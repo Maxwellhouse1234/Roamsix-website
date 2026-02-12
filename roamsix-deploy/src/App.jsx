@@ -1,6 +1,136 @@
 import React, { useState } from 'react';
 import { Lock, ArrowRight, User, Users, Trophy, Home } from 'lucide-react';
 
+// Airtable Configuration
+const AIRTABLE_TOKEN = 'patO5eAvbH3O5Surf.12ba60fc4b0a0965bd776c0af112bd2f39f10a0010de9ef70669eed41e754db3';
+const BASE_ID = 'app9ybtFrAg0xIhyu';
+const TABLES = {
+  invitationCodes: 'tblevAi2EVkrLxhx3',
+  applications: 'tblCLgvCLwv2juTlF',
+  alternativeInterests: 'tblddUVnvzC9Xgalk'
+};
+
+// Airtable API Helper Functions
+const airtableRequest = async (tableId, method = 'GET', data = null) => {
+  const url = `https://api.airtable.com/v0/${BASE_ID}/${tableId}${method === 'GET' ? '?view=Grid%20view' : ''}`;
+  
+  const options = {
+    method,
+    headers: {
+      'Authorization': `Bearer ${AIRTABLE_TOKEN}`,
+      'Content-Type': 'application/json'
+    }
+  };
+
+  if (data && method !== 'GET') {
+    options.body = JSON.stringify(data);
+  }
+
+  const response = await fetch(url, options);
+  return await response.json();
+};
+
+const validateInvitationCode = async (code) => {
+  try {
+    const result = await airtableRequest(TABLES.invitationCodes);
+    const records = result.records || [];
+    
+    const validCode = records.find(record => 
+      record.fields.Code?.toUpperCase() === code.toUpperCase() && 
+      record.fields.Status === 'Active'
+    );
+    
+    return validCode ? {
+      valid: true,
+      pathway: validCode.fields.Pathway,
+      recordId: validCode.id
+    } : { valid: false };
+  } catch (error) {
+    console.error('Error validating code:', error);
+    return { valid: false, error: true };
+  }
+};
+
+const markCodeAsUsed = async (recordId, email) => {
+  try {
+    await airtableRequest(TABLES.invitationCodes, 'PATCH', {
+      records: [{
+        id: recordId,
+        fields: {
+          Status: 'Used',
+          'Used By Email': email,
+          'Used Date': new Date().toISOString().split('T')[0]
+        }
+      }]
+    });
+  } catch (error) {
+    console.error('Error marking code as used:', error);
+  }
+};
+
+const submitApplication = async (formData, pathway, invitationCode) => {
+  try {
+    const applicationData = {
+      fields: {
+        'Full Name': formData.fullName,
+        'Email': formData.email,
+        'Phone': formData.phone || '',
+        'Location': formData.location,
+        'LinkedIn': formData.linkedin,
+        'Mailing Address': formData.address || '',
+        'Pathway': pathway,
+        'Invitation Code Used': invitationCode,
+        'Transition Question': formData.transition,
+        'Why Now Question': formData.whyNow,
+        'Status': 'Under Review'
+      }
+    };
+
+    // Add pathway-specific fields
+    if (pathway === 'Individual') {
+      applicationData.fields.Role = formData.role;
+      if (formData.website) applicationData.fields.Website = formData.website;
+    } else if (pathway === 'Corporate') {
+      applicationData.fields.Company = formData.company;
+      applicationData.fields.Role = formData.role;
+      applicationData.fields['Team Size'] = formData.teamSize;
+      if (formData.website) applicationData.fields.Website = formData.website;
+    } else if (pathway === 'Athletics') {
+      applicationData.fields['Organization Name'] = formData.organizationName;
+      applicationData.fields.Role = formData.role;
+      applicationData.fields.Sport = formData.sport;
+    } else if (pathway === 'Family') {
+      applicationData.fields.Participants = formData.participants;
+      applicationData.fields.Relationship = formData.relationship;
+    }
+
+    await airtableRequest(TABLES.applications, 'POST', { records: [applicationData] });
+    return true;
+  } catch (error) {
+    console.error('Error submitting application:', error);
+    return false;
+  }
+};
+
+const submitAlternativeInterests = async (email, fullName, interests) => {
+  try {
+    await airtableRequest(TABLES.alternativeInterests, 'POST', {
+      records: [{
+        fields: {
+          'Email': email,
+          'Full Name': fullName,
+          'Interests': interests,
+          'Status': 'Not Contacted'
+        }
+      }]
+    });
+    return true;
+  } catch (error) {
+    console.error('Error submitting interests:', error);
+    return false;
+  }
+};
+
 export default function RoamsixPrototype() {
   const [inviteCode, setInviteCode] = useState('');
   const [isValidated, setIsValidated] = useState(false);
@@ -10,15 +140,16 @@ export default function RoamsixPrototype() {
   const [codeError, setCodeError] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [showModal, setShowModal] = useState(null); // 'terms' or 'privacy'
+  const [showModal, setShowModal] = useState(null);
   const [interestsSubmitted, setInterestsSubmitted] = useState(false);
+  const [validationLoading, setValidationLoading] = useState(false);
+  const [codeRecordId, setCodeRecordId] = useState(null);
   const [formData, setFormData] = useState({
     fullName: '',
     location: '',
     linkedin: '',
     phone: '',
     address: '',
-    // Pathway-specific
     company: '',
     role: '',
     teamSize: '',
@@ -27,43 +158,50 @@ export default function RoamsixPrototype() {
     sport: '',
     participants: '',
     relationship: '',
-    // Qualifying questions
     transition: '',
     whyNow: '',
-    // Alternative interests
     alternativeInterests: []
   });
 
-  // Demo codes for testing
-  const validCodes = {
-    'INDIVIDUAL': 'individual',
-    'CORPORATE': 'corporate',
-    'ATHLETICS': 'sports',
-    'FAMILY': 'family'
-  };
-
-  const handleCodeSubmit = (e) => {
+  const handleCodeSubmit = async (e) => {
     e.preventDefault();
-    const normalizedCode = inviteCode.toUpperCase();
-    if (validCodes[normalizedCode]) {
+    setValidationLoading(true);
+    
+    const validation = await validateInvitationCode(inviteCode);
+    
+    if (validation.valid) {
       setIsValidated(true);
       setCodeError(false);
+      setCodeRecordId(validation.recordId);
     } else {
       setCodeError(true);
       setTimeout(() => setCodeError(false), 3000);
     }
+    
+    setValidationLoading(false);
   };
 
-  const handleEmailSubmit = (e) => {
+  const handleEmailSubmit = async (e) => {
     e.preventDefault();
     if (email.includes('@')) {
+      // Mark code as used
+      if (codeRecordId) {
+        await markCodeAsUsed(codeRecordId, email);
+      }
       setEmailCaptured(true);
     }
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    setFormSubmitted(true);
+    
+    const success = await submitApplication(formData, selectedPath, inviteCode.toUpperCase());
+    
+    if (success) {
+      setFormSubmitted(true);
+    } else {
+      alert('There was an error submitting your application. Please try again.');
+    }
   };
 
   const handleFormChange = (field, value) => {
@@ -79,13 +217,21 @@ export default function RoamsixPrototype() {
     }));
   };
 
-  const handleInterestsSubmit = () => {
-    setInterestsSubmitted(true);
+  const handleInterestsSubmit = async () => {
+    const success = await submitAlternativeInterests(
+      email,
+      formData.fullName,
+      formData.alternativeInterests
+    );
+    
+    if (success) {
+      setInterestsSubmitted(true);
+    }
   };
 
   const pathways = [
     {
-      id: 'individual',
+      id: 'Individual',
       title: 'Individual',
       icon: User,
       description: 'Going through a major transition on your own',
@@ -96,7 +242,7 @@ export default function RoamsixPrototype() {
       ]
     },
     {
-      id: 'corporate',
+      id: 'Corporate',
       title: 'Corporate',
       icon: Users,
       description: 'Leadership teams (12-24) navigating change together',
@@ -107,7 +253,7 @@ export default function RoamsixPrototype() {
       ]
     },
     {
-      id: 'sports',
+      id: 'Athletics',
       title: 'Athletics',
       icon: Trophy,
       description: 'Teams or coaching staff at a critical moment',
@@ -118,7 +264,7 @@ export default function RoamsixPrototype() {
       ]
     },
     {
-      id: 'family',
+      id: 'Family',
       title: 'Family',
       icon: Home,
       description: 'High-performing families reconnecting through change',
@@ -253,7 +399,6 @@ export default function RoamsixPrototype() {
   if (!isValidated) {
     return (
       <div className="min-h-screen bg-black text-white relative overflow-hidden">
-        {/* Subtle background texture */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
             backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
@@ -261,9 +406,7 @@ export default function RoamsixPrototype() {
           }} />
         </div>
 
-        {/* Main content */}
         <div className="relative min-h-screen flex flex-col items-center justify-center px-6">
-          {/* Logo/Brand */}
           <div className="mb-16 animate-fadeIn">
             <h1 className="text-6xl md:text-8xl font-light tracking-[0.3em] text-gray-200 mb-4" style={{fontFamily: 'Cormorant Garamond, serif'}}>
               ROAMSIX
@@ -271,7 +414,6 @@ export default function RoamsixPrototype() {
             <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-400 to-transparent opacity-30" />
           </div>
 
-          {/* Access Protocol Message */}
           <div className="max-w-md text-center mb-12 animate-fadeIn" style={{animationDelay: '0.3s'}}>
             <Lock className="w-8 h-8 mx-auto mb-6 text-gray-300 opacity-60" />
             <p className="text-sm tracking-[0.15em] text-gray-300 opacity-70 uppercase mb-4" style={{fontFamily: 'sans-serif', letterSpacing: '0.15em'}}>
@@ -282,7 +424,6 @@ export default function RoamsixPrototype() {
             </p>
           </div>
 
-          {/* Code Entry Form */}
           <form onSubmit={handleCodeSubmit} className="w-full max-w-md animate-fadeIn" style={{animationDelay: '0.6s'}}>
             <div className="relative group">
               <input
@@ -290,9 +431,10 @@ export default function RoamsixPrototype() {
                 value={inviteCode}
                 onChange={(e) => setInviteCode(e.target.value)}
                 placeholder="ENTER INVITATION CODE"
+                disabled={validationLoading}
                 className={`w-full bg-gray-900 border-b-2 ${
                   codeError ? 'border-red-500' : 'border-gray-600'
-                } text-white text-center text-lg tracking-[0.2em] py-4 px-6 placeholder-gray-500 focus:outline-none focus:border-gray-400 focus:bg-gray-800 transition-all duration-500 uppercase`}
+                } text-white text-center text-lg tracking-[0.2em] py-4 px-6 placeholder-gray-500 focus:outline-none focus:border-gray-400 focus:bg-gray-800 transition-all duration-500 uppercase disabled:opacity-50`}
                 style={{fontFamily: 'sans-serif', letterSpacing: '0.2em'}}
               />
               {codeError && (
@@ -304,34 +446,23 @@ export default function RoamsixPrototype() {
 
             <button
               type="submit"
-              className="mt-12 w-full bg-gray-800 hover:bg-gray-700 border border-gray-600 hover:border-gray-400 text-gray-200 py-4 px-8 tracking-[0.15em] text-sm uppercase transition-all duration-500 group relative overflow-hidden"
+              disabled={validationLoading}
+              className="mt-12 w-full bg-gray-800 hover:bg-gray-700 border border-gray-600 hover:border-gray-400 text-gray-200 py-4 px-8 tracking-[0.15em] text-sm uppercase transition-all duration-500 group disabled:opacity-50"
             >
-              <span className="relative z-10 flex items-center justify-center gap-3">
-                Validate Access
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+              <span className="flex items-center justify-center gap-3">
+                {validationLoading ? 'Validating...' : 'Validate Access'}
+                {!validationLoading && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />}
               </span>
-              <div className="absolute inset-0 bg-gray-600 opacity-0 group-hover:opacity-10 transition-opacity duration-500" />
             </button>
           </form>
-
-          {/* Demo codes hint */}
-          <div className="mt-16 text-xs text-gray-600 text-center animate-fadeIn" style={{animationDelay: '0.9s'}}>
-            Demo codes: INDIVIDUAL | CORPORATE | ATHLETICS | FAMILY
-          </div>
         </div>
 
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Crimson+Text:wght@400;600&display=swap');
           
           @keyframes fadeIn {
-            from {
-              opacity: 0;
-              transform: translateY(20px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
           }
           
           .animate-fadeIn {
@@ -346,7 +477,6 @@ export default function RoamsixPrototype() {
   if (isValidated && !emailCaptured) {
     return (
       <div className="min-h-screen bg-black text-white relative overflow-hidden">
-        {/* Subtle background */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
             backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
@@ -355,7 +485,6 @@ export default function RoamsixPrototype() {
         </div>
 
         <div className="relative min-h-screen flex flex-col items-center justify-center px-6">
-          {/* Success message */}
           <div className="mb-12 text-center animate-fadeIn">
             <h2 className="text-5xl md:text-6xl font-light tracking-[0.2em] text-gray-200 mb-6" style={{fontFamily: 'Cormorant Garamond, serif'}}>
               You're In
@@ -366,7 +495,6 @@ export default function RoamsixPrototype() {
             </p>
           </div>
 
-          {/* Email form */}
           <form onSubmit={handleEmailSubmit} className="w-full max-w-md animate-fadeIn" style={{animationDelay: '0.3s'}}>
             <div className="relative group mb-8">
               <input
@@ -396,14 +524,8 @@ export default function RoamsixPrototype() {
           @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Crimson+Text:wght@400;600&display=swap');
           
           @keyframes fadeIn {
-            from {
-              opacity: 0;
-              transform: translateY(20px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
           }
           
           .animate-fadeIn {
@@ -418,7 +540,6 @@ export default function RoamsixPrototype() {
   if (isValidated && emailCaptured && !selectedPath) {
     return (
       <div className="min-h-screen bg-black text-white relative overflow-hidden">
-        {/* Subtle background */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
             backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
@@ -427,7 +548,6 @@ export default function RoamsixPrototype() {
         </div>
 
         <div className="relative min-h-screen px-6 py-12">
-          {/* Header */}
           <div className="max-w-6xl mx-auto mb-20 animate-fadeIn">
             <h2 className="text-5xl md:text-7xl font-light tracking-[0.2em] text-gray-200 mb-6" style={{fontFamily: 'Cormorant Garamond, serif'}}>
               Which Fits
@@ -438,7 +558,6 @@ export default function RoamsixPrototype() {
             </p>
           </div>
 
-          {/* Pathway Grid */}
           <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8">
             {pathways.map((pathway, index) => {
               const Icon = pathway.icon;
@@ -452,26 +571,21 @@ export default function RoamsixPrototype() {
                   className="group text-left bg-gray-900 hover:bg-gray-800 border border-gray-700 hover:border-gray-500 p-8 md:p-10 transition-all duration-700 relative overflow-hidden animate-fadeIn"
                   style={{animationDelay: `${index * 0.15}s`}}
                 >
-                  {/* Hover effect */}
                   <div className="absolute inset-0 bg-gradient-to-br from-gray-600 via-transparent to-transparent opacity-0 group-hover:opacity-10 transition-opacity duration-700" />
                   
                   <div className="relative z-10">
-                    {/* Icon */}
                     <div className="mb-6">
                       <Icon className="w-10 h-10 text-gray-400 group-hover:text-gray-300 transition-colors duration-500" />
                     </div>
 
-                    {/* Title */}
                     <h3 className="text-3xl font-light tracking-[0.15em] text-gray-200 mb-3 group-hover:tracking-[0.2em] transition-all duration-500" style={{fontFamily: 'Cormorant Garamond, serif'}}>
                       {pathway.title}
                     </h3>
 
-                    {/* Description */}
                     <p className="text-gray-400 mb-6 text-sm leading-relaxed" style={{fontFamily: 'Crimson Text, serif'}}>
                       {pathway.description}
                     </p>
 
-                    {/* Criteria */}
                     <div className="space-y-2">
                       {pathway.criteria.map((criterion, i) => (
                         <div key={i} className="flex items-start gap-3">
@@ -483,7 +597,6 @@ export default function RoamsixPrototype() {
                       ))}
                     </div>
 
-                    {/* Arrow */}
                     <div className="mt-8 flex items-center gap-2 text-gray-400 group-hover:text-gray-300 group-hover:gap-4 transition-all duration-500">
                       <span className="text-xs tracking-[0.15em] uppercase">Proceed</span>
                       <ArrowRight className="w-4 h-4" />
@@ -494,7 +607,6 @@ export default function RoamsixPrototype() {
             })}
           </div>
 
-          {/* Footer note */}
           <div className="max-w-6xl mx-auto mt-20 text-center">
             <p className="text-xs text-gray-600 tracking-[0.15em] uppercase">
               We'll confirm you're matched to the right experience during the founder conversation.
@@ -506,14 +618,8 @@ export default function RoamsixPrototype() {
           @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Crimson+Text:wght@400;600&display=swap');
           
           @keyframes fadeIn {
-            from {
-              opacity: 0;
-              transform: translateY(20px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
           }
           
           .animate-fadeIn {
@@ -535,7 +641,6 @@ export default function RoamsixPrototype() {
           }} />
         </div>
 
-        {/* Modal */}
         <Modal 
           isOpen={showModal !== null} 
           onClose={() => setShowModal(null)}
@@ -558,7 +663,6 @@ export default function RoamsixPrototype() {
               If accepted, you'll receive next steps and details about your cohort.
             </p>
 
-            {/* Terms and Conditions */}
             <div className="bg-gray-900 border border-gray-700 p-6 mb-12 text-left">
               <p className="text-xs text-gray-400 leading-relaxed" style={{fontFamily: 'Crimson Text, serif'}}>
                 By submitting this request, you agree to our{' '}
@@ -579,7 +683,6 @@ export default function RoamsixPrototype() {
               </p>
             </div>
 
-            {/* Alternative interest capture */}
             <div className="bg-gray-900 border border-gray-700 p-8 md:p-10 text-left">
               <p className="text-sm tracking-[0.15em] text-gray-400 uppercase mb-4 text-center">
                 While You Wait
@@ -596,27 +699,27 @@ export default function RoamsixPrototype() {
                   <div className="space-y-3 mb-6">
                     {[
                       { 
-                        id: '1day', 
+                        id: '1-Day Workshop', 
                         label: '1-Day Workshops',
                         description: 'Lower investment, single focus areas'
                       },
                       { 
-                        id: '2day', 
+                        id: '2-Day Intensive', 
                         label: '2-Day Intensives',
                         description: 'Weekend format for deeper work'
                       },
                       { 
-                        id: 'custom', 
+                        id: 'Custom Event', 
                         label: 'Custom Event for My Organization',
                         description: 'Tailored experiences for teams'
                       },
                       { 
-                        id: 'speaking', 
+                        id: 'Speaker Series', 
                         label: 'Speaker Series / Group Discussions',
                         description: 'Ongoing community engagement'
                       },
                       { 
-                        id: 'waitlist', 
+                        id: 'Waitlist', 
                         label: 'Waitlist for Future Cohorts',
                         description: 'Be notified when new dates open'
                       }
@@ -696,10 +799,9 @@ export default function RoamsixPrototype() {
       </div>
     );
   }
-  
+
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
-      {/* Background */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
           backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
@@ -708,7 +810,6 @@ export default function RoamsixPrototype() {
       </div>
 
       <div className="relative min-h-screen flex flex-col items-center justify-center px-6 py-12">
-        {/* Back button */}
         <button
           onClick={() => {
             if (showForm) {
@@ -725,14 +826,12 @@ export default function RoamsixPrototype() {
 
         {!showForm ? (
           <div className="max-w-3xl text-center animate-fadeIn">
-            {/* Pathway title */}
             <h1 className="text-6xl md:text-8xl font-light tracking-[0.25em] text-gray-200 mb-8" style={{fontFamily: 'Cormorant Garamond, serif'}}>
               {currentPathway?.title}
             </h1>
 
             <div className="h-px w-48 bg-gray-400 opacity-30 mx-auto mb-12" />
 
-            {/* Main message */}
             <div className="mb-16 space-y-6">
               <p className="text-xl text-gray-300 leading-relaxed" style={{fontFamily: 'Crimson Text, serif'}}>
                 Three days in unfamiliar terrain with a small group facing similar transitions. Structured challenges designed to surface clarity you can't access from your normal environment.
@@ -742,18 +841,16 @@ export default function RoamsixPrototype() {
               </p>
             </div>
 
-            {/* Next cohort information */}
             <div className="bg-gray-900 border border-gray-700 p-8 md:p-12 mb-12">
               <p className="text-sm tracking-[0.2em] text-gray-400 uppercase mb-4">Next Cohort</p>
               <p className="text-2xl font-light text-gray-200 mb-4" style={{fontFamily: 'Cormorant Garamond, serif'}}>
-                {selectedPath === 'individual' ? 'March 15-18, 2026' : selectedPath === 'corporate' ? 'Custom Scheduling' : selectedPath === 'sports' ? 'April 2026' : 'May 2026'}
+                {selectedPath === 'Individual' ? 'March 15-18, 2026' : selectedPath === 'Corporate' ? 'Custom Scheduling' : selectedPath === 'Athletics' ? 'April 2026' : 'May 2026'}
               </p>
               <p className="text-sm text-gray-500">
-                Limited to {selectedPath === 'corporate' || selectedPath === 'family' ? '12-24 participants' : selectedPath === 'sports' ? '15-20 participants' : '8-12 participants'}. Spots fill through referrals.
+                Limited to {selectedPath === 'Corporate' || selectedPath === 'Family' ? '12-24 participants' : selectedPath === 'Athletics' ? '15-20 participants' : '8-12 participants'}. Spots fill through referrals.
               </p>
             </div>
 
-            {/* CTA */}
             <button 
               onClick={() => setShowForm(true)}
               className="group bg-gray-200 hover:bg-white text-black py-5 px-12 text-sm tracking-[0.2em] uppercase transition-all duration-500 relative overflow-hidden"
@@ -766,7 +863,6 @@ export default function RoamsixPrototype() {
             </p>
           </div>
         ) : (
-          // INTAKE FORM
           <div className="max-w-2xl w-full animate-fadeIn">
             <div className="mb-12 text-center">
               <h2 className="text-4xl md:text-5xl font-light tracking-[0.2em] text-gray-200 mb-4" style={{fontFamily: 'Cormorant Garamond, serif'}}>
@@ -779,7 +875,6 @@ export default function RoamsixPrototype() {
             </div>
 
             <form onSubmit={handleFormSubmit} className="space-y-6">
-              {/* Core Fields */}
               <div className="space-y-4">
                 <input
                   type="text"
@@ -833,9 +928,8 @@ export default function RoamsixPrototype() {
                 />
               </div>
 
-              {/* Pathway-Specific Fields */}
               <div className="border-t border-gray-800 pt-6 space-y-4">
-                {selectedPath === 'individual' && (
+                {selectedPath === 'Individual' && (
                   <>
                     <input
                       type="text"
@@ -855,7 +949,7 @@ export default function RoamsixPrototype() {
                   </>
                 )}
 
-                {selectedPath === 'corporate' && (
+                {selectedPath === 'Corporate' && (
                   <>
                     <input
                       type="text"
@@ -892,7 +986,7 @@ export default function RoamsixPrototype() {
                   </>
                 )}
 
-                {selectedPath === 'sports' && (
+                {selectedPath === 'Athletics' && (
                   <>
                     <input
                       type="text"
@@ -921,7 +1015,7 @@ export default function RoamsixPrototype() {
                   </>
                 )}
 
-                {selectedPath === 'family' && (
+                {selectedPath === 'Family' && (
                   <>
                     <input
                       type="text"
@@ -943,7 +1037,6 @@ export default function RoamsixPrototype() {
                 )}
               </div>
 
-              {/* Qualifying Questions */}
               <div className="border-t border-gray-800 pt-6 space-y-4">
                 <div>
                   <label className="block text-xs text-gray-400 tracking-wide mb-2 uppercase">
@@ -976,7 +1069,6 @@ export default function RoamsixPrototype() {
                 </div>
               </div>
 
-              {/* Submit */}
               <button
                 type="submit"
                 className="w-full bg-gray-200 hover:bg-white text-black py-4 px-8 text-sm tracking-[0.2em] uppercase transition-all duration-500 mt-8"
