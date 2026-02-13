@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   const { CODE } = req.body;
 
   if (!CODE) {
-    return res.status(400).json({ error: 'Code is required' });
+    return res.status(400).json({ error: 'CODE is required' });
   }
 
   try {
@@ -28,11 +28,11 @@ console.log('Airtable records:', JSON.stringify(records));
       record.fields.Status === 'Active'
     );
 
-    if (validCode) {
+    if (validCODE) {
       return res.status(200).json({
         valid: true,
-        pathway: validCode.fields.Pathway,
-        recordId: validCode.id
+        pathway: validCODE.fields.Pathway,
+        recordId: validCODE.id
       });
     } else {
       return res.status(200).json({ valid: false });
