@@ -56,15 +56,12 @@ const submitAlternativeInterests = async (email, fullName, interests) => {
   try {
     const response = await fetch("/api/submit-interest", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, fullName, interests }),
     });
 
     const text = await response.text();
 
-    // Safely parse JSON (prevents crashes if server returns HTML/text)
     let data = {};
     try {
       data = JSON.parse(text);
@@ -80,14 +77,6 @@ const submitAlternativeInterests = async (email, fullName, interests) => {
     return !!data.success;
   } catch (error) {
     console.error("Error submitting interests:", error);
-    return false;
-  }
-};
-    
-    const data = await response.json();
-    return data.success;
-  } catch (error) {
-    console.error('Error submitting interests:', error);
     return false;
   }
 };
