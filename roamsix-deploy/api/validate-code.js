@@ -4,9 +4,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { code } = req.body;
+  const { CODE } = req.body;
 
-  if (!code) {
+  if (!CODE) {
     return res.status(400).json({ error: 'Code is required' });
   }
 
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     const records = data.records || [];
 console.log('Airtable records:', JSON.stringify(records));
     const validCode = records.find(record => 
-      record.fields.CODE?.toUpperCase() === code.toUpperCase() && 
+      record.fields.CODE?.toUpperCase() === CODE.toUpperCase() && 
       record.fields.Status === 'Active'
     );
 
@@ -38,7 +38,7 @@ console.log('Airtable records:', JSON.stringify(records));
       return res.status(200).json({ valid: false });
     }
   } catch (error) {
-    console.error('Error validating code:', error);
+    console.error('Error validating CODE:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
