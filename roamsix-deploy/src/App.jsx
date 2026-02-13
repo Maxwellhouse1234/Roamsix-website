@@ -54,13 +54,35 @@ const submitApplication = async (formData, pathway, invitationCode) => {
 
 const submitAlternativeInterests = async (email, fullName, interests) => {
   try {
-    const response = await fetch('/api/submit-interests', {
-      method: 'POST',
+    const response = await fetch("/api/submit-interest", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, fullName, interests })
+      body: JSON.stringify({ email, fullName, interests }),
     });
+
+    const text = await response.text();
+
+    // Safely parse JSON (prevents crashes if server returns HTML/text)
+    let data = {};
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text };
+    }
+
+    if (!response.ok) {
+      console.error("submit-interest failed:", response.status, data);
+      return false;
+    }
+
+    return !!data.success;
+  } catch (error) {
+    console.error("Error submitting interests:", error);
+    return false;
+  }
+};
     
     const data = await response.json();
     return data.success;
