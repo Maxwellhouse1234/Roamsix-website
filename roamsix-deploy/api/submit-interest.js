@@ -4,22 +4,23 @@ export default async function handler(req, res) {
   }
 
   try {
-    const parsedBody =
-      typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
+    const body = req.body || {};
+    const { email, fullName, interests } = body;
 
-    const email = (parsedBody.email || "").toString().trim();
-    const fullName = (parsedBody.fullName || parsedBody.full_name || "").toString().trim();
-    const interests = parsedBody.interests;
-
-    if (!email || !Array.isArray(interests) || interests.length === 0) {
+    if (!email || !Array.isArray(interests)) {
       return res.status(400).json({
-        error: "Email and interests are required",
-        received: parsedBody,
+        error: "Missing required fields",
+        required: ["email", "interests (array)"],
+        received: body,
       });
     }
 
     const base = process.env.AIRTABLE_BASE_ID;
     const token = process.env.AIRTABLE_TOKEN;
+
+    // IMPORTANT:
+    // Set this in Vercel env vars to EXACTLY: Alternative Interest
+    // (the table name, not the base name)
     const table = process.env.AIRTABLE_TABLE_INTERESTS;
 
     if (!base || !token || !table) {
@@ -33,14 +34,14 @@ export default async function handler(req, res) {
       });
     }
 
-    // IMPORTANT:
-    // Your Airtable "Alternative Interest" table does NOT have a field named "Full Name".
-    // This uses "Name" instead. If your Airtable column is called something else, change "Name" here.
+    // Airtable field names MUST match exactly.
+    // Based on your screenshot, the column looks like "A Full Name" (not "Full Name").
+    // If your Alternative Interest table is different, rename the field in Airtable or change it here.
     const fields = {
-      "Email": email,
-      "Name": fullName,          // <-- was "Full Name"
-      "Interests": interests,
-      "Status": "Not Contacted",
+      Email: email,
+      "A Full Name": fullName || "",
+      Interests: interests,
+      Status: "Not Contacted",
     };
 
     const url = `https://api.airtable.com/v0/${base}/${encodeURIComponent(table)}`;
@@ -51,7 +52,9 @@ export default async function handler(req, res) {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ records: [{ fields }] }),
+      body: JSON.stringify({
+        records: [{ fields }],
+      }),
     });
 
     const responseText = await airtableRes.text();
@@ -66,9 +69,14 @@ export default async function handler(req, res) {
     }
 
     const data = JSON.parse(responseText);
-    return res.status(200).json({ success: true, recordId: data?.records?.[0]?.id });
-  } catch (error) {
-    console.error("submit-interest crashed:", error);
-    return res.status(500).json({ error: "Server crashed", details: String(error) });
+    const recordId = data?.records?.[0]?.id;
+
+    return res.status(200).json({ success: true, recordId });
+  } catch (err) {
+    console.error("submit-interest crashed:", err);
+    return res.status(500).json({
+      error: "Server crashed",
+      details: String(err),
+    });
   }
 }
