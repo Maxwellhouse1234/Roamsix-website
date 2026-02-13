@@ -1,0 +1,44 @@
+export default async function handler(req, res) {
+  // Only allow POST requests
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { code } = req.body;
+
+  if (!code) {
+    return res.status(400).json({ error: 'Code is required' });
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.airtable.com/v0/${process.env.AIRTABLE_BASE_ID}/${process.env.AIRTABLE_TABLE_CODES}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${process.env.AIRTABLE_TOKEN}`,
+        }
+      }
+    );
+
+    const data = await response.json();
+    const records = data.records || [];
+
+    const validCode = records.find(record => 
+      record.fields.Code?.toUpperCase() === code.toUpperCase() && 
+      record.fields.Status === 'Active'
+    );
+
+    if (validCode) {
+      return res.status(200).json({
+        valid: true,
+        pathway: validCode.fields.Pathway,
+        recordId: validCode.id
+      });
+    } else {
+      return res.status(200).json({ valid: false });
+    }
+  } catch (error) {
+    console.error('Error validating code:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
