@@ -1,50 +1,19 @@
 import React, { useState } from 'react';
 import { Lock, ArrowRight, User, Users, Trophy, Home } from 'lucide-react';
 
-// Airtable Configuration
-const AIRTABLE_TOKEN = 'patO5eAvbH3O5Surf.12ba60fc4b0a0965bd776c0af112bd2f39f10a0010de9ef70669eed41e754db3';
-const BASE_ID = 'app9ybtFrAg0xIhyu';
-const TABLES = {
-  invitationCodes: 'tblevAi2EVkrLxhx3',
-  applications: 'tblCLgvCLwv2juTlF',
-  alternativeInterests: 'tblddUVnvzC9Xgalk'
-};
-
-// Airtable API Helper Functions
-const airtableRequest = async (tableId, method = 'GET', data = null) => {
-  const url = `https://api.airtable.com/v0/${BASE_ID}/${tableId}${method === 'GET' ? '?view=Grid%20view' : ''}`;
-  
-  const options = {
-    method,
-    headers: {
-      'Authorization': `Bearer ${AIRTABLE_TOKEN}`,
-      'Content-Type': 'application/json'
-    }
-  };
-
-  if (data && method !== 'GET') {
-    options.body = JSON.stringify(data);
-  }
-
-  const response = await fetch(url, options);
-  return await response.json();
-};
-
+// API Helper Functions - now calling our serverless functions instead of Airtable directly
 const validateInvitationCode = async (code) => {
   try {
-    const result = await airtableRequest(TABLES.invitationCodes);
-    const records = result.records || [];
+    const response = await fetch('/api/validate-code', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ code })
+    });
     
-    const validCode = records.find(record => 
-      record.fields.Code?.toUpperCase() === code.toUpperCase() && 
-      record.fields.Status === 'Active'
-    );
-    
-    return validCode ? {
-      valid: true,
-      pathway: validCode.fields.Pathway,
-      recordId: validCode.id
-    } : { valid: false };
+    const data = await response.json();
+    return data;
   } catch (error) {
     console.error('Error validating code:', error);
     return { valid: false, error: true };
@@ -53,15 +22,12 @@ const validateInvitationCode = async (code) => {
 
 const markCodeAsUsed = async (recordId, email) => {
   try {
-    await airtableRequest(TABLES.invitationCodes, 'PATCH', {
-      records: [{
-        id: recordId,
-        fields: {
-          Status: 'Used',
-          'Used By Email': email,
-          'Used Date': new Date().toISOString().split('T')[0]
-        }
-      }]
+    await fetch('/api/mark-code-used', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ recordId, email })
     });
   } catch (error) {
     console.error('Error marking code as used:', error);
@@ -70,42 +36,16 @@ const markCodeAsUsed = async (recordId, email) => {
 
 const submitApplication = async (formData, pathway, invitationCode) => {
   try {
-    const applicationData = {
-      fields: {
-        'Full Name': formData.fullName,
-        'Email': formData.email,
-        'Phone': formData.phone || '',
-        'Location': formData.location,
-        'LinkedIn': formData.linkedin,
-        'Mailing Address': formData.address || '',
-        'Pathway': pathway,
-        'Invitation Code Used': invitationCode,
-        'Transition Question': formData.transition,
-        'Why Now Question': formData.whyNow,
-        'Status': 'Under Review'
-      }
-    };
-
-    // Add pathway-specific fields
-    if (pathway === 'Individual') {
-      applicationData.fields.Role = formData.role;
-      if (formData.website) applicationData.fields.Website = formData.website;
-    } else if (pathway === 'Corporate') {
-      applicationData.fields.Company = formData.company;
-      applicationData.fields.Role = formData.role;
-      applicationData.fields['Team Size'] = formData.teamSize;
-      if (formData.website) applicationData.fields.Website = formData.website;
-    } else if (pathway === 'Athletics') {
-      applicationData.fields['Organization Name'] = formData.organizationName;
-      applicationData.fields.Role = formData.role;
-      applicationData.fields.Sport = formData.sport;
-    } else if (pathway === 'Family') {
-      applicationData.fields.Participants = formData.participants;
-      applicationData.fields.Relationship = formData.relationship;
-    }
-
-    await airtableRequest(TABLES.applications, 'POST', { records: [applicationData] });
-    return true;
+    const response = await fetch('/api/submit-application', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ formData, pathway, invitationCode })
+    });
+    
+    const data = await response.json();
+    return data.success;
   } catch (error) {
     console.error('Error submitting application:', error);
     return false;
@@ -114,17 +54,16 @@ const submitApplication = async (formData, pathway, invitationCode) => {
 
 const submitAlternativeInterests = async (email, fullName, interests) => {
   try {
-    await airtableRequest(TABLES.alternativeInterests, 'POST', {
-      records: [{
-        fields: {
-          'Email': email,
-          'Full Name': fullName,
-          'Interests': interests,
-          'Status': 'Not Contacted'
-        }
-      }]
+    const response = await fetch('/api/submit-interests', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, fullName, interests })
     });
-    return true;
+    
+    const data = await response.json();
+    return data.success;
   } catch (error) {
     console.error('Error submitting interests:', error);
     return false;
