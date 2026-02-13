@@ -1,11 +1,9 @@
 export default async function handler(req, res) {
-  // Only allow POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    // Handle cases where req.body arrives as a string
     const parsedBody =
       typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
 
@@ -20,10 +18,9 @@ export default async function handler(req, res) {
       });
     }
 
-    // Env vars
     const base = process.env.AIRTABLE_BASE_ID;
     const token = process.env.AIRTABLE_TOKEN;
-    const table = process.env.AIRTABLE_TABLE_INTERESTS; // Vercel: Alternative Interest (table name)
+    const table = process.env.AIRTABLE_TABLE_INTERESTS;
 
     if (!base || !token || !table) {
       return res.status(500).json({
@@ -36,11 +33,12 @@ export default async function handler(req, res) {
       });
     }
 
-    // Airtable field mapping (must match Airtable column names exactly)
-    // NOTE: Your existing code uses: Email, Full Name, Interests, Status
+    // IMPORTANT:
+    // Your Airtable "Alternative Interest" table does NOT have a field named "Full Name".
+    // This uses "Name" instead. If your Airtable column is called something else, change "Name" here.
     const fields = {
       "Email": email,
-      "Full Name": fullName,
+      "Name": fullName,          // <-- was "Full Name"
       "Interests": interests,
       "Status": "Not Contacted",
     };
@@ -67,23 +65,10 @@ export default async function handler(req, res) {
       });
     }
 
-    let data;
-    try {
-      data = JSON.parse(responseText);
-    } catch (e) {
-      return res.status(200).json({
-        success: true,
-        note: "Airtable returned a non-JSON success response",
-        raw: responseText,
-      });
-    }
-
+    const data = JSON.parse(responseText);
     return res.status(200).json({ success: true, recordId: data?.records?.[0]?.id });
   } catch (error) {
     console.error("submit-interest crashed:", error);
-    return res.status(500).json({
-      error: "Server crashed",
-      details: String(error),
-    });
+    return res.status(500).json({ error: "Server crashed", details: String(error) });
   }
 }
