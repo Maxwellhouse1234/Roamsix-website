@@ -22,7 +22,7 @@ const validateInvitationCode = async (code) => {
 
 const markCodeAsUsed = async (recordId, email) => {
   try {
-    await fetch('/api/mark-code-used', {
+    await fetch('/api/mark-code', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
