@@ -22,9 +22,9 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     const records = data.records || [];
-
+console.log('Airtable records:', JSON.stringify(records));
     const validCode = records.find(record => 
-      record.fields.Code?.toUpperCase() === code.toUpperCase() && 
+      record.fields.CODE?.toUpperCase() === code.toUpperCase() && 
       record.fields.Status === 'Active'
     );
 
