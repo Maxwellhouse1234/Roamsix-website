@@ -1,25 +1,40 @@
 export default async function handler(req, res) {
+  // Only allow POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const { formData, pathway, invitationCode } = req.body || {};
+    // Prevent crash when body is missing
+    const body = req.body || {};
+    const { formData, pathway, invitationCode } = body;
 
+    // Helpful debug response (so you can see what the frontend sent)
     if (!formData || !pathway || !invitationCode) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-
-    const table = process.env.AIRTABLE_TABLE_APPLICATIONS; // set this in Vercel
-    const base = process.env.AIRTABLE_BASE_ID;
-    const token = process.env.AIRTABLE_TOKEN;
-
-    if (!table || !base || !token) {
-      return res.status(500).json({
-        error: "Server misconfigured (missing Airtable env vars)",
+      return res.status(400).json({
+        error: "Missing required fields",
+        required: ["formData", "pathway", "invitationCode"],
+        received: body,
       });
     }
 
+    // Required env vars
+    const base = process.env.AIRTABLE_BASE_ID;
+    const token = process.env.AIRTABLE_TOKEN;
+    const table = process.env.AIRTABLE_TABLE_APPLICATIONS; // Set this in Vercel to: Applications
+
+    if (!base || !token || !table) {
+      return res.status(500).json({
+        error: "Server misconfigured (missing Airtable env vars)",
+        missing: {
+          AIRTABLE_BASE_ID: !base,
+          AIRTABLE_TOKEN: !token,
+          AIRTABLE_TABLE_APPLICATIONS: !table,
+        },
+      });
+    }
+
+    // Map frontend fields -> Airtable field names (must match Airtable exactly)
     const fields = {
       "Full Name": formData.fullName || "",
       "Email": formData.email || "",
@@ -34,27 +49,17 @@ export default async function handler(req, res) {
       "Status": "Under Review",
     };
 
-    // Pathway-specific fields
-    if (pathway === "Individual") {
-      if (formData.role) fields["Role"] = formData.role;
-      if (formData.website) fields["Website"] = formData.website;
-    }
-    if (pathway === "Corporate") {
-      if (formData.company) fields["Company"] = formData.company;
-      if (formData.role) fields["Role"] = formData.role;
-      if (formData.teamSize) fields["Team Size"] = formData.teamSize;
-      if (formData.website) fields["Website"] = formData.website;
-    }
-    if (pathway === "Athletics") {
-      if (formData.organizationName) fields["Organization Name"] = formData.organizationName;
-      if (formData.role) fields["Role"] = formData.role;
-      if (formData.sport) fields["Sport"] = formData.sport;
-    }
-    if (pathway === "Family") {
-      if (formData.participants) fields["Participants"] = formData.participants;
-      if (formData.relationship) fields["Relationship"] = formData.relationship;
-    }
+    // Optional fields (only add if present)
+    if (formData.role) fields["Role"] = formData.role;
+    if (formData.company) fields["Company"] = formData.company;
+    if (formData.teamSize) fields["Team Size"] = formData.teamSize;
+    if (formData.website) fields["Website"] = formData.website;
+    if (formData.organizationName) fields["Organization Name"] = formData.organizationName;
+    if (formData.sport) fields["Sport"] = formData.sport;
+    if (formData.participants) fields["Participants"] = formData.participants;
+    if (formData.relationship) fields["Relationship"] = formData.relationship;
 
+    // Submit to Airtable
     const url = `https://api.airtable.com/v0/${base}/${encodeURIComponent(table)}`;
 
     const airtableRes = await fetch(url, {
@@ -63,24 +68,32 @@ export default async function handler(req, res) {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ records: [{ fields }] }),
+      body: JSON.stringify({
+        records: [{ fields }],
+      }),
     });
 
-    const text = await airtableRes.text();
+    const responseText = await airtableRes.text();
 
     if (!airtableRes.ok) {
-      console.error("Airtable submit failed:", airtableRes.status, text);
+      // Return Airtable’s actual error so we can fix field mismatches quickly
+      console.error("Airtable submit failed:", airtableRes.status, responseText);
       return res.status(500).json({
         error: "Airtable submit failed",
-        status: airtableRes.status,
-        details: text,
+        airtableStatus: airtableRes.status,
+        airtableResponse: responseText,
       });
     }
 
-    const data = JSON.parse(text);
-    return res.status(200).json({ success: true, recordId: data.records?.[0]?.id });
+    const data = JSON.parse(responseText);
+    const recordId = data?.records?.[0]?.id;
+
+    return res.status(200).json({ success: true, recordId });
   } catch (err) {
     console.error("submit-application crashed:", err);
-    return res.status(500).json({ error: "Server crashed", details: String(err) });
+    return res.status(500).json({
+      error: "Server crashed",
+      details: String(err),
+    });
   }
 }
