@@ -1,4 +1,5 @@
 export default async function handler(req, res) {
+  // Only allow POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -7,20 +8,20 @@ export default async function handler(req, res) {
     const body = req.body || {};
     const { email, fullName, interests } = body;
 
-    if (!email || !Array.isArray(interests)) {
+    // Validate incoming payload
+    if (!email || !fullName || !Array.isArray(interests) || interests.length === 0) {
       return res.status(400).json({
         error: "Missing required fields",
-        required: ["email", "interests (array)"],
+        required: ["email", "fullName", "interests (array, length > 0)"],
         received: body,
       });
     }
 
+    // Required env vars
     const base = process.env.AIRTABLE_BASE_ID;
     const token = process.env.AIRTABLE_TOKEN;
 
-    // IMPORTANT:
-    // Set this in Vercel env vars to EXACTLY: Alternative Interest
-    // (the table name, not the base name)
+    // IMPORTANT: set this env var in Vercel to the TABLE NAME exactly: Alternative Interest
     const table = process.env.AIRTABLE_TABLE_INTERESTS;
 
     if (!base || !token || !table) {
@@ -34,14 +35,14 @@ export default async function handler(req, res) {
       });
     }
 
-    // Airtable field names MUST match exactly.
-    // Based on your screenshot, the column looks like "A Full Name" (not "Full Name").
-    // If your Alternative Interest table is different, rename the field in Airtable or change it here.
+    // Airtable field names must match EXACTLY what you see as column headers in Airtable
+    // Based on your screenshot: Email, Full Name, Interest, Status, Submitted Date
+    // "Submitted Date" is usually a created-time or formula field; we do not set it.
     const fields = {
-      Email: email,
-      "A Full Name": fullName || "",
-      Interests: interests,
-      Status: "Not Contacted",
+      "Email": email,
+      "Full Name": fullName,
+      "Interest": interests, // works if "Interest" is multi-select; if it's single-select, send interests[0]
+      "Status": "Not Contacted",
     };
 
     const url = `https://api.airtable.com/v0/${base}/${encodeURIComponent(table)}`;
