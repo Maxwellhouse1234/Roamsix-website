@@ -6,9 +6,13 @@ export default async function handler(req, res) {
 
   try {
     const body = req.body || {};
-    const { email, fullName, interests } = body;
 
-    // Validate incoming payload
+    // Accept both "fullName" and "full_name" defensively
+    const email = body.email;
+    const fullName = body.fullName || body.full_name;
+    const interests = body.interests;
+
+    // Validate payload
     if (!email || !fullName || !Array.isArray(interests) || interests.length === 0) {
       return res.status(400).json({
         error: "Missing required fields",
@@ -17,12 +21,10 @@ export default async function handler(req, res) {
       });
     }
 
-    // Required env vars
+    // Env vars
     const base = process.env.AIRTABLE_BASE_ID;
     const token = process.env.AIRTABLE_TOKEN;
-
-    // IMPORTANT: set this env var in Vercel to the TABLE NAME exactly: Alternative Interest
-    const table = process.env.AIRTABLE_TABLE_INTERESTS;
+    const table = process.env.AIRTABLE_TABLE_INTERESTS; // should be: Alternative Interest
 
     if (!base || !token || !table) {
       return res.status(500).json({
@@ -35,14 +37,13 @@ export default async function handler(req, res) {
       });
     }
 
-    // Airtable field names must match EXACTLY what you see as column headers in Airtable
-    // Based on your screenshot: Email, Full Name, Interest, Status, Submitted Date
-    // "Submitted Date" is usually a created-time or formula field; we do not set it.
+    // IMPORTANT: Field names must match Airtable column headers EXACTLY (no "A " prefix)
     const fields = {
       "Email": email,
       "Full Name": fullName,
-      "Interest": interests, // works if "Interest" is multi-select; if it's single-select, send interests[0]
+      "Interest": interests, // multi-select expects an array of option names
       "Status": "Not Contacted",
+      // Do NOT set "Submitted Date" if it's a created-time field
     };
 
     const url = `https://api.airtable.com/v0/${base}/${encodeURIComponent(table)}`;
@@ -53,9 +54,7 @@ export default async function handler(req, res) {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        records: [{ fields }],
-      }),
+      body: JSON.stringify({ records: [{ fields }] }),
     });
 
     const responseText = await airtableRes.text();
@@ -66,6 +65,8 @@ export default async function handler(req, res) {
         error: "Airtable submit-interest failed",
         airtableStatus: airtableRes.status,
         airtableResponse: responseText,
+        fieldsSent: fields,
+        tableUsed: table,
       });
     }
 
