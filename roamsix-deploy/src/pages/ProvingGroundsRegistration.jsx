@@ -1,4 +1,170 @@
-{/* Team Info */}
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
+
+export default function ProvingGroundsRegistration() {
+  const [formData, setFormData] = useState({
+    teamName: '',
+    coachName: '',
+    coachCertification: '',
+    athlete1Name: '',
+    athlete2Name: '',
+    athlete3Name: '',
+    email: '',
+    phone: '',
+    coachShirtSize: '',
+    athlete1ShirtSize: '',
+    athlete2ShirtSize: '',
+    athlete3ShirtSize: '',
+    coachEmergencyName: '',
+    coachEmergencyPhone: '',
+    athlete1EmergencyName: '',
+    athlete1EmergencyPhone: '',
+    athlete2EmergencyName: '',
+    athlete2EmergencyPhone: '',
+    athlete3EmergencyName: '',
+    athlete3EmergencyPhone: '',
+    waiverAccepted: false
+  });
+
+  const [currentPrice, setCurrentPrice] = useState(300);
+  const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    const eventDate = new Date('2026-06-01'); // UPDATE THIS WITH ACTUAL EVENT DATE
+    const today = new Date();
+    const daysUntilEvent = Math.floor((eventDate - today) / (1000 * 60 * 60 * 24));
+    const weeksUntilEvent = Math.floor(daysUntilEvent / 7);
+
+    if (weeksUntilEvent >= 4) setCurrentPrice(300);
+    else if (weeksUntilEvent === 3) setCurrentPrice(350);
+    else if (weeksUntilEvent === 2) setCurrentPrice(400);
+    else if (weeksUntilEvent === 1) setCurrentPrice(450);
+    else setCurrentPrice(500);
+  }, []);
+
+  const handleChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.waiverAccepted) {
+      alert('Please accept the waiver to continue.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/submit-proving-grounds', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, priceTier: currentPrice })
+      });
+
+      if (response.ok) {
+        setSubmitted(true);
+      } else {
+        alert('There was an error submitting your registration. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('There was an error submitting your registration. Please try again.');
+    }
+  };
+
+  const shirtSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+
+  if (submitted) {
+    return (
+      <div className="min-h-screen bg-black text-white relative overflow-hidden flex items-center justify-center px-6">
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+            backgroundSize: '32px 32px'
+          }} />
+        </div>
+
+        <div className="relative max-w-2xl text-center animate-fadeIn">
+          <h1 className="text-6xl md:text-7xl font-light tracking-[0.25em] text-gray-200 mb-8" style={{fontFamily: 'Cormorant Garamond, serif'}}>
+            Registration<br/>Received
+          </h1>
+
+          <div className="h-px w-48 bg-gray-400 opacity-30 mx-auto mb-12" />
+
+          <p className="text-xl text-gray-300 leading-relaxed mb-8" style={{fontFamily: 'Crimson Text, serif'}}>
+            Your team registration for <strong>{formData.teamName}</strong> has been submitted.
+          </p>
+
+          <div className="bg-gray-900 border border-gray-700 p-8 mb-8">
+            <p className="text-base text-gray-300 mb-4">
+              <strong>Next Step:</strong> Complete payment to secure your spot.
+            </p>
+            <p className="text-gray-400 text-sm mb-6">
+              Total Investment: <strong className="text-gray-200 text-lg">${currentPrice}</strong>
+            </p>
+            
+              href="#payment"
+              className="inline-block bg-gray-200 hover:bg-white text-black py-4 px-10 text-sm tracking-[0.2em] uppercase transition-all duration-500"
+            >
+              Complete Payment
+            </a>
+          </div>
+
+          <p className="text-xs text-gray-500">
+            Payment link will be sent to {formData.email} shortly.
+          </p>
+        </div>
+
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Crimson+Text:wght@400;600&display=swap');
+          
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          
+          .animate-fadeIn {
+            animation: fadeIn 1s ease-out forwards;
+            opacity: 0;
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+      <div className="absolute inset-0 opacity-5 fixed">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+          backgroundSize: '32px 32px'
+        }} />
+      </div>
+
+      <div className="relative min-h-screen px-6 py-12">
+        <Link 
+          to="/proving-grounds"
+          className="absolute top-8 left-8 text-gray-400 hover:text-gray-300 transition-colors flex items-center gap-2 text-sm tracking-wider"
+        >
+          <ArrowRight className="w-4 h-4 rotate-180" />
+          BACK
+        </Link>
+
+        <div className="max-w-3xl mx-auto pt-20">
+          <div className="mb-12 text-center">
+            <h1 className="text-5xl md:text-6xl font-light tracking-[0.2em] text-gray-200 mb-4" style={{fontFamily: 'Cormorant Garamond, serif'}}>
+              Team Registration
+            </h1>
+            <div className="h-px w-32 bg-gray-400 opacity-30 mx-auto mb-6" />
+            <div className="bg-gray-900 border border-gray-700 inline-block px-6 py-3">
+              <p className="text-gray-300">
+                Current Price: <strong className="text-gray-200 text-xl">${currentPrice}</strong> per team
+              </p>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-8">
             <section className="space-y-4">
               <h2 className="text-2xl font-light tracking-wide text-gray-300 border-b border-gray-800 pb-3" style={{fontFamily: 'Cormorant Garamond, serif'}}>
                 Team Information
@@ -14,7 +180,6 @@
               />
             </section>
 
-            {/* Coach Info */}
             <section className="space-y-4">
               <h2 className="text-2xl font-light tracking-wide text-gray-300 border-b border-gray-800 pb-3" style={{fontFamily: 'Cormorant Garamond, serif'}}>
                 Coach Information
@@ -51,7 +216,6 @@
               </select>
             </section>
 
-            {/* Athletes */}
             <section className="space-y-4">
               <h2 className="text-2xl font-light tracking-wide text-gray-300 border-b border-gray-800 pb-3" style={{fontFamily: 'Cormorant Garamond, serif'}}>
                 Athletes (3 Clients)
@@ -83,7 +247,6 @@
               ))}
             </section>
 
-            {/* Contact Info */}
             <section className="space-y-4">
               <h2 className="text-2xl font-light tracking-wide text-gray-300 border-b border-gray-800 pb-3" style={{fontFamily: 'Cormorant Garamond, serif'}}>
                 Contact Information
@@ -108,54 +271,54 @@
               />
             </section>
 
-            {/* Emergency Contacts */}
             <section className="space-y-4">
               <h2 className="text-2xl font-light tracking-wide text-gray-300 border-b border-gray-800 pb-3" style={{fontFamily: 'Cormorant Garamond, serif'}}>
                 Emergency Contacts
               </h2>
               
-              <div className="space-y-3">
-                <p className="text-xs text-gray-500 tracking-wider">EMERGENCY CONTACT 1</p>
+              <div className="space-y-3 bg-gray-900 border border-gray-800 p-4">
+                <p className="text-xs text-gray-500 tracking-wider">COACH EMERGENCY CONTACT</p>
                 <input
                   type="text"
                   placeholder="NAME *"
                   required
-                  value={formData.emergencyContact1Name}
-                  onChange={(e) => handleChange('emergencyContact1Name', e.target.value)}
-                  className="w-full bg-gray-900 border border-gray-700 focus:border-gray-500 text-gray-200 px-4 py-3 text-sm tracking-wide placeholder-gray-600 focus:outline-none transition-colors"
+                  value={formData.coachEmergencyName}
+                  onChange={(e) => handleChange('coachEmergencyName', e.target.value)}
+                  className="w-full bg-black border border-gray-700 focus:border-gray-500 text-gray-200 px-4 py-3 text-sm tracking-wide placeholder-gray-600 focus:outline-none transition-colors"
                 />
                 <input
                   type="tel"
                   placeholder="PHONE *"
                   required
-                  value={formData.emergencyContact1Phone}
-                  onChange={(e) => handleChange('emergencyContact1Phone', e.target.value)}
-                  className="w-full bg-gray-900 border border-gray-700 focus:border-gray-500 text-gray-200 px-4 py-3 text-sm tracking-wide placeholder-gray-600 focus:outline-none transition-colors"
+                  value={formData.coachEmergencyPhone}
+                  onChange={(e) => handleChange('coachEmergencyPhone', e.target.value)}
+                  className="w-full bg-black border border-gray-700 focus:border-gray-500 text-gray-200 px-4 py-3 text-sm tracking-wide placeholder-gray-600 focus:outline-none transition-colors"
                 />
               </div>
 
-              <div className="space-y-3">
-                <p className="text-xs text-gray-500 tracking-wider">EMERGENCY CONTACT 2</p>
-                <input
-                  type="text"
-                  placeholder="NAME *"
-                  required
-                  value={formData.emergencyContact2Name}
-                  onChange={(e) => handleChange('emergencyContact2Name', e.target.value)}
-                  className="w-full bg-gray-900 border border-gray-700 focus:border-gray-500 text-gray-200 px-4 py-3 text-sm tracking-wide placeholder-gray-600 focus:outline-none transition-colors"
-                />
-                <input
-                  type="tel"
-                  placeholder="PHONE *"
-                  required
-                  value={formData.emergencyContact2Phone}
-                  onChange={(e) => handleChange('emergencyContact2Phone', e.target.value)}
-                  className="w-full bg-gray-900 border border-gray-700 focus:border-gray-500 text-gray-200 px-4 py-3 text-sm tracking-wide placeholder-gray-600 focus:outline-none transition-colors"
-                />
-              </div>
+              {[1, 2, 3].map(num => (
+                <div key={num} className="space-y-3 bg-gray-900 border border-gray-800 p-4">
+                  <p className="text-xs text-gray-500 tracking-wider">ATHLETE {num} EMERGENCY CONTACT</p>
+                  <input
+                    type="text"
+                    placeholder="NAME *"
+                    required
+                    value={formData[`athlete${num}EmergencyName`]}
+                    onChange={(e) => handleChange(`athlete${num}EmergencyName`, e.target.value)}
+                    className="w-full bg-black border border-gray-700 focus:border-gray-500 text-gray-200 px-4 py-3 text-sm tracking-wide placeholder-gray-600 focus:outline-none transition-colors"
+                  />
+                  <input
+                    type="tel"
+                    placeholder="PHONE *"
+                    required
+                    value={formData[`athlete${num}EmergencyPhone`]}
+                    onChange={(e) => handleChange(`athlete${num}EmergencyPhone`, e.target.value)}
+                    className="w-full bg-black border border-gray-700 focus:border-gray-500 text-gray-200 px-4 py-3 text-sm tracking-wide placeholder-gray-600 focus:outline-none transition-colors"
+                  />
+                </div>
+              ))}
             </section>
 
-            {/* Waiver */}
             <section className="space-y-4">
               <h2 className="text-2xl font-light tracking-wide text-gray-300 border-b border-gray-800 pb-3" style={{fontFamily: 'Cormorant Garamond, serif'}}>
                 Waiver & Agreement
@@ -187,7 +350,6 @@
               </label>
             </section>
 
-            {/* Submit */}
             <div className="pt-8 text-center">
               <button
                 type="submit"
