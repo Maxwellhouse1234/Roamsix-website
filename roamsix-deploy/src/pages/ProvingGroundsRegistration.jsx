@@ -31,7 +31,7 @@ export default function ProvingGroundsRegistration() {
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    const eventDate = new Date('2026-06-01'); // UPDATE THIS WITH ACTUAL EVENT DATE
+    const eventDate = new Date('2026-06-01');
     const today = new Date();
     const daysUntilEvent = Math.floor((eventDate - today) / (1000 * 60 * 60 * 24));
     const weeksUntilEvent = Math.floor(daysUntilEvent / 7);
@@ -85,14 +85,14 @@ export default function ProvingGroundsRegistration() {
           }} />
         </div>
 
-        <div className="relative max-w-2xl text-center animate-fadeIn">
-          <h1 className="text-6xl md:text-7xl font-light tracking-[0.25em] text-gray-200 mb-8" style={{fontFamily: 'Cormorant Garamond, serif'}}>
-            Registration<br/>Received
+        <div className="relative max-w-2xl text-center">
+          <h1 className="text-6xl md:text-7xl font-light tracking-wider text-gray-200 mb-8">
+            Registration Received
           </h1>
 
           <div className="h-px w-48 bg-gray-400 opacity-30 mx-auto mb-12" />
 
-          <p className="text-xl text-gray-300 leading-relaxed mb-8" style={{fontFamily: 'Crimson Text, serif'}}>
+          <p className="text-xl text-gray-300 leading-relaxed mb-8">
             Your team registration for <strong>{formData.teamName}</strong> has been submitted.
           </p>
 
@@ -105,7 +105,7 @@ export default function ProvingGroundsRegistration() {
             </p>
             
               href="#payment"
-              className="inline-block bg-gray-200 hover:bg-white text-black py-4 px-10 text-sm tracking-[0.2em] uppercase transition-all duration-500"
+              className="inline-block bg-gray-200 hover:bg-white text-black py-4 px-10 text-sm tracking-wider uppercase transition-all duration-500"
             >
               Complete Payment
             </a>
@@ -115,20 +115,6 @@ export default function ProvingGroundsRegistration() {
             Payment link will be sent to {formData.email} shortly.
           </p>
         </div>
-
-        <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Crimson+Text:wght@400;600&display=swap');
-          
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          
-          .animate-fadeIn {
-            animation: fadeIn 1s ease-out forwards;
-            opacity: 0;
-          }
-        `}</style>
       </div>
     );
   }
@@ -153,7 +139,7 @@ export default function ProvingGroundsRegistration() {
 
         <div className="max-w-3xl mx-auto pt-20">
           <div className="mb-12 text-center">
-            <h1 className="text-5xl md:text-6xl font-light tracking-[0.2em] text-gray-200 mb-4" style={{fontFamily: 'Cormorant Garamond, serif'}}>
+            <h1 className="text-5xl md:text-6xl font-light tracking-wider text-gray-200 mb-4">
               Team Registration
             </h1>
             <div className="h-px w-32 bg-gray-400 opacity-30 mx-auto mb-6" />
@@ -166,7 +152,7 @@ export default function ProvingGroundsRegistration() {
 
           <form onSubmit={handleSubmit} className="space-y-8">
             <section className="space-y-4">
-              <h2 className="text-2xl font-light tracking-wide text-gray-300 border-b border-gray-800 pb-3" style={{fontFamily: 'Cormorant Garamond, serif'}}>
+              <h2 className="text-2xl font-light tracking-wide text-gray-300 border-b border-gray-800 pb-3">
                 Team Information
               </h2>
               
@@ -181,7 +167,7 @@ export default function ProvingGroundsRegistration() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-2xl font-light tracking-wide text-gray-300 border-b border-gray-800 pb-3" style={{fontFamily: 'Cormorant Garamond, serif'}}>
+              <h2 className="text-2xl font-light tracking-wide text-gray-300 border-b border-gray-800 pb-3">
                 Coach Information
               </h2>
               
@@ -217,7 +203,7 @@ export default function ProvingGroundsRegistration() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-2xl font-light tracking-wide text-gray-300 border-b border-gray-800 pb-3" style={{fontFamily: 'Cormorant Garamond, serif'}}>
+              <h2 className="text-2xl font-light tracking-wide text-gray-300 border-b border-gray-800 pb-3">
                 Athletes (3 Clients)
               </h2>
               
@@ -248,7 +234,7 @@ export default function ProvingGroundsRegistration() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-2xl font-light tracking-wide text-gray-300 border-b border-gray-800 pb-3" style={{fontFamily: 'Cormorant Garamond, serif'}}>
+              <h2 className="text-2xl font-light tracking-wide text-gray-300 border-b border-gray-800 pb-3">
                 Contact Information
               </h2>
               
@@ -272,7 +258,7 @@ export default function ProvingGroundsRegistration() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-2xl font-light tracking-wide text-gray-300 border-b border-gray-800 pb-3" style={{fontFamily: 'Cormorant Garamond, serif'}}>
+              <h2 className="text-2xl font-light tracking-wide text-gray-300 border-b border-gray-800 pb-3">
                 Emergency Contacts
               </h2>
               
@@ -320,7 +306,7 @@ export default function ProvingGroundsRegistration() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-2xl font-light tracking-wide text-gray-300 border-b border-gray-800 pb-3" style={{fontFamily: 'Cormorant Garamond, serif'}}>
+              <h2 className="text-2xl font-light tracking-wide text-gray-300 border-b border-gray-800 pb-3">
                 Waiver & Agreement
               </h2>
               
@@ -353,7 +339,7 @@ export default function ProvingGroundsRegistration() {
             <div className="pt-8 text-center">
               <button
                 type="submit"
-                className="bg-gray-200 hover:bg-white text-black py-5 px-12 text-sm tracking-[0.2em] uppercase transition-all duration-500"
+                className="bg-gray-200 hover:bg-white text-black py-5 px-12 text-sm tracking-wider uppercase transition-all duration-500"
               >
                 Complete Registration
               </button>
@@ -364,10 +350,6 @@ export default function ProvingGroundsRegistration() {
           </form>
         </div>
       </div>
-
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Crimson+Text:wght@400;600&display=swap');
-      `}</style>
     </div>
   );
 }
