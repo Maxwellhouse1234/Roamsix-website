@@ -122,4 +122,3 @@ If you get stuck:
 3. **Analytics**: Add Google Analytics or Plausible
 4. **Custom invitation codes**: Move from hardcoded to database-driven codes
 5. **Payment integration**: Add Stripe for accepting payments after founder calls
-6. 
