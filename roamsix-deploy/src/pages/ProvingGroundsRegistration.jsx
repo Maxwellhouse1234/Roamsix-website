@@ -77,15 +77,8 @@ export default function ProvingGroundsRegistration() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-black text-white relative overflow-hidden flex items-center justify-center px-6">
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-            backgroundSize: '32px 32px'
-          }} />
-        </div>
-
-        <div className="relative max-w-2xl text-center">
+      <div className="min-h-screen bg-black text-white flex items-center justify-center px-6">
+        <div className="max-w-2xl text-center">
           <h1 className="text-6xl md:text-7xl font-light tracking-wider text-gray-200 mb-8">
             Registration Received
           </h1>
@@ -120,14 +113,7 @@ export default function ProvingGroundsRegistration() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
-      <div className="absolute inset-0 opacity-5 fixed">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-          backgroundSize: '32px 32px'
-        }} />
-      </div>
-
+    <div className="min-h-screen bg-black text-white">
       <div className="relative min-h-screen px-6 py-12">
         <Link 
           to="/proving-grounds"
@@ -328,7 +314,7 @@ export default function ProvingGroundsRegistration() {
                   type="checkbox"
                   checked={formData.waiverAccepted}
                   onChange={(e) => handleChange('waiverAccepted', e.target.checked)}
-                  className="mt-1 w-5 h-5 border-2 border-gray-600 bg-transparent checked:bg-gray-300 transition-colors"
+                  className="mt-1 w-5 h-5"
                 />
                 <span className="text-gray-300 group-hover:text-gray-200 transition-colors">
                   I accept the liability waiver and release on behalf of my team *
@@ -344,7 +330,7 @@ export default function ProvingGroundsRegistration() {
                 Complete Registration
               </button>
               <p className="text-xs text-gray-600 mt-4">
-                After registration, you'll be redirected to payment.
+                After registration, you will be redirected to payment.
               </p>
             </div>
           </form>
