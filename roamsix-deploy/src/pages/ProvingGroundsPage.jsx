@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
 export default function ProvingGroundsPage() {
-  const [showFAQ, setShowFAQ] = React.useState(null);
-
   const stations = [
     { name: 'Terrain', description: 'Load progression on natural elevation' },
     { name: 'Strength', description: 'Output measured against time' },
@@ -14,143 +12,124 @@ export default function ProvingGroundsPage() {
     { name: 'Grit', description: 'Surprise challenge revealed on event day (highest points)' }
   ];
 
-  const pricing = [
-    { weeks: '4 weeks out', price: 300 },
-    { weeks: '3 weeks out', price: 350 },
-    { weeks: '2 weeks out', price: 400 },
-    { weeks: '1 week out', price: 450 },
-    { weeks: 'Event week', price: 500 }
+  const recoveryServices = [
+    'Massage therapy',
+    'Chiropractic care', 
+    'IV therapy',
+    'Cold therapy',
+    'Breathwork sessions',
+    'Nutrition consultation'
   ];
 
   const faqs = [
     {
-      q: 'Who can compete?',
-      a: 'Independent trainers, small gym owners, specialty coaches, and remote trainers with three clients willing to compete alongside them.'
+      question: 'When and where is the event?',
+      answer: 'The inaugural Proving Grounds will be held on 140 acres of California high desert. Specific date and location details will be provided upon registration.'
     },
     {
-      q: "What's Station 6?",
-      a: 'The final challenge is revealed on event day. It tests adaptability and mental resilience. Carries the highest point value.'
+      question: 'What level of fitness is required?',
+      answer: 'Teams should be prepared for a full day of varied physical challenges. Coaches should assess their clients\' readiness and ensure all team members can safely participate in demanding outdoor activities.'
     },
     {
-      q: 'Is this event recurring?',
-      a: "This is the inaugural Proving Grounds. If there's demand, we'll build a national tour. The first event sets the benchmark."
+      question: 'What is included in the registration fee?',
+      answer: 'Registration includes team entry for all six stations, recovery access throughout the day, athlete welcome kits, results tracking, and post-event leaderboard publication.'
     },
     {
-      q: "What if my clients aren't elite athletes?",
-      a: "This event measures progress and capability. If you've trained your clients well, they're ready."
+      question: 'How does team scoring work?',
+      answer: 'Results are scored by team and published after the event. Each station contributes to your team\'s overall performance, with the Grit station offering the highest point value.'
     }
   ];
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <div className="absolute inset-0 opacity-5 fixed">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-          backgroundSize: '32px 32px'
-        }} />
-      </div>
-
       {/* Hero Section */}
-      <div className="relative min-h-screen flex flex-col items-center justify-center px-6 py-20">
-        <Link to="/" className="absolute top-8 left-8 text-gray-400 hover:text-gray-300 transition-colors text-sm tracking-wider">
-          ← ROAMSIX
-        </Link>
-
-        <div className="max-w-4xl text-center animate-fadeIn">
-          <h1 className="text-5xl md:text-7xl font-light tracking-[0.25em] text-gray-200 mb-8 leading-tight" style={{fontFamily: 'Cormorant Garamond, serif'}}>
-            You've been transforming clients for years.<br/>
-            Now compete in the arena that matters.
+      <section className="min-h-screen flex items-center justify-center px-6 py-20">
+        <div className="max-w-5xl mx-auto text-center">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-light tracking-wide leading-tight mb-8 text-gray-100">
+            You've been transforming clients for years. Now compete in the arena that matters.
           </h1>
-
-          <p className="text-xl md:text-2xl text-gray-400 mb-12 leading-relaxed" style={{fontFamily: 'Crimson Text, serif'}}>
-            One day. Six performance stations. 140 acres of California high desert.<br/>
+          
+          <p className="text-xl md:text-2xl text-gray-400 mb-6 max-w-4xl mx-auto leading-relaxed">
+            One day. Six performance stations. 140 acres of California high desert.
+          </p>
+          <p className="text-xl md:text-2xl text-gray-400 mb-12 max-w-4xl mx-auto leading-relaxed">
             24 teams. Inaugural event.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link 
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <Link
               to="/proving-grounds/register"
-              className="bg-gray-200 hover:bg-white text-black py-4 px-10 text-sm tracking-[0.2em] uppercase transition-all duration-500"
+              className="bg-gray-100 hover:bg-white text-black px-10 py-5 text-lg tracking-wider uppercase transition-all duration-300"
             >
               Register Your Team
             </Link>
-            <a 
-              href="#format"
-              className="text-gray-400 hover:text-gray-300 text-sm tracking-[0.15em] uppercase transition-colors flex items-center gap-2"
-            >
-              How it works
-              <ArrowRight className="w-4 h-4" />
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* What This Is */}
-      <section className="relative py-24 px-6 border-t border-gray-800">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-light tracking-[0.2em] text-gray-200 mb-12" style={{fontFamily: 'Cormorant Garamond, serif'}}>
-            What This Is
-          </h2>
-          <div className="space-y-6 text-lg text-gray-300 leading-relaxed" style={{fontFamily: 'Crimson Text, serif'}}>
-            <p>
-              Independent trainers build programs that change lives. Your clients invest in you because they know what real coaching delivers.
-            </p>
-            <p>
-              This event measures that work. You and three of your clients compete together across six performance stations. Results are recorded and published.
-            </p>
-            <p className="text-gray-400">
-              The first event sets the standard for everything that follows.
-            </p>
+            <button className="text-gray-300 hover:text-white flex items-center gap-2 text-lg tracking-wider uppercase transition-colors">
+              How It Works
+              <ArrowRight className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </section>
 
-      {/* The Format */}
-      <section id="format" className="relative py-24 px-6 border-t border-gray-800">
+      {/* The Format Section */}
+      <section className="py-24 px-6 border-t border-gray-800">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-light tracking-[0.2em] text-gray-200 mb-12" style={{fontFamily: 'Cormorant Garamond, serif'}}>
+          <h2 className="text-5xl md:text-6xl font-light tracking-wide mb-6 text-gray-100">
             The Format
           </h2>
-
-          <div className="mb-12">
-            <div className="inline-block bg-gray-900 border border-gray-700 px-6 py-3 mb-8">
-              <p className="text-gray-300 text-lg">
-                <strong>Teams of 4:</strong> 1 coach + 3 clients
-              </p>
-            </div>
+          
+          <div className="bg-gray-900 border border-gray-800 inline-block px-8 py-4 mb-16">
+            <p className="text-xl md:text-2xl text-gray-300">
+              Teams of 4: <span className="text-gray-100">1 coach + 3 clients</span>
+            </p>
           </div>
 
-          <h3 className="text-2xl text-gray-300 mb-8 tracking-wide" style={{fontFamily: 'Cormorant Garamond, serif'}}>
+          {/* Image Placeholder - Desert Landscape */}
+          <div className="mb-16 aspect-video bg-gray-900 border border-gray-800 flex items-center justify-center">
+            <p className="text-gray-600 text-lg">[ Desert Landscape Image ]</p>
+          </div>
+
+          <h3 className="text-3xl md:text-4xl font-light tracking-wide mb-10 text-gray-200">
             Six Stations:
           </h3>
 
-          <div className="grid md:grid-cols-2 gap-6 mb-12">
+          <div className="grid md:grid-cols-2 gap-6 mb-16">
             {stations.map((station, index) => (
-              <div 
-                key={index}
-                className="bg-gray-900 border border-gray-700 p-6 hover:border-gray-500 transition-colors duration-300"
-              >
-                <h4 className="text-xl text-gray-200 mb-2 font-light tracking-wide" style={{fontFamily: 'Cormorant Garamond, serif'}}>
+              <div key={index} className="bg-gray-900 border border-gray-800 p-8">
+                <h4 className="text-2xl md:text-3xl font-light mb-3 text-gray-100">
                   {station.name}
                 </h4>
-                <p className="text-gray-400 text-sm">{station.description}</p>
+                <p className="text-lg md:text-xl text-gray-400 leading-relaxed">
+                  {station.description}
+                </p>
               </div>
             ))}
           </div>
 
-          <p className="text-gray-400 text-center italic">
+          {/* Image Placeholder - Training/Competition */}
+          <div className="mb-10 aspect-video bg-gray-900 border border-gray-800 flex items-center justify-center">
+            <p className="text-gray-600 text-lg">[ Competition Action Image ]</p>
+          </div>
+
+          <p className="text-lg md:text-xl text-gray-400 italic text-center leading-relaxed">
             Results are scored by team and published after the event.
           </p>
         </div>
       </section>
 
-      {/* Why It Matters */}
-      <section className="relative py-24 px-6 border-t border-gray-800">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-light tracking-[0.2em] text-gray-200 mb-12" style={{fontFamily: 'Cormorant Garamond, serif'}}>
-            Why It Matters
+      {/* The Reality Section (formerly Why It Matters) */}
+      <section className="py-24 px-6 border-t border-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-5xl md:text-6xl font-light tracking-wide mb-12 text-gray-100">
+            The Reality
           </h2>
-          <div className="space-y-6 text-lg text-gray-300 leading-relaxed" style={{fontFamily: 'Crimson Text, serif'}}>
+
+          {/* Image Placeholder - Coaches/Athletes */}
+          <div className="mb-12 aspect-video bg-gray-900 border border-gray-800 flex items-center justify-center">
+            <p className="text-gray-600 text-lg">[ Coach/Team Image ]</p>
+          </div>
+
+          <div className="space-y-8 text-lg md:text-xl text-gray-300 leading-relaxed max-w-4xl">
             <p>
               Your clients chose you because they wanted programs built for them. They invested time and money into training that delivers real capability.
             </p>
@@ -161,87 +140,121 @@ export default function ProvingGroundsPage() {
         </div>
       </section>
 
-      {/* Recovery Access */}
-      <section className="relative py-24 px-6 border-t border-gray-800">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-light tracking-[0.2em] text-gray-200 mb-12" style={{fontFamily: 'Cormorant Garamond, serif'}}>
+      {/* Recovery Access Section */}
+      <section className="py-24 px-6 border-t border-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-5xl md:text-6xl font-light tracking-wide mb-12 text-gray-100">
             Recovery Access
           </h2>
-          <p className="text-lg text-gray-300 mb-8 leading-relaxed" style={{fontFamily: 'Crimson Text, serif'}}>
-            Between waves and during breaks, athletes have access to on-site recovery:
-          </p>
-          <div className="bg-gray-900 border border-gray-700 p-8">
-            <p className="text-gray-300 text-base leading-relaxed">
-              Massage, muscle activation, chiropractic, IV therapy, cold therapy, breathwork, stretching, hydration, performance nutrition.
-            </p>
-            <p className="text-gray-400 mt-4 text-sm">Included with registration.</p>
-          </div>
-        </div>
-      </section>
 
-      {/* What's Included */}
-      <section className="relative py-24 px-6 border-t border-gray-800">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-light tracking-[0.2em] text-gray-200 mb-12" style={{fontFamily: 'Cormorant Garamond, serif'}}>
-            What's Included
-          </h2>
-
-          <div className="mb-8">
-            <h3 className="text-xl text-gray-300 mb-6">Registration covers:</h3>
-            <ul className="space-y-3">
-              {[
-                'Entry for your team of 4',
-                'Team performance results',
-                'Recovery services access',
-                'Athlete kits',
-                'National leaderboard placement'
-              ].map((item, i) => (
-                <li key={i} className="flex items-start gap-3 text-gray-300">
-                  <div className="w-1.5 h-1.5 bg-gray-500 mt-2.5 flex-shrink-0" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
+          {/* Image Placeholder - Recovery Services */}
+          <div className="mb-12 aspect-video bg-gray-900 border border-gray-800 flex items-center justify-center">
+            <p className="text-gray-600 text-lg">[ Recovery/Wellness Image ]</p>
           </div>
 
-          <div className="bg-gray-900 border border-gray-700 p-6 mt-8">
-            <h3 className="text-lg text-gray-300 mb-3">Optional add-on:</h3>
-            <p className="text-gray-400">
-              Professional content package (photos and video across all stations)
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Investment */}
-      <section className="relative py-24 px-6 border-t border-gray-800">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-light tracking-[0.2em] text-gray-200 mb-12 text-center" style={{fontFamily: 'Cormorant Garamond, serif'}}>
-            Investment
-          </h2>
-
-          <div className="max-w-2xl mx-auto space-y-4 mb-8">
-            {pricing.map((tier, i) => (
-              <div key={i} className="flex justify-between items-center bg-gray-900 border border-gray-700 p-5">
-                <span className="text-gray-300 tracking-wide">{tier.weeks}</span>
-                <span className="text-gray-200 text-xl font-light">${tier.price} per team</span>
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            {recoveryServices.map((service, index) => (
+              <div key={index} className="bg-gray-900 border border-gray-800 p-6">
+                <p className="text-xl md:text-2xl text-gray-200">
+                  {service}
+                </p>
               </div>
             ))}
           </div>
 
-          <div className="text-center space-y-4 mb-12">
-            <p className="text-gray-400 text-sm">
-              Price increases $50 weekly. Early commitment gets rewarded.
-            </p>
-            <p className="text-gray-400 text-sm">
-              <strong>Capacity:</strong> 24 teams. Registration closes when filled.
-            </p>
+          <p className="text-lg md:text-xl text-gray-400 text-center leading-relaxed">
+            Available throughout the day for all participants
+          </p>
+        </div>
+      </section>
+
+      {/* What's Included Section */}
+      <section className="py-24 px-6 border-t border-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-5xl md:text-6xl font-light tracking-wide mb-12 text-gray-100">
+            What's Included
+          </h2>
+
+          <div className="grid md:grid-cols-2 gap-8 mb-16">
+            <div className="bg-gray-900 border border-gray-800 p-8">
+              <h3 className="text-2xl md:text-3xl font-light mb-4 text-gray-100">
+                Team Entry
+              </h3>
+              <p className="text-lg md:text-xl text-gray-400 leading-relaxed">
+                Full access to all six performance stations for your team of four
+              </p>
+            </div>
+
+            <div className="bg-gray-900 border border-gray-800 p-8">
+              <h3 className="text-2xl md:text-3xl font-light mb-4 text-gray-100">
+                Results & Leaderboard
+              </h3>
+              <p className="text-lg md:text-xl text-gray-400 leading-relaxed">
+                Team scoring tracked throughout the day, published after the event
+              </p>
+            </div>
+
+            <div className="bg-gray-900 border border-gray-800 p-8">
+              <h3 className="text-2xl md:text-3xl font-light mb-4 text-gray-100">
+                Recovery Services
+              </h3>
+              <p className="text-lg md:text-xl text-gray-400 leading-relaxed">
+                Full-day access to massage, chiropractic, IV therapy, and more
+              </p>
+            </div>
+
+            <div className="bg-gray-900 border border-gray-800 p-8">
+              <h3 className="text-2xl md:text-3xl font-light mb-4 text-gray-100">
+                Athlete Kits
+              </h3>
+              <p className="text-lg md:text-xl text-gray-400 leading-relaxed">
+                Welcome package for each team member
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="py-24 px-6 border-t border-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-5xl md:text-6xl font-light tracking-wide mb-12 text-gray-100">
+            Investment
+          </h2>
+
+          <div className="bg-gray-900 border border-gray-800 p-10 mb-8 max-w-3xl mx-auto">
+            <div className="space-y-6 text-xl md:text-2xl text-gray-300">
+              <div className="flex justify-between items-center border-b border-gray-800 pb-4">
+                <span>4+ weeks out</span>
+                <span className="text-gray-100 font-light">$300</span>
+              </div>
+              <div className="flex justify-between items-center border-b border-gray-800 pb-4">
+                <span>3 weeks out</span>
+                <span className="text-gray-100 font-light">$350</span>
+              </div>
+              <div className="flex justify-between items-center border-b border-gray-800 pb-4">
+                <span>2 weeks out</span>
+                <span className="text-gray-100 font-light">$400</span>
+              </div>
+              <div className="flex justify-between items-center border-b border-gray-800 pb-4">
+                <span>1 week out</span>
+                <span className="text-gray-100 font-light">$450</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Event week</span>
+                <span className="text-gray-100 font-light">$500</span>
+              </div>
+            </div>
           </div>
 
+          <p className="text-lg md:text-xl text-gray-400 text-center mb-12 leading-relaxed">
+            Price increases $50 per team each week as the event approaches
+          </p>
+
           <div className="text-center">
-            <Link 
+            <Link
               to="/proving-grounds/register"
-              className="inline-block bg-gray-200 hover:bg-white text-black py-5 px-12 text-sm tracking-[0.2em] uppercase transition-all duration-500"
+              className="inline-block bg-gray-100 hover:bg-white text-black px-12 py-6 text-xl tracking-wider uppercase transition-all duration-300"
             >
               Register Your Team
             </Link>
@@ -249,30 +262,22 @@ export default function ProvingGroundsPage() {
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="relative py-24 px-6 border-t border-gray-800">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-light tracking-[0.2em] text-gray-200 mb-12" style={{fontFamily: 'Cormorant Garamond, serif'}}>
-            FAQ
+      {/* FAQ Section */}
+      <section className="py-24 px-6 border-t border-gray-800">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-5xl md:text-6xl font-light tracking-wide mb-16 text-gray-100">
+            Questions
           </h2>
 
-          <div className="space-y-4">
-            {faqs.map((faq, i) => (
-              <div key={i} className="border-b border-gray-800">
-                <button
-                  onClick={() => setShowFAQ(showFAQ === i ? null : i)}
-                  className="w-full text-left py-5 flex justify-between items-center group"
-                >
-                  <span className="text-lg text-gray-300 group-hover:text-gray-200 transition-colors">
-                    {faq.q}
-                  </span>
-                  <span className="text-gray-500 text-2xl">{showFAQ === i ? '−' : '+'}</span>
-                </button>
-                {showFAQ === i && (
-                  <div className="pb-6 text-gray-400 leading-relaxed" style={{fontFamily: 'Crimson Text, serif'}}>
-                    {faq.a}
-                  </div>
-                )}
+          <div className="space-y-8">
+            {faqs.map((faq, index) => (
+              <div key={index} className="border-b border-gray-800 pb-8">
+                <h3 className="text-2xl md:text-3xl font-light mb-4 text-gray-100">
+                  {faq.question}
+                </h3>
+                <p className="text-lg md:text-xl text-gray-400 leading-relaxed">
+                  {faq.answer}
+                </p>
               </div>
             ))}
           </div>
@@ -280,33 +285,26 @@ export default function ProvingGroundsPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="relative py-24 px-6 border-t border-gray-800">
-        <div className="max-w-2xl mx-auto text-center">
-          <p className="text-2xl text-gray-300 mb-8 leading-relaxed" style={{fontFamily: 'Crimson Text, serif'}}>
-            Inaugural event. Limited capacity. Early registration rewarded.
-          </p>
-          <Link 
+      <section className="py-32 px-6 border-t border-gray-800">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-5xl md:text-7xl font-light tracking-wide mb-12 text-gray-100 leading-tight">
+            Ready to compete?
+          </h2>
+          <Link
             to="/proving-grounds/register"
-            className="inline-block bg-gray-200 hover:bg-white text-black py-5 px-12 text-sm tracking-[0.2em] uppercase transition-all duration-500"
+            className="inline-block bg-gray-100 hover:bg-white text-black px-12 py-6 text-xl tracking-wider uppercase transition-all duration-300"
           >
             Register Your Team
           </Link>
         </div>
       </section>
 
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Crimson+Text:wght@400;600&display=swap');
-        
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .animate-fadeIn {
-          animation: fadeIn 1s ease-out forwards;
-          opacity: 0;
-        }
-      `}</style>
+      {/* Footer */}
+      <footer className="py-12 px-6 border-t border-gray-800 text-center">
+        <p className="text-base md:text-lg text-gray-600">
+          Powered by ROAMSIX
+        </p>
+      </footer>
     </div>
   );
 }
