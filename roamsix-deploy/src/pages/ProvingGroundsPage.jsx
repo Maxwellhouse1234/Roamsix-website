@@ -58,21 +58,24 @@ export default function ProvingGroundsPage() {
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <Link
-              to="/proving-grounds/register"
+              to="/proving-grounds/coach-register"
               className="bg-gray-100 hover:bg-white text-black px-10 py-5 text-lg tracking-wider uppercase transition-all duration-300"
             >
               Register Your Team
             </Link>
-            <button className="text-gray-300 hover:text-white flex items-center gap-2 text-lg tracking-wider uppercase transition-colors">
+            
+              href="#format"
+              className="text-gray-300 hover:text-white flex items-center gap-2 text-lg tracking-wider uppercase transition-colors"
+            >
               How It Works
               <ArrowRight className="w-5 h-5" />
-            </button>
+            </a>
           </div>
         </div>
       </section>
 
       {/* The Format Section */}
-      <section className="py-24 px-6 border-t border-gray-800">
+      <section id="format" className="py-24 px-6 border-t border-gray-800">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-5xl md:text-6xl font-light tracking-wide mb-6 text-gray-100">
             The Format
@@ -253,7 +256,7 @@ export default function ProvingGroundsPage() {
 
           <div className="text-center">
             <Link
-              to="/proving-grounds/register"
+              to="/proving-grounds/coach-register"
               className="inline-block bg-gray-100 hover:bg-white text-black px-12 py-6 text-xl tracking-wider uppercase transition-all duration-300"
             >
               Register Your Team
@@ -291,7 +294,7 @@ export default function ProvingGroundsPage() {
             Ready to compete?
           </h2>
           <Link
-            to="/proving-grounds/register"
+            to="/proving-grounds/coach-register"
             className="inline-block bg-gray-100 hover:bg-white text-black px-12 py-6 text-xl tracking-wider uppercase transition-all duration-300"
           >
             Register Your Team
