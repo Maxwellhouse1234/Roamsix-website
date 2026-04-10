@@ -52,10 +52,6 @@ export default function ProvingGroundsPage() {
           <p className="text-xl md:text-2xl text-gray-400 mb-6 max-w-4xl mx-auto leading-relaxed">
             One day. Six performance stations. 140 acres of California high desert.
           </p>
-          <p className="text-xl md:text-2xl text-gray-400 mb-12 max-w-4xl mx-auto leading-relaxed">
-            24 teams. Inaugural event.
-          </p>
-
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <Link
               to="/proving-grounds/coach-register"
