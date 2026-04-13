@@ -33,7 +33,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'ROAMSIX Proving Grounds <noreply@roamsix.com>',
+        from: 'ROAMSIX Proving Grounds <info@roamsix.com>',
         to: [coachEmail],
         subject: `Your Team is Registered - Team Code: ${teamCode}`,
         html: `
