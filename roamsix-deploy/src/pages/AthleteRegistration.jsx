@@ -512,8 +512,7 @@ export default function AthleteRegistration() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0a1628', color: '#f5f3f0', padding: '80px 20px' }}>
       <div style={{ maxWidth: '700px', margin: '0 auto', textAlign: 'center' }}>
-        <div style={{ display: 'inline-block', width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#d4af37', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '32px' }}>
-          <span style={{ fontSize: '48px' }}>✓</span>
+<div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#d4af37', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '32px' }}>          <span style={{ fontSize: '48px' }}>✓</span>
         </div>
         
         <h1 style={{ fontSize: '48px', fontWeight: 'bold', color: '#f5f3f0', margin: '0 0 24px 0', fontFamily: 'Montserrat, sans-serif' }}>
