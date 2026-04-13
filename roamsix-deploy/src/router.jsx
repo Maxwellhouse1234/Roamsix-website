@@ -5,6 +5,7 @@ import ProvingGroundsRegistration from './pages/ProvingGroundsRegistration';
 import CoachRegistration from './pages/CoachRegistration';
 import AthleteRegistration from './pages/AthleteRegistration';
 import RetreatApplication from './pages/RetreatApplication';
+import AthleteRegistration from './pages/AthleteRegistration';
 
 export const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ export const router = createBrowserRouter([
   {
     path: '/proving-grounds/coach-register',
     element: <CoachRegistration />
+    {
+  path: '/proving-grounds/athlete-register',
+  element: <AthleteRegistration />
+},
   },
   {
     path: '/proving-grounds/athlete-register',
