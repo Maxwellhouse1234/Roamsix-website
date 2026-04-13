@@ -100,7 +100,7 @@ export default function CoachRegistration() {
       <div style={{ minHeight: '100vh', backgroundColor: '#0a1628', color: '#f5f3f0', padding: '80px 20px' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-            <div style={{ display: 'inline-block', width: '60px', height: '60px', borderRadius: '50%', backgroundColor: '#d4af37', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+            <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundColor: '#d4af37', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
               <span style={{ fontSize: '32px' }}>✓</span>
             </div>
             <h1 style={{ fontSize: '42px', fontWeight: 'bold', color: '#f5f3f0', margin: '0 0 16px 0' }}>
