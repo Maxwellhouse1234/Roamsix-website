@@ -16,11 +16,17 @@ import { useState, useEffect } from "react";
     PG info  → POST /api/submit-interest
 */
 
-const HERO_SRC      = "/images/roamsix-hero.webp";
-const MAX_SRC       = "/images/founders/max-ouellette.webp";
-const JACKIE_SRC    = "/images/founders/jackie.webp";
-const PG_SRC        = "/images/homepage/proving-grounds.webp";
-const HERO_FALLBACK = "/images/homepage/team-outlook.webp";
+// ── REAL ASSET PATHS ──────────────────────────────────────────────────────
+// Upload files to: roamsix-deploy/public/images/homepage/
+// and:             roamsix-deploy/public/images/founders/
+const HERO_SRC       = "/images/homepage/roamsix-hero.webp";
+const PG_SRC         = "/images/homepage/proving-grounds.webp";
+const TEAM_SRC       = "/images/homepage/team-outlook.webp";
+const NOTES_SRC      = "/images/homepage/field-notes.webp";
+const MAX_SRC        = "/images/founders/max-ouellette.webp";
+const JACKIE_SRC     = "/images/founders/jackie.webp";
+// Fallback if hero image not yet uploaded
+const HERO_FALLBACK  = "/images/homepage/team-outlook.webp";
 
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=EB+Garamond:ital,wght@1,400;1,500&display=swap');
@@ -160,7 +166,7 @@ const css = `
   /* HERO */
   .rs-hero { min-height: 100vh; position: relative; display: flex; align-items: flex-end; overflow: hidden; }
   .rs-hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
-  .rs-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(6,10,18,0.1) 0%, rgba(6,10,18,0.32) 35%, rgba(6,10,18,0.82) 68%, rgba(6,10,18,0.97) 88%, #141C2A 100%); }
+  .rs-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(6,10,18,0.28) 0%, rgba(6,10,18,0.48) 35%, rgba(6,10,18,0.86) 68%, rgba(6,10,18,0.97) 88%, #141C2A 100%); }
   .rs-hero-content { position: relative; z-index: 2; padding: 0 56px 96px; max-width: 960px; animation: rsRise 1s cubic-bezier(0.16,1,0.3,1) forwards; }
   .rs-hero-h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(44px,5.8vw,76px); line-height: 1.05; letter-spacing: 0.5px; color: var(--cream); margin-bottom: 24px; text-transform: uppercase; text-shadow: 0 2px 8px rgba(0,0,0,0.6); }
   .rs-hero-sub { font-size: 20px; line-height: 1.75; color: #E8DFD0; max-width: 580px; margin-bottom: 48px; font-weight: 400; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
@@ -237,8 +243,8 @@ const css = `
 
   /* PROVING GROUNDS */
   .rs-pg { background: var(--navy); border-top: 1px solid rgba(181,149,88,0.08); position: relative; overflow: hidden; }
-  .rs-pg-bg-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; opacity: 0.1; }
-  .rs-pg-overlay { position: absolute; inset: 0; background: linear-gradient(to right, rgba(4,7,14,0.99) 40%, rgba(4,7,14,0.92) 100%); }
+  .rs-pg-bg-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; opacity: 0.18; filter: brightness(0.8) contrast(1.1); }
+  .rs-pg-overlay { position: absolute; inset: 0; background: linear-gradient(to right, rgba(4,7,14,0.96) 35%, rgba(4,7,14,0.80) 100%); }
   .rs-pg-top { position: relative; z-index: 2; padding: 56px 56px 44px; display: grid; grid-template-columns: 1fr auto; gap: 48px; align-items: start; border-bottom: 1px solid rgba(232,223,208,0.07); }
   .rs-pg-pill { display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(181,149,88,0.28); padding: 5px 14px; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; font-weight: 500; }
   .rs-pg-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: rsBreathe 2s ease infinite; }
@@ -302,6 +308,28 @@ const css = `
   .rs-contact-note { font-family: 'EB Garamond', serif; font-style: italic; font-size: 16px; color: var(--cream-muted); }
   .rs-form-grid { display: flex; flex-direction: column; gap: 10px; }
   .rs-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* PROOF STRIP */
+  .rs-proof-strip {
+    display: grid;
+    grid-template-columns: 1fr 0.55fr 1fr;
+    gap: 3px;
+    background: #060A11;
+  }
+  .rs-strip-img {
+    width: 100%; aspect-ratio: 16/9; object-fit: cover;
+    object-position: center;
+    display: block;
+    filter: brightness(0.88) contrast(1.05);
+    transition: filter 0.4s;
+  }
+  .rs-strip-img:hover { filter: brightness(0.95) contrast(1.05); }
+  .rs-strip-img-narrow { aspect-ratio: 4/5; object-position: center top; }
+
+  @media (max-width: 900px) {
+    .rs-proof-strip { grid-template-columns: 1fr 1fr; }
+    .rs-strip-img-narrow { display: none; }
+  }
 
   /* FOOTER */
   .rs-footer { background: #060A11; padding: 80px 56px 40px; border-top: 1px solid rgba(181,149,88,0.08); }
@@ -541,6 +569,13 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* VISUAL PROOF STRIP */}
+      <div className="rs-proof-strip">
+        <img src={TEAM_SRC}  alt="ROAMSIX team on terrain" loading="lazy" className="rs-strip-img" onError={e=>{e.target.style.display="none"}}/>
+        <img src={NOTES_SRC} alt="Field facilitation"      loading="lazy" className="rs-strip-img rs-strip-img-narrow" onError={e=>{e.target.style.display="none"}}/>
+        <img src={HERO_SRC}  alt="ROAMSIX environment"     loading="lazy" className="rs-strip-img" onError={e=>{e.target.style.display="none"}}/>
+      </div>
+
       <hr className="rs-hr"/>
 
       {/* DESIGNED FOR */}
@@ -632,7 +667,7 @@ export default function HomePage() {
           ].map(f => (
             <div className="rs-founder" key={f.name}>
               <div className="rs-founder-img-wrap">
-                <img className="rs-founder-img" src={f.photo} alt={f.name} onError={e => { e.target.style.display="none"; e.target.nextSibling.style.display="flex"; }}/>
+                <img className="rs-founder-img" src={f.photo} alt={f.name} loading="lazy" onError={e => { e.target.style.display="none"; e.target.nextSibling.style.display="flex"; }}/>
                 <div className="rs-founder-placeholder" style={{display:"none",background:f.bg}}><span className="rs-founder-initials">{f.init}</span></div>
                 <div className="rs-founder-bar" style={{background:f.bar}}/>
               </div>
