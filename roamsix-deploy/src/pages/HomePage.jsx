@@ -16,7 +16,7 @@ import { useState, useEffect } from "react";
     PG info  → POST /api/submit-interest
 */
 
-const HERO_SRC      = "/images/roamsix-hero.jpg";
+const HERO_SRC      = "/images/roamsix-hero.webp";
 const MAX_SRC       = "/images/founders/max-ouellette.webp";
 const JACKIE_SRC    = "/images/founders/jackie.webp";
 const PG_SRC        = "/images/homepage/proving-grounds.webp";
