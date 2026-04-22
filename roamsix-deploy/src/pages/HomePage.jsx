@@ -162,8 +162,8 @@ const css = `
   .rs-hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
   .rs-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(6,10,18,0.1) 0%, rgba(6,10,18,0.32) 35%, rgba(6,10,18,0.82) 68%, rgba(6,10,18,0.97) 88%, #141C2A 100%); }
   .rs-hero-content { position: relative; z-index: 2; padding: 0 56px 96px; max-width: 960px; animation: rsRise 1s cubic-bezier(0.16,1,0.3,1) forwards; }
-  .rs-hero-h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(44px,5.8vw,76px); line-height: 1.05; letter-spacing: 0.5px; color: var(--cream); margin-bottom: 24px; text-transform: uppercase; }
-  .rs-hero-sub { font-size: 20px; line-height: 1.75; color: #D8D0C2; max-width: 580px; margin-bottom: 48px; font-weight: 400; }
+  .rs-hero-h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(44px,5.8vw,76px); line-height: 1.05; letter-spacing: 0.5px; color: var(--cream); margin-bottom: 24px; text-transform: uppercase; text-shadow: 0 2px 8px rgba(0,0,0,0.6); }
+  .rs-hero-sub { font-size: 20px; line-height: 1.75; color: #E8DFD0; max-width: 580px; margin-bottom: 48px; font-weight: 400; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
   .rs-hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
 
   /* PROOF BAR — solid dark, clear text */
@@ -501,7 +501,10 @@ export default function HomePage() {
         <img className="rs-hero-img" src={heroErr ? HERO_FALLBACK : HERO_SRC} alt="ROAMSIX environment" onError={() => setHeroErr(true)}/>
         <div className="rs-hero-overlay"/>
         <div className="rs-hero-content">
-          <div className="rs-label-row" style={{marginBottom:"22px"}}><span className="rs-rule"/><span className="rs-label">Custom Offsites, Retreats, and Performance Experiences</span></div>
+          <div className="rs-label-row" style={{marginBottom:"22px"}}>
+            <span className="rs-rule" style={{background:"#E8DFD0"}}/>
+            <span className="rs-label" style={{color:"#E8DFD0",textShadow:"0 1px 4px rgba(0,0,0,0.9)"}}>Custom Offsites, Retreats, and Performance Experiences</span>
+          </div>
           <h1 className="rs-hero-h1">Custom Offsites,<br/>Retreats, and<br/>Performance<br/>Experiences for<br/>Teams and<br/>High Performers.</h1>
           <p className="rs-hero-sub">ROAMSIX designs and delivers immersive experiences built around environment, wellness, structure, and facilitation to create alignment, recovery, and forward movement.</p>
           <div className="rs-hero-actions">
