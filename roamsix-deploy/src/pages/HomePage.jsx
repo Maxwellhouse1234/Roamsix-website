@@ -17,10 +17,10 @@ import { useState, useEffect } from "react";
 */
 
 const HERO_SRC      = "/images/roamsix-hero.jpg";
-const MAX_SRC       = "/images/max-ouellette.jpg";
-const JACKIE_SRC    = "/images/jackie.jpg";
-const PG_SRC        = "/images/proving-grounds.jpg";
-const HERO_FALLBACK = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1800&q=80&auto=format&fit=crop";
+const MAX_SRC       = "/images/founders/max-ouellette.webp";
+const JACKIE_SRC    = "/images/founders/jackie.webp";
+const PG_SRC        = "/images/homepage/proving-grounds.webp";
+const HERO_FALLBACK = "/images/homepage/team-outlook.webp";
 
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=EB+Garamond:ital,wght@1,400;1,500&display=swap');
