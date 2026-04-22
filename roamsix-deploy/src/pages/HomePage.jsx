@@ -49,8 +49,8 @@ const css = `
     --teal-dim: #3A5A5A;
     --teal-light: #5A8A8A;
     --cream: #E8DFD0;
-    --cream-dim: #D4CBBD;
-    --cream-muted: #A09890;
+    --cream-dim: #DDD6CC;
+    --cream-muted: #B8B0A6;
     --gold: #B59558;
     --gold-dim: #876F3E;
     --rp-black: #090705;
@@ -78,14 +78,14 @@ const css = `
   .rs-nav-brand { display: flex; align-items: center; text-decoration: none; margin-right: auto; }
   .rs-wordmark {
     font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700; font-size: 26px; letter-spacing: 2.5px;
+    font-weight: 700; font-size: 26px; letter-spacing: 4px;
     color: var(--cream); text-transform: uppercase; line-height: 1;
   }
   .rs-nav-links { display: flex; align-items: center; gap: 28px; list-style: none; margin-left: 48px; }
   .rs-nav-links a {
     font-family: 'Barlow Condensed', sans-serif;
     font-size: 12px; font-weight: 500; letter-spacing: 2px;
-    text-transform: uppercase; color: #C8C0B4; text-decoration: none; transition: color 0.2s;
+    text-transform: uppercase; color: #CEC7BC; text-decoration: none; transition: color 0.2s;
   }
   .rs-nav-links a:hover { color: var(--cream); }
   .rs-nav-cta {
@@ -140,6 +140,7 @@ const css = `
     text-transform: uppercase; padding: 15px 34px;
     text-decoration: none; cursor: pointer; border: none; transition: all 0.22s;
   }
+  .rs-btn:active { transform: scale(0.97); }
   .rs-btn-teal { background: var(--teal); color: var(--cream); }
   .rs-btn-teal:hover { background: var(--teal-dim); }
   .rs-btn-outline { background: transparent; color: var(--cream); border: 1px solid rgba(232,223,208,0.35); }
@@ -162,11 +163,19 @@ const css = `
   .rs-h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; letter-spacing: 1px; line-height: 1.05; color: var(--cream); text-transform: uppercase; font-size: clamp(36px, 4.8vw, 60px); margin-top: 16px; }
   .rs-pull { font-family: 'EB Garamond', serif; font-style: italic; font-size: 24px; line-height: 1.6; color: var(--cream); }
   .rs-hr { border: none; height: 1px; background: linear-gradient(to right, transparent, rgba(181,149,88,0.14), transparent); }
+  /* SCROLL FADE-IN */
+  .rs-fade { opacity: 0; transform: translateY(24px); transition: opacity 0.65s ease, transform 0.65s ease; }
+  .rs-fade.visible { opacity: 1; transform: translateY(0); }
+  .rs-fade-delay-1 { transition-delay: 0.1s; }
+  .rs-fade-delay-2 { transition-delay: 0.2s; }
+  .rs-fade-delay-3 { transition-delay: 0.3s; }
+
+
 
   /* HERO */
   .rs-hero { min-height: 100vh; position: relative; display: flex; align-items: flex-end; overflow: hidden; }
-  .rs-hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
-  .rs-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(6,10,18,0.28) 0%, rgba(6,10,18,0.48) 35%, rgba(6,10,18,0.86) 68%, rgba(6,10,18,0.97) 88%, #141C2A 100%); }
+  .rs-hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; transform: scale(1.06); animation: rsHeroZoom 20s ease-out forwards; }
+  .rs-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(20,28,42,0.4) 0%, rgba(20,28,42,0.6) 45%, rgba(20,28,42,0.9) 85%, #141C2A 100%); }
   .rs-hero-content { position: relative; z-index: 2; padding: 0 56px 96px; max-width: 960px; animation: rsRise 1s cubic-bezier(0.16,1,0.3,1) forwards; }
   .rs-hero-h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(44px,5.8vw,76px); line-height: 1.05; letter-spacing: 0.5px; color: var(--cream); margin-bottom: 24px; text-transform: uppercase; text-shadow: 0 2px 8px rgba(0,0,0,0.6); }
   .rs-hero-sub { font-size: 20px; line-height: 1.75; color: #E8DFD0; max-width: 580px; margin-bottom: 48px; font-weight: 400; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
@@ -179,7 +188,7 @@ const css = `
   .rs-proof-item:last-child { border-right: none; }
   .rs-proof-num { font-family: 'Barlow Condensed', sans-serif; font-size: 38px; font-weight: 700; color: var(--cream); letter-spacing: 1px; line-height: 1; margin-bottom: 6px; }
   .rs-proof-title { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--cream); margin-bottom: 6px; }
-  .rs-proof-label { font-size: 15px; color: var(--cream-dim); font-weight: 400; line-height: 1.55; }
+  .rs-proof-label { font-size: 15px; color: var(--cream-dim); font-weight: 400; line-height: 1.55; letter-spacing: 0.2px; }
 
   /* ABOUT — solid panel */
   .rs-about { background: var(--panel); padding: 108px 56px; display: grid; grid-template-columns: 1fr 1.15fr; gap: 88px; align-items: start; }
@@ -201,8 +210,8 @@ const css = `
   .rs-offerings { padding: 108px 56px; background: var(--panel); border-top: 1px solid rgba(181,149,88,0.08); }
   .rs-offerings-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; margin-top: 56px; }
   .rs-offerings-col-header { padding: 18px 32px 16px; background: rgba(4,7,14,0.95); border: 1px solid rgba(232,223,208,0.08); border-bottom: 2px solid var(--teal-dim); font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--teal-light); margin-bottom: 2px; }
-  .rs-offering { padding: 34px 32px 32px; background: rgba(4,7,14,0.75); border: 1px solid rgba(232,223,208,0.07); border-top: none; transition: background 0.25s, border-color 0.25s; }
-  .rs-offering:hover { background: rgba(74,117,117,0.08); border-color: rgba(74,117,117,0.2); }
+  .rs-offering { padding: 34px 32px 32px; background: rgba(4,7,14,0.75); transition: background 0.25s, border-color 0.25s, transform 0.25s, box-shadow 0.25s; border: 1px solid rgba(232,223,208,0.07); border-top: none; transition: background 0.25s, border-color 0.25s; }
+  .rs-offering:hover { background: rgba(74,117,117,0.08); border-color: rgba(74,117,117,0.2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
   .rs-offering-num { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 2px; color: var(--gold-dim); margin-bottom: 10px; font-weight: 500; }
   .rs-offering-title { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--cream); margin-bottom: 12px; line-height: 1.15; }
   .rs-offering-desc { font-size: 15px; line-height: 1.75; color: var(--cream-dim); font-weight: 400; }
@@ -221,7 +230,7 @@ const css = `
   /* WHY */
   .rs-why { padding: 108px 56px; background: var(--navy-mid); border-top: 1px solid rgba(181,149,88,0.08); }
   .rs-why-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 2px; margin-top: 56px; }
-  .rs-why-card { padding: 44px 32px; background: var(--panel); border: 1px solid rgba(232,223,208,0.07); position: relative; overflow: hidden; }
+  .rs-why-card { padding: 44px 32px; background: var(--panel); border: 1px solid rgba(232,223,208,0.07); position: relative; overflow: hidden; transition: border-color 0.3s, background 0.3s; }
   .rs-why-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--teal-dim); transform: scaleX(0); transform-origin: left; transition: transform 0.35s; }
   .rs-why-card:hover::before { transform: scaleX(1); }
   .rs-why-num { font-family: 'Barlow Condensed', sans-serif; font-size: 48px; font-weight: 700; color: rgba(74,117,117,0.18); line-height: 1; margin-bottom: 20px; }
@@ -345,6 +354,7 @@ const css = `
   .rs-footer-bottom p { font-size: 12px; color: rgba(140,136,127,0.38); font-weight: 300; }
 
   @keyframes rsRise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes rsHeroZoom { from { transform: scale(1.06); } to { transform: scale(1.0); } }
   @keyframes rsBreathe { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
   /* MOBILE */
@@ -466,6 +476,15 @@ export default function HomePage() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("visible"); }),
+      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+    );
+    document.querySelectorAll(".rs-fade").forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
   const close = () => setMenuOpen(false);
 
   const submitPG = async () => {
@@ -543,7 +562,7 @@ export default function HomePage() {
       </section>
 
       {/* PROOF BAR */}
-      <div className="rs-proof-bar">
+      <div className="rs-proof-bar rs-fade">
         {PROOF.map(p => (
           <div className="rs-proof-item" key={p.num}>
             <div className="rs-proof-num">{p.num}</div>
@@ -556,7 +575,7 @@ export default function HomePage() {
       <hr className="rs-hr"/>
 
       {/* ABOUT */}
-      <section className="rs-about" id="about">
+      <section className="rs-about rs-fade" id="about">
         <div>
           <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Why We Exist</span></div>
           <h2 className="rs-h2">Most teams don't need more information. They need the right environment.</h2>
@@ -579,7 +598,7 @@ export default function HomePage() {
       <hr className="rs-hr"/>
 
       {/* DESIGNED FOR */}
-      <section className="rs-for" id="designed-for">
+      <section className="rs-for rs-fade" id="designed-for">
         <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Who We Build For</span></div>
         <h2 className="rs-h2">Who ROAMSIX Is Designed For.</h2>
         <div className="rs-for-grid">
@@ -596,7 +615,7 @@ export default function HomePage() {
       <hr className="rs-hr"/>
 
       {/* OFFERINGS */}
-      <section className="rs-offerings" id="experiences">
+      <section className="rs-offerings rs-fade" id="experiences">
         <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Experiences</span></div>
         <h2 className="rs-h2">Every Experience Is Built Around You.</h2>
         <div className="rs-offerings-grid">
@@ -640,7 +659,7 @@ export default function HomePage() {
       <hr className="rs-hr"/>
 
       {/* WHY */}
-      <section className="rs-why" id="why">
+      <section className="rs-why rs-fade" id="why">
         <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Why Environment Matters</span></div>
         <h2 className="rs-h2">How ROAMSIX Works.</h2>
         <div className="rs-why-grid">
@@ -657,7 +676,7 @@ export default function HomePage() {
       <hr className="rs-hr"/>
 
       {/* FOUNDERS */}
-      <section className="rs-founders" id="founders">
+      <section className="rs-founders rs-fade" id="founders">
         <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">The Founding Team</span></div>
         <h2 className="rs-h2">Built by People Who've Done the Work.</h2>
         <div className="rs-founders-grid">
@@ -764,7 +783,7 @@ export default function HomePage() {
       <hr className="rs-hr"/>
 
       {/* PARTNERSHIP */}
-      <section className="rs-partner" id="partnership">
+      <section className="rs-partner rs-fade" id="partnership">
         <div>
           <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Partnerships</span></div>
           <h2 className="rs-h2">Partner With ROAMSIX.</h2>
