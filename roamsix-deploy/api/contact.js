@@ -59,29 +59,57 @@ export default async function handler(req, res) {
 
   // ── 3. WRITE TO AIRTABLE ───────────────────────────────────────
   if (process.env.AIRTABLE_TOKEN && process.env.PROVING_GROUNDS_BASE_ID) {
+    const BASE_ID = process.env.PROVING_GROUNDS_BASE_ID;
+    const TOKEN   = process.env.AIRTABLE_TOKEN;
+    const HEADERS = { "Authorization": `Bearer ${TOKEN}`, "Content-Type": "application/json" };
+    const TABLE   = process.env.INQUIRIES_TABLE_ID || "Inquiries";
+
+    // Auto-create Inquiries table if it doesn't exist yet
     try {
-      // Try existing Inquiries table first, fall back to creating a new record format
-      const INQUIRIES_TABLE = process.env.INQUIRIES_TABLE_ID || "Inquiries";
-      await fetch(
-        `https://api.airtable.com/v0/${process.env.PROVING_GROUNDS_BASE_ID}/${encodeURIComponent(INQUIRIES_TABLE)}`,
-        {
+      const testRes = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE)}?maxRecords=1`, {
+        headers: HEADERS,
+      });
+      if (testRes.status === 404) {
+        // Table doesn't exist — create it
+        await fetch(`https://api.airtable.com/v0/meta/bases/${BASE_ID}/tables`, {
           method: "POST",
-          headers: { "Authorization": `Bearer ${process.env.AIRTABLE_TOKEN}`, "Content-Type": "application/json" },
+          headers: HEADERS,
           body: JSON.stringify({
-            fields: {
-              "Name":          name,
-              "Email":         email.trim(),
-              "Company":       company.trim() || "",
-              "Inquiry Type":  inquiryType   || "General",
-              "Message":       message.trim(),
-              "Source":        source,
-              "Status":        "New",
-              "Submitted At":  new Date().toISOString(),
-            },
+            name: "Inquiries",
+            fields: [
+              { name: "Name",         type: "singleLineText" },
+              { name: "Email",        type: "email" },
+              { name: "Company",      type: "singleLineText" },
+              { name: "Inquiry Type", type: "singleLineText" },
+              { name: "Message",      type: "multilineText" },
+              { name: "Source",       type: "singleLineText" },
+              { name: "Status",       type: "singleLineText" },
+              { name: "Submitted At", type: "dateTime", options: { dateFormat: { name: "iso" }, timeFormat: { name: "24hour" }, timeZone: "America/Los_Angeles" } },
+            ],
           }),
-        }
-      );
-    } catch (err) { console.error("Airtable error:", err); }
+        });
+      }
+    } catch (err) { console.error("Airtable table check/create error:", err); }
+
+    // Write the record
+    try {
+      await fetch(`https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE)}`, {
+        method: "POST",
+        headers: HEADERS,
+        body: JSON.stringify({
+          fields: {
+            "Name":          name,
+            "Email":         email.trim(),
+            "Company":       company.trim() || "",
+            "Inquiry Type":  inquiryType   || "General",
+            "Message":       message.trim(),
+            "Source":        source,
+            "Status":        "New",
+            "Submitted At":  new Date().toISOString(),
+          },
+        }),
+      });
+    } catch (err) { console.error("Airtable write error:", err); }
   }
 
   return res.status(200).json({ success: true });
