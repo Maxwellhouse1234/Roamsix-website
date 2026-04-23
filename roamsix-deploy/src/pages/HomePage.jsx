@@ -27,6 +27,8 @@ const MAX_SRC        = "/images/founders/max-ouellette.webp";
 const JACKIE_SRC     = "/images/founders/jackie.webp";
 // Fallback if hero image not yet uploaded
 const HERO_FALLBACK  = "/images/homepage/team-outlook.webp";
+const ROAMSIX_LOGO   = "/images/brand/roamsix-logo.png";
+const RP_LOGO        = "/images/brand/redirection-point-logo.png";
 
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=EB+Garamond:ital,wght@1,400;1,500&display=swap');
