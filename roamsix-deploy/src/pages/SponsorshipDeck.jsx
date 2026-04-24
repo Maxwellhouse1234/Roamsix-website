@@ -31,12 +31,14 @@ export default function SponsorshipDeck() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isMobile, setIsMobile]         = useState(false);
 
+  // Persist auth across page refreshes within the session
   useEffect(() => {
     if (sessionStorage.getItem('roamsixSponsorAuthorized') === 'true') {
       setIsAuthorized(true);
     }
   }, []);
 
+  // Responsive detection
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 1024);
     check();
@@ -44,6 +46,7 @@ export default function SponsorshipDeck() {
     return () => window.removeEventListener('resize', check);
   }, []);
 
+  // Keyboard navigation (desktop only)
   useEffect(() => {
     if (isMobile) return;
     const onKey = (e) => {
@@ -92,6 +95,7 @@ export default function SponsorshipDeck() {
     setCurrentSlide(0);
   };
 
+  // ── Slide data ─────────────────────────────────────────────────────────────
   const slides = [
     {
       id: 'title', type: 'title',
@@ -116,10 +120,10 @@ export default function SponsorshipDeck() {
       title:    'The ROAMSIX Model',
       subtitle: 'A decision-point access platform.',
       items: [
-        { icon: <Monitor className="w-8 h-8 text-white" />, label: 'Controlled Environments',       text: 'Physical and environmental conditions where clarity surfaces through movement, challenge, and recovery.' },
-        { icon: <Users   className="w-8 h-8 text-white" />, label: 'High-Performers in Transition', text: 'Founders, executives, and athletes navigating high-consequence growth phases.' },
-        { icon: <Zap     className="w-8 h-8 text-white" />, label: 'Active Re-evaluation',          text: 'Participants are actively replacing systems, habits, and vendors. Your brand enters that conversation.' },
-        { icon: <TrendingUp className="w-8 h-8 text-white" />, label: 'Multi-Touch Ecosystem',      text: 'Proving Grounds events, monthly retreats, the Redirection Point podcast, and digital — all connected.' },
+        { icon: <Monitor className="w-8 h-8 text-white" />, label: 'Controlled Environments',      text: 'Physical and environmental conditions where clarity surfaces through movement, challenge, and recovery.' },
+        { icon: <Users   className="w-8 h-8 text-white" />, label: 'High-Performers in Transition',text: 'Founders, executives, and athletes navigating high-consequence growth phases.' },
+        { icon: <Zap     className="w-8 h-8 text-white" />, label: 'Active Re-evaluation',         text: 'Participants are actively replacing systems, habits, and vendors. Your brand enters that conversation.' },
+        { icon: <TrendingUp className="w-8 h-8 text-white" />, label: 'Multi-Touch Ecosystem',     text: 'Proving Grounds events, monthly retreats, the Redirection Point podcast, and digital — all connected.' },
       ],
     },
     {
@@ -127,9 +131,9 @@ export default function SponsorshipDeck() {
       title:    'The Audience',
       subtitle: 'Commercially valuable influence and intent.',
       points: [
-        { label: 'Budget Control',     text: 'Participants control personal spend, departmental allocation, and organizational procurement.' },
-        { label: 'Active Replacement', text: 'In transition phases, participants evaluate new systems and services.' },
-        { label: 'Influence',          text: 'Teams, clients, and organizations follow the decisions made by these leaders.' },
+        { label: 'Budget Control',    text: 'Participants control personal spend, departmental allocation, and organizational procurement.' },
+        { label: 'Active Replacement',text: 'In transition phases, participants evaluate new systems and services.' },
+        { label: 'Influence',         text: 'Teams, clients, and organizations follow the decisions made by these leaders.' },
       ],
       stats: [
         { value: '94',    label: 'Participants / Proving Grounds' },
@@ -142,10 +146,10 @@ export default function SponsorshipDeck() {
       title:    'The Ecosystem',
       subtitle: 'A controlled loop, not just one touchpoint.',
       channels: [
-        { icon: <Target      className="w-6 h-6" />, label: 'Proving Grounds',   desc: 'Flagship event with direct physical product trial and branded recovery stations.' },
+        { icon: <Target    className="w-6 h-6" />, label: 'Proving Grounds',   desc: 'Flagship event with direct physical product trial and branded recovery stations.' },
         { icon: <ShieldCheck className="w-6 h-6" />, label: 'Corporate Retreats', desc: 'Monthly programming for executive teams and departmental budget holders.' },
-        { icon: <Mic         className="w-6 h-6" />, label: 'Redirection Point', desc: 'Long-form conversations and host-read integrations in a trusted voice.' },
-        { icon: <Monitor     className="w-6 h-6" />, label: 'Digital',           desc: 'Dedicated partner features and ongoing amplification across all platforms.' },
+        { icon: <Mic       className="w-6 h-6" />, label: 'Redirection Point', desc: 'Long-form conversations and host-read integrations in a trusted voice.' },
+        { icon: <Monitor   className="w-6 h-6" />, label: 'Digital',           desc: 'Dedicated partner features and ongoing amplification across all platforms.' },
       ],
     },
     {
@@ -165,10 +169,10 @@ export default function SponsorshipDeck() {
       title:    'Commercial Outcomes',
       subtitle: 'Measurable results, not just features.',
       items: [
-        { title: 'Trial at Behavior Change',  desc: 'Direct product engagement when participants are physically and mentally primed for new systems.' },
-        { title: 'Trust Conversion',          desc: 'Credible placement in a high-intensity environment builds brand association paid media cannot replicate.' },
-        { title: 'Multi-Touch Reinforcement', desc: 'Your brand compounds from recovery station to podcast episode to social feed.' },
-        { title: 'Enterprise Pipeline',       desc: 'Direct access to executive spend. One enterprise contract often covers the full partnership cost.' },
+        { title: 'Trial at Behavior Change',    desc: 'Direct product engagement when participants are physically and mentally primed for new systems.' },
+        { title: 'Trust Conversion',            desc: 'Credible placement in a high-intensity environment builds brand association paid media cannot replicate.' },
+        { title: 'Multi-Touch Reinforcement',   desc: 'Your brand compounds from recovery station to podcast episode to social feed.' },
+        { title: 'Enterprise Pipeline',         desc: 'Direct access to executive spend. One enterprise contract often covers the full partnership cost.' },
       ],
     },
     {
@@ -176,10 +180,10 @@ export default function SponsorshipDeck() {
       title:    'Illustrative ROI Model',
       subtitle: 'A plausible path to partner break-even.',
       data: [
-        { label: 'Participants per event',          value: '94' },
-        { label: 'Estimated product trials (60%)',  value: '~56' },
-        { label: 'Estimated customers (25%)',        value: '~14' },
-        { label: 'Revenue per event ($500 LTV)',     value: '$7,000', highlight: true },
+        { label: 'Participants per event',           value: '94' },
+        { label: 'Estimated product trials (60%)',   value: '~56' },
+        { label: 'Estimated customers (25%)',         value: '~14' },
+        { label: 'Revenue per event ($500 LTV)',      value: '$7,000', highlight: true },
       ],
       outcome: '~$28,000 in participant value over 4 events per year. Enterprise conversion excluded — one corporate adoption can exceed the full annual investment.',
     },
@@ -215,6 +219,7 @@ export default function SponsorshipDeck() {
     },
   ];
 
+  // ── Slide renderer ─────────────────────────────────────────────────────────
   const renderSlide = (slide, idx) => (
     <div key={idx} id={slide.id} className={isMobile ? 'min-h-[80vh] py-16 border-b border-white/10 last:border-0' : 'h-full flex flex-col justify-center'}>
 
@@ -464,7 +469,7 @@ export default function SponsorshipDeck() {
                 <Monitor className="shrink-0" />{slide.contact.url}
               </a>
             </div>
-            
+            <a
               href="mailto:info@roamsix.com?subject=Partnership Fit Call Request"
               className="w-full bg-white text-black py-4 rounded-full font-bold flex items-center justify-center gap-3 hover:bg-white/90 transition-all"
             >
@@ -476,6 +481,7 @@ export default function SponsorshipDeck() {
     </div>
   );
 
+  // ── Access gate ────────────────────────────────────────────────────────────
   if (!isAuthorized) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#0a0a0a] text-white p-6">
@@ -487,35 +493,40 @@ export default function SponsorshipDeck() {
             <h1 className="text-4xl font-black tracking-tighter uppercase">ROAMSIX</h1>
             <p className="text-white/40 font-medium">Partnership Ecosystem 2026</p>
           </div>
+
           <form onSubmit={validateAccess} className="space-y-4">
             <div className="space-y-3">
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                <input type="email" required placeholder="Work Email" value={email} onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 py-3.5 px-11 rounded-xl focus:outline-none focus:border-white transition-all text-sm" />
-              </div>
-              <div className="relative">
-                <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                <input type="text" required placeholder="Company" value={company} onChange={(e) => setCompany(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 py-3.5 px-11 rounded-xl focus:outline-none focus:border-white transition-all text-sm" />
-              </div>
-              <div className="relative">
-                <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                <input type="text" required placeholder="Access Code" value={accessCode}
-                  onChange={(e) => { setAccessCode(e.target.value); setError(''); }}
-                  className="w-full bg-white/5 border border-white/10 py-3.5 px-11 rounded-xl focus:outline-none focus:border-white transition-all uppercase tracking-widest text-sm" />
-              </div>
+              {[
+                { icon: <Mail className="w-4 h-4 text-white/30" />, type: 'email', placeholder: 'Work Email',   val: email,   set: setEmail },
+                { icon: <Building2 className="w-4 h-4 text-white/30" />, type: 'text', placeholder: 'Company', val: company, set: setCompany },
+                { icon: <Key className="w-4 h-4 text-white/30" />,  type: 'text', placeholder: 'Access Code',  val: accessCode, set: (v) => { setAccessCode(v); setError(''); }, extra: 'uppercase tracking-widest' },
+              ].map(({ icon, type, placeholder, val, set, extra = '' }, i) => (
+                <div key={i} className="relative">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2">{icon}</div>
+                  <input
+                    type={type} required placeholder={placeholder} value={val}
+                    onChange={(e) => set(e.target.value)}
+                    className={`w-full bg-white/5 border border-white/10 py-3.5 px-11 rounded-xl focus:outline-none focus:border-white transition-all text-sm ${extra}`}
+                  />
+                </div>
+              ))}
             </div>
+
             {error && (
               <p className="text-red-400 text-xs font-medium flex items-center gap-2">
                 <AlertCircle className="w-4 h-4" />{error}
               </p>
             )}
+
             <button type="submit" disabled={isLoading}
               className="w-full bg-white text-black py-4 rounded-xl font-bold hover:bg-white/90 transition-all flex items-center justify-center gap-2 group disabled:opacity-50">
-              {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Enter Deck <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></>}
+              {isLoading
+                ? <Loader2 className="w-5 h-5 animate-spin" />
+                : <> Enter Deck <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /> </>
+              }
             </button>
           </form>
+
           <div className="pt-6 border-t border-white/5 text-center">
             <p className="text-white/30 text-xs mb-3">No access code?</p>
             <a href="mailto:info@roamsix.com?subject=Requesting Partnership Access Code"
@@ -528,14 +539,17 @@ export default function SponsorshipDeck() {
     );
   }
 
+  // ── Main deck ──────────────────────────────────────────────────────────────
   return (
     <div className="flex flex-col h-screen bg-[#0a0a0a] text-white overflow-hidden">
+      {/* Progress bar — desktop only */}
       {!isMobile && (
         <div className="w-full h-1 bg-white/10">
           <div className="h-full bg-white transition-all duration-500"
             style={{ width: `${((currentSlide + 1) / slides.length) * 100}%` }} />
         </div>
       )}
+
       <div className={`flex-1 flex flex-col ${isMobile ? 'overflow-y-auto px-6' : 'justify-center px-8 md:px-24 py-12 max-w-7xl mx-auto w-full relative overflow-hidden'}`}>
         {isMobile ? (
           <div className="space-y-4">
@@ -554,11 +568,13 @@ export default function SponsorshipDeck() {
             {renderSlide(slides[currentSlide], currentSlide)}
             <div className="absolute bottom-8 left-0 right-0 flex justify-between items-center px-0">
               <div className="flex gap-3">
-                <button onClick={() => setCurrentSlide(p => Math.max(p - 1, 0))} disabled={currentSlide === 0}
+                <button onClick={() => setCurrentSlide(p => Math.max(p - 1, 0))}
+                  disabled={currentSlide === 0}
                   className={`p-4 rounded-full border transition-all ${currentSlide === 0 ? 'opacity-10 cursor-not-allowed' : 'hover:bg-white/10 border-white/20'}`}>
                   <ChevronLeft />
                 </button>
-                <button onClick={() => setCurrentSlide(p => Math.min(p + 1, slides.length - 1))} disabled={currentSlide === slides.length - 1}
+                <button onClick={() => setCurrentSlide(p => Math.min(p + 1, slides.length - 1))}
+                  disabled={currentSlide === slides.length - 1}
                   className={`p-4 rounded-full border transition-all ${currentSlide === slides.length - 1 ? 'opacity-10 cursor-not-allowed' : 'hover:bg-white/10 border-white/20'}`}>
                   <ChevronRight />
                 </button>
@@ -566,7 +582,9 @@ export default function SponsorshipDeck() {
               <div className="flex items-center gap-5">
                 <span className="text-sm font-mono opacity-30">{currentSlide + 1} / {slides.length}</span>
                 <div className="h-4 w-px bg-white/20" />
-                <button onClick={handleLogout} className="text-xs uppercase tracking-widest opacity-30 hover:opacity-100 transition-opacity font-bold">Exit</button>
+                <button onClick={handleLogout} className="text-xs uppercase tracking-widest opacity-30 hover:opacity-100 transition-opacity font-bold">
+                  Exit
+                </button>
               </div>
             </div>
           </>
