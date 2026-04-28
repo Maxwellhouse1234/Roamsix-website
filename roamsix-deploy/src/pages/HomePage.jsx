@@ -1,149 +1,113 @@
 import { useState, useEffect } from "react";
 
 /*
-  ROAMSIX — HomePage.jsx v6
-  Fixes applied: mobile nav burger, contrast boost, solid backgrounds,
-  real form POST submission, loading/error states, SEO-ready structure
+  ROAMSIX — HomePage.jsx v7
+  Copy: outcome-led, mechanism layered underneath
+  New pages: /team and /approach wired in nav
+  Backend: all API routes, form handlers, Airtable untouched
 
-  Asset paths — drop files into /public/images/
-    /public/images/roamsix-hero.jpg
-    /public/images/max-ouellette.jpg
-    /public/images/jackie.jpg
-    /public/images/proving-grounds.jpg
+  Asset paths:
+    /public/images/homepage/roamsix-hero.webp
+    /public/images/homepage/proving-grounds.webp
+    /public/images/homepage/team-outlook.webp
+    /public/images/homepage/field-notes.webp
+    /public/images/max-ouellette.webp
+    /public/images/jackie.webp
+    /public/images/roamsix-logo.png
+    /public/images/redirection-point-logo.png
 
-  Form endpoints (existing in /api/):
-    Contact  → POST /api/submit-application
-    PG info  → POST /api/submit-interest
+  Video placeholders (add when ready):
+    /public/videos/homepage/roamsix-hero.mp4
+    /public/videos/homepage/proving-grounds.mp4
+
+  Form endpoints (do not modify):
+    Contact → POST /api/contact
+    PG      → POST /api/pg-interest
 */
 
-// ── REAL ASSET PATHS ──────────────────────────────────────────────────────
-// Upload files to: roamsix-deploy/public/images/homepage/
-// and:             roamsix-deploy/public/images/founders/
-const HERO_SRC       = "/images/homepage/roamsix-hero.webp";
-const PG_SRC         = "/images/homepage/proving-grounds.webp";
-const TEAM_SRC       = "/images/homepage/team-outlook.webp";
-const NOTES_SRC      = "/images/homepage/field-notes.webp";
-const MAX_SRC        = "/images/max-ouellette.webp";
-const JACKIE_SRC     = "/images/jackie.webp";
-// Fallback if hero image not yet uploaded
-const HERO_FALLBACK  = "/images/homepage/team-outlook.webp";
-const ROAMSIX_LOGO   = "/images/roamsix-logo.png";
-const RP_LOGO        = "/images/redirection-point-logo.png";
+const HERO_SRC      = "/images/homepage/roamsix-hero.webp";
+const PG_SRC        = "/images/homepage/proving-grounds.webp";
+const TEAM_SRC      = "/images/homepage/team-outlook.webp";
+const NOTES_SRC     = "/images/homepage/field-notes.webp";
+const MAX_SRC       = "/images/max-ouellette.webp";
+const JACKIE_SRC    = "/images/jackie.webp";
+const HERO_FALLBACK = "/images/homepage/team-outlook.webp";
+const RP_LOGO       = "/images/redirection-point-logo.png";
+
+const NAV = [
+  ["Experiences",     "#how-we-work"],
+  ["Proving Grounds", "#proving-grounds"],
+  ["Team",            "/team"],
+  ["Approach",        "/approach"],
+  ["Podcast",         "#podcast"],
+];
+
+const HOW_WE_WORK = [
+  { title: "Leadership Offsites",        desc: "Multi-day experiences built around decisions and execution." },
+  { title: "Team Sessions",              desc: "Single or multi-day environments for alignment and forward movement." },
+  { title: "Individual and Small Group", desc: "For people carrying decisions they haven't had space to think through clearly." },
+  { title: "Proving Grounds",            desc: "Structured environments to observe how your team actually operates." },
+];
+
+const WHAT_PRODUCES = [
+  "Clear decisions.",
+  "Alignment that holds after the experience ends.",
+  "Conversations that don't usually happen inside the office.",
+  "A team that returns with energy, not just a plan.",
+];
+
+const FOUNDERS = [
+  { name: "Max Ouellette", role: "Co-Founder", photo: MAX_SRC, initials: "MO",
+    bio: "Former professional athlete with deep experience in performance, team environments, and experience design. Max leads ROAMSIX with a focus on structure, trust, and building experiences that produce real movement in people and teams." },
+  { name: "Jackie",        role: "Co-Founder", photo: JACKIE_SRC, initials: "JA",
+    bio: "Background in fitness instruction, event production, equestrian therapy, and retreat hosting. Jackie shapes the human side of every ROAMSIX engagement so the experience feels intentional, personal, and well-held." },
+];
 
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=EB+Garamond:ital,wght@1,400;1,500&display=swap');
 
   .rs *, .rs *::before, .rs *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   .rs {
-    font-family: 'Barlow', sans-serif;
-    font-weight: 400;
-    background: #141C2A;
-    color: #E8DFD0;
-    overflow-x: hidden;
-    font-size: 18px;
-    line-height: 1.65;
-    --navy: #141C2A;
-    --navy-mid: #1F2B3E;
-    --panel: #0C1220;
-    --panel-alt: #111827;
-    --teal: #4A7575;
-    --teal-dim: #3A5A5A;
-    --teal-light: #5A8A8A;
-    --cream: #E8DFD0;
-    --cream-dim: #DDD6CC;
-    --cream-muted: #B8B0A6;
-    --gold: #B59558;
-    --gold-dim: #876F3E;
-    --rp-black: #090705;
-    --rp-dark: #0E0B06;
-    --rp-gold: #C9A84C;
-    --rp-gold-dim: #8A7438;
-    --rp-cream: #D0BF9A;
+    font-family: 'Barlow', sans-serif; font-weight: 400;
+    background: #141C2A; color: #E8DFD0; overflow-x: hidden;
+    font-size: 18px; line-height: 1.65;
+    --navy: #141C2A; --navy-mid: #1A2337; --panel: #0C1220;
+    --teal: #4A7575; --teal-dim: #3A5A5A; --teal-light: #5A8A8A;
+    --cream: #E8DFD0; --cream-dim: #DDD6CC; --cream-muted: #B8B0A6;
+    --gold: #B59558; --gold-dim: #876F3E;
+    --rp-black: #090705; --rp-dark: #0E0B06;
+    --rp-gold: #C9A84C; --rp-gold-dim: #8A7438; --rp-cream: #D0BF9A;
   }
-
-
-
-    body.rs-no-scroll { overflow: hidden; }
+  body.rs-no-scroll { overflow: hidden; }
 
   /* NAV */
-  .rs-nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 500;
-    display: flex; align-items: center;
-    padding: 0 52px; height: 76px;
-    border-bottom: 1px solid transparent;
-    transition: background 0.4s, border-color 0.4s;
-  }
-  .rs-nav.solid {
-    background: rgba(6,10,18,0.97);
-    backdrop-filter: blur(20px);
-    border-bottom-color: rgba(181,149,88,0.12);
-  }
+  .rs-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 500; display: flex; align-items: center; padding: 0 52px; height: 76px; border-bottom: 1px solid transparent; transition: background 0.4s, border-color 0.4s; }
+  .rs-nav.solid { background: rgba(6,10,18,0.97); backdrop-filter: blur(20px); border-bottom-color: rgba(181,149,88,0.12); }
   .rs-nav-brand { display: flex; align-items: center; text-decoration: none; margin-right: auto; }
-  .rs-wordmark {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700; font-size: 26px; letter-spacing: 4px;
-    color: var(--cream); text-transform: uppercase; line-height: 1;
-  }
+  .rs-wordmark { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 26px; letter-spacing: 4px; color: var(--cream); text-transform: uppercase; line-height: 1; }
   .rs-nav-links { display: flex; align-items: center; gap: 28px; list-style: none; margin-left: 48px; }
-  .rs-nav-links a {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 12px; font-weight: 500; letter-spacing: 2px;
-    text-transform: uppercase; color: #CEC7BC; text-decoration: none; transition: color 0.2s;
-  }
+  .rs-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: #CEC7BC; text-decoration: none; transition: color 0.2s; }
   .rs-nav-links a:hover { color: var(--cream); }
-  .rs-nav-cta {
-    background: var(--teal); color: var(--cream);
-    padding: 9px 22px; font-family: 'Barlow Condensed', sans-serif;
-    font-size: 12px; font-weight: 600; letter-spacing: 2px;
-    text-transform: uppercase; text-decoration: none; transition: background 0.2s;
-  }
+  .rs-nav-cta { background: var(--teal); color: var(--cream); padding: 9px 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; transition: background 0.2s; }
   .rs-nav-cta:hover { background: var(--teal-dim); color: var(--cream); }
 
   /* BURGER */
-  .rs-burger {
-    display: none; flex-direction: column; justify-content: center;
-    align-items: center; gap: 5px; width: 44px; height: 44px;
-    background: none; border: none; cursor: pointer; padding: 4px; margin-left: 16px;
-  }
-  .rs-burger span {
-    display: block; width: 24px; height: 1.5px;
-    background: var(--cream); transition: all 0.3s ease; transform-origin: center;
-  }
+  .rs-burger { display: none; flex-direction: column; justify-content: center; align-items: center; gap: 5px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; padding: 4px; margin-left: 16px; }
+  .rs-burger span { display: block; width: 24px; height: 1.5px; background: var(--cream); transition: all 0.3s ease; transform-origin: center; }
   .rs-burger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
   .rs-burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
   .rs-burger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 
   /* MOBILE MENU */
-  .rs-mobile-menu {
-    position: fixed; inset: 0; z-index: 490;
-    background: rgba(6,10,18,0.99);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    opacity: 0; pointer-events: none;
-    transition: opacity 0.3s ease;
-  }
+  .rs-mobile-menu { position: fixed; inset: 0; z-index: 490; background: rgba(6,10,18,0.99); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
   .rs-mobile-menu.open { opacity: 1; pointer-events: all; }
-  .rs-mobile-menu a {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 36px; font-weight: 700; letter-spacing: 3px;
-    text-transform: uppercase; color: var(--cream);
-    text-decoration: none; padding: 20px 40px;
-    border-bottom: 1px solid rgba(232,223,208,0.07);
-    width: 100%; text-align: center; transition: color 0.2s;
-  }
+  .rs-mobile-menu a { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--cream); text-decoration: none; padding: 20px 40px; border-bottom: 1px solid rgba(232,223,208,0.07); width: 100%; text-align: center; transition: color 0.2s; }
   .rs-mobile-menu a:first-child { border-top: 1px solid rgba(232,223,208,0.07); }
   .rs-mobile-menu a:hover { color: var(--gold); }
   .rs-mobile-cta { background: var(--teal); color: var(--cream); margin-top: 32px; border: none; }
-  .rs-mobile-cta:hover { background: var(--teal-dim); }
 
   /* BUTTONS */
-  .rs-btn {
-    display: inline-block; font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 600; font-size: 13px; letter-spacing: 3px;
-    text-transform: uppercase; padding: 15px 34px;
-    text-decoration: none; cursor: pointer; border: none; transition: all 0.22s;
-  }
+  .rs-btn { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; padding: 15px 34px; text-decoration: none; cursor: pointer; border: none; transition: all 0.22s; }
   .rs-btn:active { transform: scale(0.97); }
   .rs-btn-teal { background: var(--teal); color: var(--cream); }
   .rs-btn-teal:hover { background: var(--teal-dim); }
@@ -151,304 +115,185 @@ const css = `
   .rs-btn-outline:hover { border-color: var(--cream-dim); }
   .rs-btn-gold { background: var(--gold); color: var(--navy); }
   .rs-btn-gold:hover { background: var(--cream); color: var(--navy); }
-  .rs-btn-rp {
-    display: inline-block; font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 500; font-size: 12px; letter-spacing: 3px;
-    text-transform: uppercase; padding: 12px 26px;
-    border: 1px solid rgba(201,168,76,0.35); color: var(--rp-gold);
-    text-decoration: none; transition: all 0.2s; background: transparent; cursor: pointer;
-  }
-  .rs-btn-rp:hover { border-color: var(--rp-gold); background: rgba(201,168,76,0.05); }
+  .rs-btn-rp { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; padding: 12px 26px; border: 1px solid rgba(201,168,76,0.35); color: var(--rp-gold); text-decoration: none; transition: all 0.2s; background: transparent; cursor: pointer; }
+  .rs-btn-rp:hover { border-color: var(--rp-gold); }
 
   /* CHROME */
   .rs-label-row { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
-  .rs-rule { display: block; width: 24px; height: 1px; background: var(--gold); flex-shrink: 0; }
+  .rs-rule  { display: block; width: 24px; height: 1px; background: var(--gold); flex-shrink: 0; }
   .rs-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); }
-  .rs-h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; letter-spacing: 1px; line-height: 1.05; color: var(--cream); text-transform: uppercase; font-size: clamp(36px, 4.8vw, 60px); margin-top: 16px; }
-  .rs-pull { font-family: 'EB Garamond', serif; font-style: italic; font-size: 24px; line-height: 1.6; color: var(--cream); }
-  .rs-hr { border: none; height: 1px; background: linear-gradient(to right, transparent, rgba(181,149,88,0.14), transparent); }
-
+  .rs-h2    { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; letter-spacing: 1px; line-height: 1.05; color: var(--cream); text-transform: uppercase; font-size: clamp(34px, 4.4vw, 56px); margin-top: 16px; }
+  .rs-pull  { font-family: 'EB Garamond', serif; font-style: italic; font-size: 22px; line-height: 1.65; color: var(--cream); }
+  .rs-hr    { border: none; height: 1px; background: linear-gradient(to right, transparent, rgba(181,149,88,0.14), transparent); }
 
   /* HERO */
   .rs-hero { min-height: 100vh; position: relative; display: flex; align-items: flex-end; overflow: hidden; }
-  .rs-hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
+  .rs-hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 35%; }
   .rs-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(20,28,42,0.4) 0%, rgba(20,28,42,0.6) 45%, rgba(20,28,42,0.9) 85%, #141C2A 100%); }
-  .rs-hero-content { position: relative; z-index: 2; padding: 0 56px 96px; max-width: 960px; width: 100%; animation: rsRise 1s cubic-bezier(0.16,1,0.3,1) forwards; }
-  .rs-hero-h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(44px,5.8vw,76px); line-height: 1.05; letter-spacing: 0.5px; color: var(--cream); margin-bottom: 24px; text-transform: uppercase; text-shadow: 0 2px 8px rgba(0,0,0,0.6); }
-  .rs-hero-sub { font-size: 20px; line-height: 1.75; color: #E8DFD0; max-width: 580px; margin-bottom: 48px; font-weight: 400; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
+  .rs-hero-content { position: relative; z-index: 2; padding: 0 56px 96px; max-width: 860px; width: 100%; animation: rsRise 1s cubic-bezier(0.16,1,0.3,1) forwards; }
+  .rs-hero-h1  { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(42px,5.4vw,72px); line-height: 1.05; color: var(--cream); margin-bottom: 24px; text-transform: uppercase; text-shadow: 0 2px 8px rgba(0,0,0,0.6); }
+  .rs-hero-sub { font-size: 19px; line-height: 1.8; color: #E8DFD0; max-width: 560px; margin-bottom: 48px; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
   .rs-hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
 
-  /* PROOF BAR — solid dark, clear text */
-  .rs-proof-bar { background: var(--panel); border-bottom: 1px solid rgba(181,149,88,0.1); padding: 44px 56px; display: grid; grid-template-columns: repeat(4,1fr); }
-  .rs-proof-item { padding: 0 28px; border-right: 1px solid rgba(232,223,208,0.08); }
-  .rs-proof-item:first-child { padding-left: 0; }
-  .rs-proof-item:last-child { border-right: none; }
-  .rs-proof-num { font-family: 'Barlow Condensed', sans-serif; font-size: 38px; font-weight: 700; color: var(--cream); letter-spacing: 1px; line-height: 1; margin-bottom: 6px; }
-  .rs-proof-title { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--cream); margin-bottom: 6px; }
-  .rs-proof-label { font-size: 15px; color: var(--cream-dim); font-weight: 400; line-height: 1.55; letter-spacing: 0.2px; }
+  /* SECTIONS */
+  .rs-section      { padding: 100px 56px; }
+  .rs-section-dark { background: var(--panel); }
+  .rs-section-mid  { background: var(--navy-mid); }
+  .rs-section-navy { background: var(--navy); }
 
-  /* ABOUT — solid panel */
-  .rs-about { background: var(--panel); padding: 108px 56px; display: grid; grid-template-columns: 1fr 1.15fr; gap: 88px; align-items: start; }
-  .rs-about-right { max-width: 760px; }
-  .rs-about-right p { font-size: 19px; line-height: 1.85; margin-bottom: 24px; color: var(--cream-dim); font-weight: 400; }
-  .rs-about-right p:last-child { margin-bottom: 0; }
-  .rs-about-pull { border-left: 2px solid var(--teal-dim); padding-left: 28px; margin: 36px 0; }
+  /* SECTION 2 — SCRATCH */
+  .rs-scratch { display: grid; grid-template-columns: 1fr 1.1fr; gap: 80px; align-items: start; }
+  .rs-scratch-body p { font-size: 19px; line-height: 1.85; color: var(--cream-dim); margin-bottom: 22px; }
+  .rs-scratch-body p:last-child { margin-bottom: 0; }
+  .rs-scratch-pull { border-left: 2px solid var(--teal-dim); padding-left: 28px; margin: 32px 0; }
 
-  /* DESIGNED FOR */
-  .rs-for { padding: 108px 56px; background: var(--navy-mid); border-top: 1px solid rgba(181,149,88,0.08); }
-  .rs-for-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; margin-top: 56px; }
-  .rs-for-card { padding: 44px 34px; background: var(--panel); border: 1px solid rgba(232,223,208,0.08); position: relative; }
-  .rs-for-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(to right, var(--gold-dim), transparent); }
-  .rs-for-icon { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 700; color: rgba(181,149,88,0.3); margin-bottom: 18px; }
-  .rs-for-title { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--cream); margin-bottom: 14px; line-height: 1.15; }
-  .rs-for-desc { font-size: 16px; line-height: 1.75; color: var(--cream-dim); font-weight: 400; }
+  /* SECTION 3 — FIT */
+  .rs-fit-alts { display: grid; grid-template-columns: repeat(4,1fr); gap: 2px; margin: 36px 0; }
+  .rs-fit-alt  { background: var(--panel); padding: 28px 22px; border: 1px solid rgba(232,223,208,0.06); font-size: 15px; color: var(--cream-muted); line-height: 1.55; }
+  .rs-fit-friction { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(20px,2.6vw,30px); font-weight: 600; color: var(--cream); letter-spacing: 0.5px; line-height: 1.3; border-left: 3px solid var(--gold); padding-left: 24px; margin: 40px 0; }
+  .rs-fit-body p { font-size: 19px; line-height: 1.85; color: var(--cream-dim); margin-bottom: 20px; max-width: 720px; }
+  .rs-fit-body p:last-child { margin-bottom: 0; }
 
-  /* OFFERINGS */
-  .rs-offerings { padding: 108px 56px; background: var(--panel); border-top: 1px solid rgba(181,149,88,0.08); }
-  .rs-offerings-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; margin-top: 56px; }
-  .rs-offerings-col-header { padding: 18px 32px 16px; background: rgba(4,7,14,0.95); border: 1px solid rgba(232,223,208,0.08); border-bottom: 2px solid var(--teal-dim); font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--teal-light); margin-bottom: 2px; }
-  .rs-offering { padding: 34px 32px 32px; background: rgba(4,7,14,0.75); transition: background 0.25s, border-color 0.25s, transform 0.25s, box-shadow 0.25s; border: 1px solid rgba(232,223,208,0.07); border-top: none; transition: background 0.25s, border-color 0.25s; }
-  .rs-offering:hover { background: rgba(74,117,117,0.08); border-color: rgba(74,117,117,0.2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
-  .rs-offering-num { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 2px; color: var(--gold-dim); margin-bottom: 10px; font-weight: 500; }
-  .rs-offering-title { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--cream); margin-bottom: 12px; line-height: 1.15; }
-  .rs-offering-desc { font-size: 15px; line-height: 1.75; color: var(--cream-dim); font-weight: 400; }
+  /* SECTION 4 — ENVIRONMENT */
+  .rs-env { display: grid; grid-template-columns: 1fr 1.1fr; gap: 80px; align-items: start; }
+  .rs-env-body p { font-size: 19px; line-height: 1.9; color: var(--cream-dim); margin-bottom: 22px; }
+  .rs-env-shift { background: rgba(74,117,117,0.07); border: 1px solid rgba(74,117,117,0.18); border-left: 3px solid var(--teal); padding: 28px; margin-top: 36px; }
+  .rs-env-shift p { font-size: 17px; line-height: 1.75; color: var(--cream-dim); margin-bottom: 14px; }
+  .rs-env-shift p:last-child { margin-bottom: 0; }
 
-  /* PATHWAYS */
-  .rs-pathways { display: grid; grid-template-columns: 1fr 1fr; }
-  .rs-pathway { padding: 88px 56px; }
-  .rs-pathway-org { background: var(--panel); border-right: 1px solid rgba(181,149,88,0.08); border-top: 1px solid rgba(181,149,88,0.08); }
-  .rs-pathway-ind { background: var(--panel-alt); border-top: 1px solid rgba(181,149,88,0.08); }
-  .rs-pathway-h3 { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(28px,3vw,42px); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--cream); margin-bottom: 18px; line-height: 1.05; margin-top: 16px; }
-  .rs-pathway-desc { font-size: 17px; line-height: 1.8; margin-bottom: 36px; max-width: 500px; color: var(--cream-dim); font-weight: 400; }
-  .rs-pathway-list { list-style: none; border-top: 1px solid rgba(232,223,208,0.09); margin-bottom: 40px; }
-  .rs-pathway-list li { font-size: 16px; color: var(--cream-dim); padding: 13px 0; border-bottom: 1px solid rgba(232,223,208,0.09); display: flex; gap: 14px; font-weight: 400; line-height: 1.55; align-items: flex-start; }
-  .rs-pathway-list li span { color: var(--teal-light); flex-shrink: 0; margin-top: 2px; }
-
-  /* WHY */
-  .rs-why { padding: 108px 56px; background: var(--navy-mid); border-top: 1px solid rgba(181,149,88,0.08); }
-  .rs-why-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 2px; margin-top: 56px; }
-  .rs-why-card { padding: 44px 32px; background: var(--panel); border: 1px solid rgba(232,223,208,0.07); position: relative; overflow: hidden; transition: border-color 0.3s, background 0.3s; }
-  .rs-why-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--teal-dim); transform: scaleX(0); transform-origin: left; transition: transform 0.35s; }
-  .rs-why-card:hover::before { transform: scaleX(1); }
-  .rs-why-num { font-family: 'Barlow Condensed', sans-serif; font-size: 48px; font-weight: 700; color: rgba(74,117,117,0.18); line-height: 1; margin-bottom: 20px; }
-  .rs-why-title { font-family: 'Barlow Condensed', sans-serif; font-size: 19px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--cream); margin-bottom: 14px; line-height: 1.2; }
-  .rs-why-text { font-size: 16px; line-height: 1.75; color: var(--cream-dim); font-weight: 400; }
-
-  /* FOUNDERS */
-  .rs-founders { padding: 108px 56px; background: var(--panel); border-top: 1px solid rgba(181,149,88,0.08); }
-  .rs-founders-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 56px; }
-  .rs-founder { display: grid; grid-template-columns: 200px 1fr; gap: 36px; align-items: start; border: 1px solid rgba(232,223,208,0.08); padding: 36px; background: rgba(4,7,14,0.6); }
-  .rs-founder-img-wrap { width: 200px; flex-shrink: 0; position: relative; }
-  .rs-founder-img { width: 100%; aspect-ratio: 2/3; object-fit: cover; object-position: center top; display: block; }
-  .rs-founder-placeholder { width: 100%; aspect-ratio: 2/3; display: flex; align-items: center; justify-content: center; }
-  .rs-founder-initials { font-family: 'Barlow Condensed', sans-serif; font-size: 52px; font-weight: 700; letter-spacing: 4px; color: rgba(232,223,208,0.07); }
-  .rs-founder-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; }
-  .rs-founder-role { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; font-weight: 500; }
-  .rs-founder-name { font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--cream); margin-bottom: 18px; line-height: 1.05; }
-  .rs-founder-bio { font-size: 16px; line-height: 1.8; color: var(--cream-dim); font-weight: 400; }
-
-  /* PROVING GROUNDS */
-  .rs-pg { background: var(--navy); border-top: 1px solid rgba(181,149,88,0.08); position: relative; overflow: hidden; }
-  .rs-pg-bg-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; opacity: 0.18; filter: brightness(0.8) contrast(1.1); }
-  .rs-pg-overlay { position: absolute; inset: 0; background: linear-gradient(to right, rgba(4,7,14,0.96) 35%, rgba(4,7,14,0.80) 100%); }
-  .rs-pg-top { position: relative; z-index: 2; padding: 56px 56px 44px; display: grid; grid-template-columns: 1fr auto; gap: 48px; align-items: start; border-bottom: 1px solid rgba(232,223,208,0.07); }
-  .rs-pg-pill { display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(181,149,88,0.28); padding: 5px 14px; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; font-weight: 500; }
-  .rs-pg-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: rsBreathe 2s ease infinite; }
-  .rs-pg-stations { display: flex; gap: 10px; flex-wrap: wrap; align-self: flex-end; padding-bottom: 4px; }
-  .rs-pg-station { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); padding: 8px 16px; border: 1px solid rgba(232,223,208,0.08); font-weight: 500; }
-  .rs-pg-station.grit { color: var(--teal-light); border-color: rgba(74,117,117,0.3); }
-  .rs-pg-body { position: relative; z-index: 2; display: grid; grid-template-columns: 1.2fr 1fr; }
-  .rs-pg-left { padding: 56px 56px 72px; border-right: 1px solid rgba(232,223,208,0.07); }
-  .rs-pg-right { padding: 56px 56px 72px; background: rgba(4,7,14,0.75); }
-
-  /* FORMS */
-  .rs-form-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--cream); margin-bottom: 8px; }
-  .rs-form-sub { font-size: 16px; color: var(--cream-dim); margin-bottom: 30px; font-weight: 400; }
-  .rs-field { background: rgba(255,255,255,0.04); border: 1px solid rgba(232,223,208,0.13); color: var(--cream); padding: 14px 18px; font-size: 16px; font-family: 'Barlow', sans-serif; font-weight: 400; width: 100%; margin-bottom: 10px; outline: none; transition: border-color 0.2s; }
-  .rs-field::placeholder { color: var(--cream-muted); font-size: 15px; }
-  .rs-field:focus { border-color: var(--teal); }
-  .rs-select { appearance: none; cursor: pointer; }
-  textarea.rs-field { min-height: 120px; resize: vertical; }
-  .rs-form-note { font-size: 14px; color: var(--cream-dim); margin-top: 14px; font-weight: 400; line-height: 1.6; }
-  .rs-form-error { font-size: 14px; color: #e8695a; margin-top: 8px; font-weight: 400; }
-  .rs-success { text-align: left; padding: 24px 0; }
-  .rs-success-check { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--teal); display: flex; align-items: center; justify-content: center; color: var(--teal); font-size: 18px; margin-bottom: 20px; }
-
-  /* REDIRECTION POINT */
-  .rs-podcast { background: var(--rp-black); border-top: 1px solid rgba(201,168,76,0.12); display: grid; grid-template-columns: 1fr 1.2fr; overflow: hidden; }
-  .rs-podcast-visual { padding: 88px 56px; display: flex; align-items: center; justify-content: center; border-right: 1px solid rgba(201,168,76,0.08); background: var(--rp-dark); position: relative; }
-  .rs-podcast-visual::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 40% 50%, rgba(201,168,76,0.05) 0%, transparent 65%); pointer-events: none; }
-  .rs-podcast-art { width: 100%; max-width: 300px; aspect-ratio: 1; border: 1px solid rgba(201,168,76,0.2); background: var(--rp-dark); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 32px; position: relative; z-index: 1; }
-  .rs-podcast-frame { position: absolute; inset: 10px; border: 1px solid rgba(201,168,76,0.07); pointer-events: none; }
-  .rs-rp-wordmark { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--rp-gold); line-height: 1.1; margin-bottom: 4px; }
-  .rs-rp-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--rp-gold-dim); font-weight: 500; }
-  .rs-rp-divider { width: 40px; height: 1px; background: rgba(201,168,76,0.3); margin: 16px auto; }
-  .rs-rp-tag { font-family: 'EB Garamond', serif; font-style: italic; font-size: 13px; color: rgba(201,168,76,0.4); letter-spacing: 0.5px; }
-  .rs-podcast-content { padding: 88px 56px; display: flex; flex-direction: column; justify-content: center; background: var(--rp-black); }
-  .rs-podcast-label { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
-  .rs-podcast-rule { display: block; width: 24px; height: 1px; background: var(--rp-gold); flex-shrink: 0; }
-  .rs-podcast-label-text { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 4px; text-transform: uppercase; color: var(--rp-gold); font-weight: 500; }
-  .rs-podcast-h2 { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(36px,4.5vw,58px); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--rp-cream); line-height: 1.02; margin-bottom: 12px; }
-  .rs-podcast-connect { font-size: 15px; font-style: italic; font-family: 'EB Garamond', serif; color: rgba(208,191,154,0.65); margin-bottom: 24px; line-height: 1.5; }
-  .rs-podcast-desc { font-size: 18px; line-height: 1.8; color: rgba(208,191,154,0.78); font-weight: 400; margin-bottom: 36px; }
-  .rs-platforms { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 40px; }
-  .rs-platform { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; border: 1px solid rgba(201,168,76,0.22); color: var(--rp-cream); padding: 9px 20px; text-decoration: none; transition: all 0.2s; display: inline-block; }
-  .rs-platform:hover { border-color: var(--rp-gold); color: var(--rp-gold); }
-  .rs-collab { border-top: 1px solid rgba(201,168,76,0.08); padding-top: 30px; }
-  .rs-collab-label { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--rp-gold-dim); margin-bottom: 10px; font-weight: 500; }
-  .rs-collab-text { font-size: 15px; color: rgba(208,191,154,0.65); font-weight: 400; line-height: 1.7; margin-bottom: 22px; }
-
-  /* PARTNERSHIP */
-  .rs-partner { padding: 108px 56px; background: var(--navy-mid); border-top: 1px solid rgba(181,149,88,0.08); display: grid; grid-template-columns: 1fr 1fr; gap: 88px; align-items: start; }
-  .rs-partner-types { display: flex; flex-direction: column; gap: 2px; }
-  .rs-pt { padding: 24px 28px; background: var(--panel); border: 1px solid rgba(232,223,208,0.07); transition: border-color 0.2s; }
-  .rs-pt:hover { border-color: rgba(74,117,117,0.25); }
-  .rs-pt-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--teal-light); margin-bottom: 4px; font-weight: 500; }
-  .rs-pt-title { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 600; color: var(--cream); margin-bottom: 6px; letter-spacing: 0.5px; }
-  .rs-pt-desc { font-size: 15px; color: var(--cream-dim); font-weight: 400; line-height: 1.65; }
-
-  /* CONTACT */
-  .rs-contact { padding: 108px 56px; background: var(--panel); border-top: 1px solid rgba(181,149,88,0.08); display: grid; grid-template-columns: 1fr 1fr; gap: 88px; align-items: start; }
-  .rs-contact-meta { margin-top: 28px; }
-  .rs-contact-meta p { font-size: 18px; line-height: 1.8; color: var(--cream-dim); margin-bottom: 20px; font-weight: 400; }
-  .rs-contact-note { font-family: 'EB Garamond', serif; font-style: italic; font-size: 16px; color: var(--cream-muted); }
-  .rs-form-grid { display: flex; flex-direction: column; gap: 10px; }
-  .rs-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-  /* PROOF STRIP */
-  .rs-proof-strip {
-    display: grid;
-    grid-template-columns: 1fr 0.55fr 1fr;
-    gap: 3px;
-    background: #060A11;
-  }
-  .rs-strip-img {
-    width: 100%; aspect-ratio: 16/9; object-fit: cover;
-    object-position: center;
-    display: block;
-    filter: brightness(0.88) contrast(1.05);
-    transition: filter 0.4s;
-  }
-  .rs-strip-img:hover { filter: brightness(0.95) contrast(1.05); }
+  /* VISUAL PROOF STRIP */
+  .rs-proof-strip { display: grid; grid-template-columns: 1fr 0.55fr 1fr; gap: 3px; background: #060A11; }
+  .rs-strip-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; object-position: center; display: block; filter: brightness(0.85) contrast(1.05); transition: filter 0.4s; }
+  .rs-strip-img:hover { filter: brightness(0.95); }
   .rs-strip-img-narrow { aspect-ratio: 4/5; object-position: center top; }
 
-  @media (max-width: 900px) {
-    .rs-proof-strip { grid-template-columns: 1fr 1fr; }
-    .rs-strip-img-narrow { display: none; }
-  }
+  /* SECTION 5 — HOW WE WORK */
+  .rs-work-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 2px; margin-top: 52px; }
+  .rs-work-card { background: var(--panel); padding: 40px 36px; border: 1px solid rgba(232,223,208,0.07); transition: border-color 0.25s; }
+  .rs-work-card:hover { border-color: rgba(74,117,117,0.3); }
+  .rs-work-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 600; letter-spacing: 1px; color: var(--cream); text-transform: uppercase; margin-bottom: 12px; }
+  .rs-work-desc  { font-size: 16px; line-height: 1.75; color: var(--cream-dim); }
+
+  /* SECTION 6 — PROVING GROUNDS */
+  .rs-pg { position: relative; overflow: hidden; }
+  .rs-pg-bg-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; opacity: 0.18; filter: brightness(0.8) contrast(1.1); }
+  .rs-pg-overlay { position: absolute; inset: 0; background: linear-gradient(to right, rgba(4,7,14,0.96) 35%, rgba(4,7,14,0.80) 100%); }
+  .rs-pg-inner { position: relative; z-index: 2; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; padding: 100px 56px; }
+  .rs-pg-event-tag { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; padding: 6px 14px; background: rgba(181,149,88,0.12); border: 1px solid rgba(181,149,88,0.25); color: var(--gold); margin-bottom: 28px; }
+  .rs-pg-body { font-size: 17px; line-height: 1.8; color: var(--cream-dim); margin-top: 24px; }
+  .rs-pg-body p { margin-bottom: 18px; }
+  .rs-pg-body p:last-child { margin-bottom: 0; }
+  .rs-pg-stations { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+  .rs-pg-station  { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 6px 14px; border: 1px solid rgba(181,149,88,0.3); color: var(--gold); }
+  .rs-pg-form-box { background: rgba(4,7,14,0.85); border: 1px solid rgba(232,223,208,0.1); padding: 40px; }
+  .rs-pg-form-title { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--cream); margin-bottom: 8px; }
+  .rs-pg-form-sub { font-size: 14px; color: var(--cream-muted); margin-bottom: 28px; }
+  .rs-pg-input, .rs-pg-select { background: rgba(255,255,255,0.05); border: 1px solid rgba(232,223,208,0.15); color: var(--cream); font-family: 'Barlow', sans-serif; font-size: 16px; padding: 13px 16px; width: 100%; outline: none; transition: border-color 0.2s; appearance: none; -webkit-appearance: none; margin-bottom: 12px; }
+  .rs-pg-input:focus, .rs-pg-select:focus { border-color: var(--gold); }
+  .rs-pg-input::placeholder { color: rgba(232,223,208,0.3); }
+  .rs-pg-submit { width: 100%; padding: 15px; background: var(--gold); color: var(--navy); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; border: none; cursor: pointer; transition: all 0.22s; margin-top: 4px; }
+  .rs-pg-submit:hover { background: var(--cream); }
+  .rs-pg-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+  .rs-pg-note { font-size: 13px; color: var(--cream-muted); margin-top: 12px; text-align: center; }
+
+  /* SECTION 7 — PRODUCES */
+  .rs-produces { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+  .rs-produces-list { list-style: none; margin-top: 8px; }
+  .rs-produces-list li { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 400; letter-spacing: 0.5px; color: var(--cream); padding: 22px 0; border-bottom: 1px solid rgba(232,223,208,0.1); line-height: 1.4; }
+  .rs-produces-list li:first-child { border-top: 1px solid rgba(232,223,208,0.1); }
+
+  /* SECTION 8 — FOUNDERS */
+  .rs-founders-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 52px; }
+  .rs-founder-card  { background: var(--navy-mid); border: 1px solid rgba(232,223,208,0.07); padding: 36px; display: flex; gap: 28px; align-items: flex-start; }
+  .rs-founder-photo-wrap { width: 100px; height: 130px; flex-shrink: 0; overflow: hidden; background: rgba(74,117,117,0.12); }
+  .rs-founder-img  { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+  .rs-founder-init { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 600; letter-spacing: 2px; color: var(--teal); }
+  .rs-founder-role { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  .rs-founder-name { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--cream); margin-bottom: 14px; }
+  .rs-founder-bio  { font-size: 15px; line-height: 1.75; color: var(--cream-dim); }
+  .rs-founders-note { margin-top: 40px; padding-top: 36px; border-top: 1px solid rgba(232,223,208,0.08); }
+  .rs-founders-note p { font-size: 17px; color: var(--cream-dim); line-height: 1.8; margin-bottom: 16px; max-width: 680px; }
+
+  /* PODCAST */
+  .rs-podcast { background: var(--rp-dark); border-top: 1px solid rgba(201,168,76,0.1); }
+  .rs-podcast-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; padding: 100px 56px; }
+  .rs-podcast-art { position: relative; background: var(--rp-black); aspect-ratio: 1; max-width: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px; border: 1px solid rgba(201,168,76,0.15); overflow: hidden; }
+  .rs-podcast-frame { position: absolute; inset: 12px; border: 1px solid rgba(201,168,76,0.08); }
+  .rs-rp-wordmark { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--rp-gold); text-align: center; line-height: 1.2; position: relative; z-index: 1; }
+  .rs-rp-sub  { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--rp-gold-dim); margin-top: 8px; position: relative; z-index: 1; }
+  .rs-rp-divider { width: 40px; height: 1px; background: var(--rp-gold-dim); margin: 16px auto; }
+  .rs-rp-tag  { font-size: 13px; color: var(--rp-cream); letter-spacing: 1px; font-style: italic; font-family: 'EB Garamond', serif; position: relative; z-index: 1; }
+  .rs-podcast-label   { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--rp-gold-dim); margin-bottom: 18px; }
+  .rs-podcast-h2      { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(38px,4.2vw,54px); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--rp-gold); margin-bottom: 18px; line-height: 1.05; }
+  .rs-podcast-tagline { font-family: 'EB Garamond', serif; font-style: italic; font-size: 20px; color: var(--rp-cream); margin-bottom: 24px; line-height: 1.55; }
+  .rs-podcast-desc    { font-size: 17px; line-height: 1.8; color: rgba(208,191,154,0.75); margin-bottom: 36px; }
+  .rs-platform { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 8px 16px; border: 1px solid rgba(201,168,76,0.25); color: var(--rp-gold-dim); text-decoration: none; margin-right: 10px; margin-bottom: 10px; transition: all 0.2s; }
+  .rs-platform:hover { border-color: var(--rp-gold); color: var(--rp-gold); }
+
+  /* CONTACT */
+  .rs-contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: start; }
+  .rs-contact-intro p { font-size: 18px; line-height: 1.8; color: var(--cream-dim); margin-bottom: 20px; }
+  .rs-contact-links { margin-top: 32px; }
+  .rs-contact-links a { display: block; color: var(--teal-light); text-decoration: none; font-size: 16px; margin-bottom: 12px; transition: color 0.2s; }
+  .rs-contact-links a:hover { color: var(--cream); }
+  .rs-form-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .rs-form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .rs-form-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); }
+  .rs-input, .rs-select, .rs-textarea { background: rgba(255,255,255,0.04); border: 1px solid rgba(232,223,208,0.15); color: var(--cream); font-family: 'Barlow', sans-serif; font-size: 16px; padding: 13px 16px; width: 100%; outline: none; transition: border-color 0.2s; appearance: none; -webkit-appearance: none; }
+  .rs-input:focus, .rs-select:focus, .rs-textarea:focus { border-color: var(--teal); }
+  .rs-input::placeholder, .rs-textarea::placeholder { color: rgba(232,223,208,0.3); }
+  .rs-textarea { resize: vertical; min-height: 120px; }
+  .rs-form-err     { color: #E07070; font-size: 14px; margin-top: 8px; }
+  .rs-form-success { background: rgba(74,117,117,0.12); border: 1px solid rgba(74,117,117,0.3); padding: 20px 24px; }
+  .rs-form-success p { color: var(--cream-dim); font-size: 16px; line-height: 1.65; }
 
   /* FOOTER */
-  .rs-footer { background: #060A11; padding: 80px 56px 40px; border-top: 1px solid rgba(181,149,88,0.08); }
+  .rs-footer { background: var(--panel); border-top: 1px solid rgba(181,149,88,0.1); padding: 72px 56px 48px; }
   .rs-footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 64px; }
-  .rs-footer-brand { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 5px; text-transform: uppercase; color: var(--cream); display: block; margin-bottom: 18px; text-decoration: none; }
-  .rs-footer-tag { font-size: 15px; color: var(--cream-dim); font-weight: 400; line-height: 1.7; max-width: 280px; margin-bottom: 24px; }
-  .rs-footer-loc { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(140,136,127,0.45); }
-  .rs-footer-col h4 { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 20px; font-weight: 600; }
-  .rs-footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-  .rs-footer-col a { font-size: 15px; color: var(--cream-dim); text-decoration: none; font-weight: 400; transition: color 0.2s; }
-  .rs-footer-col a:hover { color: var(--cream); }
-  .rs-footer-bottom { border-top: 1px solid rgba(232,223,208,0.04); padding-top: 28px; display: flex; justify-content: space-between; align-items: center; }
-  .rs-footer-bottom p { font-size: 12px; color: rgba(140,136,127,0.38); font-weight: 300; }
+  .rs-footer-wm  { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 4px; color: var(--cream); text-transform: uppercase; margin-bottom: 16px; }
+  .rs-footer-tag { font-size: 15px; color: var(--cream-dim); line-height: 1.7; max-width: 280px; margin-bottom: 24px; }
+  .rs-footer-social { display: flex; gap: 16px; }
+  .rs-footer-social a { font-size: 13px; color: var(--teal-light); text-decoration: none; transition: color 0.2s; }
+  .rs-footer-social a:hover { color: var(--cream); }
+  .rs-footer-col h4 { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--cream); margin-bottom: 20px; }
+  .rs-footer-col ul { list-style: none; }
+  .rs-footer-col ul li { margin-bottom: 12px; }
+  .rs-footer-col ul a { font-size: 14px; color: var(--cream-muted); text-decoration: none; transition: color 0.2s; }
+  .rs-footer-col ul a:hover { color: var(--cream); }
+  .rs-footer-bottom { border-top: 1px solid rgba(232,223,208,0.07); padding-top: 28px; display: flex; align-items: center; justify-content: space-between; }
+  .rs-footer-copy { font-size: 13px; color: rgba(232,223,208,0.3); }
 
+  /* ANIMATIONS */
   @keyframes rsRise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes rsBreathe { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-  /* MOBILE */
+  /* RESPONSIVE */
   @media (max-width: 900px) {
-    .rs { font-size: 17px; }
-    .rs-nav { padding: 0 24px; }
     .rs-nav-links { display: none; }
     .rs-burger { display: flex; }
-    .rs-hero-content { padding: 0 24px 80px; }
-    .rs-hero-h1 { font-size: clamp(36px,9vw,56px); }
-    .rs-hero-sub { font-size: 18px; max-width: 100%; }
-    .rs-about { grid-template-columns: 1fr; gap: 44px; padding: 72px 24px; }
-    .rs-about-right { max-width: 100%; }
-    .rs-about-right p { font-size: 17px; }
-    .rs-proof-bar { grid-template-columns: 1fr 1fr; padding: 40px 24px; }
-    .rs-proof-item { padding: 0 12px; }
-    .rs-for { padding: 72px 24px; }
-    .rs-for-grid { grid-template-columns: 1fr; }
-    .rs-offerings { padding: 72px 24px; }
-    .rs-offerings-grid { grid-template-columns: 1fr; }
-    .rs-pathways { grid-template-columns: 1fr; }
-    .rs-pathway { padding: 64px 24px; }
-    .rs-pathway-desc { font-size: 16px; }
-    .rs-pathway-list li { font-size: 15px; }
-    .rs-why { padding: 72px 24px; }
-    .rs-why-grid { grid-template-columns: 1fr 1fr; }
-    .rs-why-text { font-size: 15px; }
-    .rs-founders { padding: 72px 24px; }
+    .rs-section { padding: 72px 24px; }
+    .rs-hero-content { padding: 0 24px 72px; }
+    .rs-scratch { grid-template-columns: 1fr; gap: 40px; }
+    .rs-fit-alts { grid-template-columns: 1fr 1fr; }
+    .rs-env { grid-template-columns: 1fr; gap: 40px; }
+    .rs-work-grid { grid-template-columns: 1fr; }
+    .rs-proof-strip { grid-template-columns: 1fr 1fr; }
+    .rs-strip-img-narrow { display: none; }
+    .rs-pg-inner { grid-template-columns: 1fr; gap: 48px; padding: 72px 24px; }
+    .rs-produces { grid-template-columns: 1fr; gap: 40px; }
     .rs-founders-grid { grid-template-columns: 1fr; }
-    .rs-founder { grid-template-columns: 1fr; padding: 28px; }
-    .rs-founder-img-wrap { width: 100%; max-width: 220px; }
-    .rs-founder-bio { font-size: 16px; }
-    .rs-pg-top { grid-template-columns: 1fr; padding: 40px 24px; }
-    .rs-pg-body { grid-template-columns: 1fr; }
-    .rs-pg-left { padding: 40px 24px; border-right: none; border-bottom: 1px solid rgba(232,223,208,0.07); }
-    .rs-pg-right { padding: 40px 24px; }
-    .rs-podcast { grid-template-columns: 1fr; }
-    .rs-podcast-visual { padding: 56px 24px; }
-    .rs-podcast-content { padding: 56px 24px; }
-    .rs-podcast-desc { font-size: 16px; }
-    .rs-partner { grid-template-columns: 1fr; gap: 44px; padding: 72px 24px; }
-    .rs-contact { grid-template-columns: 1fr; gap: 44px; padding: 72px 24px; }
-    .rs-contact-meta p { font-size: 17px; }
-    .rs-footer-top { grid-template-columns: 1fr 1fr; gap: 28px; }
-    .rs-footer { padding: 56px 24px 36px; }
+    .rs-podcast-inner { grid-template-columns: 1fr; gap: 48px; padding: 72px 24px; }
+    .rs-contact-grid { grid-template-columns: 1fr; gap: 52px; }
+    .rs-footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
+    .rs-footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
     .rs-form-row { grid-template-columns: 1fr; }
-    .rs-mobile-menu a { font-size: 28px; padding: 16px 32px; }
+    .rs-nav { padding: 0 24px; }
+    .rs-footer { padding: 56px 24px 36px; }
   }
-
   @media (max-width: 480px) {
-    .rs-why-grid { grid-template-columns: 1fr; }
-    .rs-proof-bar { grid-template-columns: 1fr; }
-    .rs-proof-item { padding: 0 0 24px; border-right: none; border-bottom: 1px solid rgba(232,223,208,0.07); }
-    .rs-proof-item:last-child { border-bottom: none; padding-bottom: 0; }
-    .rs-footer-top { grid-template-columns: 1fr; }
-    .rs-hero-h1 { font-size: clamp(32px,9vw,46px); }
-    .rs-mobile-menu a { font-size: 24px; padding: 14px 24px; }
+    .rs-fit-alts { grid-template-columns: 1fr; }
+    .rs-founder-card { flex-direction: column; }
   }
 `;
-
-const PROOF = [
-  { num: "Custom",     title: "Custom Designed",     label: "Every experience is built around the people, setting, and outcome required." },
-  { num: "End to End", title: "End-to-End Delivery",  label: "ROAMSIX handles the structure, facilitation, and logistics." },
-  { num: "Transition", title: "Built for Transition",  label: "For teams and people at moments that require more than another meeting." },
-  { num: "Selective",  title: "Selective by Design",  label: "Access happens through referral, alignment, and direct inquiry." },
-];
-const OFFERINGS_ORG = [
-  { num: "01", title: "Leadership Offsites",       desc: "Multi-day immersive experiences for leadership teams navigating growth, misalignment, or transition. Built around your group's goals and dynamics." },
-  { num: "02", title: "Team Alignment Retreats",   desc: "Structured retreats for teams who need more than a day off. Built around communication, trust, and the decisions that need to get made." },
-  { num: "03", title: "One-Day Reset Experiences", desc: "A single day, precision-designed. For individuals or small groups who need a change of environment and a clear plan for what comes next." },
-];
-const OFFERINGS_PVT = [
-  { num: "04", title: "Private Group Experiences",       desc: "Custom experiences for private groups or couples at a pivotal moment. Reconnection, recalibration, or forward movement." },
-  { num: "05", title: "Wellness and Longevity Retreats", desc: "Performance-focused retreats built around recovery, health optimization, and expert facilitation." },
-  { num: "06", title: "Travel-Based Experiences",        desc: "Curated destinations, white-glove logistics, and immersive facilitation. The journey is part of the design." },
-];
-const OFFERINGS_SIG = [
-  { num: "07", title: "Proving Grounds",    desc: "One-day competitive team performance events. Six stations. No shortcuts." },
-  { num: "08", title: "Redirection Point", desc: "The ROAMSIX podcast. Conversations on pivotal moments with athletes, executives, and operators." },
-];
-const WHY = [
-  { num: "01", title: "Environment Shapes Behavior",   text: "The setting changes what people say, how they communicate, and what they can see clearly." },
-  { num: "02", title: "Trust Changes Communication",   text: "Most organizational problems are trust problems. We create conditions for trust to develop through shared experience." },
-  { num: "03", title: "Recovery Sharpens Decisions",   text: "High performers running on empty make worse decisions. Recovery is built into every experience." },
-  { num: "04", title: "Structure Reveals What's Real", text: "The right structure reveals what a team actually needs, not what they said they needed in the intake form." },
-];
-const DESIGNED = [
-  { icon: "ORG", title: "Founder-Led Leadership Teams",    desc: "Organizations at an inflection point. Communication breaking down. Culture not keeping pace with the business." },
-  { icon: "PPL", title: "People Leaders and L&D Teams",    desc: "CPOs, VPs of People, and L&D leaders with a mandate to develop culture and leadership at scale." },
-  { icon: "PRF", title: "High-Performers and Private Groups", desc: "Individuals, couples, and private groups in serious pursuit of alignment, recovery, or clarity on what comes next." },
-];
-const PARTNERS = [
-  { tag: "Corporate", title: "Annual Retreat Partner",      desc: "Organizations looking for a retained experience partner across multiple engagements per year." },
-  { tag: "Brand",     title: "Sponsor and Brand Alignment", desc: "Brands in health, performance, wellness, and outdoor environments aligned with the ROAMSIX audience." },
-  { tag: "Venue",     title: "Property and Venue Partners", desc: "Premium properties and locations interested in hosting or co-designing ROAMSIX experiences." },
-  { tag: "Expert",    title: "Facilitators and Speakers",   desc: "Credentialed practitioners in leadership, performance, longevity, and wellness." },
-];
-const NAV = [["About","#about"],["Experiences","#experiences"],["Our Team","#founders"],["Proving Grounds","#proving-grounds"],["Podcast","#podcast"]];
 
 export default function HomePage() {
   const [scrolled,  setScrolled]  = useState(false);
@@ -472,9 +317,9 @@ export default function HomePage() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-
   const close = () => setMenuOpen(false);
 
+  /* ── FORM HANDLERS — DO NOT MODIFY ──────────────────────────────────────── */
   const submitPG = async () => {
     if (!pg.name.trim() || !pg.email.trim()) { setPgErr("Please enter your name and email."); return; }
     setPgStatus("loading"); setPgErr("");
@@ -484,11 +329,7 @@ export default function HomePage() {
         body: JSON.stringify({ name: pg.name.trim(), email: pg.email.trim(), role: pg.role, source: "Proving Grounds Waitlist" }),
       });
       if (res.ok) { setPgStatus("success"); }
-      else {
-        const d = await res.json().catch(() => ({}));
-        setPgErr(d.error || "Submission failed. Please email info@roamsix.com directly.");
-        setPgStatus("idle");
-      }
+      else { const d = await res.json().catch(()=>({})); setPgErr(d.error || "Submission failed. Please email info@roamsix.com directly."); setPgStatus("idle"); }
     } catch { setPgErr("Network error. Please email info@roamsix.com directly."); setPgStatus("idle"); }
   };
 
@@ -501,11 +342,7 @@ export default function HomePage() {
         body: JSON.stringify({ firstName: contact.first.trim(), lastName: contact.last.trim(), email: contact.email.trim(), company: contact.company.trim(), inquiryType: contact.type, message: contact.message.trim(), source: "Homepage Contact Form" }),
       });
       if (res.ok) { setCtStatus("success"); }
-      else {
-        const d = await res.json().catch(() => ({}));
-        setCtErr(d.error || "Submission failed. Please email info@roamsix.com directly.");
-        setCtStatus("idle");
-      }
+      else { const d = await res.json().catch(()=>({})); setCtErr(d.error || "Submission failed. Please email info@roamsix.com directly."); setCtStatus("idle"); }
     } catch { setCtErr("Network error. Please email info@roamsix.com directly."); setCtStatus("idle"); }
   };
 
@@ -531,70 +368,107 @@ export default function HomePage() {
         </button>
       </nav>
 
-      {/* HERO */}
+      {/* ── 1. HERO ── */}
       <section className="rs-hero">
-        <img className="rs-hero-img" src={heroErr ? HERO_FALLBACK : HERO_SRC} alt="ROAMSIX environment" onError={() => setHeroErr(true)}/>
+        {/* VIDEO PLACEHOLDER: replace img with <video autoPlay muted loop playsInline poster={HERO_SRC}><source src="/videos/homepage/roamsix-hero.mp4" type="video/mp4"/></video> */}
+        <img className="rs-hero-img" src={heroErr ? HERO_FALLBACK : HERO_SRC} alt="ROAMSIX" onError={() => setHeroErr(true)}/>
         <div className="rs-hero-overlay"/>
         <div className="rs-hero-content">
           <div className="rs-label-row" style={{marginBottom:"22px"}}>
             <span className="rs-rule" style={{background:"#E8DFD0"}}/>
-            <span className="rs-label" style={{color:"#E8DFD0",textShadow:"0 1px 4px rgba(0,0,0,0.9)"}}>Custom Offsites, Retreats, and Performance Experiences</span>
+            <span className="rs-label" style={{color:"#E8DFD0",textShadow:"0 1px 4px rgba(0,0,0,0.9)"}}>Offsites and Retreats</span>
           </div>
-          <h1 className="rs-hero-h1">Custom Offsites,<br/>Retreats, and<br/>Performance<br/>Experiences for<br/>Teams and<br/>High Performers.</h1>
-          <p className="rs-hero-sub">ROAMSIX designs and delivers immersive experiences built around environment, wellness, structure, and facilitation to create alignment, recovery, and forward movement.</p>
+          <h1 className="rs-hero-h1">Offsites built around<br/>what needs to<br/>happen next.</h1>
+          <p className="rs-hero-sub">Most teams arrive somewhere new and run the same conversation they've been having for months. ROAMSIX builds the conditions where that stops.</p>
           <div className="rs-hero-actions">
-            <a href="#contact" className="rs-btn rs-btn-teal">Inquire About an Experience</a>
-            <a href="#about" className="rs-btn rs-btn-outline">Explore ROAMSIX</a>
+            <a href="#contact" className="rs-btn rs-btn-teal">Start a Conversation</a>
+            <a href="#how-we-work" className="rs-btn rs-btn-outline">See How It Works</a>
           </div>
         </div>
       </section>
 
-      {/* PROOF BAR */}
-      <div className="rs-proof-bar">
-        {PROOF.map(p => (
-          <div className="rs-proof-item" key={p.num}>
-            <div className="rs-proof-num">{p.num}</div>
-            <div className="rs-proof-title">{p.title}</div>
-            <div className="rs-proof-label">{p.label}</div>
+      {/* ── 2. YOU'VE ALREADY TRIED ── */}
+      <section className="rs-section rs-section-dark" id="about">
+        <div className="rs-scratch">
+          <div>
+            <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">The Problem</span></div>
+            <h2 className="rs-h2">You've already tried the obvious options.</h2>
           </div>
-        ))}
-      </div>
+          <div className="rs-scratch-body">
+            <p>You've done the offsite. The team-building day. The consultant with the framework.</p>
+            <p>The time was spent. The budget was used. Very little changed after.</p>
+            <div className="rs-scratch-pull">
+              <p className="rs-pull">What you're dealing with now needs to be structured differently.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <hr className="rs-hr"/>
 
-      {/* ABOUT */}
-      <section className="rs-about" id="about">
-        <div>
-          <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Why We Exist</span></div>
-          <h2 className="rs-h2">Most teams don't need more information. They need the right environment.</h2>
+      {/* ── 3. WHERE WE FIT ── */}
+      <section className="rs-section rs-section-navy" id="where-we-fit">
+        <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Where We Fit</span></div>
+        <h2 className="rs-h2">Where this fits.</h2>
+        <p style={{fontSize:"19px",lineHeight:"1.85",color:"var(--cream-dim)",marginTop:"28px",marginBottom:"0"}}>Most teams choose between:</p>
+        <div className="rs-fit-alts">
+          {["A hotel offsite with a packed agenda","A conference that sounds valuable but doesn't carry back into the business","A team outing that feels good for a day","A consultant who hands over a deck"].map(a=>(
+            <div className="rs-fit-alt" key={a}>{a}</div>
+          ))}
         </div>
-        <div className="rs-about-right">
-          <p>As organizations grow, distance develops. Between the people doing the work and the people making decisions. Between stated values and daily behavior. Between high-performance and the recovery that sustains it.</p>
-          <div className="rs-about-pull"><p className="rs-pull">Environment changes what people reveal, how they relate, and what they are able to see clearly.</p></div>
-          <p>ROAMSIX designs experiences that use place, structure, wellness, and facilitation to produce alignment, recovery, and forward movement. Every engagement is customized. Every detail is intentional.</p>
-          <p style={{fontSize:"16px",color:"var(--cream-muted)",marginTop:"8px"}}>Internally, we describe the work as analog experience design. In practice, it means real-world environments designed to change how people think, relate, recover, and perform.</p>
+        <p style={{fontSize:"19px",lineHeight:"1.85",color:"var(--cream-dim)",marginBottom:"0"}}>Those all have a place. They just don't solve what most teams come to us for.</p>
+        <div className="rs-fit-friction">
+          Work slows down. Decisions get revisited.<br/>The same conversations keep happening.
+        </div>
+        <div className="rs-fit-body">
+          <p>ROAMSIX is brought in when the experience needs to produce something that carries back into the work.</p>
+          <p>We design and run the entire experience around what needs to come out of it.</p>
+          <p style={{color:"var(--cream)",fontWeight:"500"}}>Most clients contact us before they've booked a location.</p>
+        </div>
+      </section>
+
+      <hr className="rs-hr"/>
+
+      {/* ── 4. WHAT CHANGES ── */}
+      <section className="rs-section rs-section-dark" id="approach-preview">
+        <div className="rs-env">
+          <div>
+            <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">What Changes</span></div>
+            <h2 className="rs-h2">What changes when the environment is right.</h2>
+            <div style={{marginTop:"32px"}}>
+              <a href="/approach" className="rs-btn rs-btn-outline" style={{fontSize:"12px"}}>Read Our Approach</a>
+            </div>
+          </div>
+          <div>
+            <div className="rs-env-body">
+              <p>Most teams are running harder than they should be, with less clarity than they used to have.</p>
+              <p>What gets said is filtered. What gets held back stays hidden.</p>
+              <p>When the environment changes, that shifts.</p>
+            </div>
+            <div className="rs-env-shift">
+              <p>People show how they think. How they contribute. Where they create value.</p>
+              <p>Teams start to see each other clearly. Decisions get made faster and with less friction.</p>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* VISUAL PROOF STRIP */}
       <div className="rs-proof-strip">
-        <img src={TEAM_SRC}  alt="ROAMSIX team on terrain" loading="lazy" className="rs-strip-img" onError={e=>{e.target.style.display="none"}}/>
-        <img src={NOTES_SRC} alt="Field facilitation"      loading="lazy" className="rs-strip-img rs-strip-img-narrow" onError={e=>{e.target.style.display="none"}}/>
-        <img src={HERO_SRC}  alt="ROAMSIX environment"     loading="lazy" className="rs-strip-img" onError={e=>{e.target.style.display="none"}}/>
+        <img src={TEAM_SRC}  alt="ROAMSIX team in the field" loading="lazy" className="rs-strip-img" onError={e=>{e.target.style.display="none"}}/>
+        <img src={NOTES_SRC} alt="Field facilitation"        loading="lazy" className="rs-strip-img rs-strip-img-narrow" onError={e=>{e.target.style.display="none"}}/>
+        <img src={HERO_SRC}  alt="ROAMSIX terrain"           loading="lazy" className="rs-strip-img" onError={e=>{e.target.style.display="none"}}/>
       </div>
 
-      <hr className="rs-hr"/>
-
-      {/* DESIGNED FOR */}
-      <section className="rs-for" id="designed-for">
-        <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Who We Build For</span></div>
-        <h2 className="rs-h2">Who ROAMSIX Is Designed For.</h2>
-        <div className="rs-for-grid">
-          {DESIGNED.map(d => (
-            <div className="rs-for-card" key={d.title}>
-              <div className="rs-for-icon">{d.icon}</div>
-              <div className="rs-for-title">{d.title}</div>
-              <p className="rs-for-desc">{d.desc}</p>
+      {/* ── 5. HOW WE WORK ── */}
+      <section className="rs-section rs-section-navy" id="how-we-work">
+        <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">How We Work</span></div>
+        <h2 className="rs-h2">Ways we work.</h2>
+        <div className="rs-work-grid" id="experiences">
+          {HOW_WE_WORK.map(w => (
+            <div className="rs-work-card" key={w.title}>
+              <div className="rs-work-title">{w.title}</div>
+              <p className="rs-work-desc">{w.desc}</p>
             </div>
           ))}
         </div>
@@ -602,250 +476,182 @@ export default function HomePage() {
 
       <hr className="rs-hr"/>
 
-      {/* OFFERINGS */}
-      <section className="rs-offerings" id="experiences">
-        <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Experiences</span></div>
-        <h2 className="rs-h2">Every Experience Is Built Around You.</h2>
-        <div className="rs-offerings-grid">
-          {[["For Organizations",OFFERINGS_ORG],["Private and Individual",OFFERINGS_PVT],["Signature Properties",OFFERINGS_SIG]].map(([h,items]) => (
-            <div key={h}>
-              <div className="rs-offerings-col-header">{h}</div>
-              {items.map(o => (
-                <div className="rs-offering" key={o.num}>
-                  <div className="rs-offering-num">{o.num}</div>
-                  <div className="rs-offering-title">{o.title}</div>
-                  <p className="rs-offering-desc">{o.desc}</p>
-                </div>
+      {/* ── 6. PROVING GROUNDS ── */}
+      <section className="rs-pg" id="proving-grounds">
+        <img className="rs-pg-bg-img" src={PG_SRC} alt="Proving Grounds" loading="lazy" onError={e=>{e.target.style.display="none"}}/>
+        <div className="rs-pg-overlay"/>
+        {/* VIDEO PLACEHOLDER: /public/videos/homepage/proving-grounds.mp4 */}
+        <div className="rs-pg-inner">
+          <div>
+            <div className="rs-pg-event-tag">● Next Event: May 17, 2026 — Chihuahua Valley, CA</div>
+            <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Proving Grounds</span></div>
+            <h2 className="rs-h2">See how your team actually operates.</h2>
+            <div className="rs-pg-body">
+              <p>A one-day structured environment designed to surface how your team operates under pressure.</p>
+              <p>How decisions get made when variables change. How communication holds or breaks. What people default to when the answer isn't obvious.</p>
+              <p>Used by teams who want a clear read before making larger moves.</p>
+            </div>
+            <div className="rs-pg-stations">
+              {["Terrain","Strength","Engine","Control","Power","Grit"].map(s=>(
+                <span className="rs-pg-station" key={s}>{s}</span>
               ))}
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* PATHWAYS */}
-      <div className="rs-pathways">
-        <div className="rs-pathway rs-pathway-org">
-          <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">For Organizations</span></div>
-          <h3 className="rs-pathway-h3">Leadership Teams<br/>and Organizations</h3>
-          <p className="rs-pathway-desc">Companies navigating growth, misalignment, or culture that is not keeping up with the business. We build the experience around what your team actually needs.</p>
-          <ul className="rs-pathway-list">
-            {["Founder-led scaleup leadership teams","Chief People Officers and L&D leaders","Executive and senior leadership offsites","Multi-day or single-day formats","Recurring annual partnership model available"].map(i => <li key={i}><span>+</span>{i}</li>)}
-          </ul>
-          <a href="#contact" className="rs-btn rs-btn-teal">Request a Conversation</a>
-        </div>
-        <div className="rs-pathway rs-pathway-ind">
-          <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">For Individuals and Private Groups</span></div>
-          <h3 className="rs-pathway-h3">High Performers<br/>and Private Groups</h3>
-          <p className="rs-pathway-desc">For individuals, couples, and private groups at a pivotal moment. Whether you are recalibrating, recovering, or deciding what comes next, we design the environment to support the work.</p>
-          <ul className="rs-pathway-list">
-            {["High-performing individuals seeking clarity","Couples and private group experiences","Wellness, longevity, and recovery retreats","Proving Grounds competitive events","Referral and invitation access"].map(i => <li key={i}><span>+</span>{i}</li>)}
-          </ul>
-          <a href="#contact" className="rs-btn rs-btn-outline">Explore a Custom Experience</a>
-        </div>
-      </div>
-
-      <hr className="rs-hr"/>
-
-      {/* WHY */}
-      <section className="rs-why" id="why">
-        <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Why Environment Matters</span></div>
-        <h2 className="rs-h2">How ROAMSIX Works.</h2>
-        <div className="rs-why-grid">
-          {WHY.map(c => (
-            <div className="rs-why-card" key={c.num}>
-              <div className="rs-why-num">{c.num}</div>
-              <div className="rs-why-title">{c.title}</div>
-              <p className="rs-why-text">{c.text}</p>
+          </div>
+          <div>
+            <div className="rs-pg-form-box">
+              {pgStatus === "success" ? (
+                <div className="rs-form-success">
+                  <p>You're on the list. We'll be in touch directly when registration opens.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="rs-pg-form-title">Ask About Proving Grounds</div>
+                  <div className="rs-pg-form-sub">Be contacted when registration opens.</div>
+                  <input className="rs-pg-input" placeholder="Full Name" value={pg.name} onChange={e=>setPg(p=>({...p,name:e.target.value}))}/>
+                  <input className="rs-pg-input" placeholder="Email Address" type="email" value={pg.email} onChange={e=>setPg(p=>({...p,email:e.target.value}))}/>
+                  <select className="rs-pg-select" value={pg.role} onChange={e=>setPg(p=>({...p,role:e.target.value}))}>
+                    <option value="">I am joining as...</option>
+                    <option value="Athlete">Athlete</option>
+                    <option value="Coach">Coach</option>
+                    <option value="Corporate Team">Corporate Team</option>
+                    <option value="Individual">Individual</option>
+                  </select>
+                  {pgErr && <p className="rs-form-err">{pgErr}</p>}
+                  <button className="rs-pg-submit" onClick={submitPG} disabled={pgStatus==="loading"}>
+                    {pgStatus === "loading" ? "Sending..." : "Request Proving Grounds Info"}
+                  </button>
+                  <p className="rs-pg-note">No commitment required. We will contact you directly.</p>
+                </>
+              )}
             </div>
-          ))}
+          </div>
         </div>
       </section>
 
       <hr className="rs-hr"/>
 
-      {/* FOUNDERS */}
-      <section className="rs-founders" id="founders">
+      {/* ── 7. WHAT THIS PRODUCES ── */}
+      <section className="rs-section rs-section-dark" id="what-this-produces">
+        <div className="rs-produces">
+          <div>
+            <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Outcomes</span></div>
+            <h2 className="rs-h2">What this is designed to produce.</h2>
+          </div>
+          <ul className="rs-produces-list">
+            {WHAT_PRODUCES.map(item => <li key={item}>{item}</li>)}
+          </ul>
+        </div>
+      </section>
+
+      <hr className="rs-hr"/>
+
+      {/* ── 8. FOUNDERS ── */}
+      <section className="rs-section rs-section-dark" id="founders">
         <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">The Founding Team</span></div>
-        <h2 className="rs-h2">Built by People Who've Done the Work.</h2>
+        <h2 className="rs-h2">Built by people who've done the work.</h2>
         <div className="rs-founders-grid">
-          {[
-            { init:"MO", name:"Max Ouellette", bar:"#4A7575", bg:"linear-gradient(160deg,#1C2535,#1E2E2E)", photo:MAX_SRC, bio:"Former professional athlete with deep experience across performance, wellness, events, and high-accountability team environments. Max leads ROAMSIX with a focus on structure, trust, and the design of experiences that create real movement in people and teams." },
-            { init:"JA", name:"Jackie",        bar:"#3A5A5A", bg:"linear-gradient(160deg,#1E2E2E,#1C2535)", photo:JACKIE_SRC, bio:"Jackie brings experience across fitness, operational delivery, and experience execution. She shapes the human side of ROAMSIX so every engagement feels intentional, personal, and well held." },
-          ].map(f => (
-            <div className="rs-founder" key={f.name}>
-              <div className="rs-founder-img-wrap">
-                <img className="rs-founder-img" src={f.photo} alt={f.name} loading="lazy" onError={e => { e.target.style.display="none"; e.target.nextSibling.style.display="flex"; }}/>
-                <div className="rs-founder-placeholder" style={{display:"none",background:f.bg}}><span className="rs-founder-initials">{f.init}</span></div>
-                <div className="rs-founder-bar" style={{background:f.bar}}/>
+          {FOUNDERS.map(f => (
+            <div className="rs-founder-card" key={f.name}>
+              <div className="rs-founder-photo-wrap">
+                <img className="rs-founder-img" src={f.photo} alt={f.name} loading="lazy"
+                  onError={e => { e.target.style.display="none"; e.target.nextSibling.style.display="flex"; }}/>
+                <div className="rs-founder-init" style={{display:"none"}}>{f.initials}</div>
               </div>
               <div>
-                <div className="rs-founder-role">Co-Founder</div>
+                <div className="rs-founder-role">{f.role}</div>
                 <div className="rs-founder-name">{f.name}</div>
                 <p className="rs-founder-bio">{f.bio}</p>
               </div>
             </div>
           ))}
         </div>
+        <div className="rs-founders-note">
+          <p>ROAMSIX was built by operators with backgrounds in performance, team environments, and experience design. The work is grounded in real-world execution and informed by proven principles in human performance, behavior, and team dynamics.</p>
+          <p>ROAMSIX also works with individuals. Founders, executives, and high-performers navigating transitions who need a structured environment to think clearly.</p>
+          <a href="/team" className="rs-btn rs-btn-outline" style={{fontSize:"12px"}}>Meet the Team</a>
+        </div>
       </section>
 
       <hr className="rs-hr"/>
 
-      {/* PROVING GROUNDS */}
-      <section className="rs-pg" id="proving-grounds">
-        <img className="rs-pg-bg-img" src={PG_SRC} alt="" onError={e => { e.target.style.display="none"; }}/>
-        <div className="rs-pg-overlay"/>
-        <div className="rs-pg-top">
-          <div>
-            <div className="rs-pg-pill"><span className="rs-pg-dot"/>Next Event: Dates Forthcoming</div>
-            <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Proving Grounds</span></div>
-            <h2 className="rs-h2">One Day. Six Stations. No Shortcuts.</h2>
-          </div>
-          <div className="rs-pg-stations">
-            {["Terrain","Strength","Engine","Control","Power","Grit"].map((s,i) => (
-              <div className={`rs-pg-station${i===5?" grit":""}`} key={s}>{s}</div>
-            ))}
-          </div>
-        </div>
-        <div className="rs-pg-body">
-          <div className="rs-pg-left">
-            <p style={{fontSize:"18px",lineHeight:"1.8",color:"var(--cream-dim)",fontWeight:"400",marginBottom:"24px",maxWidth:"560px"}}>Proving Grounds is a one-day competitive team performance event under the ROAMSIX brand. Teams of four compete across six field stations. The sixth station, Grit, is revealed morning-of. No preparation for what you cannot prepare for.</p>
-            <p style={{fontSize:"16px",lineHeight:"1.75",color:"var(--cream-dim)",fontWeight:"400",maxWidth:"520px"}}>The next event date is being confirmed. Registration opens to the ROAMSIX network first. Submit your information to be contacted directly.</p>
-          </div>
-          <div className="rs-pg-right">
-            {pgStatus === "success" ? (
-              <div className="rs-success">
-                <div className="rs-success-check">✓</div>
-                <div className="rs-form-title">Received.</div>
-                <p className="rs-form-sub">We will be in touch when the date is confirmed.</p>
-              </div>
-            ) : (
-              <>
-                <div className="rs-form-title">Ask About Proving Grounds</div>
-                <div className="rs-form-sub">Be contacted when registration opens.</div>
-                <input className="rs-field" placeholder="Full Name" value={pg.name} onChange={e=>setPg(p=>({...p,name:e.target.value}))}/>
-                <input className="rs-field" type="email" placeholder="Email Address" value={pg.email} onChange={e=>setPg(p=>({...p,email:e.target.value}))}/>
-                <select className="rs-field rs-select" value={pg.role} onChange={e=>setPg(p=>({...p,role:e.target.value}))}>
-                  <option value="">I am joining as...</option>
-                  <option>An individual</option>
-                  <option>A coach or trainer</option>
-                  <option>A team of four</option>
-                </select>
-                {pgErr && <p className="rs-form-error">{pgErr}</p>}
-                <button className="rs-btn rs-btn-gold" style={{width:"100%",fontSize:"12px",marginTop:"4px",opacity:pgStatus==="loading"?0.6:1,cursor:pgStatus==="loading"?"not-allowed":"pointer"}} onClick={submitPG} disabled={pgStatus==="loading"}>
-                  {pgStatus === "loading" ? "Sending..." : "Request Proving Grounds Info"}
-                </button>
-                <p className="rs-form-note">No commitment required. We will contact you directly.</p>
-              </>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* REDIRECTION POINT */}
+      {/* ── 9. PODCAST ── */}
       <section className="rs-podcast" id="podcast">
-        <div className="rs-podcast-visual">
+        <div className="rs-podcast-inner">
           <div className="rs-podcast-art">
             <div className="rs-podcast-frame"/>
-            <img
-              src={RP_LOGO}
-              alt="Redirection Point"
-              style={{width:"100%",height:"auto",display:"block",position:"relative",zIndex:1}}
-              onError={e => { e.target.style.display="none"; e.target.nextSibling.style.display="block"; }}
-            />
-            <div style={{display:"none"}}>
+            <img src={RP_LOGO} alt="Redirection Point" style={{width:"100%",height:"auto",display:"block",position:"relative",zIndex:1}}
+              onError={e => { e.target.style.display="none"; e.target.nextSibling.style.display="block"; }}/>
+            <div style={{display:"none",textAlign:"center"}}>
               <div className="rs-rp-wordmark">Redirection<br/>Point</div>
               <div className="rs-rp-sub">A ROAMSIX Podcast</div>
               <div className="rs-rp-divider"/>
               <div className="rs-rp-tag">Where Paths Converge</div>
             </div>
           </div>
-        </div>
-        <div className="rs-podcast-content">
-          <div className="rs-podcast-label"><span className="rs-podcast-rule"/><span className="rs-podcast-label-text">The Podcast</span></div>
-          <h2 className="rs-podcast-h2">Redirection<br/>Point.</h2>
-          <p className="rs-podcast-connect">Redirection Point is the media expression of the same questions ROAMSIX is built around.</p>
-          <p className="rs-podcast-desc">Every high-performer has a moment where the path changed. A decision, a setback, a discovery that redirected everything that followed. We explore those moments with athletes, executives, veterans, and operators who built something meaningful on the other side of one.</p>
-          <div className="rs-platforms">
-{[
-              ["YouTube", "https://www.youtube.com/@RedirectionPoint"],
-              ["Instagram", "https://www.instagram.com/redirectionpoint"],
-              ["Spotify", "#"],
-              ["Apple Podcasts", "#"],
-            ].map(([p, url]) => <a href={url} className="rs-platform" key={p} target="_blank" rel="noopener">{p}</a>)}
-          </div>
-          <div className="rs-collab">
-            <div className="rs-collab-label">Want to be featured or collaborate?</div>
-            <p className="rs-collab-text">If you have lived a redirection and want to share it, or if you are a brand or practitioner looking to collaborate, reach out.</p>
-            <a href="#contact" className="rs-btn-rp">Reach Out to the Team</a>
+          <div>
+            <div className="rs-podcast-label">The Podcast</div>
+            <h2 className="rs-podcast-h2">Redirection Point.</h2>
+            <p className="rs-podcast-tagline">Conversations with operators, founders, and athletes at the moments where things shifted.</p>
+            <p className="rs-podcast-desc">Every high-performer reaches a point where the path changed. We explore those moments with the people who built something meaningful on the other side.</p>
+            <div>
+              {[["YouTube","https://www.youtube.com/@RedirectionPoint"],["Instagram","https://www.instagram.com/redirectionpoint"],["Spotify","#"],["Apple Podcasts","#"]].map(([p,url]) => (
+                <a href={url} className="rs-platform" key={p} target="_blank" rel="noopener noreferrer">{p}</a>
+              ))}
+            </div>
+            <div style={{marginTop:"28px"}}>
+              <a href="https://www.youtube.com/@RedirectionPoint" className="rs-btn-rp" target="_blank" rel="noopener noreferrer">Watch or Listen</a>
+            </div>
           </div>
         </div>
       </section>
 
-      <hr className="rs-hr"/>
-
-      {/* PARTNERSHIP */}
-      <section className="rs-partner" id="partnership">
-        <div>
-          <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Partnerships</span></div>
-          <h2 className="rs-h2">Partner With ROAMSIX.</h2>
-          <p style={{fontSize:"17px",lineHeight:"1.8",color:"var(--cream-dim)",fontWeight:"400",marginTop:"22px",marginBottom:"36px",maxWidth:"400px"}}>We are building a network of partners who believe the right environment produces the right outcomes. If your brand, organization, or practice belongs in that conversation, we want to hear from you.</p>
-          <a href="#contact" className="rs-btn rs-btn-teal">Explore Partnership Opportunities</a>
-        </div>
-        <div className="rs-partner-types">
-          {PARTNERS.map(p => (
-            <div className="rs-pt" key={p.title}>
-              <div className="rs-pt-tag">{p.tag}</div>
-              <div className="rs-pt-title">{p.title}</div>
-              <p className="rs-pt-desc">{p.desc}</p>
+      {/* ── 10. CONTACT ── */}
+      <section className="rs-section rs-section-dark" id="contact">
+        <div className="rs-contact-grid">
+          <div className="rs-contact-intro">
+            <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Start Here</span></div>
+            <h2 className="rs-h2">Start with a conversation.</h2>
+            <p>Every engagement starts with a direct conversation about what's actually going on.</p>
+            <p>If there's a fit, we build from there.</p>
+            <div className="rs-contact-links">
+              <a href="mailto:info@roamsix.com">info@roamsix.com</a>
+              <a href="https://www.instagram.com/roamsix_" target="_blank" rel="noopener noreferrer">@roamsix_</a>
+              <a href="https://www.linkedin.com/company/roamsix/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
             </div>
-          ))}
-        </div>
-      </section>
-
-      <hr className="rs-hr"/>
-
-      {/* CONTACT */}
-      <section className="rs-contact" id="contact">
-        <div>
-          <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Contact</span></div>
-          <h2 className="rs-h2">Start a Conversation.</h2>
-          <div className="rs-contact-meta">
-            <p>Every engagement begins with a conversation to understand what you need, what your group requires, and whether ROAMSIX is the right fit.</p>
-            <p>We respond within 48 hours. Direct inquiries: <a href="mailto:info@roamsix.com" style={{color:"var(--cream)",fontWeight:"400",textDecoration:"none"}}>info@roamsix.com</a></p>
-            <p className="rs-contact-note">ROAMSIX operates by referral and invitation.</p>
           </div>
-        </div>
-        <div>
-          {ctStatus === "success" ? (
-            <div className="rs-success" style={{paddingTop:"48px"}}>
-              <div className="rs-success-check">✓</div>
-              <div className="rs-form-title" style={{marginBottom:"12px"}}>Inquiry Received.</div>
-              <p style={{fontSize:"17px",lineHeight:"1.8",color:"var(--cream-dim)",fontWeight:"400"}}>We review every submission personally and will respond within 48 hours.</p>
-            </div>
-          ) : (
-            <div className="rs-form-grid">
-              <div className="rs-form-row">
-                <input className="rs-field" placeholder="First Name" value={contact.first} onChange={e=>setContact(p=>({...p,first:e.target.value}))}/>
-                <input className="rs-field" placeholder="Last Name"  value={contact.last}  onChange={e=>setContact(p=>({...p,last:e.target.value}))}/>
+          <div>
+            {ctStatus === "success" ? (
+              <div className="rs-form-success">
+                <p>We received your message and will follow up directly within 48 hours.</p>
               </div>
-              <input className="rs-field" type="email" placeholder="Email Address" value={contact.email} onChange={e=>setContact(p=>({...p,email:e.target.value}))}/>
-              <input className="rs-field" placeholder="Company or Organization (optional)" value={contact.company} onChange={e=>setContact(p=>({...p,company:e.target.value}))}/>
-              <select className="rs-field rs-select" value={contact.type} onChange={e=>setContact(p=>({...p,type:e.target.value}))}>
-                <option value="">I am inquiring about...</option>
-                <option>A corporate leadership offsite</option>
-                <option>A team retreat</option>
-                <option>A private or individual experience</option>
-                <option>Proving Grounds</option>
-                <option>Redirection Point or Podcast</option>
-                <option>A partnership or sponsorship</option>
-              </select>
-              <textarea className="rs-field" placeholder="Tell us about your situation and what you are looking for." value={contact.message} onChange={e=>setContact(p=>({...p,message:e.target.value}))}/>
-              {ctErr && <p className="rs-form-error">{ctErr}</p>}
-              <button className="rs-btn rs-btn-teal" style={{width:"100%",fontSize:"12px",opacity:ctStatus==="loading"?0.6:1,cursor:ctStatus==="loading"?"not-allowed":"pointer"}} onClick={submitContact} disabled={ctStatus==="loading"}>
-                {ctStatus === "loading" ? "Sending..." : "Submit Inquiry"}
-              </button>
-            </div>
-          )}
+            ) : (
+              <>
+                <div className="rs-form-row">
+                  <div className="rs-form-group"><label className="rs-form-label">First Name</label><input className="rs-input" placeholder="First" value={contact.first} onChange={e=>setContact(c=>({...c,first:e.target.value}))}/></div>
+                  <div className="rs-form-group"><label className="rs-form-label">Last Name</label><input className="rs-input" placeholder="Last" value={contact.last} onChange={e=>setContact(c=>({...c,last:e.target.value}))}/></div>
+                </div>
+                <div className="rs-form-group"><label className="rs-form-label">Email *</label><input className="rs-input" placeholder="your@email.com" type="email" value={contact.email} onChange={e=>setContact(c=>({...c,email:e.target.value}))}/></div>
+                <div className="rs-form-group"><label className="rs-form-label">Company or Organization</label><input className="rs-input" placeholder="Optional" value={contact.company} onChange={e=>setContact(c=>({...c,company:e.target.value}))}/></div>
+                <div className="rs-form-group">
+                  <label className="rs-form-label">What are you looking for?</label>
+                  <select className="rs-select" value={contact.type} onChange={e=>setContact(c=>({...c,type:e.target.value}))}>
+                    <option value="">Select one</option>
+                    <option value="Leadership Offsite">Leadership Offsite</option>
+                    <option value="Team Session">Team Session</option>
+                    <option value="Individual or Small Group">Individual or Small Group</option>
+                    <option value="Proving Grounds">Proving Grounds</option>
+                    <option value="Partnership">Partnership</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div className="rs-form-group"><label className="rs-form-label">Tell us what's going on *</label><textarea className="rs-textarea" placeholder="What's the situation? What needs to change?" value={contact.message} onChange={e=>setContact(c=>({...c,message:e.target.value}))}/></div>
+                {ctErr && <p className="rs-form-err">{ctErr}</p>}
+                <button className="rs-btn rs-btn-teal" style={{width:"100%",textAlign:"center",marginTop:"8px"}} onClick={submitContact} disabled={ctStatus==="loading"}>
+                  {ctStatus === "loading" ? "Sending..." : "Start a Conversation"}
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </section>
 
@@ -853,27 +659,37 @@ export default function HomePage() {
       <footer className="rs-footer">
         <div className="rs-footer-top">
           <div>
-            <span className="rs-footer-brand">ROAMSIX</span>
-            <p className="rs-footer-tag">Custom offsites, retreats, and performance experiences built around environment, trust, and forward movement.</p>
-            <p className="rs-footer-loc">Murrieta, CA — By Referral and Invitation</p>
+            <div className="rs-footer-wm">ROAMSIX</div>
+            <p className="rs-footer-tag">Environment-led experience design for teams and high-performers.</p>
+            <div className="rs-footer-social">
+              <a href="https://www.instagram.com/roamsix_" target="_blank" rel="noopener noreferrer">Instagram</a>
+              <a href="https://www.linkedin.com/company/roamsix/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            </div>
           </div>
-          <div className="rs-footer-col"><h4>Company</h4><ul><li><a href="#about">About ROAMSIX</a></li><li><a href="#founders">Our Team</a></li><li><a href="#partnership">Partnerships</a></li></ul></div>
-          <div className="rs-footer-col"><h4>Experiences</h4><ul><li><a href="#experiences">Corporate Offsites</a></li><li><a href="#experiences">Private Retreats</a></li><li><a href="#proving-grounds">Proving Grounds</a></li><li><a href="#podcast">Redirection Point</a></li></ul></div>
-          <div className="rs-footer-col"><h4>Connect</h4><ul>
+          <div className="rs-footer-col"><h4>Company</h4><ul>
+            <li><a href="#about">About</a></li>
+            <li><a href="/approach">Approach</a></li>
+            <li><a href="/team">Team</a></li>
+          </ul></div>
+          <div className="rs-footer-col"><h4>Experiences</h4><ul>
+            <li><a href="#how-we-work">How We Work</a></li>
+            <li><a href="#proving-grounds">Proving Grounds</a></li>
             <li><a href="#contact">Inquire</a></li>
+          </ul></div>
+          <div className="rs-footer-col"><h4>Connect</h4><ul>
             <li><a href="mailto:info@roamsix.com">info@roamsix.com</a></li>
-            <li><a href="https://www.instagram.com/roamsix_" target="_blank" rel="noopener">Instagram @roamsix_</a></li>
-            <li><a href="https://www.linkedin.com/company/roamsix/" target="_blank" rel="noopener">LinkedIn</a></li>
+            <li><a href="https://www.instagram.com/roamsix_" target="_blank" rel="noopener noreferrer">@roamsix_</a></li>
+            <li><a href="https://www.linkedin.com/company/roamsix/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
           </ul></div>
           <div className="rs-footer-col"><h4>Redirection Point</h4><ul>
-            <li><a href="https://www.youtube.com/@RedirectionPoint" target="_blank" rel="noopener">YouTube</a></li>
-            <li><a href="https://www.instagram.com/redirectionpoint" target="_blank" rel="noopener">Instagram</a></li>
+            <li><a href="https://www.youtube.com/@RedirectionPoint" target="_blank" rel="noopener noreferrer">YouTube</a></li>
+            <li><a href="https://www.instagram.com/redirectionpoint" target="_blank" rel="noopener noreferrer">Instagram</a></li>
             <li><a href="#podcast">About the Podcast</a></li>
           </ul></div>
         </div>
         <div className="rs-footer-bottom">
-          <p>2026 Reciprofy Inc. operating as ROAMSIX. All rights reserved.</p>
-          <p>Environment-Led Experience Design</p>
+          <span className="rs-footer-copy">© {new Date().getFullYear()} Reciprofy Inc. All rights reserved.</span>
+          <span className="rs-footer-copy">ROAMSIX — Murrieta, CA</span>
         </div>
       </footer>
     </div>
