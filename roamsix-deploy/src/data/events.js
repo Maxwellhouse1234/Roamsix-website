@@ -1,3 +1,4 @@
+// HIGH OUTPUT event data
 export const events = [
   {
     id: "high-output-long-game",
