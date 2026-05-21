@@ -19,7 +19,7 @@ const PACKAGE_DATA = {
     },
     "private-circle": {
       name: "PRIVATE CIRCLE",
-      price: 27500,
+      price: 32500,
       stripePriceId: "",
     },
   },

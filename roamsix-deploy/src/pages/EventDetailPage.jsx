@@ -388,15 +388,13 @@ export default function EventDetailPage() {
         <div className="ed-packages-grid">
           {event.packages.map((pkg, i) => {
             const isFeatured = i === 1;
-            const isLimited = pkg.capacity <= 10;
             const soldOut = event.status === "soldout";
             return (
               <div key={pkg.id} className={`ed-pkg${isFeatured ? " ed-pkg-featured" : ""}`}>
-                {isLimited && <span className="ed-pkg-limited">Limited</span>}
+                {pkg.id === "private-circle" && <span className="ed-pkg-limited">Limited to 10 guests</span>}
                 <div className="ed-pkg-name">{pkg.name}</div>
                 <div className="ed-pkg-price">{fmtPrice(pkg.price)}</div>
                 <div className="ed-pkg-price-label">per person</div>
-                <div className="ed-pkg-capacity">{pkg.capacity} spots</div>
                 <p className="ed-pkg-desc">{pkg.description}</p>
                 <div className="ed-pkg-includes-label">Includes</div>
                 <ul className="ed-pkg-includes">
