@@ -8,6 +8,9 @@ import RetreatApplication from './pages/RetreatApplication';
 import SponsorshipDeck from './pages/SponsorshipDeck';
 import TeamPage from './pages/TeamPage';
 import ApproachPage from './pages/ApproachPage';
+import EventsPage from './pages/EventsPage';
+import EventDetailPage from './pages/EventDetailPage';
+import EventSuccessPage from './pages/EventSuccessPage';
 
 export const router = createBrowserRouter([
   { path: '/',                                 element: <HomePage /> },
@@ -19,4 +22,7 @@ export const router = createBrowserRouter([
   { path: '/partners',                         element: <SponsorshipDeck /> },
   { path: '/team',                             element: <TeamPage /> },
   { path: '/approach',                         element: <ApproachPage /> },
+  { path: '/events',                           element: <EventsPage /> },
+  { path: '/events/:eventId',                  element: <EventDetailPage /> },
+  { path: '/events/:eventId/success',          element: <EventSuccessPage /> },
 ]);

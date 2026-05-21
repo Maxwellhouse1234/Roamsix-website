@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getUpcomingEvents } from "../data/events";
 
 /*
  ROAMSIX , HomePage.jsx v7
@@ -35,7 +36,7 @@ const HERO_FALLBACK = "/images/homepage/team-outlook.webp";
 const RP_LOGO = "/images/redirection-point-logo.png";
 
 const NAV = [
- ["Experiences", "#how-we-work"],
+ ["Events", "/events"],
  ["Proving Grounds", "#proving-grounds"],
  ["Team", "/team"],
  ["Approach", "/approach"],
@@ -174,6 +175,25 @@ const css = `
  .rs-work-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 600; letter-spacing: 1px; color: var(--cream); text-transform: uppercase; margin-bottom: 12px; }
  .rs-work-desc { font-size: 16px; line-height: 1.75; color: var(--cream-dim); }
 
+ /* SECTION 5.5 , EVENTS PREVIEW */
+ .rs-ev-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 2px; margin-top: 52px; }
+ .rs-ev-card { background: var(--panel); padding: 40px 36px; border: 1px solid rgba(232,223,208,0.07); display: flex; flex-direction: column; transition: border-color 0.25s; }
+ .rs-ev-card:hover { border-color: rgba(74,117,117,0.3); }
+ .rs-ev-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+ .rs-ev-badge { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; padding: 5px 12px; background: rgba(181,149,88,0.1); border: 1px solid rgba(181,149,88,0.25); color: var(--gold); }
+ .rs-ev-date { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); }
+ .rs-ev-title { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--cream); line-height: 1.1; margin-bottom: 8px; }
+ .rs-ev-subtitle { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 1px; color: var(--gold); text-transform: uppercase; margin-bottom: 10px; }
+ .rs-ev-location { font-size: 14px; color: var(--cream-muted); margin-bottom: 18px; }
+ .rs-ev-desc { font-size: 15px; line-height: 1.75; color: var(--cream-dim); flex: 1; margin-bottom: 32px; }
+ .rs-ev-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: auto; border-top: 1px solid rgba(232,223,208,0.08); padding-top: 20px; }
+ .rs-ev-price { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 600; color: var(--gold); letter-spacing: 1px; }
+ .rs-ev-cta { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-light); text-decoration: none; transition: color 0.2s; }
+ .rs-ev-cta:hover { color: var(--cream); }
+ .rs-ev-view-all { margin-top: 32px; }
+ .rs-ev-view-all a { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--cream-muted); text-decoration: none; border-bottom: 1px solid rgba(232,223,208,0.2); padding-bottom: 2px; transition: all 0.2s; }
+ .rs-ev-view-all a:hover { color: var(--cream); border-bottom-color: var(--cream); }
+
  /* SECTION 6 , PROVING GROUNDS */
  .rs-pg { position: relative; overflow: hidden; }
  .rs-pg-bg-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; opacity: 0.18; filter: brightness(0.8) contrast(1.1); }
@@ -276,6 +296,7 @@ const css = `
  .rs-fit-alts { grid-template-columns: 1fr 1fr; }
  .rs-env { grid-template-columns: 1fr; gap: 40px; }
  .rs-work-grid { grid-template-columns: 1fr; }
+ .rs-ev-grid { grid-template-columns: 1fr; }
  .rs-proof-strip { grid-template-columns: 1fr 1fr; }
  .rs-strip-img-narrow { display: none; }
  .rs-pg-inner { grid-template-columns: 1fr; gap: 48px; padding: 72px 24px; }
@@ -299,6 +320,7 @@ export default function HomePage() {
  const [scrolled, setScrolled] = useState(false);
  const [menuOpen, setMenuOpen] = useState(false);
  const [heroErr, setHeroErr] = useState(false);
+ const upcomingEvents = getUpcomingEvents(2);
  const [pg, setPg] = useState({ name:"", email:"", role:"" });
  const [pgStatus, setPgStatus] = useState("idle");
  const [pgErr, setPgErr] = useState("");
@@ -473,6 +495,43 @@ export default function HomePage() {
  ))}
  </div>
  </section>
+
+ {/* ── 5.5. EVENTS PREVIEW ── */}
+ {upcomingEvents.length > 0 && (
+ <>
+ <hr className="rs-hr"/>
+ <section className="rs-section rs-section-mid" id="events-preview">
+ <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Experiences and Events</span></div>
+ <h2 className="rs-h2">Open for registration.</h2>
+ <div className="rs-ev-grid">
+ {upcomingEvents.map(ev => {
+ const minPrice = Math.min(...ev.packages.map(p => p.price));
+ const fromPrice = "$" + (minPrice / 100).toFixed(0);
+ const dateStr = new Date(ev.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "America/Los_Angeles" });
+ return (
+ <div className="rs-ev-card" key={ev.id}>
+ <div className="rs-ev-meta">
+ <span className="rs-ev-badge">Registration Open</span>
+ <span className="rs-ev-date">{dateStr}</span>
+ </div>
+ <div className="rs-ev-title">{ev.title}</div>
+ {ev.subtitle && <div className="rs-ev-subtitle">{ev.subtitle}</div>}
+ <div className="rs-ev-location">{ev.location}</div>
+ <p className="rs-ev-desc">{ev.description}</p>
+ <div className="rs-ev-footer">
+ <span className="rs-ev-price">From {fromPrice}</span>
+ <a className="rs-ev-cta" href={`/events/${ev.id}`}>Register Now</a>
+ </div>
+ </div>
+ );
+ })}
+ </div>
+ <div className="rs-ev-view-all">
+ <a href="/events">View all experiences</a>
+ </div>
+ </section>
+ </>
+ )}
 
  <hr className="rs-hr"/>
 
@@ -671,6 +730,7 @@ export default function HomePage() {
  <li><a href="/team">Team</a></li>
  </ul></div>
  <div className="rs-footer-col"><h4>Experiences</h4><ul>
+ <li><a href="/events">Events</a></li>
  <li><a href="#how-we-work">How We Work</a></li>
  <li><a href="#proving-grounds">Proving Grounds</a></li>
  <li><a href="#contact">Inquire</a></li>
