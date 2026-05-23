@@ -248,11 +248,11 @@ const css = `
  .rs-rp-divider { width: 40px; height: 1px; background: var(--rp-gold-dim); margin: 16px auto; }
  .rs-rp-tag { font-size: 13px; color: var(--rp-cream); letter-spacing: 1px; font-style: italic; font-family: 'EB Garamond', serif; position: relative; z-index: 1; }
  .rs-podcast-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--rp-gold-dim); margin-bottom: 18px; }
- .rs-podcast-h2 { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(38px,4.2vw,54px); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--rp-gold); margin-bottom: 18px; line-height: 1.05; }
- .rs-podcast-tagline { font-family: 'EB Garamond', serif; font-style: italic; font-size: 20px; color: var(--rp-cream); margin-bottom: 24px; line-height: 1.55; }
+ .rs-podcast-h2 { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(38px,4.2vw,54px); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--cream); margin-bottom: 18px; line-height: 1.05; }
+ .rs-podcast-tagline { font-family: 'EB Garamond', serif; font-style: italic; font-size: 20px; color: var(--cream-muted); margin-bottom: 24px; line-height: 1.55; }
  .rs-podcast-desc { font-size: 17px; line-height: 1.8; color: rgba(208,191,154,0.75); margin-bottom: 36px; }
- .rs-platform { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 8px 16px; border: 1px solid rgba(201,168,76,0.25); color: var(--rp-gold-dim); text-decoration: none; margin-right: 10px; margin-bottom: 10px; transition: all 0.2s; }
- .rs-platform:hover { border-color: var(--rp-gold); color: var(--rp-gold); }
+ .rs-platform { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 8px 16px; border: 1px solid rgba(232,223,208,0.25); color: var(--cream-muted); text-decoration: none; margin-right: 10px; margin-bottom: 10px; transition: all 0.2s; }
+ .rs-platform:hover { border-color: var(--cream); color: var(--cream); }
 
  /* CONTACT */
  .rs-contact-outer { position: relative; overflow: hidden; }
@@ -407,7 +407,7 @@ export default function HomePage() {
  <span className="rs-rule" style={{background:"#E8DFD0"}}/>
  <span className="rs-label" style={{color:"#E8DFD0",textShadow:"0 1px 4px rgba(0,0,0,0.9)"}}>Experiences and Gatherings</span>
  </div>
- <h1 className="rs-hero-h1">Distance changes perspective.<br/>The right experience<br/>changes people.</h1>
+ <h1 className="rs-hero-h1">The right people.<br/>The right place.<br/>The right moment.</h1>
  <p className="rs-hero-sub">ROAMSIX creates gatherings, journeys, and experiences designed to reconnect people with what matters and move them toward what's next.</p>
  <div className="rs-hero-actions">
  <a href="#contact" className="rs-btn rs-btn-teal">Start a Conversation</a>
@@ -438,8 +438,7 @@ export default function HomePage() {
  <img className="rs-belief-bg" src={MOUNTAIN_SRC} alt="" aria-hidden="true" loading="lazy" onError={e=>{e.target.style.display='none'}}/>
  <div className="rs-belief-shade"/>
  <div className="rs-belief-text">
- <p>Better metrics do not automatically create a better life.</p>
- <p>Shared challenge, honest conversation, and time outside the usual pace change people faster than advice does.</p>
+ <p>Most people don't need more information.<br/>They need the right people around them.</p>
  </div>
  </section>
 
@@ -457,8 +456,7 @@ export default function HomePage() {
  Work slows down. Decisions get revisited.<br/>The same issues come back after every meeting.
  </div>
  <div className="rs-fit-body">
- <p>We design experiences for exactly that moment.</p>
- <p>Most people who reach out do it before they have booked anything else.</p>
+ <p style={{color:'var(--cream)',fontWeight:600,fontFamily:"'Barlow Condensed',sans-serif",fontSize:'clamp(20px,2.4vw,28px)',letterSpacing:'0.5px',lineHeight:1.3}}>We design experiences for exactly that moment.</p>
  </div>
  </section>
 
@@ -731,7 +729,7 @@ export default function HomePage() {
  </div>
  </div>
  <div className="rs-footer-col"><h4>Company</h4><ul>
- <li><a href="#about">About</a></li>
+ <li><a href="#founders">About</a></li>
  <li><a href="/approach">Approach</a></li>
  <li><a href="/team">Team</a></li>
  </ul></div>

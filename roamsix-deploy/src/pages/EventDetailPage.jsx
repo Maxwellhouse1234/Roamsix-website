@@ -384,7 +384,7 @@ export default function EventDetailPage() {
         </div>
 
         <div className="ed-img-divider">
-          <img src="/images/gathering-dusk.webp" alt="" loading="lazy" onError={e=>{e.target.style.display='none'}}/>
+          <img src="/images/events/event-dinner-placeholder.webp" alt="" loading="lazy" onError={e=>{e.target.style.display='none'}}/>
         </div>
 
         <hr className="ed-hr" />
