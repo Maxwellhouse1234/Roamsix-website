@@ -89,8 +89,8 @@ const css = `
  .rs-nav-links { display: flex; align-items: center; gap: 28px; list-style: none; margin-left: 48px; }
  .rs-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: #CEC7BC; text-decoration: none; transition: color 0.2s; }
  .rs-nav-links a:hover { color: var(--cream); }
- .rs-nav-cta { background: var(--teal); color: var(--cream); padding: 9px 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; transition: background 0.2s; }
- .rs-nav-cta:hover { background: var(--teal-dim); color: var(--cream); }
+ .rs-nav-cta { background: var(--gold); color: var(--navy); padding: 9px 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; transition: background 0.2s; }
+ .rs-nav-cta:hover { background: var(--gold-dim); color: var(--navy); }
 
  /* BURGER */
  .rs-burger { display: none; flex-direction: column; justify-content: center; align-items: center; gap: 5px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; padding: 4px; margin-left: 16px; }
@@ -105,13 +105,13 @@ const css = `
  .rs-mobile-menu a { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--cream); text-decoration: none; padding: 20px 40px; border-bottom: 1px solid rgba(232,223,208,0.07); width: 100%; text-align: center; transition: color 0.2s; }
  .rs-mobile-menu a:first-child { border-top: 1px solid rgba(232,223,208,0.07); }
  .rs-mobile-menu a:hover { color: var(--gold); }
- .rs-mobile-cta { background: var(--teal); color: var(--cream); margin-top: 32px; border: none; }
+ .rs-mobile-cta { background: var(--gold); color: var(--navy); margin-top: 32px; border: none; }
 
  /* BUTTONS */
  .rs-btn { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; padding: 15px 34px; text-decoration: none; cursor: pointer; border: none; transition: all 0.22s; }
  .rs-btn:active { transform: scale(0.97); }
- .rs-btn-teal { background: var(--teal); color: var(--cream); }
- .rs-btn-teal:hover { background: var(--teal-dim); }
+ .rs-btn-teal { background: var(--gold); color: var(--navy); }
+ .rs-btn-teal:hover { background: var(--cream); color: var(--navy); }
  .rs-btn-outline { background: transparent; color: var(--cream); border: 1px solid rgba(232,223,208,0.35); }
  .rs-btn-outline:hover { border-color: var(--cream-dim); }
  .rs-btn-gold { background: var(--gold); color: var(--navy); }
