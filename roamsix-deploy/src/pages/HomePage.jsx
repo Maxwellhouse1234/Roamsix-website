@@ -26,13 +26,13 @@ import { getUpcomingEvents } from "../data/events";
  PG → POST /api/pg-interest
 */
 
-const HERO_SRC = "/images/homepage/roamsix-hero.webp";
+const HERO_SRC = "/images/homepage/sunset-valley.webp";
 const PG_SRC = "/images/homepage/proving-grounds.webp";
-const TEAM_SRC = "/images/homepage/team-outlook.webp";
-const NOTES_SRC = "/images/homepage/field-notes.webp";
+const TEAM_SRC = "/images/homepage/gathering-dusk.webp";
+const NOTES_SRC = "/images/homepage/land-light.webp";
 const MAX_SRC = "/images/max-ouellette.webp";
 const JACKIE_SRC = "/images/jackie.webp";
-const HERO_FALLBACK = "/images/homepage/team-outlook.webp";
+const HERO_FALLBACK = "/images/homepage/sunset-dramatic.webp";
 const RP_LOGO = "/images/redirection-point-logo.png";
 
 const NAV = [
@@ -484,7 +484,7 @@ export default function HomePage() {
  <div className="rs-proof-strip">
  <img src={TEAM_SRC} alt="ROAMSIX team in the field" loading="lazy" className="rs-strip-img" onError={e=>{e.target.style.display="none"}}/>
  <img src={NOTES_SRC} alt="Field facilitation" loading="lazy" className="rs-strip-img rs-strip-img-narrow" onError={e=>{e.target.style.display="none"}}/>
- <img src={HERO_SRC} alt="ROAMSIX terrain" loading="lazy" className="rs-strip-img" onError={e=>{e.target.style.display="none"}}/>
+ <img src={HERO_FALLBACK} alt="ROAMSIX terrain" loading="lazy" className="rs-strip-img" onError={e=>{e.target.style.display="none"}}/>
  </div>
 
  {/* ── 5. WHAT WE CREATE ── */}
