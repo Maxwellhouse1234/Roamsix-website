@@ -27,6 +27,8 @@ import { getUpcomingEvents } from "../data/events";
 */
 
 const HERO_SRC = "/images/sunset-valley.webp";
+const MOUNTAIN_SRC = "/images/mountain-sunset.webp";
+const TREE_SRC = "/images/tree-morning.webp";
 const PG_SRC = "/images/homepage/proving-grounds.webp";
 const TEAM_SRC = "/images/gathering-dusk.webp";
 const NOTES_SRC = "/images/land-light.webp";
@@ -34,6 +36,7 @@ const MAX_SRC = "/images/max-ouellette.webp";
 const JACKIE_SRC = "/images/jackie.webp";
 const HERO_FALLBACK = "/images/sunset-dramatic.webp";
 const RP_LOGO = "/images/redirection-point-logo.png";
+const RP_COVER = "/images/redirection-point-cover.webp";
 
 const NAV = [
  ["Events", "/events"],
@@ -148,8 +151,10 @@ const css = `
  .rs-scratch-body p:last-child { margin-bottom: 0; }
 
  /* BELIEF SECTION */
- .rs-belief { padding: 120px 56px; background: var(--panel); }
- .rs-belief-text { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(24px, 3.2vw, 46px); font-weight: 600; letter-spacing: 0.5px; line-height: 1.3; color: var(--cream); max-width: 900px; }
+ .rs-belief { padding: 120px 56px; background: var(--panel); position: relative; overflow: hidden; }
+ .rs-belief-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 40%; opacity: 0.22; filter: brightness(0.55) contrast(1.1); display: block; }
+ .rs-belief-shade { position: absolute; inset: 0; background: rgba(12,18,32,0.62); }
+ .rs-belief-text { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(24px, 3.2vw, 46px); font-weight: 600; letter-spacing: 0.5px; line-height: 1.3; color: var(--cream); max-width: 900px; position: relative; z-index: 1; }
  .rs-belief-text p { margin-bottom: 24px; }
  .rs-belief-text p:last-child { margin-bottom: 0; }
 
@@ -250,7 +255,10 @@ const css = `
  .rs-platform:hover { border-color: var(--rp-gold); color: var(--rp-gold); }
 
  /* CONTACT */
- .rs-contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: start; }
+ .rs-contact-outer { position: relative; overflow: hidden; }
+ .rs-contact-cbg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; opacity: 0.18; filter: brightness(0.55) contrast(1.1); display: block; }
+ .rs-contact-cshade { position: absolute; inset: 0; background: rgba(12,18,32,0.72); }
+ .rs-contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: start; position: relative; z-index: 1; }
  .rs-contact-intro p { font-size: 18px; line-height: 1.8; color: var(--cream-dim); margin-bottom: 20px; }
  .rs-contact-links { margin-top: 32px; }
  .rs-contact-links a { display: block; color: var(--teal-light); text-decoration: none; font-size: 16px; margin-bottom: 12px; transition: color 0.2s; }
@@ -319,7 +327,6 @@ const css = `
 export default function HomePage() {
  const [scrolled, setScrolled] = useState(false);
  const [menuOpen, setMenuOpen] = useState(false);
- const [heroErr, setHeroErr] = useState(false);
  const featuredEvent = getUpcomingEvents(1)[0] || null;
  const [pg, setPg] = useState({ name:"", email:"", role:"" });
  const [pgStatus, setPgStatus] = useState("idle");
@@ -393,7 +400,7 @@ export default function HomePage() {
  {/* ── 1. HERO ── */}
  <section className="rs-hero">
  {/* VIDEO PLACEHOLDER: replace img with <video autoPlay muted loop playsInline poster={HERO_SRC}><source src="/videos/homepage/roamsix-hero.mp4" type="video/mp4"/></video> */}
- <img className="rs-hero-img" src={heroErr ? HERO_FALLBACK : HERO_SRC} alt="" role="presentation" onError={() => setHeroErr(true)}/>
+ <img className="rs-hero-img" src={HERO_SRC} alt="" role="presentation" onError={e=>{e.target.onerror=null; e.target.src=HERO_FALLBACK;}}/>
  <div className="rs-hero-overlay"/>
  <div className="rs-hero-content">
  <div className="rs-label-row" style={{marginBottom:"22px"}}>
@@ -428,6 +435,8 @@ export default function HomePage() {
 
  {/* ── 2.5. BELIEF ── */}
  <section className="rs-belief">
+ <img className="rs-belief-bg" src={MOUNTAIN_SRC} alt="" aria-hidden="true" loading="lazy" onError={e=>{e.target.style.display='none'}}/>
+ <div className="rs-belief-shade"/>
  <div className="rs-belief-text">
  <p>Better metrics do not automatically create a better life.</p>
  <p>Shared challenge, honest conversation, and time outside the usual pace change people faster than advice does.</p>
@@ -482,9 +491,9 @@ export default function HomePage() {
 
  {/* VISUAL PROOF STRIP */}
  <div className="rs-proof-strip">
- <img src={TEAM_SRC} alt="ROAMSIX team in the field" loading="lazy" className="rs-strip-img" onError={e=>{e.target.style.display="none"}}/>
- <img src={NOTES_SRC} alt="Field facilitation" loading="lazy" className="rs-strip-img rs-strip-img-narrow" onError={e=>{e.target.style.display="none"}}/>
- <img src={HERO_FALLBACK} alt="ROAMSIX terrain" loading="lazy" className="rs-strip-img" onError={e=>{e.target.style.display="none"}}/>
+ <img src={TEAM_SRC} alt="" aria-hidden="true" loading="lazy" className="rs-strip-img" onError={e=>{e.target.style.display="none"}}/>
+ <img src={NOTES_SRC} alt="" aria-hidden="true" loading="lazy" className="rs-strip-img rs-strip-img-narrow" onError={e=>{e.target.style.display="none"}}/>
+ <img src={HERO_FALLBACK} alt="" aria-hidden="true" loading="lazy" className="rs-strip-img" onError={e=>{e.target.style.display="none"}}/>
  </div>
 
  {/* ── 5. WHAT WE CREATE ── */}
@@ -521,13 +530,13 @@ export default function HomePage() {
  <a className="rs-feat-ev-all" href="/events">View all experiences</a>
  </div>
  </div>
- <div className="rs-feat-ev-visual">
+ <div className="rs-feat-ev-visual" style={{backgroundImage:`url(${HERO_FALLBACK})`,backgroundSize:'cover',backgroundPosition:'center'}}>
  <img
  className="rs-feat-ev-img"
  src={featuredEvent.image}
  alt={featuredEvent.title}
  loading="lazy"
- onError={e=>{e.target.onerror=null; e.target.src=HERO_FALLBACK;}}
+ onError={e=>{e.target.style.display='none'}}
  />
  </div>
  </div>
@@ -639,15 +648,7 @@ export default function HomePage() {
  <section className="rs-podcast" id="podcast">
  <div className="rs-podcast-inner">
  <div className="rs-podcast-art">
- <div className="rs-podcast-frame"/>
- <img src={RP_LOGO} alt="Redirection Point" style={{width:"100%",height:"auto",display:"block",position:"relative",zIndex:1}}
- onError={e => { e.target.style.display="none"; e.target.nextSibling.style.display="block"; }}/>
- <div style={{display:"none",textAlign:"center"}}>
- <div className="rs-rp-wordmark">Redirection<br/>Point</div>
- <div className="rs-rp-sub">A ROAMSIX Podcast</div>
- <div className="rs-rp-divider"/>
- <div className="rs-rp-tag">Where Paths Converge</div>
- </div>
+ <img src={RP_COVER} alt="Redirection Point" style={{width:"100%",height:"100%",display:"block",objectFit:"cover",position:"absolute",inset:0}} onError={e=>{e.target.style.display='none'}}/>
  </div>
  <div>
  <div className="rs-podcast-label">The Podcast</div>
@@ -667,7 +668,9 @@ export default function HomePage() {
  </section>
 
  {/* ── 10. CONTACT ── */}
- <section className="rs-section rs-section-dark" id="contact">
+ <section className="rs-section rs-section-dark rs-contact-outer" id="contact">
+ <img className="rs-contact-cbg" src={TREE_SRC} alt="" aria-hidden="true" loading="lazy" onError={e=>{e.target.style.display='none'}}/>
+ <div className="rs-contact-cshade"/>
  <div className="rs-contact-grid">
  <div className="rs-contact-intro">
  <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Start Here</span></div>
