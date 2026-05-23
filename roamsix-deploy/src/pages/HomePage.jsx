@@ -26,13 +26,13 @@ import { getUpcomingEvents } from "../data/events";
  PG → POST /api/pg-interest
 */
 
-const HERO_SRC = "/images/homepage/sunset-valley.webp";
+const HERO_SRC = "/images/sunset-valley.webp";
 const PG_SRC = "/images/homepage/proving-grounds.webp";
-const TEAM_SRC = "/images/homepage/gathering-dusk.webp";
-const NOTES_SRC = "/images/homepage/land-light.webp";
+const TEAM_SRC = "/images/gathering-dusk.webp";
+const NOTES_SRC = "/images/land-light.webp";
 const MAX_SRC = "/images/max-ouellette.webp";
 const JACKIE_SRC = "/images/jackie.webp";
-const HERO_FALLBACK = "/images/homepage/sunset-dramatic.webp";
+const HERO_FALLBACK = "/images/sunset-dramatic.webp";
 const RP_LOGO = "/images/redirection-point-logo.png";
 
 const NAV = [
