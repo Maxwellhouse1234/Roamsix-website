@@ -24,8 +24,10 @@ const css = `
   .ed-nav-back:hover { color: var(--cream); }
 
   /* HERO */
-  .ed-hero { padding: 140px 56px 80px; background: var(--panel); border-bottom: 1px solid rgba(181,149,88,0.1); }
-  .ed-hero-inner { max-width: 900px; }
+  .ed-hero { padding: 140px 56px 80px; background: var(--panel); border-bottom: 1px solid rgba(181,149,88,0.1); position: relative; overflow: hidden; }
+  .ed-hero-inner { max-width: 900px; position: relative; z-index: 1; }
+  .ed-hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 35%; opacity: 0.28; display: block; }
+  .ed-hero-shade { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(12,18,32,0.5) 0%, rgba(12,18,32,0.92) 100%); }
   .ed-label-row { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
   .ed-rule { display: block; width: 24px; height: 1px; background: var(--gold); flex-shrink: 0; }
   .ed-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); }
@@ -111,6 +113,10 @@ const css = `
   .ed-modal-submit:disabled { opacity: 0.6; cursor: not-allowed; }
   .ed-modal-note { font-size: 13px; color: var(--cream-muted); text-align: center; margin-top: 12px; line-height: 1.5; }
 
+  /* IMAGE DIVIDER */
+  .ed-img-divider { width: 100%; aspect-ratio: 16/6; overflow: hidden; margin-bottom: 80px; }
+  .ed-img-divider img { width: 100%; height: 100%; object-fit: cover; object-position: center 40%; filter: brightness(0.65) contrast(1.05); display: block; }
+
   /* FOOTER */
   .ed-footer { background: var(--panel); border-top: 1px solid rgba(181,149,88,0.1); padding: 40px 56px; display: flex; align-items: center; justify-content: space-between; }
   .ed-footer-brand { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 4px; color: var(--cream); text-transform: uppercase; }
@@ -123,6 +129,7 @@ const css = `
     .ed-body { padding: 60px 24px; }
     .ed-body-grid { grid-template-columns: 1fr; gap: 40px; margin-bottom: 60px; }
     .ed-packages-grid { grid-template-columns: 1fr; }
+    .ed-img-divider { margin-bottom: 60px; }
     .ed-footer { padding: 32px 24px; flex-direction: column; gap: 16px; text-align: center; }
   }
   @media (max-width: 480px) {
@@ -335,6 +342,8 @@ export default function EventDetailPage() {
 
       {/* HERO */}
       <section className="ed-hero">
+        <img className="ed-hero-bg" src="/images/sunset-valley.webp" alt="" aria-hidden="true" onError={e=>{e.target.style.display='none'}}/>
+        <div className="ed-hero-shade"/>
         <div className="ed-hero-inner">
           <div className="ed-event-tag">ROAMSIX Experience</div>
           <h1 className="ed-hero-title">{event.title}</h1>
@@ -372,6 +381,10 @@ export default function EventDetailPage() {
               {event.highlights.map((h, i) => <li key={i}>{h}</li>)}
             </ul>
           </div>
+        </div>
+
+        <div className="ed-img-divider">
+          <img src="/images/gathering-dusk.webp" alt="" loading="lazy" onError={e=>{e.target.style.display='none'}}/>
         </div>
 
         <hr className="ed-hr" />

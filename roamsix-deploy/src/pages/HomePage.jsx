@@ -393,7 +393,7 @@ export default function HomePage() {
  {/* ── 1. HERO ── */}
  <section className="rs-hero">
  {/* VIDEO PLACEHOLDER: replace img with <video autoPlay muted loop playsInline poster={HERO_SRC}><source src="/videos/homepage/roamsix-hero.mp4" type="video/mp4"/></video> */}
- <img className="rs-hero-img" src={heroErr ? HERO_FALLBACK : HERO_SRC} alt="ROAMSIX" onError={() => setHeroErr(true)}/>
+ <img className="rs-hero-img" src={heroErr ? HERO_FALLBACK : HERO_SRC} alt="" role="presentation" onError={() => setHeroErr(true)}/>
  <div className="rs-hero-overlay"/>
  <div className="rs-hero-content">
  <div className="rs-label-row" style={{marginBottom:"22px"}}>
@@ -527,7 +527,7 @@ export default function HomePage() {
  src={featuredEvent.image}
  alt={featuredEvent.title}
  loading="lazy"
- onError={e=>{e.target.style.display="none"}}
+ onError={e=>{e.target.onerror=null; e.target.src=HERO_FALLBACK;}}
  />
  </div>
  </div>
