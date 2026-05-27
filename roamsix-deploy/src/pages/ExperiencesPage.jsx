@@ -141,14 +141,14 @@ const css = `
   .xp-btn-outline:hover { border-color: var(--cream-dim); }
 
   /* HERO */
-  .xp-hero { background: var(--navy); padding: 160px 56px 100px; }
+  .xp-hero { background: var(--navy); padding: 80px 56px 60px; }
   .xp-hero-eyebrow { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
   .xp-hero-eyebrow::before { content: ''; display: block; width: 24px; height: 1px; background: var(--gold); flex-shrink: 0; }
   .xp-hero-h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(38px, 5vw, 68px); line-height: 1.05; color: var(--cream); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 28px; max-width: 860px; }
   .xp-hero-sub { font-size: 19px; line-height: 1.8; color: var(--cream-dim); max-width: 600px; }
 
   /* OFFERING SECTIONS */
-  .xp-section { padding: 100px 56px; }
+  .xp-section { padding: 72px 56px; }
   .xp-section-dark { background: var(--panel); }
   .xp-section-navy { background: var(--navy); }
   .xp-offering { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
@@ -159,10 +159,10 @@ const css = `
   .xp-includes-list { list-style: none; margin-bottom: 40px; }
   .xp-includes-list li { font-size: 16px; color: var(--cream-muted); padding: 9px 0; border-bottom: 1px solid rgba(232,223,208,0.07); display: flex; align-items: baseline; gap: 10px; }
   .xp-includes-list li::before { content: '\\2013'; color: var(--gold-dim); font-size: 12px; flex-shrink: 0; }
-  .xp-inspiration { font-family: 'EB Garamond', serif; font-style: italic; font-size: 18px; line-height: 1.8; color: var(--cream-muted); padding-top: 32px; border-top: 1px solid rgba(232,223,208,0.08); margin-bottom: 36px; max-width: 720px; margin-left: auto; margin-right: auto; }
+  .xp-inspiration { font-family: 'EB Garamond', serif; font-style: italic; font-size: 18px; line-height: 1.8; color: var(--cream-muted); padding-top: 20px; border-top: 1px solid rgba(232,223,208,0.08); margin-bottom: 20px; max-width: 720px; margin-left: auto; margin-right: auto; }
 
   /* CONTACT SECTION */
-  .xp-contact { padding: 100px 56px; background: var(--panel); }
+  .xp-contact { padding: 72px 56px; background: var(--panel); }
   .xp-contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: start; }
   .xp-contact-intro-h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; letter-spacing: 1px; line-height: 1.05; color: var(--cream); text-transform: uppercase; font-size: clamp(34px, 4.4vw, 56px); margin-top: 16px; margin-bottom: 24px; }
   .xp-contact-body { font-size: 18px; line-height: 1.8; color: var(--cream-dim); margin-bottom: 32px; }
@@ -200,10 +200,10 @@ const css = `
     .xp-nav-links { display: none; }
     .xp-burger { display: flex; }
     .xp-nav { padding: 0 24px; }
-    .xp-hero { padding: 130px 24px 80px; }
-    .xp-section { padding: 72px 24px; }
+    .xp-hero { padding: 72px 24px 52px; }
+    .xp-section { padding: 52px 24px; }
     .xp-offering { grid-template-columns: 1fr; gap: 48px; }
-    .xp-contact { padding: 72px 24px; }
+    .xp-contact { padding: 52px 24px; }
     .xp-contact-grid { grid-template-columns: 1fr; gap: 52px; }
     .xp-footer { padding: 56px 24px 36px; }
     .xp-footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }

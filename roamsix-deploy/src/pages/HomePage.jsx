@@ -305,6 +305,11 @@ const css = `
  .rs-form-success { background: rgba(74,117,117,0.12); border: 1px solid rgba(74,117,117,0.3); padding: 20px 24px; }
  .rs-form-success p { color: var(--cream-dim); font-size: 16px; line-height: 1.65; }
 
+ /* CHECKBOX */
+ .rs-checkbox-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; margin-bottom: 4px; cursor: pointer; user-select: none; }
+ .rs-checkbox { width: 16px; height: 16px; accent-color: var(--gold); cursor: pointer; flex-shrink: 0; }
+ .rs-checkbox-label { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); cursor: pointer; }
+
  /* FOOTER */
  .rs-footer { background: var(--panel); border-top: 1px solid rgba(181,149,88,0.1); padding: 72px 56px 48px; }
  .rs-footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 64px; }
@@ -363,7 +368,7 @@ export default function HomePage() {
  const [pg, setPg] = useState({ name:"", email:"", role:"" });
  const [pgStatus, setPgStatus] = useState("idle");
  const [pgErr, setPgErr] = useState("");
- const [contact, setContact] = useState({ first:"", last:"", email:"", company:"", type:"", message:"" });
+ const [contact, setContact] = useState({ first:"", last:"", email:"", company:"", type:"", message:"", stayInLoop: false });
  const [ctStatus, setCtStatus] = useState("idle");
  const [ctErr, setCtErr] = useState("");
 
@@ -399,9 +404,11 @@ export default function HomePage() {
  if (!contact.email.trim() || !contact.message.trim()) { setCtErr("Please enter your email and message."); return; }
  setCtStatus("loading"); setCtErr("");
  try {
+ const stayLine = contact.stayInLoop ? "Stay in the Loop: Yes" : "";
+ const fullMessage = stayLine ? `${stayLine}\n\n---\n\n${contact.message.trim()}` : contact.message.trim();
  const res = await fetch("/api/contact", {
  method: "POST", headers: { "Content-Type": "application/json" },
- body: JSON.stringify({ firstName: contact.first.trim(), lastName: contact.last.trim(), email: contact.email.trim(), company: contact.company.trim(), inquiryType: contact.type, message: contact.message.trim(), source: "Homepage Contact Form" }),
+ body: JSON.stringify({ firstName: contact.first.trim(), lastName: contact.last.trim(), email: contact.email.trim(), company: contact.company.trim(), inquiryType: contact.type, message: fullMessage, source: "Homepage Contact Form" }),
  });
  if (res.ok) { setCtStatus("success"); }
  else { const d = await res.json().catch(()=>({})); setCtErr(d.error || "Submission failed. Please email info@roamsix.com directly."); setCtStatus("idle"); }
@@ -743,6 +750,10 @@ export default function HomePage() {
   <label className="rs-form-label">Tell us what's going on *</label>
   <textarea className="rs-textarea" placeholder="Tell us what you're envisioning. Team size, timing, type of experience, any ideas you have in mind. We will take it from there." value={contact.message} onChange={e=>setContact(c=>({...c,message:e.target.value}))}/>
  </div>
+ <label className="rs-checkbox-row">
+  <input type="checkbox" className="rs-checkbox" checked={contact.stayInLoop} onChange={e=>setContact(c=>({...c,stayInLoop:e.target.checked}))}/>
+  <span className="rs-checkbox-label">Stay in the Loop</span>
+ </label>
  {ctErr && <p className="rs-form-err">{ctErr}</p>}
  <button className="rs-btn rs-btn-teal" style={{width:"100%",textAlign:"center",marginTop:"8px"}} onClick={submitContact} disabled={ctStatus==="loading"}>
  {ctStatus === "loading" ? "Sending..." : "Start a Conversation"}

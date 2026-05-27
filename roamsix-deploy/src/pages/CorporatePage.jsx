@@ -126,7 +126,7 @@ const css = `
   .cp-btn-outline:hover { background: rgba(181,149,88,0.1); }
 
   /* HERO */
-  .cp-hero { background: var(--navy); padding: 160px 56px 100px; }
+  .cp-hero { background: var(--navy); padding: 80px 56px 60px; }
   .cp-hero-eyebrow { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
   .cp-hero-eyebrow::before { content: ''; display: block; width: 24px; height: 1px; background: var(--gold); flex-shrink: 0; }
   .cp-hero-h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(34px, 4.8vw, 64px); line-height: 1.05; color: var(--cream); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 28px; max-width: 960px; }
@@ -134,13 +134,13 @@ const css = `
   .cp-hero-price { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
 
   /* INTRO */
-  .cp-intro { padding: 100px 56px; background: var(--panel); }
+  .cp-intro { padding: 60px 56px; background: var(--panel); }
   .cp-intro-h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(26px, 3.4vw, 46px); line-height: 1.05; color: var(--cream); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 40px; max-width: 800px; }
   .cp-intro-body p { font-size: 18px; line-height: 1.85; color: var(--cream-dim); margin-bottom: 22px; max-width: 720px; }
   .cp-intro-body p:last-child { margin-bottom: 0; }
 
   /* FORMATS */
-  .cp-formats { padding: 100px 56px; background: var(--navy); }
+  .cp-formats { padding: 72px 56px; background: var(--navy); }
   .cp-formats-h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(34px, 4vw, 54px); letter-spacing: 1px; text-transform: uppercase; color: var(--cream); line-height: 1.05; margin-bottom: 0; }
   .cp-formats-subhead { font-size: 18px; line-height: 1.8; color: var(--cream-dim); max-width: 600px; margin-top: 14px; margin-bottom: 56px; }
   .cp-formats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
@@ -153,9 +153,11 @@ const css = `
   .cp-format-list li { font-size: 14px; color: var(--cream-muted); padding: 7px 0; border-bottom: 1px solid rgba(232,223,208,0.06); line-height: 1.5; }
   .cp-format-list li::before { content: '\\2013'; color: var(--gold-dim); margin-right: 8px; }
   .cp-format-note { font-family: 'EB Garamond', serif; font-style: italic; font-size: 15px; color: var(--gold); margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(181,149,88,0.15); }
+  .cp-format-cta { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); text-decoration: none; margin-top: 16px; background: none; border: none; cursor: pointer; padding: 0; transition: color 0.2s; }
+  .cp-format-cta:hover { color: var(--cream); }
 
   /* WHAT WE HANDLE */
-  .cp-handles { padding: 100px 56px; background: var(--panel); }
+  .cp-handles { padding: 72px 56px; background: var(--panel); }
   .cp-handles-h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(34px, 4vw, 54px); letter-spacing: 1px; text-transform: uppercase; color: var(--cream); line-height: 1.05; margin-bottom: 0; }
   .cp-handles-subhead { font-size: 18px; line-height: 1.8; color: var(--cream-dim); max-width: 480px; margin-top: 14px; margin-bottom: 52px; }
   .cp-handles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; max-width: 760px; }
@@ -164,13 +166,13 @@ const css = `
   .cp-handles-note { font-size: 15px; color: var(--cream-muted); margin-top: 48px; max-width: 680px; line-height: 1.7; }
 
   /* PRICING */
-  .cp-pricing { padding: 100px 56px; background: var(--navy); }
+  .cp-pricing { padding: 72px 56px; background: var(--navy); }
   .cp-pricing-h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(34px, 4vw, 54px); letter-spacing: 1px; text-transform: uppercase; color: var(--cream); line-height: 1.05; margin-top: 16px; margin-bottom: 20px; }
   .cp-pricing-body { font-size: 18px; line-height: 1.85; color: var(--cream-dim); max-width: 600px; margin-bottom: 12px; }
   .cp-pricing-price { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 40px; }
 
   /* CONTACT */
-  .cp-contact { padding: 100px 56px; background: var(--panel); }
+  .cp-contact { padding: 72px 56px; background: var(--panel); }
   .cp-contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: start; }
   .cp-contact-h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(26px, 3.4vw, 46px); line-height: 1.05; color: var(--cream); text-transform: uppercase; letter-spacing: 1px; margin-top: 16px; margin-bottom: 20px; }
   .cp-contact-body { font-size: 18px; line-height: 1.8; color: var(--cream-dim); margin-bottom: 32px; }
@@ -186,6 +188,11 @@ const css = `
   .cp-form-err { color: #E07070; font-size: 14px; margin-top: 8px; }
   .cp-form-success { background: rgba(74,117,117,0.12); border: 1px solid rgba(74,117,117,0.3); padding: 20px 24px; }
   .cp-form-success p { color: var(--cream-dim); font-size: 16px; line-height: 1.65; }
+
+  /* CHECKBOX */
+  .cp-checkbox-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; margin-bottom: 4px; cursor: pointer; user-select: none; }
+  .cp-checkbox { width: 16px; height: 16px; accent-color: var(--gold); cursor: pointer; flex-shrink: 0; }
+  .cp-checkbox-label { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); cursor: pointer; }
 
   /* FOOTER */
   .cp-footer { background: var(--panel); border-top: 1px solid rgba(181,149,88,0.1); padding: 72px 56px 48px; }
@@ -208,14 +215,14 @@ const css = `
     .cp-nav-links { display: none; }
     .cp-burger { display: flex; }
     .cp-nav { padding: 0 24px; }
-    .cp-hero { padding: 130px 24px 80px; }
-    .cp-intro { padding: 72px 24px; }
-    .cp-formats { padding: 72px 24px; }
+    .cp-hero { padding: 72px 24px 52px; }
+    .cp-intro { padding: 52px 24px; }
+    .cp-formats { padding: 52px 24px; }
     .cp-formats-grid { grid-template-columns: 1fr; }
-    .cp-handles { padding: 72px 24px; }
+    .cp-handles { padding: 52px 24px; }
     .cp-handles-grid { grid-template-columns: 1fr; }
-    .cp-pricing { padding: 72px 24px; }
-    .cp-contact { padding: 72px 24px; }
+    .cp-pricing { padding: 52px 24px; }
+    .cp-contact { padding: 52px 24px; }
     .cp-contact-grid { grid-template-columns: 1fr; gap: 52px; }
     .cp-footer { padding: 56px 24px 36px; }
     .cp-footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
@@ -230,7 +237,7 @@ const css = `
 export default function CorporatePage() {
   const [scrolled,  setScrolled]  = useState(false);
   const [menuOpen,  setMenuOpen]  = useState(false);
-  const [contact,   setContact]   = useState({ first: "", last: "", email: "", company: "", teamSize: "", format: "", message: "" });
+  const [contact,   setContact]   = useState({ first: "", last: "", email: "", company: "", teamSize: "", format: "", message: "", stayInLoop: false });
   const [ctStatus,  setCtStatus]  = useState("idle");
   const [ctErr,     setCtErr]     = useState("");
 
@@ -253,8 +260,9 @@ export default function CorporatePage() {
     setCtStatus("loading"); setCtErr("");
     try {
       const metaLines = [
-        contact.teamSize && `Team Size: ${contact.teamSize}`,
-        contact.format   && `Preferred Format: ${contact.format}`,
+        contact.teamSize   && `Team Size: ${contact.teamSize}`,
+        contact.format     && `Preferred Format: ${contact.format}`,
+        contact.stayInLoop && `Stay in the Loop: Yes`,
       ].filter(Boolean);
       const fullMessage = metaLines.length > 0
         ? `${metaLines.join("\n")}\n\n---\n\n${contact.message.trim()}`
@@ -296,6 +304,13 @@ export default function CorporatePage() {
         <h1 className="cp-hero-h1">Built around your team. Designed around what needs to move.</h1>
         <p className="cp-hero-sub">ROAMSIX plans and executes fully customized experiences for leadership teams, companies, and organizations. Every engagement is shaped around your people, your goals, and the outcomes that need to carry back into work.</p>
         <div className="cp-hero-price">Starting at $449 per person per day.</div>
+        <button
+          className="cp-btn cp-btn-gold"
+          style={{ marginTop: "28px" }}
+          onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
+        >
+          Request a Proposal
+        </button>
       </section>
 
       <hr className="cp-hr"/>
@@ -329,6 +344,13 @@ export default function CorporatePage() {
                 {f.includes.map(item => <li key={item}>{item}</li>)}
               </ul>
               <p className="cp-format-note">{f.note}</p>
+              <a
+                href="#contact"
+                className="cp-format-cta"
+                onClick={e => { e.preventDefault(); document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }); }}
+              >
+                Request a Proposal
+              </a>
             </div>
           ))}
         </div>
@@ -426,6 +448,10 @@ export default function CorporatePage() {
                   <label className="cp-form-label">Tell us what you are working on *</label>
                   <textarea className="cp-textarea" placeholder="Tell us what you are working on. Goals, challenges, team context, and any ideas you already have. We will take it from there." value={contact.message} onChange={e => setContact(c => ({ ...c, message: e.target.value }))}/>
                 </div>
+                <label className="cp-checkbox-row">
+                  <input type="checkbox" className="cp-checkbox" checked={contact.stayInLoop} onChange={e => setContact(c => ({ ...c, stayInLoop: e.target.checked }))}/>
+                  <span className="cp-checkbox-label">Stay in the Loop</span>
+                </label>
                 {ctErr && <p className="cp-form-err">{ctErr}</p>}
                 <button className="cp-btn cp-btn-gold" style={{ width: "100%", textAlign: "center", marginTop: "8px" }} onClick={submitContact} disabled={ctStatus === "loading"}>
                   {ctStatus === "loading" ? "Sending..." : "Request a Proposal"}
