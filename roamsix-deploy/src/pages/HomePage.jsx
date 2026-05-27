@@ -39,18 +39,73 @@ const RP_LOGO = "/images/redirection-point-logo.png";
 const RP_COVER = "/images/redirection-point-cover.webp";
 
 const NAV = [
- ["Events", "/events"],
- ["Proving Grounds", "#proving-grounds"],
- ["Team", "/team"],
- ["Approach", "/approach"],
- ["Podcast", "#podcast"],
+ ["Experiences", "/experiences"],
+ ["Events",      "/events"],
+ ["Team",        "/team"],
+ ["Podcast",     "#podcast"],
 ];
 
-const WHAT_WE_CREATE = [
- { title: "Gatherings", desc: "Dinners, field experiences, fireside evenings, and intentional gatherings for people ready to be in the right room." },
- { title: "Leadership Immersions", desc: "Multi-day experiences for leadership teams built around alignment, perspective, and decisions that actually carry forward." },
- { title: "Private Experiences", desc: "Designed for individuals, couples, and small groups navigating transition, growth, or a season where something needs to change." },
- { title: "Journeys and Expeditions", desc: "Immersive multi-day and international experiences built around challenge, culture, movement, and meaningful redirection. Reach out for more information." },
+const OFFERINGS = [
+ {
+  title: "Gatherings",
+  description: "Curated evenings and hosted experiences designed around food, conversation, movement, and meaningful connection.",
+  price: "Starting at $95 / person",
+  cta: "Register Now",
+  ctaLink: "/events",
+  includes: [
+   "Chef-prepared meals and refreshments",
+   "Curated guest experience",
+   "Fireside or guided conversation",
+   "Movement or outdoor elements",
+   "Thoughtfully designed atmosphere and hospitality",
+  ],
+  inspiration: "Some of the most meaningful conversations happen around a table, outside the pace of everyday life. ROAMSIX gatherings are designed to bring thoughtful people together through food, atmosphere, and shared experience in environments that make real connection easier.",
+ },
+ {
+  title: "Leadership Immersions",
+  description: "Immersive experiences for leadership teams looking to reconnect, reset perspective, and strengthen alignment outside the normal pace of work.",
+  price: "Starting at $150 / person",
+  cta: "Inquire to Book",
+  ctaLink: "#contact",
+  includes: [
+   "Guided team experiences",
+   "Structured conversations and reflection",
+   "Recovery and movement sessions",
+   "Shared meals and hospitality",
+   "Curated pacing and facilitation",
+  ],
+  inspiration: "For centuries, leaders, thinkers, and builders have stepped away from their usual environment to gain perspective and think more clearly. ROAMSIX immersions are built around the idea that physical distance from routine changes how people communicate, reflect, and move forward together.",
+ },
+ {
+  title: "Private Experiences",
+  description: "Personalized experiences for individuals, couples, families, or small groups navigating transition, burnout, growth, or a season of change.",
+  price: "Starting at $250 / person",
+  cta: "Inquire to Book",
+  ctaLink: "#contact",
+  includes: [
+   "Customized experience design",
+   "Nature, movement, and recovery elements",
+   "Private dining or hospitality experiences",
+   "Guided conversation and reflection",
+   "Optional overnight or multi-day format",
+  ],
+  inspiration: "Many high-performers spend years carrying responsibility without creating space to reset themselves. These experiences are designed to remove friction, reduce noise, and create the conditions for clarity, recovery, and renewed energy.",
+ },
+ {
+  title: "Journeys and Expeditions",
+  description: "Perspective-changing travel experiences designed around culture, challenge, immersion, and meaningful redirection.",
+  price: "Starting at $1,500 / person",
+  cta: "Inquire to Book",
+  ctaLink: "#contact",
+  includes: [
+   "Curated travel and accommodations",
+   "Cultural and outdoor experiences",
+   "Hosted group conversations",
+   "Movement and exploration",
+   "Intentional pacing for reflection and connection",
+  ],
+  inspiration: "Some environments change the way people see their lives. Throughout history, founders, artists, athletes, and explorers have traveled in search of perspective, inspiration, and a deeper connection to the world around them. ROAMSIX journeys are designed around that same idea.",
+ },
 ];
 
 const WHAT_PRODUCES = [
@@ -92,8 +147,8 @@ const css = `
  .rs-nav-links { display: flex; align-items: center; gap: 28px; list-style: none; margin-left: 48px; }
  .rs-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: #CEC7BC; text-decoration: none; transition: color 0.2s; }
  .rs-nav-links a:hover { color: var(--cream); }
- .rs-nav-cta { background: var(--gold); color: var(--navy); padding: 9px 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; transition: background 0.2s; }
- .rs-nav-cta:hover { background: var(--gold-dim); color: var(--navy); }
+ .rs-nav-cta { background: transparent; color: var(--gold); padding: 9px 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; border: 1px solid var(--gold); transition: all 0.2s; }
+ .rs-nav-cta:hover { background: rgba(181,149,88,0.1); color: var(--gold); }
 
  /* BURGER */
  .rs-burger { display: none; flex-direction: column; justify-content: center; align-items: center; gap: 5px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; padding: 4px; margin-left: 16px; }
@@ -108,7 +163,7 @@ const css = `
  .rs-mobile-menu a { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--cream); text-decoration: none; padding: 20px 40px; border-bottom: 1px solid rgba(232,223,208,0.07); width: 100%; text-align: center; transition: color 0.2s; }
  .rs-mobile-menu a:first-child { border-top: 1px solid rgba(232,223,208,0.07); }
  .rs-mobile-menu a:hover { color: var(--gold); }
- .rs-mobile-cta { background: var(--gold); color: var(--navy); margin-top: 32px; border: none; }
+ .rs-mobile-cta { background: transparent; color: var(--gold); margin-top: 32px; border: 1px solid var(--gold); font-size: 20px; }
 
  /* BUTTONS */
  .rs-btn { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; padding: 15px 34px; text-decoration: none; cursor: pointer; border: none; transition: all 0.22s; }
@@ -176,11 +231,20 @@ const css = `
  .rs-strip-img-narrow { aspect-ratio: 4/5; object-position: center top; }
 
  /* SECTION 5 - WHAT WE CREATE */
- .rs-work-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 2px; margin-top: 52px; }
- .rs-work-card { background: var(--panel); padding: 40px 36px; border: 1px solid rgba(232,223,208,0.07); transition: border-color 0.25s; }
- .rs-work-card:hover { border-color: rgba(74,117,117,0.3); }
- .rs-work-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 600; letter-spacing: 1px; color: var(--cream); text-transform: uppercase; margin-bottom: 12px; }
- .rs-work-desc { font-size: 16px; line-height: 1.75; color: var(--cream-dim); }
+ .rs-work-grid { display: flex; flex-direction: column; gap: 2px; margin-top: 52px; }
+ .rs-work-card { background: var(--panel); padding: 40px 36px; border: 1px solid rgba(232,223,208,0.07); transition: border-color 0.25s; cursor: pointer; position: relative; }
+ .rs-work-card:hover { border-color: rgba(181,149,88,0.22); }
+ .rs-work-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 600; letter-spacing: 1px; color: var(--cream); text-transform: uppercase; margin-bottom: 12px; padding-right: 48px; }
+ .rs-work-desc { font-size: 16px; line-height: 1.75; color: var(--cream-dim); margin-bottom: 0; }
+ .rs-work-toggle { position: absolute; top: 40px; right: 36px; font-size: 20px; color: var(--gold); transition: transform 0.3s ease; line-height: 1; user-select: none; }
+ .rs-work-toggle.open { transform: rotate(45deg); }
+ .rs-work-expanded { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.4s ease, opacity 0.3s ease; }
+ .rs-work-expanded.open { max-height: 600px; opacity: 1; }
+ .rs-work-includes-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-top: 28px; margin-bottom: 12px; }
+ .rs-work-includes-list { list-style: none; margin-bottom: 24px; }
+ .rs-work-includes-list li { font-size: 15px; color: var(--cream-muted); padding: 6px 0; border-bottom: 1px solid rgba(232,223,208,0.06); }
+ .rs-work-inspiration { font-family: 'EB Garamond', serif; font-style: italic; font-size: 17px; line-height: 1.75; color: var(--cream-muted); padding: 20px 0 8px; border-top: 1px solid rgba(232,223,208,0.08); }
+ .rs-work-price { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; }
 
  /* FEATURED EVENT */
  .rs-feat-ev { background: var(--panel); padding: 0; }
@@ -302,7 +366,6 @@ const css = `
  .rs-scratch { grid-template-columns: 1fr; gap: 40px; }
  .rs-belief { padding: 80px 24px; }
  .rs-env { grid-template-columns: 1fr; gap: 40px; }
- .rs-work-grid { grid-template-columns: 1fr; }
  .rs-feat-ev-wrap { grid-template-columns: 1fr; }
  .rs-feat-ev-content { padding: 56px 24px; }
  .rs-feat-ev-visual { min-height: 300px; position: relative; }
@@ -327,6 +390,7 @@ const css = `
 export default function HomePage() {
  const [scrolled, setScrolled] = useState(false);
  const [menuOpen, setMenuOpen] = useState(false);
+ const [expandedCard, setExpandedCard] = useState(null);
  const featuredEvent = getUpcomingEvents(1)[0] || null;
  const [pg, setPg] = useState({ name:"", email:"", role:"" });
  const [pgStatus, setPgStatus] = useState("idle");
@@ -347,6 +411,7 @@ export default function HomePage() {
  }, []);
 
  const close = () => setMenuOpen(false);
+ const toggleCard = (i) => setExpandedCard(prev => prev === i ? null : i);
 
  /* ── FORM HANDLERS , DO NOT MODIFY ──────────────────────────────────────── */
  const submitPG = async () => {
@@ -499,12 +564,25 @@ export default function HomePage() {
  <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">What We Create</span></div>
  <h2 className="rs-h2">What we create.</h2>
  <div className="rs-work-grid" id="experiences">
- {WHAT_WE_CREATE.map(w => (
- <div className="rs-work-card" key={w.title}>
- <div className="rs-work-title">{w.title}</div>
- <p className="rs-work-desc">{w.desc}</p>
- </div>
- ))}
+  {OFFERINGS.map((o, i) => {
+  const isOpen = expandedCard === i;
+  return (
+   <div key={o.title} className="rs-work-card" onClick={() => toggleCard(i)}>
+   <div className={`rs-work-toggle${isOpen ? " open" : ""}`}>+</div>
+   <div className="rs-work-title">{o.title}</div>
+   <p className="rs-work-desc">{o.description}</p>
+   <div className="rs-work-price" style={{marginTop:"16px"}}>{o.price}</div>
+   <a href={o.ctaLink} className="rs-btn rs-btn-outline" style={{fontSize:"12px"}} onClick={e => e.stopPropagation()}>{o.cta}</a>
+   <div className={`rs-work-expanded${isOpen ? " open" : ""}`}>
+    <div className="rs-work-includes-label">Includes</div>
+    <ul className="rs-work-includes-list">
+    {o.includes.map(item => <li key={item}>{item}</li>)}
+    </ul>
+    <p className="rs-work-inspiration">{o.inspiration}</p>
+   </div>
+   </div>
+  );
+  })}
  </div>
  </section>
 
@@ -706,7 +784,10 @@ export default function HomePage() {
  <option value="Other">Other</option>
  </select>
  </div>
- <div className="rs-form-group"><label className="rs-form-label">Tell us what's going on *</label><textarea className="rs-textarea" placeholder="What's the situation? What needs to change?" value={contact.message} onChange={e=>setContact(c=>({...c,message:e.target.value}))}/></div>
+ <div className="rs-form-group">
+  <label className="rs-form-label">Tell us what's going on *</label>
+  <textarea className="rs-textarea" placeholder="Tell us what you're envisioning. Team size, timing, type of experience, any ideas you have in mind. We will take it from there." value={contact.message} onChange={e=>setContact(c=>({...c,message:e.target.value}))}/>
+ </div>
  {ctErr && <p className="rs-form-err">{ctErr}</p>}
  <button className="rs-btn rs-btn-teal" style={{width:"100%",textAlign:"center",marginTop:"8px"}} onClick={submitContact} disabled={ctStatus==="loading"}>
  {ctStatus === "loading" ? "Sending..." : "Start a Conversation"}
