@@ -159,7 +159,7 @@ const css = `
   .xp-includes-list { list-style: none; margin-bottom: 40px; }
   .xp-includes-list li { font-size: 16px; color: var(--cream-muted); padding: 9px 0; border-bottom: 1px solid rgba(232,223,208,0.07); display: flex; align-items: baseline; gap: 10px; }
   .xp-includes-list li::before { content: '\\2013'; color: var(--gold-dim); font-size: 12px; flex-shrink: 0; }
-  .xp-inspiration { font-family: 'EB Garamond', serif; font-style: italic; font-size: 18px; line-height: 1.8; color: var(--cream-muted); padding-top: 32px; border-top: 1px solid rgba(232,223,208,0.08); margin-bottom: 36px; }
+  .xp-inspiration { font-family: 'EB Garamond', serif; font-style: italic; font-size: 18px; line-height: 1.8; color: var(--cream-muted); padding-top: 32px; border-top: 1px solid rgba(232,223,208,0.08); margin-bottom: 36px; max-width: 720px; margin-left: auto; margin-right: auto; }
 
   /* CONTACT SECTION */
   .xp-contact { padding: 100px 56px; background: var(--panel); }

@@ -41,70 +41,34 @@ const RP_COVER = "/images/redirection-point-cover.webp";
 const NAV = [
  ["Experiences", "/experiences"],
  ["Events",      "/events"],
+ ["Corporate",   "/corporate"],
  ["Team",        "/team"],
  ["Podcast",     "#podcast"],
 ];
 
-const OFFERINGS = [
+const CATEGORIES = [
  {
-  title: "Gatherings",
-  description: "Curated evenings and hosted experiences designed around food, conversation, movement, and meaningful connection.",
-  price: "Starting at $95 / person",
-  cta: "Register Now",
-  ctaLink: "/events",
-  includes: [
-   "Chef-prepared meals and refreshments",
-   "Curated guest experience",
-   "Fireside or guided conversation",
-   "Movement or outdoor elements",
-   "Thoughtfully designed atmosphere and hospitality",
+  title: "Experiences",
+  description: "Gatherings, private experiences, leadership immersions, and journeys designed for individuals, couples, and small groups.",
+  items: [
+   { name: "Gatherings",              detail: "from $95/person" },
+   { name: "Private Experiences",     detail: "from $250/person" },
+   { name: "Leadership Immersions",   detail: "custom pricing" },
+   { name: "Journeys and Expeditions",detail: "from $1,500/person" },
   ],
-  inspiration: "Some of the most meaningful conversations happen around a table, outside the pace of everyday life. ROAMSIX gatherings are designed to bring thoughtful people together through food, atmosphere, and shared experience in environments that make real connection easier.",
+  cta: "View All Experiences",
+  ctaLink: "/experiences",
  },
  {
-  title: "Leadership Immersions",
-  description: "Immersive experiences for leadership teams looking to reconnect, reset perspective, and strengthen alignment outside the normal pace of work.",
-  price: "Starting at $150 / person",
-  cta: "Inquire to Book",
-  ctaLink: "#contact",
-  includes: [
-   "Guided team experiences",
-   "Structured conversations and reflection",
-   "Recovery and movement sessions",
-   "Shared meals and hospitality",
-   "Curated pacing and facilitation",
+  title: "Corporate",
+  description: "Fully planned and executed experiences for leadership teams and companies. One-day, overnight, and multi-day formats are scoped around your team.",
+  items: [
+   { name: "One-Day Experience",  detail: null },
+   { name: "Overnight Immersion", detail: null },
+   { name: "Multi-Day Retreat",   detail: null },
   ],
-  inspiration: "For centuries, leaders, thinkers, and builders have stepped away from their usual environment to gain perspective and think more clearly. ROAMSIX immersions are built around the idea that physical distance from routine changes how people communicate, reflect, and move forward together.",
- },
- {
-  title: "Private Experiences",
-  description: "Personalized experiences for individuals, couples, families, or small groups navigating transition, burnout, growth, or a season of change.",
-  price: "Starting at $250 / person",
-  cta: "Inquire to Book",
-  ctaLink: "#contact",
-  includes: [
-   "Customized experience design",
-   "Nature, movement, and recovery elements",
-   "Private dining or hospitality experiences",
-   "Guided conversation and reflection",
-   "Optional overnight or multi-day format",
-  ],
-  inspiration: "Many high-performers spend years carrying responsibility without creating space to reset themselves. These experiences are designed to remove friction, reduce noise, and create the conditions for clarity, recovery, and renewed energy.",
- },
- {
-  title: "Journeys and Expeditions",
-  description: "Perspective-changing travel experiences designed around culture, challenge, immersion, and meaningful redirection.",
-  price: "Starting at $1,500 / person",
-  cta: "Inquire to Book",
-  ctaLink: "#contact",
-  includes: [
-   "Curated travel and accommodations",
-   "Cultural and outdoor experiences",
-   "Hosted group conversations",
-   "Movement and exploration",
-   "Intentional pacing for reflection and connection",
-  ],
-  inspiration: "Some environments change the way people see their lives. Throughout history, founders, artists, athletes, and explorers have traveled in search of perspective, inspiration, and a deeper connection to the world around them. ROAMSIX journeys are designed around that same idea.",
+  cta: "Plan a Corporate Experience",
+  ctaLink: "/corporate",
  },
 ];
 
@@ -236,15 +200,18 @@ const css = `
  .rs-work-card:hover { border-color: rgba(181,149,88,0.22); }
  .rs-work-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 600; letter-spacing: 1px; color: var(--cream); text-transform: uppercase; margin-bottom: 12px; padding-right: 48px; }
  .rs-work-desc { font-size: 16px; line-height: 1.75; color: var(--cream-dim); margin-bottom: 0; }
- .rs-work-toggle { position: absolute; top: 40px; right: 36px; font-size: 20px; color: var(--gold); transition: transform 0.3s ease; line-height: 1; user-select: none; }
- .rs-work-toggle.open { transform: rotate(45deg); }
+ .rs-work-toggle { position: absolute; top: 36px; right: 36px; display: flex; flex-direction: column; align-items: center; gap: 3px; user-select: none; }
+ .rs-work-toggle-icon { font-size: 24px; color: var(--gold); transition: transform 0.3s ease; line-height: 1; display: block; }
+ .rs-work-toggle-icon.open { transform: rotate(45deg); }
+ .rs-work-toggle-label { font-size: 8px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; display: block; }
  .rs-work-expanded { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.4s ease, opacity 0.3s ease; }
  .rs-work-expanded.open { max-height: 600px; opacity: 1; }
- .rs-work-includes-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-top: 28px; margin-bottom: 12px; }
- .rs-work-includes-list { list-style: none; margin-bottom: 24px; }
- .rs-work-includes-list li { font-size: 15px; color: var(--cream-muted); padding: 6px 0; border-bottom: 1px solid rgba(232,223,208,0.06); }
- .rs-work-inspiration { font-family: 'EB Garamond', serif; font-style: italic; font-size: 17px; line-height: 1.75; color: var(--cream-muted); padding: 20px 0 8px; border-top: 1px solid rgba(232,223,208,0.08); }
- .rs-work-price { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; }
+ .rs-work-items-list { list-style: none; margin-top: 24px; margin-bottom: 0; }
+ .rs-work-item { display: flex; align-items: baseline; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(232,223,208,0.07); }
+ .rs-work-item-name { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 500; letter-spacing: 0.5px; color: var(--cream-dim); text-transform: uppercase; }
+ .rs-work-item-detail { font-size: 13px; color: var(--gold); font-family: 'Barlow Condensed', sans-serif; letter-spacing: 1px; }
+ .rs-btn-gold-outline { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
+ .rs-btn-gold-outline:hover { background: rgba(181,149,88,0.1); color: var(--gold); }
 
  /* FEATURED EVENT */
  .rs-feat-ev { background: var(--panel); padding: 0; }
@@ -359,6 +326,7 @@ const css = `
 
  /* RESPONSIVE */
  @media (max-width: 900px) {
+ .rs-work-toggle-label { display: none; }
  .rs-nav-links { display: none; }
  .rs-burger { display: flex; }
  .rs-section { padding: 80px 24px; }
@@ -509,24 +477,6 @@ export default function HomePage() {
 
  <hr className="rs-hr"/>
 
- {/* ── 3. WHERE WE FIT ── */}
- <section className="rs-section rs-section-navy" id="where-we-fit">
- <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Where We Fit</span></div>
- <h2 className="rs-h2">Where this fits.</h2>
- <div className="rs-fit-body" style={{marginTop:"28px"}}>
- <p>Most people come to ROAMSIX at a specific kind of moment.</p>
- <p>Work is going well enough. But something feels off in the background. The pace is high. Recovery is low. The conversations that matter are not happening.</p>
- </div>
- <div className="rs-fit-friction">
- Work slows down. Decisions get revisited.<br/>The same issues come back after every meeting.
- </div>
- <div className="rs-fit-body">
- <p style={{color:'var(--cream)',fontWeight:600,fontFamily:"'Barlow Condensed',sans-serif",fontSize:'clamp(20px,2.4vw,28px)',letterSpacing:'0.5px',lineHeight:1.3}}>We design experiences for exactly that moment.</p>
- </div>
- </section>
-
- <hr className="rs-hr"/>
-
  {/* ── 4. WHAT CHANGES ── */}
  <section className="rs-section rs-section-dark" id="approach-preview">
  <div className="rs-env">
@@ -563,22 +513,27 @@ export default function HomePage() {
  <section className="rs-section rs-section-navy" id="how-we-work">
  <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">What We Create</span></div>
  <h2 className="rs-h2">What we create.</h2>
- <div className="rs-work-grid" id="experiences">
-  {OFFERINGS.map((o, i) => {
+ <div className="rs-work-grid">
+  {CATEGORIES.map((cat, i) => {
   const isOpen = expandedCard === i;
   return (
-   <div key={o.title} className="rs-work-card" onClick={() => toggleCard(i)}>
-   <div className={`rs-work-toggle${isOpen ? " open" : ""}`}>+</div>
-   <div className="rs-work-title">{o.title}</div>
-   <p className="rs-work-desc">{o.description}</p>
-   <div className="rs-work-price" style={{marginTop:"16px"}}>{o.price}</div>
-   <a href={o.ctaLink} className="rs-btn rs-btn-outline" style={{fontSize:"12px"}} onClick={e => e.stopPropagation()}>{o.cta}</a>
+   <div key={cat.title} className="rs-work-card" onClick={() => toggleCard(i)}>
+   <div className="rs-work-toggle">
+    <span className={`rs-work-toggle-icon${isOpen ? " open" : ""}`}>+</span>
+    <span className="rs-work-toggle-label">Expand</span>
+   </div>
+   <div className="rs-work-title">{cat.title}</div>
+   <p className="rs-work-desc">{cat.description}</p>
    <div className={`rs-work-expanded${isOpen ? " open" : ""}`}>
-    <div className="rs-work-includes-label">Includes</div>
-    <ul className="rs-work-includes-list">
-    {o.includes.map(item => <li key={item}>{item}</li>)}
+    <ul className="rs-work-items-list">
+    {cat.items.map(item => (
+     <li key={item.name} className="rs-work-item">
+     <span className="rs-work-item-name">{item.name}</span>
+     {item.detail && <span className="rs-work-item-detail">{item.detail}</span>}
+     </li>
+    ))}
     </ul>
-    <p className="rs-work-inspiration">{o.inspiration}</p>
+    <a href={cat.ctaLink} className="rs-btn rs-btn-gold" style={{fontSize:"12px",marginTop:"24px",display:"inline-block"}} onClick={e => e.stopPropagation()}>{cat.cta}</a>
    </div>
    </div>
   );
@@ -810,14 +765,14 @@ export default function HomePage() {
  </div>
  </div>
  <div className="rs-footer-col"><h4>Company</h4><ul>
- <li><a href="#founders">About</a></li>
+ <li><a href="/#founders">About</a></li>
  <li><a href="/approach">Approach</a></li>
  <li><a href="/team">Team</a></li>
  </ul></div>
  <div className="rs-footer-col"><h4>Experiences</h4><ul>
  <li><a href="/events">Events</a></li>
- <li><a href="#how-we-work">How We Work</a></li>
- <li><a href="#proving-grounds">Proving Grounds</a></li>
+ <li><a href="/experiences">All Experiences</a></li>
+ <li><a href="/#proving-grounds">Proving Grounds</a></li>
  <li><a href="#contact">Inquire</a></li>
  </ul></div>
  <div className="rs-footer-col"><h4>Connect</h4><ul>
@@ -828,7 +783,7 @@ export default function HomePage() {
  <div className="rs-footer-col"><h4>Redirection Point</h4><ul>
  <li><a href="https://www.youtube.com/@RedirectionPoint" target="_blank" rel="noopener noreferrer">YouTube</a></li>
  <li><a href="https://www.instagram.com/redirectionpoint" target="_blank" rel="noopener noreferrer">Instagram</a></li>
- <li><a href="#podcast">About the Podcast</a></li>
+ <li><a href="/#podcast">About the Podcast</a></li>
  </ul></div>
  </div>
  <div className="rs-footer-bottom">
