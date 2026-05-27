@@ -11,9 +11,11 @@ import ApproachPage from './pages/ApproachPage';
 import EventsPage from './pages/EventsPage';
 import EventDetailPage from './pages/EventDetailPage';
 import EventSuccessPage from './pages/EventSuccessPage';
+import ExperiencesPage from './pages/ExperiencesPage';
 
 export const router = createBrowserRouter([
   { path: '/',                                 element: <HomePage /> },
+  { path: '/experiences',                      element: <ExperiencesPage /> },
   { path: '/proving-grounds',                  element: <ProvingGroundsPage /> },
   { path: '/proving-grounds/register',         element: <ProvingGroundsRegistration /> },
   { path: '/proving-grounds/coach-register',   element: <CoachRegistration /> },
