@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from 'react-router-dom';
 import { getUpcomingEvents } from "../data/events";
 
 /*
@@ -421,15 +422,15 @@ export default function HomePage() {
 
  {/* MOBILE MENU */}
  <div className={`rs-mobile-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
- {NAV.map(([l,h]) => <a key={l} href={h} onClick={close}>{l}</a>)}
+ {NAV.map(([l,h]) => h.startsWith('#') ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>)}
  <a href="#contact" className="rs-mobile-cta" onClick={close}>Inquire</a>
  </div>
 
  {/* NAV */}
  <nav className={`rs-nav ${scrolled ? "solid" : ""}`}>
- <a className="rs-nav-brand" href="/"><span className="rs-wordmark">ROAMSIX</span></a>
+ <Link className="rs-nav-brand" to="/"><span className="rs-wordmark">ROAMSIX</span></Link>
  <ul className="rs-nav-links">
- {NAV.map(([l,h]) => <li key={l}><a href={h}>{l}</a></li>)}
+ {NAV.map(([l,h]) => <li key={l}>{h.startsWith('#') ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>}</li>)}
  <li><a href="#contact" className="rs-nav-cta">Inquire</a></li>
  </ul>
  <button className={`rs-burger ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? "Close menu" : "Open menu"}>
@@ -491,7 +492,7 @@ export default function HomePage() {
  <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">What Changes</span></div>
  <h2 className="rs-h2">What changes when the conditions are right.</h2>
  <div style={{marginTop:"32px"}}>
- <a href="/approach" className="rs-btn rs-btn-outline" style={{fontSize:"12px"}}>Read Our Approach</a>
+ <Link to="/approach" className="rs-btn rs-btn-outline" style={{fontSize:"12px"}}>Read Our Approach</Link>
  </div>
  </div>
  <div>
@@ -540,7 +541,7 @@ export default function HomePage() {
      </li>
     ))}
     </ul>
-    <a href={cat.ctaLink} className="rs-btn rs-btn-gold" style={{fontSize:"12px",marginTop:"24px",display:"inline-block"}} onClick={e => e.stopPropagation()}>{cat.cta}</a>
+    <Link to={cat.ctaLink} className="rs-btn rs-btn-gold" style={{fontSize:"12px",marginTop:"24px",display:"inline-block"}} onClick={e => e.stopPropagation()}>{cat.cta}</Link>
    </div>
    </div>
   );
@@ -564,8 +565,8 @@ export default function HomePage() {
  <div className="rs-feat-ev-location">{featuredEvent.location}</div>
  <p className="rs-feat-ev-desc">{featuredEvent.description}</p>
  <div className="rs-feat-ev-actions">
- <a className="rs-btn rs-btn-teal" href={`/events/${featuredEvent.id}`}>Reserve Your Spot</a>
- <a className="rs-feat-ev-all" href="/events">View all experiences</a>
+ <Link className="rs-btn rs-btn-teal" to={`/events/${featuredEvent.id}`}>Reserve Your Spot</Link>
+ <Link className="rs-feat-ev-all" to="/events">View all experiences</Link>
  </div>
  </div>
  <div className="rs-feat-ev-visual" style={{backgroundImage:`url(${HERO_FALLBACK})`,backgroundSize:'cover',backgroundPosition:'center'}}>
@@ -676,7 +677,7 @@ export default function HomePage() {
  <div className="rs-founders-note">
  <p>ROAMSIX was built by operators who have spent years designing environments, leading teams, and working in the field. The work comes from lived experience and an understanding of how people actually change.</p>
  <p>It also works with individuals. Founders, executives, and high-performers navigating seasons where clarity and direction matter most.</p>
- <a href="/team" className="rs-btn rs-btn-outline" style={{fontSize:"12px"}}>Meet the Team</a>
+ <Link to="/team" className="rs-btn rs-btn-outline" style={{fontSize:"12px"}}>Meet the Team</Link>
  </div>
  </section>
 
@@ -777,12 +778,12 @@ export default function HomePage() {
  </div>
  <div className="rs-footer-col"><h4>Company</h4><ul>
  <li><a href="/#founders">About</a></li>
- <li><a href="/approach">Approach</a></li>
- <li><a href="/team">Team</a></li>
+ <li><Link to="/approach">Approach</Link></li>
+ <li><Link to="/team">Team</Link></li>
  </ul></div>
  <div className="rs-footer-col"><h4>Experiences</h4><ul>
- <li><a href="/events">Events</a></li>
- <li><a href="/experiences">All Experiences</a></li>
+ <li><Link to="/events">Events</Link></li>
+ <li><Link to="/experiences">All Experiences</Link></li>
  <li><a href="/#proving-grounds">Proving Grounds</a></li>
  <li><a href="#contact">Inquire</a></li>
  </ul></div>

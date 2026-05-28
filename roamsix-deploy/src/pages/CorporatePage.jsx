@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from 'react-router-dom';
 
 /*
   ROAMSIX — CorporatePage.jsx
@@ -12,7 +13,7 @@ const NAV = [
   ["Events",      "/events"],
   ["Corporate",   "/corporate"],
   ["Team",        "/team"],
-  ["Podcast",     "/#podcast"],
+  ["Podcast",     "#podcast"],
 ];
 
 const FORMATS = [
@@ -282,15 +283,15 @@ export default function CorporatePage() {
 
       {/* MOBILE MENU */}
       <div className={`cp-mobile-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
-        {NAV.map(([l, h]) => <a key={l} href={h} onClick={close}>{l}</a>)}
+        {NAV.map(([l, h]) => h.startsWith('#') ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>)}
         <a href="#contact" className="cp-mobile-cta" onClick={close}>Inquire</a>
       </div>
 
       {/* NAV */}
       <nav className={`cp-nav ${scrolled ? "solid" : ""}`}>
-        <a className="cp-nav-brand" href="/"><span className="cp-wordmark">ROAMSIX</span></a>
+        <Link className="cp-nav-brand" to="/"><span className="cp-wordmark">ROAMSIX</span></Link>
         <ul className="cp-nav-links">
-          {NAV.map(([l, h]) => <li key={l}><a href={h}>{l}</a></li>)}
+          {NAV.map(([l, h]) => <li key={l}>{h.startsWith('#') ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>}</li>)}
           <li><a href="#contact" className="cp-nav-cta">Inquire</a></li>
         </ul>
         <button className={`cp-burger ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? "Close menu" : "Open menu"}>
@@ -475,13 +476,13 @@ export default function CorporatePage() {
           </div>
           <div className="cp-footer-col"><h4>Company</h4><ul>
             <li><a href="/#founders">About</a></li>
-            <li><a href="/approach">Approach</a></li>
-            <li><a href="/team">Team</a></li>
+            <li><Link to="/approach">Approach</Link></li>
+            <li><Link to="/team">Team</Link></li>
           </ul></div>
           <div className="cp-footer-col"><h4>Experiences</h4><ul>
-            <li><a href="/events">Events</a></li>
-            <li><a href="/experiences">All Experiences</a></li>
-            <li><a href="/corporate">Corporate</a></li>
+            <li><Link to="/events">Events</Link></li>
+            <li><Link to="/experiences">All Experiences</Link></li>
+            <li><Link to="/corporate">Corporate</Link></li>
             <li><a href="#contact">Inquire</a></li>
           </ul></div>
           <div className="cp-footer-col"><h4>Connect</h4><ul>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from 'react-router-dom';
 
 /*
   ROAMSIX — ExperiencesPage.jsx
@@ -12,7 +13,7 @@ const NAV = [
   ["Events",      "/events"],
   ["Corporate",   "/corporate"],
   ["Team",        "/team"],
-  ["Podcast",     "/#podcast"],
+  ["Podcast",     "#podcast"],
 ];
 
 const OFFERINGS = [
@@ -257,15 +258,15 @@ export default function ExperiencesPage() {
 
       {/* MOBILE MENU */}
       <div className={`xp-mobile-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
-        {NAV.map(([l, h]) => <a key={l} href={h} onClick={close}>{l}</a>)}
+        {NAV.map(([l, h]) => h.startsWith('#') ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>)}
         <a href="#contact" className="xp-mobile-cta" onClick={close}>Inquire</a>
       </div>
 
       {/* NAV */}
       <nav className={`xp-nav ${scrolled ? "solid" : ""}`}>
-        <a className="xp-nav-brand" href="/"><span className="xp-wordmark">ROAMSIX</span></a>
+        <Link className="xp-nav-brand" to="/"><span className="xp-wordmark">ROAMSIX</span></Link>
         <ul className="xp-nav-links">
-          {NAV.map(([l, h]) => <li key={l}><a href={h}>{l}</a></li>)}
+          {NAV.map(([l, h]) => <li key={l}>{h.startsWith('#') ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>}</li>)}
           <li><a href="#contact" className="xp-nav-cta">Inquire</a></li>
         </ul>
         <button className={`xp-burger ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? "Close menu" : "Open menu"}>
@@ -298,7 +299,7 @@ export default function ExperiencesPage() {
               <h2 className="xp-offering-name">{o.title}</h2>
               <p className="xp-offering-desc">{o.description}</p>
               <div className="xp-offering-price">{o.price}</div>
-              <a href={o.ctaLink} className={`xp-btn ${i === 0 ? "xp-btn-gold" : "xp-btn-outline"}`}>{o.cta}</a>
+              {o.ctaLink.startsWith('#') ? <a href={o.ctaLink} className={`xp-btn ${i === 0 ? "xp-btn-gold" : "xp-btn-outline"}`}>{o.cta}</a> : <Link to={o.ctaLink} className={`xp-btn ${i === 0 ? "xp-btn-gold" : "xp-btn-outline"}`}>{o.cta}</Link>}
             </div>
             <div>
               <div className="xp-includes-label">Includes</div>
@@ -378,12 +379,12 @@ export default function ExperiencesPage() {
           </div>
           <div className="xp-footer-col"><h4>Company</h4><ul>
             <li><a href="/#founders">About</a></li>
-            <li><a href="/approach">Approach</a></li>
-            <li><a href="/team">Team</a></li>
+            <li><Link to="/approach">Approach</Link></li>
+            <li><Link to="/team">Team</Link></li>
           </ul></div>
           <div className="xp-footer-col"><h4>Experiences</h4><ul>
-            <li><a href="/events">Events</a></li>
-            <li><a href="/experiences">All Experiences</a></li>
+            <li><Link to="/events">Events</Link></li>
+            <li><Link to="/experiences">All Experiences</Link></li>
             <li><a href="/#proving-grounds">Proving Grounds</a></li>
             <li><a href="#contact">Inquire</a></li>
           </ul></div>

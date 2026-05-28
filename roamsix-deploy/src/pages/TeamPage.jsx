@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from 'react-router-dom';
 
 const MAX_SRC = "/images/max-ouellette.webp";
 const JACKIE_SRC = "/images/jackie.webp";
@@ -8,7 +9,7 @@ const NAV = [
  ["Events",      "/events"],
  ["Corporate",   "/corporate"],
  ["Team",        "/team"],
- ["Podcast",     "/#podcast"],
+ ["Podcast",     "#podcast"],
 ];
 
 const css = `
@@ -135,15 +136,15 @@ export default function TeamPage() {
 
    {/* MOBILE MENU */}
    <div className={`tp-mobile-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
-    {NAV.map(([l, h]) => <a key={l} href={h} onClick={close}>{l}</a>)}
+    {NAV.map(([l, h]) => h.startsWith('#') ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>)}
     <a href="/#contact" className="tp-mobile-cta" onClick={close}>Inquire</a>
    </div>
 
    {/* NAV */}
    <nav className="tp-nav">
-    <a className="tp-nav-brand" href="/"><span className="tp-wordmark">ROAMSIX</span></a>
+    <Link className="tp-nav-brand" to="/"><span className="tp-wordmark">ROAMSIX</span></Link>
     <ul className="tp-nav-links">
-     {NAV.map(([l, h]) => <li key={l}><a href={h}>{l}</a></li>)}
+     {NAV.map(([l, h]) => <li key={l}>{h.startsWith('#') ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>}</li>)}
      <li><a href="/#contact" className="tp-nav-cta">Inquire</a></li>
     </ul>
     <button className={`tp-burger ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? "Close menu" : "Open menu"}>
@@ -222,13 +223,13 @@ export default function TeamPage() {
      </div>
      <div className="tp-footer-col"><h4>Company</h4><ul>
       <li><a href="/#founders">About</a></li>
-      <li><a href="/approach">Approach</a></li>
-      <li><a href="/team">Team</a></li>
+      <li><Link to="/approach">Approach</Link></li>
+      <li><Link to="/team">Team</Link></li>
      </ul></div>
      <div className="tp-footer-col"><h4>Experiences</h4><ul>
-      <li><a href="/events">Events</a></li>
-      <li><a href="/experiences">All Experiences</a></li>
-      <li><a href="/corporate">Corporate</a></li>
+      <li><Link to="/events">Events</Link></li>
+      <li><Link to="/experiences">All Experiences</Link></li>
+      <li><Link to="/corporate">Corporate</Link></li>
       <li><a href="/#contact">Inquire</a></li>
      </ul></div>
      <div className="tp-footer-col"><h4>Connect</h4><ul>
