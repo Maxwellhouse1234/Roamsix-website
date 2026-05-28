@@ -3,6 +3,14 @@ import { useState, useEffect } from "react";
 const MAX_SRC = "/images/max-ouellette.webp";
 const JACKIE_SRC = "/images/jackie.webp";
 
+const NAV = [
+ ["Experiences", "/experiences"],
+ ["Events",      "/events"],
+ ["Corporate",   "/corporate"],
+ ["Team",        "/team"],
+ ["Podcast",     "/#podcast"],
+];
+
 const css = `
  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&family=EB+Garamond:ital,wght@1,400&display=swap');
 
@@ -11,7 +19,7 @@ const css = `
  font-family: 'Barlow', sans-serif; background: #141C2A; color: #E8DFD0;
  min-height: 100vh; font-size: 18px; line-height: 1.65;
  --navy: #141C2A; --panel: #0C1220; --navy-mid: #1A2337;
- --teal: #4A7575; --teal-dim: #3A5A5A;
+ --teal: #4A7575; --teal-dim: #3A5A5A; --teal-light: #5A8A8A;
  --cream: #E8DFD0; --cream-dim: #DDD6CC; --cream-muted: #B8B0A6;
  --gold: #B59558;
  }
@@ -19,10 +27,28 @@ const css = `
 
  /* NAV */
  .tp-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 500; display: flex; align-items: center; padding: 0 52px; height: 76px; background: rgba(6,10,18,0.97); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(181,149,88,0.12); }
- .tp-nav-brand { text-decoration: none; }
- .tp-wordmark { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 26px; letter-spacing: 4px; color: var(--cream); text-transform: uppercase; }
- .tp-nav-back { margin-left: auto; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); text-decoration: none; transition: color 0.2s; }
- .tp-nav-back:hover { color: var(--cream); }
+ .tp-nav-brand { display: flex; align-items: center; text-decoration: none; margin-right: auto; }
+ .tp-wordmark { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 26px; letter-spacing: 4px; color: var(--cream); text-transform: uppercase; line-height: 1; }
+ .tp-nav-links { display: flex; align-items: center; gap: 28px; list-style: none; margin-left: 48px; }
+ .tp-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: #CEC7BC; text-decoration: none; transition: color 0.2s; }
+ .tp-nav-links a:hover { color: var(--cream); }
+ .tp-nav-cta { background: transparent; color: var(--gold); padding: 9px 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; border: 1px solid var(--gold); transition: all 0.2s; }
+ .tp-nav-cta:hover { background: rgba(181,149,88,0.1); color: var(--gold); }
+
+ /* BURGER */
+ .tp-burger { display: none; flex-direction: column; justify-content: center; align-items: center; gap: 5px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; padding: 4px; margin-left: 16px; }
+ .tp-burger span { display: block; width: 24px; height: 1.5px; background: var(--cream); transition: all 0.3s ease; transform-origin: center; }
+ .tp-burger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+ .tp-burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+ .tp-burger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+ /* MOBILE MENU */
+ .tp-mobile-menu { position: fixed; inset: 0; z-index: 490; background: rgba(6,10,18,0.99); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+ .tp-mobile-menu.open { opacity: 1; pointer-events: all; }
+ .tp-mobile-menu a { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--cream); text-decoration: none; padding: 20px 40px; border-bottom: 1px solid rgba(232,223,208,0.07); width: 100%; text-align: center; transition: color 0.2s; }
+ .tp-mobile-menu a:first-child { border-top: 1px solid rgba(232,223,208,0.07); }
+ .tp-mobile-menu a:hover { color: var(--gold); }
+ .tp-mobile-cta { background: transparent; color: var(--gold); margin-top: 32px; border: 1px solid var(--gold); font-size: 20px; }
 
  /* PAGE */
  .tp-page { padding: 140px 56px 100px; max-width: 1100px; margin: 0 auto; }
@@ -51,93 +77,176 @@ const css = `
  /* CTA */
  .tp-cta { margin-top: 56px; padding-top: 48px; border-top: 1px solid rgba(232,223,208,0.08); text-align: center; }
  .tp-cta p { font-size: 18px; color: var(--cream-dim); margin-bottom: 24px; }
- .tp-btn { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; padding: 15px 34px; text-decoration: none; cursor: pointer; border: none; transition: all 0.22s; background: var(--teal); color: var(--cream); }
- .tp-btn:hover { background: var(--teal-dim); }
+ .tp-btn { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; padding: 15px 34px; text-decoration: none; cursor: pointer; border: none; transition: all 0.22s; background: var(--gold); color: var(--navy); }
+ .tp-btn:hover { background: var(--cream); color: var(--navy); }
 
  /* HR */
  .tp-hr { border: none; height: 1px; background: linear-gradient(to right, transparent, rgba(181,149,88,0.14), transparent); margin: 0; }
 
+ /* FOOTER */
+ .tp-footer { background: var(--panel); border-top: 1px solid rgba(181,149,88,0.1); padding: 72px 56px 48px; }
+ .tp-footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 64px; }
+ .tp-footer-wm { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 4px; color: var(--cream); text-transform: uppercase; margin-bottom: 16px; }
+ .tp-footer-tag { font-size: 15px; color: var(--cream-dim); line-height: 1.7; max-width: 280px; margin-bottom: 24px; }
+ .tp-footer-social { display: flex; gap: 16px; }
+ .tp-footer-social a { font-size: 13px; color: var(--teal-light); text-decoration: none; transition: color 0.2s; }
+ .tp-footer-social a:hover { color: var(--cream); }
+ .tp-footer-col h4 { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--cream); margin-bottom: 20px; }
+ .tp-footer-col ul { list-style: none; }
+ .tp-footer-col ul li { margin-bottom: 12px; }
+ .tp-footer-col ul a { font-size: 14px; color: var(--cream-muted); text-decoration: none; transition: color 0.2s; }
+ .tp-footer-col ul a:hover { color: var(--cream); }
+ .tp-footer-bottom { border-top: 1px solid rgba(232,223,208,0.07); padding-top: 28px; display: flex; align-items: center; justify-content: space-between; }
+ .tp-footer-copy { font-size: 13px; color: rgba(232,223,208,0.3); }
+
  @media (max-width: 900px) {
  .tp-nav { padding: 0 24px; }
+ .tp-nav-links { display: none; }
+ .tp-burger { display: flex; }
  .tp-page { padding: 120px 24px 72px; }
  .tp-founders { grid-template-columns: 1fr; }
  .tp-note { grid-template-columns: 1fr; gap: 36px; }
+ .tp-footer { padding: 56px 24px 36px; }
+ .tp-footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
+ .tp-footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+ }
+ @media (max-width: 480px) {
+ .tp-footer-top { grid-template-columns: 1fr; }
  }
 `;
 
 export default function TeamPage() {
+ const [menuOpen, setMenuOpen] = useState(false);
  const [maxErr, setMaxErr] = useState(false);
  const [jackieErr, setJackieErr] = useState(false);
 
- useEffect(() => { window.scrollTo(0,0); }, []);
+ useEffect(() => {
+  document.body.classList.toggle("tp-no-scroll", menuOpen);
+  return () => document.body.classList.remove("tp-no-scroll");
+ }, [menuOpen]);
+
+ useEffect(() => { window.scrollTo(0, 0); }, []);
+
+ const close = () => setMenuOpen(false);
 
  return (
- <div className="tp">
- <style>{css}</style>
+  <div className="tp">
+   <style>{css}</style>
 
- <nav className="tp-nav">
- <a className="tp-nav-brand" href="/"><span className="tp-wordmark">ROAMSIX</span></a>
- <a className="tp-nav-back" href="/">← Back</a>
- </nav>
+   {/* MOBILE MENU */}
+   <div className={`tp-mobile-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
+    {NAV.map(([l, h]) => <a key={l} href={h} onClick={close}>{l}</a>)}
+    <a href="/#contact" className="tp-mobile-cta" onClick={close}>Inquire</a>
+   </div>
 
- <div className="tp-page">
+   {/* NAV */}
+   <nav className="tp-nav">
+    <a className="tp-nav-brand" href="/"><span className="tp-wordmark">ROAMSIX</span></a>
+    <ul className="tp-nav-links">
+     {NAV.map(([l, h]) => <li key={l}><a href={h}>{l}</a></li>)}
+     <li><a href="/#contact" className="tp-nav-cta">Inquire</a></li>
+    </ul>
+    <button className={`tp-burger ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? "Close menu" : "Open menu"}>
+     <span/><span/><span/>
+    </button>
+   </nav>
 
- <div className="tp-label-row"><span className="tp-rule"/><span className="tp-label">The Team</span></div>
- <h1 className="tp-h1">Built by people who've done the work.</h1>
+   <div className="tp-page">
 
- <div className="tp-founders">
+    <div className="tp-label-row"><span className="tp-rule"/><span className="tp-label">The Team</span></div>
+    <h1 className="tp-h1">Built from real experience.</h1>
 
- {/* MAX */}
- <div className="tp-founder">
- {maxErr ? (
- <div className="tp-founder-photo-placeholder">MO</div>
- ) : (
- <img className="tp-founder-photo" src={MAX_SRC} alt="Max Ouellette" onError={() => setMaxErr(true)}/>
- )}
- <div className="tp-founder-body">
- <div className="tp-founder-role">Co-Founder</div>
- <div className="tp-founder-name">Max Ouellette</div>
- <p className="tp-founder-bio">Former professional athlete with deep experience in performance environments, team dynamics, and experience design.</p>
- <p className="tp-founder-bio">Max leads ROAMSIX with a focus on structure, trust, and building experiences that produce real movement in people and teams. He brings a competitor's instinct for precision and a builder's understanding of what it takes to execute at a high level.</p>
- </div>
- </div>
+    <div className="tp-founders">
 
- {/* JACKIE */}
- <div className="tp-founder">
- {jackieErr ? (
- <div className="tp-founder-photo-placeholder">JA</div>
- ) : (
- <img className="tp-founder-photo" src={JACKIE_SRC} alt="Jackie" onError={() => setJackieErr(true)}/>
- )}
- <div className="tp-founder-body">
- <div className="tp-founder-role">Co-Founder</div>
- <div className="tp-founder-name">Jackie</div>
- <p className="tp-founder-bio">Background in fitness instruction, event production, equestrian therapy, and retreat hosting.</p>
- <p className="tp-founder-bio">Jackie shapes the human side of every ROAMSIX engagement. She brings expertise in facilitation, relational dynamics, and the design of environments where people can actually show up fully. Her work ensures every experience feels intentional, personal, and well-held.</p>
- </div>
- </div>
+     {/* MAX */}
+     <div className="tp-founder">
+      {maxErr ? (
+       <div className="tp-founder-photo-placeholder">MO</div>
+      ) : (
+       <img className="tp-founder-photo" src={MAX_SRC} alt="Max Ouellette" onError={() => setMaxErr(true)}/>
+      )}
+      <div className="tp-founder-body">
+       <div className="tp-founder-role">Co-Founder</div>
+       <div className="tp-founder-name">Max Ouellette</div>
+       <p className="tp-founder-bio">Former professional athlete with a background in performance environments, leadership, hospitality, and experience design.</p>
+       <p className="tp-founder-bio">Max leads ROAMSIX with a focus on building experiences that bring the right people together in the right environments at the right time. His work blends structure, atmosphere, movement, conversation, and thoughtful execution to create experiences that stay with people long after they leave.</p>
+      </div>
+     </div>
 
- </div>
+     {/* JACKIE */}
+     <div className="tp-founder">
+      {jackieErr ? (
+       <div className="tp-founder-photo-placeholder">JA</div>
+      ) : (
+       <img className="tp-founder-photo" src={JACKIE_SRC} alt="Jackie" onError={() => setJackieErr(true)}/>
+      )}
+      <div className="tp-founder-body">
+       <div className="tp-founder-role">Co-Founder</div>
+       <div className="tp-founder-name">Jackie</div>
+       <p className="tp-founder-bio">Background in event production, fitness instruction, equestrian therapy, and hosted experiences centered around connection, recovery, and human interaction.</p>
+       <p className="tp-founder-bio">Jackie shapes the feeling behind every ROAMSIX experience. Her work focuses on pacing, hospitality, emotional intelligence, and the details that make people feel comfortable enough to actually be present.</p>
+      </div>
+     </div>
 
- {/* COMPANY NOTE */}
- <div className="tp-note">
- <div>
- <h2 className="tp-note-h2">Grounded in real-world execution.</h2>
- </div>
- <div className="tp-note-body">
- <p>ROAMSIX was built by operators who have run teams, competed at a high level, and spent years designing environments where real work happens.</p>
- <p>The work is grounded in lived experience and informed by proven principles in human performance, behavior, and team dynamics. It is not built from theory alone , it is built from having been in the room.</p>
- <p>ROAMSIX also works with individuals. Founders, executives, and high-performers navigating transitions who need a structured environment to think clearly , not a coach with a preset framework.</p>
- </div>
- </div>
+    </div>
 
- {/* CTA */}
- <div className="tp-cta">
- <p>Every engagement starts with a direct conversation.</p>
- <a href="/#contact" className="tp-btn">Start a Conversation</a>
- </div>
+    {/* COMPANY NOTE */}
+    <div className="tp-note">
+     <div>
+      <h2 className="tp-note-h2">Grounded in real life.</h2>
+     </div>
+     <div className="tp-note-body">
+      <p>ROAMSIX was built from years spent inside high-performance environments, team settings, hosted experiences, and conversations with people carrying significant responsibility in their personal and professional lives.</p>
+      <p>The work blends thoughtful hospitality, real-world experience, movement, nature, conversation, and carefully designed environments that help people reconnect with what matters and move forward with greater clarity.</p>
+     </div>
+    </div>
 
- </div>
- </div>
+    {/* CTA */}
+    <div className="tp-cta">
+     <p>Every engagement starts with a direct conversation.</p>
+     <a href="/#contact" className="tp-btn">Start a Conversation</a>
+    </div>
+
+   </div>
+
+   {/* FOOTER */}
+   <footer className="tp-footer">
+    <div className="tp-footer-top">
+     <div>
+      <div className="tp-footer-wm">ROAMSIX</div>
+      <p className="tp-footer-tag">Curated experiences for people looking for depth, perspective, and real connection.</p>
+      <div className="tp-footer-social">
+       <a href="https://www.instagram.com/roamsix_" target="_blank" rel="noopener noreferrer">Instagram</a>
+       <a href="https://www.linkedin.com/company/roamsix/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      </div>
+     </div>
+     <div className="tp-footer-col"><h4>Company</h4><ul>
+      <li><a href="/#founders">About</a></li>
+      <li><a href="/approach">Approach</a></li>
+      <li><a href="/team">Team</a></li>
+     </ul></div>
+     <div className="tp-footer-col"><h4>Experiences</h4><ul>
+      <li><a href="/events">Events</a></li>
+      <li><a href="/experiences">All Experiences</a></li>
+      <li><a href="/corporate">Corporate</a></li>
+      <li><a href="/#contact">Inquire</a></li>
+     </ul></div>
+     <div className="tp-footer-col"><h4>Connect</h4><ul>
+      <li><a href="mailto:info@roamsix.com">info@roamsix.com</a></li>
+      <li><a href="https://www.instagram.com/roamsix_" target="_blank" rel="noopener noreferrer">@roamsix_</a></li>
+      <li><a href="https://www.linkedin.com/company/roamsix/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+     </ul></div>
+     <div className="tp-footer-col"><h4>Redirection Point</h4><ul>
+      <li><a href="https://www.youtube.com/@RedirectionPoint" target="_blank" rel="noopener noreferrer">YouTube</a></li>
+      <li><a href="https://www.instagram.com/redirectionpoint" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+      <li><a href="/#podcast">About the Podcast</a></li>
+     </ul></div>
+    </div>
+    <div className="tp-footer-bottom">
+     <span className="tp-footer-copy">© {new Date().getFullYear()} Reciprofy Inc. All rights reserved.</span>
+     <span className="tp-footer-copy">ROAMSIX, Murrieta, CA</span>
+    </div>
+   </footer>
+  </div>
  );
 }

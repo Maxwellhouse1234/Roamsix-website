@@ -8,9 +8,11 @@ import { useState, useEffect } from "react";
 */
 
 const NAV = [
-  ["Events",   "/events"],
-  ["Team",     "/team"],
-  ["Podcast",  "/#podcast"],
+  ["Experiences", "/experiences"],
+  ["Events",      "/events"],
+  ["Corporate",   "/corporate"],
+  ["Team",        "/team"],
+  ["Podcast",     "/#podcast"],
 ];
 
 const OFFERINGS = [
