@@ -1,6 +1,14 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { events } from "../data/events";
+
+const NAV = [
+  ["Experiences", "/experiences"],
+  ["Events",      "/events"],
+  ["Corporate",   "/corporate"],
+  ["Team",        "/team"],
+  ["Podcast",     "#podcast"],
+];
 
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&family=EB+Garamond:ital,wght@1,400&display=swap');
@@ -16,11 +24,30 @@ const css = `
   }
 
   /* NAV */
-  .evl-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 500; display: flex; align-items: center; padding: 0 52px; height: 76px; background: rgba(6,10,18,0.97); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(181,149,88,0.12); }
-  .evl-nav-brand { text-decoration: none; }
-  .evl-wordmark { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 26px; letter-spacing: 4px; color: var(--cream); text-transform: uppercase; }
-  .evl-nav-back { margin-left: auto; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); text-decoration: none; transition: color 0.2s; }
-  .evl-nav-back:hover { color: var(--cream); }
+  .evl-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 500; display: flex; align-items: center; padding: 0 52px; height: 76px; border-bottom: 1px solid transparent; transition: background 0.4s, border-color 0.4s; }
+  .evl-nav.solid { background: rgba(6,10,18,0.97); backdrop-filter: blur(20px); border-bottom-color: rgba(181,149,88,0.12); }
+  .evl-nav-brand { display: flex; align-items: center; text-decoration: none; margin-right: auto; }
+  .evl-wordmark { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 26px; letter-spacing: 4px; color: var(--cream); text-transform: uppercase; line-height: 1; }
+  .evl-nav-links { display: flex; align-items: center; gap: 28px; list-style: none; margin-left: 48px; }
+  .evl-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: #CEC7BC; text-decoration: none; transition: color 0.2s; }
+  .evl-nav-links a:hover { color: var(--cream); }
+  .evl-nav-cta { background: transparent; color: var(--gold); padding: 9px 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; border: 1px solid var(--gold); transition: all 0.2s; }
+  .evl-nav-cta:hover { background: rgba(181,149,88,0.1); color: var(--gold); }
+
+  /* BURGER */
+  .evl-burger { display: none; flex-direction: column; justify-content: center; align-items: center; gap: 5px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; padding: 4px; margin-left: 16px; }
+  .evl-burger span { display: block; width: 24px; height: 1.5px; background: var(--cream); transition: all 0.3s ease; transform-origin: center; }
+  .evl-burger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .evl-burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .evl-burger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+  /* MOBILE MENU */
+  .evl-mobile-menu { position: fixed; inset: 0; z-index: 490; background: rgba(6,10,18,0.99); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+  .evl-mobile-menu.open { opacity: 1; pointer-events: all; }
+  .evl-mobile-menu a { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--cream); text-decoration: none; padding: 20px 40px; border-bottom: 1px solid rgba(232,223,208,0.07); width: 100%; text-align: center; transition: color 0.2s; }
+  .evl-mobile-menu a:first-child { border-top: 1px solid rgba(232,223,208,0.07); }
+  .evl-mobile-menu a:hover { color: var(--gold); }
+  .evl-mobile-cta { background: transparent; color: var(--gold); margin-top: 32px; border: 1px solid var(--gold); font-size: 20px; }
 
   /* PAGE */
   .evl-page { padding: 140px 56px 100px; max-width: 1100px; margin: 0 auto; }
@@ -71,6 +98,8 @@ const css = `
   .evl-footer-link:hover { color: var(--cream); }
 
   @media (max-width: 900px) {
+    .evl-nav-links { display: none; }
+    .evl-burger { display: flex; }
     .evl-nav { padding: 0 24px; }
     .evl-page { padding: 120px 24px 72px; }
     .evl-grid { grid-template-columns: 1fr; }
@@ -125,7 +154,23 @@ function EventCard({ event }) {
 }
 
 export default function EventsPage() {
+  const [scrolled,  setScrolled]  = useState(false);
+  const [menuOpen,  setMenuOpen]  = useState(false);
+
   useEffect(() => { window.scrollTo(0, 0); }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle("evl-no-scroll", menuOpen);
+    return () => document.body.classList.remove("evl-no-scroll");
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 30);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  const close = () => setMenuOpen(false);
 
   const now = new Date();
   const upcoming = events.filter((e) => new Date(e.date) > now);
@@ -135,9 +180,22 @@ export default function EventsPage() {
     <div className="evl">
       <style>{css}</style>
 
-      <nav className="evl-nav">
-        <a className="evl-nav-brand" href="/"><span className="evl-wordmark">ROAMSIX</span></a>
-        <a className="evl-nav-back" href="/">← Home</a>
+      {/* MOBILE MENU */}
+      <div className={`evl-mobile-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
+        {NAV.map(([l, h]) => h.startsWith('#') ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>)}
+        <a href="#contact" className="evl-mobile-cta" onClick={close}>Inquire</a>
+      </div>
+
+      {/* NAV */}
+      <nav className={`evl-nav ${scrolled ? "solid" : ""}`}>
+        <Link className="evl-nav-brand" to="/"><span className="evl-wordmark">ROAMSIX</span></Link>
+        <ul className="evl-nav-links">
+          {NAV.map(([l, h]) => <li key={l}>{h.startsWith('#') ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>}</li>)}
+          <li><a href="#contact" className="evl-nav-cta">Inquire</a></li>
+        </ul>
+        <button className={`evl-burger ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? "Close menu" : "Open menu"}>
+          <span/><span/><span/>
+        </button>
       </nav>
 
       <div className="evl-page">
@@ -173,7 +231,7 @@ export default function EventsPage() {
 
       <footer className="evl-footer">
         <span className="evl-footer-brand">ROAMSIX</span>
-        <a className="evl-footer-link" href="/">← Back to Home</a>
+        <Link className="evl-footer-link" to="/">Back to Home</Link>
       </footer>
     </div>
   );
