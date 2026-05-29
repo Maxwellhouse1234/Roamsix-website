@@ -13,7 +13,7 @@ const NAV = [
   ["Events",      "/events"],
   ["Corporate",   "/corporate"],
   ["Team",        "/team"],
-  ["Podcast",     "#podcast"],
+  ["Podcast",     "/#podcast"],
 ];
 
 const FORMATS = [
@@ -283,7 +283,7 @@ export default function CorporatePage() {
 
       {/* MOBILE MENU */}
       <div className={`cp-mobile-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
-        {NAV.map(([l, h]) => h.startsWith('#') ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>)}
+        {NAV.map(([l, h]) => (h.startsWith('#') || h.startsWith('/#')) ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>)}
         <a href="#contact" className="cp-mobile-cta" onClick={close}>Inquire</a>
       </div>
 
@@ -291,7 +291,7 @@ export default function CorporatePage() {
       <nav className={`cp-nav ${scrolled ? "solid" : ""}`}>
         <Link className="cp-nav-brand" to="/"><span className="cp-wordmark">ROAMSIX</span></Link>
         <ul className="cp-nav-links">
-          {NAV.map(([l, h]) => <li key={l}>{h.startsWith('#') ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>}</li>)}
+          {NAV.map(([l, h]) => <li key={l}>{(h.startsWith('#') || h.startsWith('/#')) ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>}</li>)}
           <li><a href="#contact" className="cp-nav-cta">Inquire</a></li>
         </ul>
         <button className={`cp-burger ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? "Close menu" : "Open menu"}>

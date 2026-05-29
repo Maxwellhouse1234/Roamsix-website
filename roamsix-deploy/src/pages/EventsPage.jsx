@@ -7,7 +7,7 @@ const NAV = [
   ["Events",      "/events"],
   ["Corporate",   "/corporate"],
   ["Team",        "/team"],
-  ["Podcast",     "#podcast"],
+  ["Podcast",     "/#podcast"],
 ];
 
 const css = `
@@ -182,7 +182,7 @@ export default function EventsPage() {
 
       {/* MOBILE MENU */}
       <div className={`evl-mobile-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
-        {NAV.map(([l, h]) => h.startsWith('#') ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>)}
+        {NAV.map(([l, h]) => (h.startsWith('#') || h.startsWith('/#')) ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>)}
         <a href="#contact" className="evl-mobile-cta" onClick={close}>Inquire</a>
       </div>
 
@@ -190,7 +190,7 @@ export default function EventsPage() {
       <nav className={`evl-nav ${scrolled ? "solid" : ""}`}>
         <Link className="evl-nav-brand" to="/"><span className="evl-wordmark">ROAMSIX</span></Link>
         <ul className="evl-nav-links">
-          {NAV.map(([l, h]) => <li key={l}>{h.startsWith('#') ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>}</li>)}
+          {NAV.map(([l, h]) => <li key={l}>{(h.startsWith('#') || h.startsWith('/#')) ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>}</li>)}
           <li><a href="#contact" className="evl-nav-cta">Inquire</a></li>
         </ul>
         <button className={`evl-burger ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? "Close menu" : "Open menu"}>

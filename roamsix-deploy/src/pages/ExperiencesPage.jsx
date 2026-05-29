@@ -13,7 +13,7 @@ const NAV = [
   ["Events",      "/events"],
   ["Corporate",   "/corporate"],
   ["Team",        "/team"],
-  ["Podcast",     "#podcast"],
+  ["Podcast",     "/#podcast"],
 ];
 
 const OFFERINGS = [
@@ -258,7 +258,7 @@ export default function ExperiencesPage() {
 
       {/* MOBILE MENU */}
       <div className={`xp-mobile-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
-        {NAV.map(([l, h]) => h.startsWith('#') ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>)}
+        {NAV.map(([l, h]) => (h.startsWith('#') || h.startsWith('/#')) ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>)}
         <a href="#contact" className="xp-mobile-cta" onClick={close}>Inquire</a>
       </div>
 
@@ -266,7 +266,7 @@ export default function ExperiencesPage() {
       <nav className={`xp-nav ${scrolled ? "solid" : ""}`}>
         <Link className="xp-nav-brand" to="/"><span className="xp-wordmark">ROAMSIX</span></Link>
         <ul className="xp-nav-links">
-          {NAV.map(([l, h]) => <li key={l}>{h.startsWith('#') ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>}</li>)}
+          {NAV.map(([l, h]) => <li key={l}>{(h.startsWith('#') || h.startsWith('/#')) ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>}</li>)}
           <li><a href="#contact" className="xp-nav-cta">Inquire</a></li>
         </ul>
         <button className={`xp-burger ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? "Close menu" : "Open menu"}>

@@ -9,7 +9,7 @@ const NAV = [
  ["Events",      "/events"],
  ["Corporate",   "/corporate"],
  ["Team",        "/team"],
- ["Podcast",     "#podcast"],
+ ["Podcast",     "/#podcast"],
 ];
 
 const css = `
@@ -136,7 +136,7 @@ export default function TeamPage() {
 
    {/* MOBILE MENU */}
    <div className={`tp-mobile-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
-    {NAV.map(([l, h]) => h.startsWith('#') ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>)}
+    {NAV.map(([l, h]) => (h.startsWith('#') || h.startsWith('/#')) ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>)}
     <a href="/#contact" className="tp-mobile-cta" onClick={close}>Inquire</a>
    </div>
 
@@ -144,7 +144,7 @@ export default function TeamPage() {
    <nav className="tp-nav">
     <Link className="tp-nav-brand" to="/"><span className="tp-wordmark">ROAMSIX</span></Link>
     <ul className="tp-nav-links">
-     {NAV.map(([l, h]) => <li key={l}>{h.startsWith('#') ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>}</li>)}
+     {NAV.map(([l, h]) => <li key={l}>{(h.startsWith('#') || h.startsWith('/#')) ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>}</li>)}
      <li><a href="/#contact" className="tp-nav-cta">Inquire</a></li>
     </ul>
     <button className={`tp-burger ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? "Close menu" : "Open menu"}>
