@@ -152,9 +152,8 @@ async function handleIntake(req, res) {
   if (!session_id || typeof session_id !== "string" || !session_id.startsWith("cs_")) {
     return res.status(400).json({ error: "Invalid session ID." });
   }
-  if (!fullName?.trim() || !email?.trim() || !phone?.trim() ||
-      !emergencyContactName?.trim() || !emergencyContactPhone?.trim()) {
-    return res.status(400).json({ error: "Please complete all required fields." });
+  if (!emergencyContactName?.trim() || !emergencyContactPhone?.trim()) {
+    return res.status(400).json({ error: "Please provide your emergency contact name and phone number." });
   }
 
   const token = process.env.AIRTABLE_TOKEN;
@@ -194,9 +193,6 @@ async function handleIntake(req, res) {
     : (typeof dietaryRestrictions === "string" ? dietaryRestrictions : "");
 
   const intakeFields = {
-    "Full Name":               fullName.trim(),
-    "Email":                   email.trim(),
-    "Phone":                   phone.trim(),
     "Emergency Contact Name":  emergencyContactName.trim(),
     "Emergency Contact Phone": emergencyContactPhone.trim(),
     "Dietary Restrictions":    dietaryList,

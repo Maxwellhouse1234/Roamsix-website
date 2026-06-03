@@ -7,6 +7,9 @@ export const events = [
     date: "2026-06-20T15:00:00-07:00",
     location: "Warner Springs, San Diego County",
     locationDetail: "Private farmstead, Warner Springs CA",
+    venueName: "Birdsong Backcountry Retreat",
+    cityState: "Warner Springs, California",
+    timeRange: "3:00 PM - 9:00 PM",
     description:
       "A Father's Day weekend experience for men, fathers, couples, and people carrying a lot of responsibility. Movement, recovery, pasture-to-table food, and real conversation on open land.",
     body: [

@@ -98,9 +98,6 @@ export default function EventIntakePage() {
   const sessionId = searchParams.get("session_id") || "";
 
   const [form, setForm] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
     emergencyContactName: "",
     emergencyContactPhone: "",
     dietaryRestrictions: [],
@@ -131,9 +128,8 @@ export default function EventIntakePage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!form.fullName.trim() || !form.email.trim() || !form.phone.trim() ||
-        !form.emergencyContactName.trim() || !form.emergencyContactPhone.trim()) {
-      setErr("Please complete all required fields.");
+    if (!form.emergencyContactName.trim() || !form.emergencyContactPhone.trim()) {
+      setErr("Please provide your emergency contact name and phone number.");
       return;
     }
     if (!sessionId) {
@@ -226,26 +222,6 @@ export default function EventIntakePage() {
 
         <form onSubmit={handleSubmit} noValidate>
 
-          <div className="ei-section-title">Contact Information</div>
-
-          <div className="ei-form-group">
-            <label className="ei-label-field">Full Name *</label>
-            <input className="ei-input" placeholder="Your full name" value={form.fullName}
-              onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))} />
-          </div>
-          <div className="ei-row">
-            <div className="ei-form-group" style={{ marginBottom: 0 }}>
-              <label className="ei-label-field">Email Address *</label>
-              <input className="ei-input" type="email" placeholder="your@email.com" value={form.email}
-                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
-            </div>
-            <div className="ei-form-group" style={{ marginBottom: 0 }}>
-              <label className="ei-label-field">Phone Number *</label>
-              <input className="ei-input" type="tel" placeholder="(555) 000-0000" value={form.phone}
-                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} />
-            </div>
-          </div>
-
           <div className="ei-section-title">Emergency Contact</div>
 
           <div className="ei-row">
@@ -285,9 +261,9 @@ export default function EventIntakePage() {
           <div className="ei-section-title">Health and Accessibility</div>
 
           <div className="ei-form-group">
-            <label className="ei-label-field">Medical, Mobility, Injury, or Accessibility Notes</label>
+            <label className="ei-label-field">Accessibility, Mobility, Dietary, or Safety Considerations</label>
             <textarea className="ei-textarea"
-              placeholder="Any medical conditions, injuries, mobility limitations, or accessibility considerations we should know about. Leave blank if none."
+              placeholder="Please let us know about any dietary restrictions, food allergies, accessibility needs, mobility limitations, injuries, or other considerations that would help us create a safer and more comfortable experience for you."
               value={form.medicalNotes}
               onChange={(e) => setForm((f) => ({ ...f, medicalNotes: e.target.value }))}
             />
@@ -301,7 +277,7 @@ export default function EventIntakePage() {
               onChange={(e) => setForm((f) => ({ ...f, whyAttending: e.target.value }))} />
           </div>
           <div className="ei-form-group">
-            <label className="ei-label-field">What are you hoping to get from the experience?</label>
+            <label className="ei-label-field">What are you hoping to get from this experience?</label>
             <textarea className="ei-textarea" placeholder="Optional" value={form.goals}
               onChange={(e) => setForm((f) => ({ ...f, goals: e.target.value }))} />
           </div>
@@ -321,7 +297,7 @@ export default function EventIntakePage() {
               onChange={(e) => setForm((f) => ({ ...f, textConsent: e.target.checked }))}
             />
             <label htmlFor="ei-text-consent" className="ei-consent-text">
-              Yes, ROAMSIX may text me important event updates related to parking, schedule, weather, safety, or logistics.
+              Yes, ROAMSIX may text me important event updates related to weather, parking, schedule changes, safety, or logistics.
             </label>
           </div>
 

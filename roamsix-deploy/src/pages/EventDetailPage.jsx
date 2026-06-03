@@ -121,15 +121,13 @@ const css = `
   .ed-modal-consent-text { font-size: 13px; color: var(--cream-muted); line-height: 1.6; }
   .ed-modal-consent-text a { color: var(--teal-light); text-decoration: none; }
   .ed-modal-consent-text a:hover { color: var(--cream); }
-  .ed-modal-event-summary { padding: 18px 36px 16px; border-bottom: 1px solid rgba(181,149,88,0.12); background: rgba(181,149,88,0.04); }
-  .ed-modal-event-date { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
-  .ed-modal-event-name { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--cream); margin-bottom: 3px; }
-  .ed-modal-event-loc { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); }
-  .ed-modal-sms-consent { display: flex; gap: 10px; align-items: flex-start; margin-top: 10px; }
-  .ed-modal-sms-check { width: 16px; height: 16px; min-width: 16px; margin-top: 3px; accent-color: var(--teal); cursor: pointer; }
-  .ed-modal-sms-text { font-size: 13px; color: var(--cream-muted); line-height: 1.55; }
-  .ed-modal-medical-note { font-size: 12px; color: var(--cream-muted); font-style: italic; margin-top: 8px; line-height: 1.5; }
-  .ed-modal-cancel-notice { font-size: 12px; color: var(--cream-muted); line-height: 1.55; margin-bottom: 8px; }
+  .ed-modal-event-summary { padding: 20px 36px 18px; border-bottom: 1px solid rgba(181,149,88,0.12); background: rgba(181,149,88,0.04); }
+  .ed-modal-event-name { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--cream); margin-bottom: 6px; }
+  .ed-modal-event-date { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 3px; }
+  .ed-modal-event-venue { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-dim); margin-bottom: 2px; }
+  .ed-modal-event-loc { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); margin-bottom: 2px; }
+  .ed-modal-event-time { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
+  .ed-modal-cancel-notice { font-size: 12px; color: var(--cream-muted); line-height: 1.65; margin-bottom: 12px; padding: 14px 16px; background: rgba(232,223,208,0.03); border-left: 2px solid rgba(232,223,208,0.12); }
   .ed-modal-cancel-notice a { color: var(--teal-light); text-decoration: none; }
   .ed-modal-cancel-notice a:hover { color: var(--cream); }
 
@@ -206,11 +204,9 @@ export default function EventDetailPage() {
   const [form, setForm] = useState({
     name: "", email: "", phone: "",
     emergencyContactName: "", emergencyContactPhone: "",
-    medicalNotes: "",
   });
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [ageConfirmed, setAgeConfirmed] = useState(false);
-  const [smsConsent, setSmsConsent] = useState(false);
   const [status, setStatus] = useState("idle");
   const [err, setErr] = useState("");
 
@@ -228,10 +224,9 @@ export default function EventDetailPage() {
   const openModal = (pkg, bundle = false) => {
     setModal(pkg);
     setIsBundle(bundle);
-    setForm({ name: "", email: "", phone: "", emergencyContactName: "", emergencyContactPhone: "", medicalNotes: "" });
+    setForm({ name: "", email: "", phone: "", emergencyContactName: "", emergencyContactPhone: "" });
     setAgreedToTerms(false);
     setAgeConfirmed(false);
-    setSmsConsent(false);
     setStatus("idle");
     setErr("");
   };
@@ -276,13 +271,11 @@ export default function EventDetailPage() {
           phone: form.phone.trim(),
           emergencyContactName: form.emergencyContactName.trim(),
           emergencyContactPhone: form.emergencyContactPhone.trim(),
-          medicalNotes: form.medicalNotes.trim(),
           eventName: event.title,
           eventDate: event.date,
           acceptedLegalVersion: LEGAL_VERSION,
           acceptedAt: new Date().toISOString(),
           agreedToTerms: "true",
-          smsConsent: smsConsent ? "Yes" : "No",
         }),
       });
       const data = await res.json();
@@ -333,9 +326,11 @@ export default function EventDetailPage() {
         <div className="ed-overlay" onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}>
           <div className="ed-modal" role="dialog" aria-modal="true">
             <div className="ed-modal-event-summary">
-              <div className="ed-modal-event-date">{fmtModalDate(event.date)}</div>
               <div className="ed-modal-event-name">{event.title}</div>
-              <div className="ed-modal-event-loc">{event.location}</div>
+              <div className="ed-modal-event-date">{fmtModalDate(event.date)}</div>
+              {event.venueName && <div className="ed-modal-event-venue">{event.venueName}</div>}
+              <div className="ed-modal-event-loc">{event.cityState || event.location}</div>
+              {event.timeRange && <div className="ed-modal-event-time">{event.timeRange}</div>}
             </div>
             <div className="ed-modal-header">
               <div>
@@ -397,18 +392,6 @@ export default function EventDetailPage() {
                   value={form.phone}
                   onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                 />
-                <div className="ed-modal-sms-consent">
-                  <input
-                    type="checkbox"
-                    className="ed-modal-sms-check"
-                    id="ed-sms-consent"
-                    checked={smsConsent}
-                    onChange={(e) => setSmsConsent(e.target.checked)}
-                  />
-                  <label htmlFor="ed-sms-consent" className="ed-modal-sms-text">
-                    Yes, ROAMSIX may send me important event updates related to weather, parking, schedule changes, and logistics.
-                  </label>
-                </div>
               </div>
               <div className="ed-modal-divider" />
               <div className="ed-form-group">
@@ -431,22 +414,9 @@ export default function EventDetailPage() {
                 />
               </div>
               <div className="ed-modal-divider" />
-              <div className="ed-form-group">
-                <label className="ed-form-label">Medical or Dietary Notes</label>
-                <textarea
-                  className="ed-modal-textarea"
-                  placeholder="Any medical conditions, allergies, injuries, mobility considerations, or dietary restrictions we should know about. Leave blank if none."
-                  value={form.medicalNotes}
-                  onChange={(e) => setForm((f) => ({ ...f, medicalNotes: e.target.value }))}
-                />
-                <p className="ed-modal-medical-note">
-                  ROAMSIX is not a medical provider. Please consult your physician before participating in physical activity if you have any health concerns.
-                </p>
-              </div>
-              <div className="ed-modal-divider" />
               <p className="ed-modal-cancel-notice">
-                Tickets are non-refundable. Transfers or future event credits may be granted at ROAMSIX's discretion.{" "}
-                See <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> for details.
+                Tickets are non-refundable and non-transferable. If you are unable to attend, you must notify ROAMSIX at least 48 hours before the scheduled event start time. At ROAMSIX's sole discretion, your registration may be credited toward a future ROAMSIX event. No credits, transfers, or rescheduling requests will be granted within 48 hours of the event. No-shows forfeit their registration.{" "}
+                <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a>
               </p>
               <div className="ed-modal-consent">
                 <input
