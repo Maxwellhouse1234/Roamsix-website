@@ -283,7 +283,6 @@ export default async function handler(req, res) {
           "Accepted At":             acceptedAt,
           "Age Confirmed":           ageConfirmed,
           "SMS Consent":             smsConsent,
-          "Registered At":           registeredAt,
           "Emergency Contact Name":  emergencyContactName,
           "Emergency Contact Phone": emergencyContactPhone,
           "Medical or Dietary Notes": medicalNotes,
