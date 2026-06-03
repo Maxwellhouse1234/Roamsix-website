@@ -121,6 +121,17 @@ const css = `
   .ed-modal-consent-text { font-size: 13px; color: var(--cream-muted); line-height: 1.6; }
   .ed-modal-consent-text a { color: var(--teal-light); text-decoration: none; }
   .ed-modal-consent-text a:hover { color: var(--cream); }
+  .ed-modal-event-summary { padding: 18px 36px 16px; border-bottom: 1px solid rgba(181,149,88,0.12); background: rgba(181,149,88,0.04); }
+  .ed-modal-event-date { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+  .ed-modal-event-name { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--cream); margin-bottom: 3px; }
+  .ed-modal-event-loc { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); }
+  .ed-modal-sms-consent { display: flex; gap: 10px; align-items: flex-start; margin-top: 10px; }
+  .ed-modal-sms-check { width: 16px; height: 16px; min-width: 16px; margin-top: 3px; accent-color: var(--teal); cursor: pointer; }
+  .ed-modal-sms-text { font-size: 13px; color: var(--cream-muted); line-height: 1.55; }
+  .ed-modal-medical-note { font-size: 12px; color: var(--cream-muted); font-style: italic; margin-top: 8px; line-height: 1.5; }
+  .ed-modal-cancel-notice { font-size: 12px; color: var(--cream-muted); line-height: 1.55; margin-bottom: 8px; }
+  .ed-modal-cancel-notice a { color: var(--teal-light); text-decoration: none; }
+  .ed-modal-cancel-notice a:hover { color: var(--cream); }
 
   /* IMAGE DIVIDER */
   .ed-img-divider { width: 100%; aspect-ratio: 16/6; overflow: hidden; margin-bottom: 80px; }
@@ -163,6 +174,15 @@ function formatEventDate(iso) {
   });
 }
 
+function fmtModalDate(iso) {
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "America/Los_Angeles",
+  });
+}
+
 function fmtPrice(cents) {
   return "$" + (cents / 100).toFixed(0);
 }
@@ -189,6 +209,8 @@ export default function EventDetailPage() {
     medicalNotes: "",
   });
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
+  const [smsConsent, setSmsConsent] = useState(false);
   const [status, setStatus] = useState("idle");
   const [err, setErr] = useState("");
 
@@ -208,6 +230,8 @@ export default function EventDetailPage() {
     setIsBundle(bundle);
     setForm({ name: "", email: "", phone: "", emergencyContactName: "", emergencyContactPhone: "", medicalNotes: "" });
     setAgreedToTerms(false);
+    setAgeConfirmed(false);
+    setSmsConsent(false);
     setStatus("idle");
     setErr("");
   };
@@ -226,6 +250,10 @@ export default function EventDetailPage() {
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
       setErr("Please enter a valid email address.");
+      return;
+    }
+    if (!ageConfirmed) {
+      setErr("Please confirm that you are at least 18 years of age.");
       return;
     }
     if (!agreedToTerms) {
@@ -254,6 +282,7 @@ export default function EventDetailPage() {
           acceptedLegalVersion: LEGAL_VERSION,
           acceptedAt: new Date().toISOString(),
           agreedToTerms: "true",
+          smsConsent: smsConsent ? "Yes" : "No",
         }),
       });
       const data = await res.json();
@@ -303,6 +332,11 @@ export default function EventDetailPage() {
       {modal && (
         <div className="ed-overlay" onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}>
           <div className="ed-modal" role="dialog" aria-modal="true">
+            <div className="ed-modal-event-summary">
+              <div className="ed-modal-event-date">{fmtModalDate(event.date)}</div>
+              <div className="ed-modal-event-name">{event.title}</div>
+              <div className="ed-modal-event-loc">{event.location}</div>
+            </div>
             <div className="ed-modal-header">
               <div>
                 <div className="ed-modal-pkg">{modal.name}</div>
@@ -363,6 +397,18 @@ export default function EventDetailPage() {
                   value={form.phone}
                   onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                 />
+                <div className="ed-modal-sms-consent">
+                  <input
+                    type="checkbox"
+                    className="ed-modal-sms-check"
+                    id="ed-sms-consent"
+                    checked={smsConsent}
+                    onChange={(e) => setSmsConsent(e.target.checked)}
+                  />
+                  <label htmlFor="ed-sms-consent" className="ed-modal-sms-text">
+                    Yes, ROAMSIX may send me important event updates related to weather, parking, schedule changes, and logistics.
+                  </label>
+                </div>
               </div>
               <div className="ed-modal-divider" />
               <div className="ed-form-group">
@@ -393,8 +439,27 @@ export default function EventDetailPage() {
                   value={form.medicalNotes}
                   onChange={(e) => setForm((f) => ({ ...f, medicalNotes: e.target.value }))}
                 />
+                <p className="ed-modal-medical-note">
+                  ROAMSIX is not a medical provider. Please consult your physician before participating in physical activity if you have any health concerns.
+                </p>
               </div>
               <div className="ed-modal-divider" />
+              <p className="ed-modal-cancel-notice">
+                Tickets are non-refundable. Transfers or future event credits may be granted at ROAMSIX's discretion.{" "}
+                See <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> for details.
+              </p>
+              <div className="ed-modal-consent">
+                <input
+                  type="checkbox"
+                  className="ed-modal-consent-check"
+                  id="ed-age-confirmed"
+                  checked={ageConfirmed}
+                  onChange={(e) => setAgeConfirmed(e.target.checked)}
+                />
+                <label htmlFor="ed-age-confirmed" className="ed-modal-consent-text">
+                  I confirm that I am at least 18 years of age.
+                </label>
+              </div>
               <div className="ed-modal-consent">
                 <input
                   type="checkbox"
@@ -404,12 +469,12 @@ export default function EventDetailPage() {
                   onChange={(e) => setAgreedToTerms(e.target.checked)}
                 />
                 <label htmlFor="ed-consent" className="ed-modal-consent-text">
-                  By checking this box, I agree to the ROAMSIX{" "}
+                  By checking this box, I acknowledge that I have read and agree to the{" "}
                   <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a>,{" "}
                   <a href="/waiver" target="_blank" rel="noopener noreferrer">Assumption of Risk and Participant Agreement</a>,{" "}
                   <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>, and{" "}
-                  <a href="/media-release" target="_blank" rel="noopener noreferrer">Media Release</a>.
-                  I understand participation may involve physical activity, outdoor environments, uneven terrain,
+                  <a href="/media-release" target="_blank" rel="noopener noreferrer">Media Release</a>.{" "}
+                  I understand participation may involve physical activity, uneven terrain, outdoor environments,
                   food service, weather exposure, and other inherent risks.
                 </label>
               </div>
@@ -421,7 +486,7 @@ export default function EventDetailPage() {
                   status === "loading" ||
                   !form.name.trim() || !form.email.trim() || !form.phone.trim() ||
                   !form.emergencyContactName.trim() || !form.emergencyContactPhone.trim() ||
-                  !agreedToTerms
+                  !ageConfirmed || !agreedToTerms
                 }
               >
                 {status === "loading" ? "Redirecting..." : "Proceed to Checkout"}

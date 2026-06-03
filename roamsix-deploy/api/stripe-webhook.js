@@ -223,6 +223,8 @@ export default async function handler(req, res) {
   const legalVersion          = session.metadata?.acceptedLegalVersion || "";
   const acceptedAt            = session.metadata?.acceptedAt || "";
   const agreedToTerms         = session.metadata?.agreedToTerms === "true";
+  const ageConfirmed          = session.metadata?.ageConfirmed  || "No";
+  const smsConsent            = session.metadata?.smsConsent    || "No";
   const timestamp             = new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" });
   const registeredAt          = new Date().toISOString();
 
@@ -264,6 +266,8 @@ export default async function handler(req, res) {
       "Legal Accepted":          agreedToTerms ? "Yes" : "No",
       "Legal Version":           legalVersion,
       "Accepted At":             acceptedAt,
+      "Age Confirmed":           ageConfirmed,
+      "SMS Consent":             smsConsent,
       "Registered At":           registeredAt,
       "Emergency Contact Name":  emergencyContactName,
       "Emergency Contact Phone": emergencyContactPhone,
