@@ -245,6 +245,7 @@ export default async function handler(req, res) {
     // Promise.race ensures we always respond within 25 seconds even if work stalls.
 
     const workPromise = (async () => {
+      console.log("WEBHOOK: workPromise started");
 
       // ── WRITE TO EVENT REGISTRATIONS (legacy record) ───────────────────────
       if (process.env.AIRTABLE_TOKEN) {
@@ -343,6 +344,7 @@ export default async function handler(req, res) {
         }
       }
 
+      console.log("WEBHOOK: workPromise completed");
     })();
 
     const timeoutPromise = new Promise((resolve) => setTimeout(resolve, 25000));
