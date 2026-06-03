@@ -175,150 +175,167 @@ async function writeAttendeesRecord(token, fields) {
 // ── MAIN HANDLER ─────────────────────────────────────────────────────────────
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  // Synchronous method check — no async work yet
+  if (req.method !== "POST") return res.status(405).end();
 
-  const rawBody    = await readRawBody(req);
-  const rawBodyStr = rawBody.length > 0 ? rawBody.toString("utf8") : "";
+  try {
+    // ── STEP 1: Read raw body (fast — just buffering the stream) ─────────────
+    const rawBody    = await readRawBody(req);
+    const rawBodyStr = rawBody.length > 0 ? rawBody.toString("utf8") : "";
 
-  const sigHeader = req.headers["stripe-signature"] || "";
-  const secret    = process.env.STRIPE_WEBHOOK_SECRET;
+    // ── STEP 2: Verify signature (synchronous crypto) ────────────────────────
+    const sigHeader = req.headers["stripe-signature"] || "";
+    const secret    = process.env.STRIPE_WEBHOOK_SECRET;
 
-  if (secret && sigHeader) {
-    if (rawBodyStr) {
-      if (!verifyStripeSignature(rawBodyStr, sigHeader, secret)) {
-        console.error("Stripe webhook: signature verification failed");
-        return res.status(400).json({ error: "Invalid signature" });
+    if (secret && sigHeader) {
+      if (rawBodyStr) {
+        if (!verifyStripeSignature(rawBodyStr, sigHeader, secret)) {
+          console.error("Stripe webhook: signature verification failed");
+          return res.status(400).json({ error: "Invalid signature" });
+        }
+      } else {
+        console.warn("Stripe webhook: raw body unavailable, signature verification skipped");
       }
-    } else {
-      console.warn("Stripe webhook: raw body unavailable, signature verification skipped");
+    }
+
+    // ── STEP 3: Parse event (synchronous) ────────────────────────────────────
+    let event;
+    try {
+      event = rawBodyStr ? JSON.parse(rawBodyStr) : (req.body || {});
+    } catch {
+      event = req.body || {};
+    }
+
+    if (!event || event.type !== "checkout.session.completed") {
+      return res.status(200).json({ received: true });
+    }
+
+    // ── STEP 4: Extract all metadata (synchronous) ───────────────────────────
+    const session               = event.data?.object || {};
+    const sessionId             = session.id || "";
+    const eventId               = session.metadata?.eventId || "";
+    const packageId             = session.metadata?.packageId || "";
+    const customerName          = session.metadata?.customerName || "";
+    const isBundle              = session.metadata?.isBundle === "true";
+    const quantity              = parseInt(session.metadata?.quantity || "1", 10);
+    const amountPaid            = (session.amount_total || 0) / 100;
+    const email                 = session.customer_details?.email || session.customer_email || "";
+    const phone                 = session.metadata?.phone || "";
+    const emergencyContactName  = session.metadata?.emergencyContactName || "";
+    const emergencyContactPhone = session.metadata?.emergencyContactPhone || "";
+    const medicalNotes          = session.metadata?.medicalNotes || "";
+    const eventName             = session.metadata?.eventName || eventId.replace(/-/g, " ").toUpperCase();
+    const eventDate             = session.metadata?.eventDate || "";
+    const legalVersion          = session.metadata?.acceptedLegalVersion || "";
+    const acceptedAt            = session.metadata?.acceptedAt || "";
+    const agreedToTerms         = session.metadata?.agreedToTerms === "true";
+    const ageConfirmed          = session.metadata?.ageConfirmed  || "No";
+    const smsConsent            = session.metadata?.smsConsent    || "No";
+    const timestamp             = new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" });
+    const registeredAt          = new Date().toISOString();
+
+    // Derive origin for intake form link
+    const host   = req.headers["x-forwarded-host"] || req.headers.host || "roamsix.com";
+    const proto  = req.headers["x-forwarded-proto"] || "https";
+    const origin = `${proto}://${host}`;
+
+    // ── STEP 5: ACK STRIPE IMMEDIATELY ───────────────────────────────────────
+    // Stripe only needs to know we received the event within 30 seconds.
+    // All Airtable and email work happens after this response is sent.
+    res.status(200).json({ received: true });
+
+    // ── STEP 6: WRITE TO EVENT REGISTRATIONS (legacy record) ─────────────────
+    if (process.env.AIRTABLE_TOKEN) {
+      await ensureAirtableTable(process.env.AIRTABLE_TOKEN);
+      await writeAirtableRecord(process.env.AIRTABLE_TOKEN, {
+        "Name":              customerName || "Not provided",
+        "Email":             email,
+        "Event":             eventId,
+        "Package":           packageId + (isBundle ? " (Couples Bundle)" : ""),
+        "Amount Paid":       amountPaid,
+        "Quantity":          quantity,
+        "Stripe Session ID": sessionId,
+        "Status":            "Confirmed",
+        "Registered At":     registeredAt,
+        "Notes":             medicalNotes || "",
+      });
+    }
+
+    // ── STEP 7: WRITE TO ATTENDEES (full legal + operational record) ──────────
+    if (process.env.AIRTABLE_TOKEN) {
+      await ensureAttendeesTable(process.env.AIRTABLE_TOKEN);
+      await writeAttendeesRecord(process.env.AIRTABLE_TOKEN, {
+        "Full Name":               customerName || "Not provided",
+        "Email":                   email,
+        "Phone":                   phone,
+        "Event Name":              eventName,
+        "Event Date":              eventDate,
+        "Package":                 packageId + (isBundle ? " (Couples Bundle)" : ""),
+        "Amount Paid":             amountPaid,
+        "Stripe Session ID":       sessionId,
+        "Payment Status":          "Paid",
+        "Legal Accepted":          agreedToTerms ? "Yes" : "No",
+        "Legal Version":           legalVersion,
+        "Accepted At":             acceptedAt,
+        "Age Confirmed":           ageConfirmed,
+        "SMS Consent":             smsConsent,
+        "Registered At":           registeredAt,
+        "Emergency Contact Name":  emergencyContactName,
+        "Emergency Contact Phone": emergencyContactPhone,
+        "Medical or Dietary Notes": medicalNotes,
+        "Intake Completed":        "No",
+        "Intake Completed At":     "",
+      });
+    }
+
+    // ── STEP 8: CONFIRMATION EMAIL TO CUSTOMER ────────────────────────────────
+    if (process.env.RESEND_API_KEY && email) {
+      try {
+        await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            from:    "ROAMSIX Events <info@roamsix.com>",
+            to:      [email],
+            subject: "Your ROAMSIX Registration is Confirmed",
+            html:    customerConfirmHTML({
+              name: customerName, eventId, eventName, packageId, isBundle, amountPaid, quantity,
+              sessionId, origin,
+            }),
+          }),
+        });
+      } catch (err) { console.error("Customer confirmation email error:", err); }
+    }
+
+    // ── STEP 9: NOTIFICATION EMAIL TO ROAMSIX TEAM ───────────────────────────
+    if (process.env.RESEND_API_KEY) {
+      try {
+        await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            from:     "ROAMSIX Events <info@roamsix.com>",
+            to:       ["max@roamsix.com", "jackie@roamsix.com"],
+            reply_to: email || undefined,
+            subject:  `New Registration: ${customerName || email} - ${packageId}`,
+            html:     teamNotifyHTML({
+              name: customerName, email, eventId, eventName, packageId, isBundle,
+              amountPaid, quantity, sessionId, timestamp, phone,
+              emergencyContactName, emergencyContactPhone, medicalNotes,
+              legalVersion, agreedToTerms,
+            }),
+          }),
+        });
+      } catch (err) { console.error("Team notification email error:", err); }
+    }
+
+  } catch (err) {
+    console.error("Webhook error:", err);
+    // If we haven't responded yet, still return 200 so Stripe doesn't retry
+    if (!res.headersSent) {
+      return res.status(200).json({ received: true, error: err.message });
     }
   }
-
-  let event;
-  try {
-    event = rawBodyStr ? JSON.parse(rawBodyStr) : (req.body || {});
-  } catch {
-    event = req.body || {};
-  }
-
-  if (!event || event.type !== "checkout.session.completed") {
-    return res.status(200).json({ received: true });
-  }
-
-  const session               = event.data?.object || {};
-  const sessionId             = session.id || "";
-  const eventId               = session.metadata?.eventId || "";
-  const packageId             = session.metadata?.packageId || "";
-  const customerName          = session.metadata?.customerName || "";
-  const isBundle              = session.metadata?.isBundle === "true";
-  const quantity              = parseInt(session.metadata?.quantity || "1", 10);
-  const amountPaid            = (session.amount_total || 0) / 100;
-  const email                 = session.customer_details?.email || session.customer_email || "";
-  const phone                 = session.metadata?.phone || "";
-  const emergencyContactName  = session.metadata?.emergencyContactName || "";
-  const emergencyContactPhone = session.metadata?.emergencyContactPhone || "";
-  const medicalNotes          = session.metadata?.medicalNotes || "";
-  const eventName             = session.metadata?.eventName || eventId.replace(/-/g, " ").toUpperCase();
-  const eventDate             = session.metadata?.eventDate || "";
-  const legalVersion          = session.metadata?.acceptedLegalVersion || "";
-  const acceptedAt            = session.metadata?.acceptedAt || "";
-  const agreedToTerms         = session.metadata?.agreedToTerms === "true";
-  const ageConfirmed          = session.metadata?.ageConfirmed  || "No";
-  const smsConsent            = session.metadata?.smsConsent    || "No";
-  const timestamp             = new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" });
-  const registeredAt          = new Date().toISOString();
-
-  // Derive origin for intake form link
-  const host   = req.headers["x-forwarded-host"] || req.headers.host || "roamsix.com";
-  const proto  = req.headers["x-forwarded-proto"] || "https";
-  const origin = `${proto}://${host}`;
-
-  // ── 1. WRITE TO EVENT REGISTRATIONS (legacy record) ──────────────────────
-  if (process.env.AIRTABLE_TOKEN) {
-    await ensureAirtableTable(process.env.AIRTABLE_TOKEN);
-    await writeAirtableRecord(process.env.AIRTABLE_TOKEN, {
-      "Name":              customerName || "Not provided",
-      "Email":             email,
-      "Event":             eventId,
-      "Package":           packageId + (isBundle ? " (Couples Bundle)" : ""),
-      "Amount Paid":       amountPaid,
-      "Quantity":          quantity,
-      "Stripe Session ID": sessionId,
-      "Status":            "Confirmed",
-      "Registered At":     registeredAt,
-      "Notes":             medicalNotes || "",
-    });
-  }
-
-  // ── 2. WRITE TO ATTENDEES (full legal + operational record) ──────────────
-  if (process.env.AIRTABLE_TOKEN) {
-    await ensureAttendeesTable(process.env.AIRTABLE_TOKEN);
-    await writeAttendeesRecord(process.env.AIRTABLE_TOKEN, {
-      "Full Name":               customerName || "Not provided",
-      "Email":                   email,
-      "Phone":                   phone,
-      "Event Name":              eventName,
-      "Event Date":              eventDate,
-      "Package":                 packageId + (isBundle ? " (Couples Bundle)" : ""),
-      "Amount Paid":             amountPaid,
-      "Stripe Session ID":       sessionId,
-      "Payment Status":          "Paid",
-      "Legal Accepted":          agreedToTerms ? "Yes" : "No",
-      "Legal Version":           legalVersion,
-      "Accepted At":             acceptedAt,
-      "Age Confirmed":           ageConfirmed,
-      "SMS Consent":             smsConsent,
-      "Registered At":           registeredAt,
-      "Emergency Contact Name":  emergencyContactName,
-      "Emergency Contact Phone": emergencyContactPhone,
-      "Medical or Dietary Notes": medicalNotes,
-      "Intake Completed":        "No",
-      "Intake Completed At":     "",
-    });
-  }
-
-  // ── 3. CONFIRMATION EMAIL TO CUSTOMER ────────────────────────────────────
-  if (process.env.RESEND_API_KEY && email) {
-    try {
-      await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          from:    "ROAMSIX Events <info@roamsix.com>",
-          to:      [email],
-          subject: "Your ROAMSIX Registration is Confirmed",
-          html:    customerConfirmHTML({
-            name: customerName, eventId, eventName, packageId, isBundle, amountPaid, quantity,
-            sessionId, origin,
-          }),
-        }),
-      });
-    } catch (err) { console.error("Customer confirmation email error:", err); }
-  }
-
-  // ── 4. NOTIFICATION EMAIL TO ROAMSIX TEAM ────────────────────────────────
-  if (process.env.RESEND_API_KEY) {
-    try {
-      await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          from:     "ROAMSIX Events <info@roamsix.com>",
-          to:       ["max@roamsix.com", "jackie@roamsix.com"],
-          reply_to: email || undefined,
-          subject:  `New Registration: ${customerName || email} - ${packageId}`,
-          html:     teamNotifyHTML({
-            name: customerName, email, eventId, eventName, packageId, isBundle,
-            amountPaid, quantity, sessionId, timestamp, phone,
-            emergencyContactName, emergencyContactPhone, medicalNotes,
-            legalVersion, agreedToTerms,
-          }),
-        }),
-      });
-    } catch (err) { console.error("Team notification email error:", err); }
-  }
-
-  return res.status(200).json({ received: true });
 }
 
 // ── EMAIL TEMPLATES ───────────────────────────────────────────────────────────
