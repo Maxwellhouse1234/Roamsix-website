@@ -130,6 +130,7 @@ const css = `
   .ed-modal-cancel-notice { font-size: 12px; color: var(--cream-muted); line-height: 1.65; margin-bottom: 12px; padding: 14px 16px; background: rgba(232,223,208,0.03); border-left: 2px solid rgba(232,223,208,0.12); }
   .ed-modal-cancel-notice a { color: var(--teal-light); text-decoration: none; }
   .ed-modal-cancel-notice a:hover { color: var(--cream); }
+  .ed-modal-voluntary { font-size: 12px; color: var(--cream-muted); line-height: 1.65; margin-top: 14px; margin-bottom: 4px; }
 
   /* IMAGE DIVIDER */
   .ed-img-divider { width: 100%; aspect-ratio: 16/6; overflow: hidden; margin-bottom: 80px; }
@@ -248,7 +249,7 @@ export default function EventDetailPage() {
       return;
     }
     if (!ageConfirmed) {
-      setErr("Please confirm that you are at least 18 years of age.");
+      setErr("Please confirm that you are 21 years of age or older.");
       return;
     }
     if (!agreedToTerms) {
@@ -326,7 +327,7 @@ export default function EventDetailPage() {
         <div className="ed-overlay" onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}>
           <div className="ed-modal" role="dialog" aria-modal="true">
             <div className="ed-modal-event-summary">
-              <div className="ed-modal-event-name">{event.title}</div>
+              <div className="ed-modal-event-name">{event.modalTitle || event.title}</div>
               <div className="ed-modal-event-date">{fmtModalDate(event.date)}</div>
               {event.venueName && <div className="ed-modal-event-venue">{event.venueName}</div>}
               <div className="ed-modal-event-loc">{event.cityState || event.location}</div>
@@ -427,9 +428,12 @@ export default function EventDetailPage() {
                   onChange={(e) => setAgeConfirmed(e.target.checked)}
                 />
                 <label htmlFor="ed-age-confirmed" className="ed-modal-consent-text">
-                  I confirm that I am at least 18 years of age.
+                  I confirm that I am 21 years of age or older.
                 </label>
               </div>
+              <p className="ed-modal-voluntary">
+                Participation in ROAMSIX events is voluntary. Participants are responsible for determining whether they are physically capable of participating and may discontinue participation at any time.
+              </p>
               <div className="ed-modal-consent">
                 <input
                   type="checkbox"

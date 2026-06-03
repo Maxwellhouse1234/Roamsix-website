@@ -7,6 +7,7 @@ export const events = [
     date: "2026-06-20T15:00:00-07:00",
     location: "Warner Springs, San Diego County",
     locationDetail: "Private farmstead, Warner Springs CA",
+    modalTitle: "THE LONG GAME EXPERIENCE",
     venueName: "Birdsong Backcountry Retreat",
     cityState: "Warner Springs, California",
     timeRange: "3:00 PM - 9:00 PM",
