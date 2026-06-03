@@ -239,127 +239,121 @@ export default async function handler(req, res) {
     const proto  = req.headers["x-forwarded-proto"] || "https";
     const origin = `${proto}://${host}`;
 
-    // ── STEP 5: ACK STRIPE IMMEDIATELY ───────────────────────────────────────
-    // Stripe only needs to know we received the event within 30 seconds.
-    // All Airtable and email work happens after this response is sent.
-    res.status(200).json({ received: true });
-    console.log("WEBHOOK: 200 sent to Stripe");
+    // ── STEP 5: RUN ALL WORK WITHIN 25s, THEN ACK STRIPE ───────────────────────
+    // Vercel terminates the function as soon as res.json() is called, so all
+    // Airtable writes and emails must complete BEFORE we respond to Stripe.
+    // Promise.race ensures we always respond within 25 seconds even if work stalls.
 
-    // ── STEP 6: WRITE TO EVENT REGISTRATIONS (legacy record) ─────────────────
-    console.log("WEBHOOK: reached Airtable block");
-    console.log("WEBHOOK: AIRTABLE_TOKEN present:", !!process.env.AIRTABLE_TOKEN);
-    if (process.env.AIRTABLE_TOKEN) {
-      await ensureAirtableTable(process.env.AIRTABLE_TOKEN);
-      console.log("WEBHOOK: ensureAirtableTable done");
-      await writeAirtableRecord(process.env.AIRTABLE_TOKEN, {
-        "Name":              customerName || "Not provided",
-        "Email":             email,
-        "Event":             eventId,
-        "Package":           packageId + (isBundle ? " (Couples Bundle)" : ""),
-        "Amount Paid":       amountPaid,
-        "Quantity":          quantity,
-        "Stripe Session ID": sessionId,
-        "Status":            "Confirmed",
-        "Registered At":     registeredAt,
-        "Notes":             medicalNotes || "",
-      });
-      console.log("WEBHOOK: Event Registrations record written");
-    }
+    const workPromise = (async () => {
 
-    // ── STEP 7: WRITE TO ATTENDEES (full legal + operational record) ──────────
-    console.log("WEBHOOK: reached Attendees block");
-    if (process.env.AIRTABLE_TOKEN) {
-      await ensureAttendeesTable(process.env.AIRTABLE_TOKEN);
-      await writeAttendeesRecord(process.env.AIRTABLE_TOKEN, {
-        "Full Name":               customerName || "Not provided",
-        "Email":                   email,
-        "Phone":                   phone,
-        "Event Name":              eventName,
-        "Event Date":              eventDate,
-        "Package":                 packageId + (isBundle ? " (Couples Bundle)" : ""),
-        "Amount Paid":             amountPaid,
-        "Stripe Session ID":       sessionId,
-        "Payment Status":          "Paid",
-        "Legal Accepted":          agreedToTerms ? "Yes" : "No",
-        "Legal Version":           legalVersion,
-        "Accepted At":             acceptedAt,
-        "Age Confirmed":           ageConfirmed,
-        "SMS Consent":             smsConsent,
-        "Registered At":           registeredAt,
-        "Emergency Contact Name":  emergencyContactName,
-        "Emergency Contact Phone": emergencyContactPhone,
-        "Medical or Dietary Notes": medicalNotes,
-        "Intake Completed":        "No",
-        "Intake Completed At":     "",
-      });
-      console.log("WEBHOOK: Attendees record written");
-    }
-
-    // ── STEP 8: CONFIRMATION EMAIL TO CUSTOMER ────────────────────────────────
-    console.log("WEBHOOK: reached email block");
-    console.log("WEBHOOK: RESEND_API_KEY present:", !!process.env.RESEND_API_KEY);
-    console.log("WEBHOOK: email address:", email);
-    if (process.env.RESEND_API_KEY && email) {
-      try {
-        const resendRes = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: { "Authorization": `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            from:    "ROAMSIX Events <info@roamsix.com>",
-            to:      [email],
-            subject: "Your ROAMSIX Registration is Confirmed",
-            html:    customerConfirmHTML({
-              name: customerName, eventId, eventName, packageId, isBundle, amountPaid, quantity,
-              sessionId, origin,
-            }),
-          }),
+      // ── WRITE TO EVENT REGISTRATIONS (legacy record) ───────────────────────
+      if (process.env.AIRTABLE_TOKEN) {
+        await ensureAirtableTable(process.env.AIRTABLE_TOKEN);
+        await writeAirtableRecord(process.env.AIRTABLE_TOKEN, {
+          "Name":              customerName || "Not provided",
+          "Email":             email,
+          "Event":             eventId,
+          "Package":           packageId + (isBundle ? " (Couples Bundle)" : ""),
+          "Amount Paid":       amountPaid,
+          "Quantity":          quantity,
+          "Stripe Session ID": sessionId,
+          "Status":            "Confirmed",
+          "Registered At":     registeredAt,
+          "Notes":             medicalNotes || "",
         });
-        if (!resendRes.ok) {
-          const errBody = await resendRes.text();
-          console.error("Resend error (customer email):", resendRes.status, errBody);
-        } else {
-          console.log("Customer confirmation email sent successfully to:", email);
-          console.log("WEBHOOK: customer email sent");
-        }
-      } catch (err) {
-        console.error("Customer confirmation email fetch error:", err.message);
       }
-    }
 
-    // ── STEP 9: NOTIFICATION EMAIL TO ROAMSIX TEAM ───────────────────────────
-    if (process.env.RESEND_API_KEY) {
-      try {
-        const resendRes = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: { "Authorization": `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            from:     "ROAMSIX Events <info@roamsix.com>",
-            to:       ["max@roamsix.com", "jackie@roamsix.com"],
-            reply_to: email || undefined,
-            subject:  `New Registration: ${customerName || email} - ${packageId}`,
-            html:     teamNotifyHTML({
-              name: customerName, email, eventId, eventName, packageId, isBundle,
-              amountPaid, quantity, sessionId, timestamp, phone,
-              emergencyContactName, emergencyContactPhone, medicalNotes,
-              legalVersion, agreedToTerms,
-            }),
-          }),
+      // ── WRITE TO ATTENDEES (full legal + operational record) ───────────────
+      if (process.env.AIRTABLE_TOKEN) {
+        await ensureAttendeesTable(process.env.AIRTABLE_TOKEN);
+        await writeAttendeesRecord(process.env.AIRTABLE_TOKEN, {
+          "Full Name":               customerName || "Not provided",
+          "Email":                   email,
+          "Phone":                   phone,
+          "Event Name":              eventName,
+          "Event Date":              eventDate,
+          "Package":                 packageId + (isBundle ? " (Couples Bundle)" : ""),
+          "Amount Paid":             amountPaid,
+          "Stripe Session ID":       sessionId,
+          "Payment Status":          "Paid",
+          "Legal Accepted":          agreedToTerms ? "Yes" : "No",
+          "Legal Version":           legalVersion,
+          "Accepted At":             acceptedAt,
+          "Age Confirmed":           ageConfirmed,
+          "SMS Consent":             smsConsent,
+          "Registered At":           registeredAt,
+          "Emergency Contact Name":  emergencyContactName,
+          "Emergency Contact Phone": emergencyContactPhone,
+          "Medical or Dietary Notes": medicalNotes,
+          "Intake Completed":        "No",
+          "Intake Completed At":     "",
         });
-        if (!resendRes.ok) {
-          const errBody = await resendRes.text();
-          console.error("Resend error (team notification):", resendRes.status, errBody);
-        } else {
-          console.log("Team notification email sent successfully");
-          console.log("WEBHOOK: team email sent");
-        }
-      } catch (err) {
-        console.error("Team notification email fetch error:", err.message);
       }
-    }
+
+      // ── CONFIRMATION EMAIL TO CUSTOMER ─────────────────────────────────────
+      if (process.env.RESEND_API_KEY && email) {
+        try {
+          const resendRes = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              from:    "ROAMSIX Events <info@roamsix.com>",
+              to:      [email],
+              subject: "Your ROAMSIX Registration is Confirmed",
+              html:    customerConfirmHTML({
+                name: customerName, eventId, eventName, packageId, isBundle, amountPaid, quantity,
+                sessionId, origin,
+              }),
+            }),
+          });
+          if (!resendRes.ok) {
+            const errBody = await resendRes.text();
+            console.error("Resend error (customer email):", resendRes.status, errBody);
+          }
+        } catch (err) {
+          console.error("Customer confirmation email fetch error:", err.message);
+        }
+      }
+
+      // ── NOTIFICATION EMAIL TO ROAMSIX TEAM ────────────────────────────────
+      if (process.env.RESEND_API_KEY) {
+        try {
+          const resendRes = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              from:     "ROAMSIX Events <info@roamsix.com>",
+              to:       ["max@roamsix.com", "jackie@roamsix.com"],
+              reply_to: email || undefined,
+              subject:  `New Registration: ${customerName || email} - ${packageId}`,
+              html:     teamNotifyHTML({
+                name: customerName, email, eventId, eventName, packageId, isBundle,
+                amountPaid, quantity, sessionId, timestamp, phone,
+                emergencyContactName, emergencyContactPhone, medicalNotes,
+                legalVersion, agreedToTerms,
+              }),
+            }),
+          });
+          if (!resendRes.ok) {
+            const errBody = await resendRes.text();
+            console.error("Resend error (team notification):", resendRes.status, errBody);
+          }
+        } catch (err) {
+          console.error("Team notification email fetch error:", err.message);
+        }
+      }
+
+    })();
+
+    const timeoutPromise = new Promise((resolve) => setTimeout(resolve, 25000));
+
+    await Promise.race([workPromise, timeoutPromise]);
+
+    // ── ACK STRIPE — all work done (or timed out) ─────────────────────────────
+    return res.status(200).json({ received: true });
 
   } catch (err) {
     console.error("Webhook error:", err);
-    // If we haven't responded yet, still return 200 so Stripe doesn't retry
     if (!res.headersSent) {
       return res.status(200).json({ received: true, error: err.message });
     }
