@@ -8,19 +8,19 @@ const PACKAGE_DATA = {
     "field-pass": {
       name: "FIELD PASS",
       price: 9500,
-      stripePriceId: "",
+      stripePriceId: "price_1TZcsNLgUPmdquZoDXTSQayy",
     },
     "long-game": {
       name: "THE LONG GAME EXPERIENCE",
       price: 22500,
-      stripePriceId: "",
+      stripePriceId: "price_1TZcsLLgUPmdquZorxSlweXQ",
       bundlePrice: 39800,
-      bundleStripePriceId: "",
+      bundleStripePriceId: "price_1TZcsNLgUPmdquZok2C0VstS",
     },
     "private-circle": {
       name: "PRIVATE CIRCLE",
       price: 32500,
-      stripePriceId: "",
+      stripePriceId: "price_1TZcsOLgUPmdquZo6JOwHcjO",
     },
   },
 };
