@@ -156,7 +156,7 @@ async function ensureAttendeesTable(token) {
 async function writeAttendeesRecord(token, fields) {
   try {
     const res = await fetch(
-      `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(ATTENDEES_TABLE)}`,
+      `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/tbltON9TJyq9GqBW4`,
       {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
@@ -249,7 +249,7 @@ export default async function handler(req, res) {
 
       // ── WRITE TO EVENT REGISTRATIONS (legacy record) ───────────────────────
       if (process.env.AIRTABLE_TOKEN) {
-        await ensureAirtableTable(process.env.AIRTABLE_TOKEN);
+        console.log("WEBHOOK: writing Event Registrations");
         await writeAirtableRecord(process.env.AIRTABLE_TOKEN, {
           "Name":              customerName || "Not provided",
           "Email":             email,
@@ -262,11 +262,12 @@ export default async function handler(req, res) {
           "Registered At":     registeredAt,
           "Notes":             medicalNotes || "",
         });
+        console.log("WEBHOOK: Event Registrations done");
       }
 
       // ── WRITE TO ATTENDEES (full legal + operational record) ───────────────
       if (process.env.AIRTABLE_TOKEN) {
-        await ensureAttendeesTable(process.env.AIRTABLE_TOKEN);
+        console.log("WEBHOOK: writing Attendees");
         await writeAttendeesRecord(process.env.AIRTABLE_TOKEN, {
           "Full Name":               customerName || "Not provided",
           "Email":                   email,
@@ -289,9 +290,11 @@ export default async function handler(req, res) {
           "Intake Completed":        "No",
           "Intake Completed At":     "",
         });
+        console.log("WEBHOOK: Attendees done");
       }
 
       // ── CONFIRMATION EMAIL TO CUSTOMER ─────────────────────────────────────
+      console.log("WEBHOOK: sending customer email");
       if (process.env.RESEND_API_KEY && email) {
         try {
           const resendRes = await fetch("https://api.resend.com/emails", {
@@ -310,6 +313,8 @@ export default async function handler(req, res) {
           if (!resendRes.ok) {
             const errBody = await resendRes.text();
             console.error("Resend error (customer email):", resendRes.status, errBody);
+          } else {
+            console.log("WEBHOOK: customer email done");
           }
         } catch (err) {
           console.error("Customer confirmation email fetch error:", err.message);
