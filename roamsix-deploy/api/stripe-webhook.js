@@ -243,10 +243,14 @@ export default async function handler(req, res) {
     // Stripe only needs to know we received the event within 30 seconds.
     // All Airtable and email work happens after this response is sent.
     res.status(200).json({ received: true });
+    console.log("WEBHOOK: 200 sent to Stripe");
 
     // ── STEP 6: WRITE TO EVENT REGISTRATIONS (legacy record) ─────────────────
+    console.log("WEBHOOK: reached Airtable block");
+    console.log("WEBHOOK: AIRTABLE_TOKEN present:", !!process.env.AIRTABLE_TOKEN);
     if (process.env.AIRTABLE_TOKEN) {
       await ensureAirtableTable(process.env.AIRTABLE_TOKEN);
+      console.log("WEBHOOK: ensureAirtableTable done");
       await writeAirtableRecord(process.env.AIRTABLE_TOKEN, {
         "Name":              customerName || "Not provided",
         "Email":             email,
@@ -259,9 +263,11 @@ export default async function handler(req, res) {
         "Registered At":     registeredAt,
         "Notes":             medicalNotes || "",
       });
+      console.log("WEBHOOK: Event Registrations record written");
     }
 
     // ── STEP 7: WRITE TO ATTENDEES (full legal + operational record) ──────────
+    console.log("WEBHOOK: reached Attendees block");
     if (process.env.AIRTABLE_TOKEN) {
       await ensureAttendeesTable(process.env.AIRTABLE_TOKEN);
       await writeAttendeesRecord(process.env.AIRTABLE_TOKEN, {
@@ -286,9 +292,13 @@ export default async function handler(req, res) {
         "Intake Completed":        "No",
         "Intake Completed At":     "",
       });
+      console.log("WEBHOOK: Attendees record written");
     }
 
     // ── STEP 8: CONFIRMATION EMAIL TO CUSTOMER ────────────────────────────────
+    console.log("WEBHOOK: reached email block");
+    console.log("WEBHOOK: RESEND_API_KEY present:", !!process.env.RESEND_API_KEY);
+    console.log("WEBHOOK: email address:", email);
     if (process.env.RESEND_API_KEY && email) {
       try {
         const resendRes = await fetch("https://api.resend.com/emails", {
@@ -309,6 +319,7 @@ export default async function handler(req, res) {
           console.error("Resend error (customer email):", resendRes.status, errBody);
         } else {
           console.log("Customer confirmation email sent successfully to:", email);
+          console.log("WEBHOOK: customer email sent");
         }
       } catch (err) {
         console.error("Customer confirmation email fetch error:", err.message);
@@ -339,6 +350,7 @@ export default async function handler(req, res) {
           console.error("Resend error (team notification):", resendRes.status, errBody);
         } else {
           console.log("Team notification email sent successfully");
+          console.log("WEBHOOK: team email sent");
         }
       } catch (err) {
         console.error("Team notification email fetch error:", err.message);
