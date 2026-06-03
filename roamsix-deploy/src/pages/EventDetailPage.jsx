@@ -109,19 +109,32 @@ const css = `
   .ed-input::placeholder { color: rgba(232,223,208,0.3); }
   .ed-modal-err { color: #E07070; font-size: 14px; margin-bottom: 16px; line-height: 1.5; }
   .ed-modal-submit { width: 100%; padding: 16px; background: var(--gold); color: var(--navy); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; border: none; cursor: pointer; transition: all 0.22s; margin-top: 8px; }
-  .ed-modal-submit:hover { background: var(--cream); }
-  .ed-modal-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+  .ed-modal-submit:hover:not(:disabled) { background: var(--cream); }
+  .ed-modal-submit:disabled { opacity: 0.5; cursor: not-allowed; }
   .ed-modal-note { font-size: 13px; color: var(--cream-muted); text-align: center; margin-top: 12px; line-height: 1.5; }
+  .ed-modal-textarea { background: rgba(255,255,255,0.04); border: 1px solid rgba(232,223,208,0.15); color: var(--cream); font-family: 'Barlow', sans-serif; font-size: 15px; padding: 13px 16px; width: 100%; outline: none; transition: border-color 0.2s; resize: vertical; min-height: 90px; }
+  .ed-modal-textarea:focus { border-color: var(--teal); }
+  .ed-modal-textarea::placeholder { color: rgba(232,223,208,0.3); }
+  .ed-modal-divider { height: 1px; background: rgba(232,223,208,0.08); margin: 20px 0; }
+  .ed-modal-consent { display: flex; gap: 12px; align-items: flex-start; margin-top: 16px; }
+  .ed-modal-consent-check { width: 18px; height: 18px; min-width: 18px; margin-top: 2px; accent-color: var(--teal); cursor: pointer; }
+  .ed-modal-consent-text { font-size: 13px; color: var(--cream-muted); line-height: 1.6; }
+  .ed-modal-consent-text a { color: var(--teal-light); text-decoration: none; }
+  .ed-modal-consent-text a:hover { color: var(--cream); }
 
   /* IMAGE DIVIDER */
   .ed-img-divider { width: 100%; aspect-ratio: 16/6; overflow: hidden; margin-bottom: 80px; }
   .ed-img-divider img { width: 100%; height: 100%; object-fit: cover; object-position: center 40%; filter: brightness(0.65) contrast(1.05); display: block; }
 
   /* FOOTER */
-  .ed-footer { background: var(--panel); border-top: 1px solid rgba(181,149,88,0.1); padding: 40px 56px; display: flex; align-items: center; justify-content: space-between; }
+  .ed-footer { background: var(--panel); border-top: 1px solid rgba(181,149,88,0.1); padding: 40px 56px; }
+  .ed-footer-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
   .ed-footer-brand { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 4px; color: var(--cream); text-transform: uppercase; }
   .ed-footer-link { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); text-decoration: none; transition: color 0.2s; }
   .ed-footer-link:hover { color: var(--cream); }
+  .ed-footer-legal { display: flex; flex-wrap: wrap; gap: 20px; border-top: 1px solid rgba(232,223,208,0.07); padding-top: 20px; }
+  .ed-footer-legal a { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: rgba(232,223,208,0.4); text-decoration: none; transition: color 0.2s; }
+  .ed-footer-legal a:hover { color: var(--cream-muted); }
 
   @media (max-width: 900px) {
     .ed-nav { padding: 0 24px; }
@@ -130,7 +143,8 @@ const css = `
     .ed-body-grid { grid-template-columns: 1fr; gap: 40px; margin-bottom: 60px; }
     .ed-packages-grid { grid-template-columns: 1fr; }
     .ed-img-divider { margin-bottom: 60px; }
-    .ed-footer { padding: 32px 24px; flex-direction: column; gap: 16px; text-align: center; }
+    .ed-footer { padding: 32px 24px; }
+    .ed-footer-top { flex-direction: column; gap: 16px; text-align: center; }
   }
   @media (max-width: 480px) {
     .ed-bundle-toggle { grid-template-columns: 1fr; }
@@ -165,9 +179,16 @@ export default function EventDetailPage() {
   const { eventId } = useParams();
   const event = getEventById(eventId);
 
+  const LEGAL_VERSION = "ROAMSIX_EVENT_TERMS_V1_2026";
+
   const [modal, setModal] = useState(null);
   const [isBundle, setIsBundle] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "" });
+  const [form, setForm] = useState({
+    name: "", email: "", phone: "",
+    emergencyContactName: "", emergencyContactPhone: "",
+    medicalNotes: "",
+  });
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [status, setStatus] = useState("idle");
   const [err, setErr] = useState("");
 
@@ -185,7 +206,8 @@ export default function EventDetailPage() {
   const openModal = (pkg, bundle = false) => {
     setModal(pkg);
     setIsBundle(bundle);
-    setForm({ name: "", email: "" });
+    setForm({ name: "", email: "", phone: "", emergencyContactName: "", emergencyContactPhone: "", medicalNotes: "" });
+    setAgreedToTerms(false);
     setStatus("idle");
     setErr("");
   };
@@ -197,12 +219,17 @@ export default function EventDetailPage() {
   };
 
   const handleSubmit = async () => {
-    if (!form.name.trim() || !form.email.trim()) {
-      setErr("Please enter your name and email.");
+    if (!form.name.trim() || !form.email.trim() || !form.phone.trim() ||
+        !form.emergencyContactName.trim() || !form.emergencyContactPhone.trim()) {
+      setErr("Please complete all required fields.");
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
       setErr("Please enter a valid email address.");
+      return;
+    }
+    if (!agreedToTerms) {
+      setErr("Please read and accept the terms and agreements to continue.");
       return;
     }
     setStatus("loading");
@@ -218,6 +245,15 @@ export default function EventDetailPage() {
           customerEmail: form.email.trim(),
           isBundle,
           quantity: 1,
+          phone: form.phone.trim(),
+          emergencyContactName: form.emergencyContactName.trim(),
+          emergencyContactPhone: form.emergencyContactPhone.trim(),
+          medicalNotes: form.medicalNotes.trim(),
+          eventName: event.title,
+          eventDate: event.date,
+          acceptedLegalVersion: LEGAL_VERSION,
+          acceptedAt: new Date().toISOString(),
+          agreedToTerms: "true",
         }),
       });
       const data = await res.json();
@@ -300,7 +336,7 @@ export default function EventDetailPage() {
                 </div>
               )}
               <div className="ed-form-group">
-                <label className="ed-form-label">Full Name</label>
+                <label className="ed-form-label">Full Name *</label>
                 <input
                   className="ed-input"
                   placeholder="Your full name"
@@ -309,7 +345,7 @@ export default function EventDetailPage() {
                 />
               </div>
               <div className="ed-form-group">
-                <label className="ed-form-label">Email Address</label>
+                <label className="ed-form-label">Email Address *</label>
                 <input
                   className="ed-input"
                   placeholder="your@email.com"
@@ -318,11 +354,75 @@ export default function EventDetailPage() {
                   onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                 />
               </div>
+              <div className="ed-form-group">
+                <label className="ed-form-label">Phone Number *</label>
+                <input
+                  className="ed-input"
+                  placeholder="(555) 000-0000"
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                />
+              </div>
+              <div className="ed-modal-divider" />
+              <div className="ed-form-group">
+                <label className="ed-form-label">Emergency Contact Name *</label>
+                <input
+                  className="ed-input"
+                  placeholder="Full name"
+                  value={form.emergencyContactName}
+                  onChange={(e) => setForm((f) => ({ ...f, emergencyContactName: e.target.value }))}
+                />
+              </div>
+              <div className="ed-form-group">
+                <label className="ed-form-label">Emergency Contact Phone *</label>
+                <input
+                  className="ed-input"
+                  placeholder="(555) 000-0000"
+                  type="tel"
+                  value={form.emergencyContactPhone}
+                  onChange={(e) => setForm((f) => ({ ...f, emergencyContactPhone: e.target.value }))}
+                />
+              </div>
+              <div className="ed-modal-divider" />
+              <div className="ed-form-group">
+                <label className="ed-form-label">Medical or Dietary Notes</label>
+                <textarea
+                  className="ed-modal-textarea"
+                  placeholder="Any medical conditions, allergies, injuries, mobility considerations, or dietary restrictions we should know about. Leave blank if none."
+                  value={form.medicalNotes}
+                  onChange={(e) => setForm((f) => ({ ...f, medicalNotes: e.target.value }))}
+                />
+              </div>
+              <div className="ed-modal-divider" />
+              <div className="ed-modal-consent">
+                <input
+                  type="checkbox"
+                  className="ed-modal-consent-check"
+                  id="ed-consent"
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                />
+                <label htmlFor="ed-consent" className="ed-modal-consent-text">
+                  By checking this box, I agree to the ROAMSIX{" "}
+                  <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a>,{" "}
+                  <a href="/waiver" target="_blank" rel="noopener noreferrer">Assumption of Risk and Participant Agreement</a>,{" "}
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>, and{" "}
+                  <a href="/media-release" target="_blank" rel="noopener noreferrer">Media Release</a>.
+                  I understand participation may involve physical activity, outdoor environments, uneven terrain,
+                  food service, weather exposure, and other inherent risks.
+                </label>
+              </div>
               {err && <div className="ed-modal-err">{err}</div>}
               <button
                 className="ed-modal-submit"
                 onClick={handleSubmit}
-                disabled={status === "loading"}
+                disabled={
+                  status === "loading" ||
+                  !form.name.trim() || !form.email.trim() || !form.phone.trim() ||
+                  !form.emergencyContactName.trim() || !form.emergencyContactPhone.trim() ||
+                  !agreedToTerms
+                }
               >
                 {status === "loading" ? "Redirecting..." : "Proceed to Checkout"}
               </button>
@@ -452,8 +552,17 @@ export default function EventDetailPage() {
       </div>
 
       <footer className="ed-footer">
-        <span className="ed-footer-brand">ROAMSIX</span>
-        <Link className="ed-footer-link" to="/events">← All Events</Link>
+        <div className="ed-footer-top">
+          <span className="ed-footer-brand">ROAMSIX</span>
+          <Link className="ed-footer-link" to="/events">All Events</Link>
+        </div>
+        <div className="ed-footer-legal">
+          <Link to="/terms">Terms of Service</Link>
+          <Link to="/privacy">Privacy Policy</Link>
+          <Link to="/waiver">Assumption of Risk</Link>
+          <Link to="/media-release">Media Release</Link>
+          <Link to="/terms">Refund Policy</Link>
+        </div>
       </footer>
     </div>
   );

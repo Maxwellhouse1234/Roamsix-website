@@ -92,10 +92,14 @@ const css = `
   .evl-hr { border: none; height: 1px; background: linear-gradient(to right, transparent, rgba(181,149,88,0.14), transparent); margin: 72px 0 0; }
 
   /* FOOTER */
-  .evl-footer { background: var(--panel); border-top: 1px solid rgba(181,149,88,0.1); padding: 40px 56px; display: flex; align-items: center; justify-content: space-between; }
+  .evl-footer { background: var(--panel); border-top: 1px solid rgba(181,149,88,0.1); padding: 40px 56px; }
+  .evl-footer-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
   .evl-footer-brand { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 4px; color: var(--cream); text-transform: uppercase; }
   .evl-footer-link { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); text-decoration: none; transition: color 0.2s; }
   .evl-footer-link:hover { color: var(--cream); }
+  .evl-footer-legal { display: flex; flex-wrap: wrap; gap: 20px; border-top: 1px solid rgba(232,223,208,0.07); padding-top: 20px; }
+  .evl-footer-legal a { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: rgba(232,223,208,0.4); text-decoration: none; transition: color 0.2s; }
+  .evl-footer-legal a:hover { color: var(--cream-muted); }
 
   @media (max-width: 900px) {
     .evl-nav-links { display: none; }
@@ -103,7 +107,8 @@ const css = `
     .evl-nav { padding: 0 24px; }
     .evl-page { padding: 120px 24px 72px; }
     .evl-grid { grid-template-columns: 1fr; }
-    .evl-footer { padding: 32px 24px; flex-direction: column; gap: 16px; text-align: center; }
+    .evl-footer { padding: 32px 24px; }
+    .evl-footer-top { flex-direction: column; gap: 16px; text-align: center; }
   }
 `;
 
@@ -230,8 +235,17 @@ export default function EventsPage() {
       </div>
 
       <footer className="evl-footer">
-        <span className="evl-footer-brand">ROAMSIX</span>
-        <Link className="evl-footer-link" to="/">Back to Home</Link>
+        <div className="evl-footer-top">
+          <span className="evl-footer-brand">ROAMSIX</span>
+          <Link className="evl-footer-link" to="/">Back to Home</Link>
+        </div>
+        <div className="evl-footer-legal">
+          <Link to="/terms">Terms of Service</Link>
+          <Link to="/privacy">Privacy Policy</Link>
+          <Link to="/waiver">Assumption of Risk</Link>
+          <Link to="/media-release">Media Release</Link>
+          <Link to="/terms">Refund Policy</Link>
+        </div>
       </footer>
     </div>
   );

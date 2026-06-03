@@ -29,12 +29,21 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const {
-    eventId        = "",
-    packageId      = "",
-    customerEmail  = "",
-    customerName   = "",
-    isBundle       = false,
-    quantity       = 1,
+    eventId               = "",
+    packageId             = "",
+    customerEmail         = "",
+    customerName          = "",
+    isBundle              = false,
+    quantity              = 1,
+    phone                 = "",
+    emergencyContactName  = "",
+    emergencyContactPhone = "",
+    medicalNotes          = "",
+    eventName             = "",
+    eventDate             = "",
+    acceptedLegalVersion  = "",
+    acceptedAt            = "",
+    agreedToTerms         = "",
   } = req.body || {};
 
   if (!customerEmail.trim() || !customerName.trim()) {
@@ -83,6 +92,15 @@ export default async function handler(req, res) {
   params.set("metadata[customerName]", customerName.trim());
   params.set("metadata[isBundle]", useBundle ? "true" : "false");
   params.set("metadata[quantity]", String(qty));
+  params.set("metadata[phone]", phone.trim().slice(0, 100));
+  params.set("metadata[emergencyContactName]", emergencyContactName.trim().slice(0, 200));
+  params.set("metadata[emergencyContactPhone]", emergencyContactPhone.trim().slice(0, 100));
+  params.set("metadata[medicalNotes]", medicalNotes.trim().slice(0, 490));
+  params.set("metadata[eventName]", eventName.trim().slice(0, 200));
+  params.set("metadata[eventDate]", eventDate.toString().slice(0, 100));
+  params.set("metadata[acceptedLegalVersion]", acceptedLegalVersion.toString().slice(0, 100));
+  params.set("metadata[acceptedAt]", acceptedAt.toString().slice(0, 100));
+  params.set("metadata[agreedToTerms]", agreedToTerms.toString().slice(0, 10));
   params.set("line_items[0][quantity]", String(qty));
 
   if (stripePriceId) {

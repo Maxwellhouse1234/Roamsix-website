@@ -13,6 +13,11 @@ import EventDetailPage from './pages/EventDetailPage';
 import EventSuccessPage from './pages/EventSuccessPage';
 import ExperiencesPage from './pages/ExperiencesPage';
 import CorporatePage from './pages/CorporatePage';
+import TermsPage from './pages/TermsPage';
+import PrivacyPage from './pages/PrivacyPage';
+import WaiverPage from './pages/WaiverPage';
+import MediaReleasePage from './pages/MediaReleasePage';
+import EventIntakePage from './pages/EventIntakePage';
 
 export const router = createBrowserRouter([
   { path: '/',                                 element: <HomePage /> },
@@ -29,4 +34,9 @@ export const router = createBrowserRouter([
   { path: '/events',                           element: <EventsPage /> },
   { path: '/events/:eventId',                  element: <EventDetailPage /> },
   { path: '/events/:eventId/success',          element: <EventSuccessPage /> },
+  { path: '/terms',                            element: <TermsPage /> },
+  { path: '/privacy',                          element: <PrivacyPage /> },
+  { path: '/waiver',                           element: <WaiverPage /> },
+  { path: '/media-release',                    element: <MediaReleasePage /> },
+  { path: '/event-intake',                     element: <EventIntakePage /> },
 ]);

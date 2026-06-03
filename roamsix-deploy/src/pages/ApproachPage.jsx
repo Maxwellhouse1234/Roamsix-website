@@ -78,7 +78,7 @@ const css = `
 
  /* FOOTER */
  .ap-footer { background: var(--panel); border-top: 1px solid rgba(181,149,88,0.1); padding: 72px 56px 48px; }
- .ap-footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 64px; }
+ .ap-footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 64px; }
  .ap-footer-wm { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 4px; color: var(--cream); text-transform: uppercase; margin-bottom: 16px; }
  .ap-footer-tag { font-size: 15px; color: var(--cream-dim); line-height: 1.7; max-width: 280px; margin-bottom: 24px; }
  .ap-footer-social { display: flex; gap: 16px; }
@@ -258,6 +258,13 @@ export default function ApproachPage() {
       <li><a href="https://www.youtube.com/@RedirectionPoint" target="_blank" rel="noopener noreferrer">YouTube</a></li>
       <li><a href="https://www.instagram.com/redirectionpoint" target="_blank" rel="noopener noreferrer">Instagram</a></li>
       <li><a href="/#podcast">About the Podcast</a></li>
+     </ul></div>
+     <div className="ap-footer-col"><h4>Legal</h4><ul>
+      <li><Link to="/terms">Terms of Service</Link></li>
+      <li><Link to="/privacy">Privacy Policy</Link></li>
+      <li><Link to="/waiver">Assumption of Risk</Link></li>
+      <li><Link to="/media-release">Media Release</Link></li>
+      <li><Link to="/terms">Refund Policy</Link></li>
      </ul></div>
     </div>
     <div className="ap-footer-bottom">

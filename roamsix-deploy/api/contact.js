@@ -1,12 +1,27 @@
 // api/contact.js
-// Homepage contact / inquiry form handler
-// - Sends branded notification email to max@roamsix.com + jackie@roamsix.com
-// - Sends branded confirmation email to prospect
-// - Writes lead to Airtable Inquiries table (creates table on first run if missing)
+// Dual-purpose handler:
+//
+//   1. INTAKE SUBMISSION — if req.body contains a session_id field:
+//      Finds the Airtable Attendees record by Stripe session ID and
+//      updates it with participant intake form data.
+//
+//   2. CONTACT FORM — otherwise:
+//      Sends branded notification email to max@roamsix.com + jackie@roamsix.com,
+//      sends branded confirmation email to prospect, and writes lead to
+//      Airtable Inquiries table (creates table on first run if missing).
+
+const AIRTABLE_BASE_ID = "app2b2mTCtAIMmo79";
+const ATTENDEES_TABLE  = "Attendees";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
+  // ── ROUTE: INTAKE FORM SUBMISSION ────────────────────────────────
+  if (req.body && req.body.session_id !== undefined) {
+    return handleIntake(req, res);
+  }
+
+  // ── ROUTE: CONTACT / INQUIRY FORM ────────────────────────────────
   const {
     firstName   = "",
     lastName    = "",
@@ -110,6 +125,108 @@ export default async function handler(req, res) {
         }),
       });
     } catch (err) { console.error("Airtable write error:", err); }
+  }
+
+  return res.status(200).json({ success: true });
+}
+
+// ── INTAKE HANDLER ────────────────────────────────────────────────
+
+async function handleIntake(req, res) {
+  const {
+    session_id,
+    fullName,
+    email,
+    phone,
+    emergencyContactName,
+    emergencyContactPhone,
+    dietaryRestrictions,
+    foodAllergies,
+    medicalNotes,
+    whyAttending,
+    goals,
+    howHeard,
+    textConsent,
+  } = req.body || {};
+
+  if (!session_id || typeof session_id !== "string" || !session_id.startsWith("cs_")) {
+    return res.status(400).json({ error: "Invalid session ID." });
+  }
+  if (!fullName?.trim() || !email?.trim() || !phone?.trim() ||
+      !emergencyContactName?.trim() || !emergencyContactPhone?.trim()) {
+    return res.status(400).json({ error: "Please complete all required fields." });
+  }
+
+  const token = process.env.AIRTABLE_TOKEN;
+  if (!token) {
+    console.error("AIRTABLE_TOKEN not set");
+    return res.status(503).json({ error: "Service unavailable. Please contact info@roamsix.com." });
+  }
+
+  // Look up Airtable Attendees record by Stripe Session ID
+  let record;
+  try {
+    const formula = `({Stripe Session ID}="${session_id.replace(/"/g, "")}")`;
+    const searchRes = await fetch(
+      `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(ATTENDEES_TABLE)}?filterByFormula=${encodeURIComponent(formula)}&maxRecords=1`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if (!searchRes.ok) {
+      console.error("Airtable search failed:", await searchRes.text());
+      return res.status(500).json({ error: "Failed to look up your registration. Please contact info@roamsix.com." });
+    }
+    const searchData = await searchRes.json();
+    record = searchData.records?.[0];
+  } catch (err) {
+    console.error("Airtable search exception:", err);
+    return res.status(500).json({ error: "Failed to look up your registration. Please contact info@roamsix.com." });
+  }
+
+  if (!record) {
+    return res.status(404).json({
+      error: "Registration not found. Please use the link from your ROAMSIX confirmation email, or contact info@roamsix.com.",
+    });
+  }
+
+  // Build and PATCH intake fields onto the existing record
+  const dietaryList = Array.isArray(dietaryRestrictions)
+    ? dietaryRestrictions.join(", ")
+    : (typeof dietaryRestrictions === "string" ? dietaryRestrictions : "");
+
+  const intakeFields = {
+    "Full Name":               fullName.trim(),
+    "Email":                   email.trim(),
+    "Phone":                   phone.trim(),
+    "Emergency Contact Name":  emergencyContactName.trim(),
+    "Emergency Contact Phone": emergencyContactPhone.trim(),
+    "Dietary Restrictions":    dietaryList,
+    "Food Allergies":          (foodAllergies || "").trim(),
+    "Medical or Dietary Notes": (medicalNotes || "").trim(),
+    "Why Attending":           (whyAttending || "").trim(),
+    "Goals":                   (goals || "").trim(),
+    "How Heard":               (howHeard || "").trim(),
+    "Text Consent":            textConsent ? "Yes" : "No",
+    "Intake Completed":        "Yes",
+    "Intake Completed At":     new Date().toISOString(),
+  };
+
+  try {
+    const updateRes = await fetch(
+      `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(ATTENDEES_TABLE)}/${record.id}`,
+      {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ fields: intakeFields }),
+      }
+    );
+    if (!updateRes.ok) {
+      const errData = await updateRes.json().catch(() => ({}));
+      console.error("Airtable update error:", errData);
+      return res.status(500).json({ error: "Failed to save your intake form. Please contact info@roamsix.com." });
+    }
+  } catch (err) {
+    console.error("Airtable update exception:", err);
+    return res.status(500).json({ error: "Failed to save your intake form. Please contact info@roamsix.com." });
   }
 
   return res.status(200).json({ success: true });

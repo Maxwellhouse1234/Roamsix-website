@@ -53,12 +53,26 @@ const css = `
   .es-btn-teal:hover { background: var(--teal-dim); }
   .es-btn-outline { background: transparent; color: var(--cream); border: 1px solid rgba(232,223,208,0.25); }
   .es-btn-outline:hover { border-color: var(--cream); }
+  .es-btn-gold { background: var(--gold); color: var(--navy); }
+  .es-btn-gold:hover { background: var(--cream); color: var(--navy); }
+
+  /* FOOTER */
+  .es-footer { background: var(--panel); border-top: 1px solid rgba(181,149,88,0.1); padding: 40px 56px; margin-top: 80px; }
+  .es-footer-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .es-footer-brand { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 4px; color: var(--cream); text-transform: uppercase; }
+  .es-footer-link { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); text-decoration: none; transition: color 0.2s; }
+  .es-footer-link:hover { color: var(--cream); }
+  .es-footer-legal { display: flex; flex-wrap: wrap; gap: 20px; border-top: 1px solid rgba(232,223,208,0.07); padding-top: 20px; }
+  .es-footer-legal a { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: rgba(232,223,208,0.4); text-decoration: none; transition: color 0.2s; }
+  .es-footer-legal a:hover { color: var(--cream-muted); }
 
   @media (max-width: 900px) {
     .es-nav { padding: 0 24px; }
     .es-page { padding: 120px 24px 72px; }
     .es-actions { flex-direction: column; }
     .es-btn { text-align: center; }
+    .es-footer { padding: 32px 24px; margin-top: 40px; }
+    .es-footer-top { flex-direction: column; gap: 12px; text-align: center; }
   }
 `;
 
@@ -74,6 +88,7 @@ export default function EventSuccessPage() {
   const pkgId = searchParams.get("pkg") || "";
   const customerName = searchParams.get("name") || "";
   const isBundle = searchParams.get("bundle") === "1";
+  const sessionId = searchParams.get("session_id") || "";
 
   const pkg = event ? event.packages.find((p) => p.id === pkgId) : null;
 
@@ -145,11 +160,11 @@ export default function EventSuccessPage() {
           <ul className="es-next-list">
             <li>
               <span className="es-next-num">01</span>
-              Check your email for a payment confirmation and receipt from Stripe.
+              Check your email for a confirmation from ROAMSIX with details, directions, and what to bring.
             </li>
             <li>
               <span className="es-next-num">02</span>
-              You will receive a separate confirmation from ROAMSIX with event details, directions, and what to bring.
+              Complete your Participant Intake Form so we can prepare for any food allergies, dietary needs, and emergency contact information.
             </li>
             <li>
               <span className="es-next-num">03</span>
@@ -159,10 +174,29 @@ export default function EventSuccessPage() {
         </div>
 
         <div className="es-actions">
+          {sessionId && (
+            <Link to={`/event-intake?session_id=${sessionId}`} className="es-btn es-btn-gold">
+              Complete Intake Form
+            </Link>
+          )}
           <a href="/" className="es-btn es-btn-teal">Back to Home</a>
           <Link to="/events" className="es-btn es-btn-outline">View All Events</Link>
         </div>
       </div>
+
+      <footer className="es-footer">
+        <div className="es-footer-top">
+          <span className="es-footer-brand">ROAMSIX</span>
+          <a className="es-footer-link" href="/">Home</a>
+        </div>
+        <div className="es-footer-legal">
+          <Link to="/terms">Terms of Service</Link>
+          <Link to="/privacy">Privacy Policy</Link>
+          <Link to="/waiver">Assumption of Risk</Link>
+          <Link to="/media-release">Media Release</Link>
+          <Link to="/terms">Refund Policy</Link>
+        </div>
+      </footer>
     </div>
   );
 }
