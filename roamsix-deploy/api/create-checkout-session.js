@@ -84,6 +84,7 @@ export default async function handler(req, res) {
   // Build Stripe request using URLSearchParams (bracket notation)
   const params = new URLSearchParams();
   params.set("mode", "payment");
+  params.set("allow_promotion_codes", "true");
   params.set("customer_email", customerEmail.trim());
   params.set("success_url", successUrl);
   params.set("cancel_url", cancelUrl);
