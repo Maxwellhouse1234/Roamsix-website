@@ -287,7 +287,6 @@ export default async function handler(req, res) {
           "Emergency Contact Phone": emergencyContactPhone,
           "Medical or Dietary Notes": medicalNotes,
           "Intake Completed":        "No",
-          "Intake Completed At":     "",
         });
         console.log("WEBHOOK: Attendees done");
       }
