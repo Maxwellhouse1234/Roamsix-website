@@ -281,7 +281,7 @@ export default async function handler(req, res) {
           "Legal Accepted":          agreedToTerms ? "Yes" : "No",
           "Legal Version":           legalVersion,
           "Accepted At":             acceptedAt,
-          "Age Confirmed":           ageConfirmed,
+          "Age Confirmed":           (ageConfirmed === "true" || ageConfirmed === true) ? "Yes" : "No",
           "SMS Consent":             smsConsent,
           "Emergency Contact Name":  emergencyContactName,
           "Emergency Contact Phone": emergencyContactPhone,
