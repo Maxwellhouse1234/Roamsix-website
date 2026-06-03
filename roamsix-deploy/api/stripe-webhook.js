@@ -291,7 +291,7 @@ export default async function handler(req, res) {
     // ── STEP 8: CONFIRMATION EMAIL TO CUSTOMER ────────────────────────────────
     if (process.env.RESEND_API_KEY && email) {
       try {
-        await fetch("https://api.resend.com/emails", {
+        const resendRes = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: { "Authorization": `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -304,13 +304,21 @@ export default async function handler(req, res) {
             }),
           }),
         });
-      } catch (err) { console.error("Customer confirmation email error:", err); }
+        if (!resendRes.ok) {
+          const errBody = await resendRes.text();
+          console.error("Resend error (customer email):", resendRes.status, errBody);
+        } else {
+          console.log("Customer confirmation email sent successfully to:", email);
+        }
+      } catch (err) {
+        console.error("Customer confirmation email fetch error:", err.message);
+      }
     }
 
     // ── STEP 9: NOTIFICATION EMAIL TO ROAMSIX TEAM ───────────────────────────
     if (process.env.RESEND_API_KEY) {
       try {
-        await fetch("https://api.resend.com/emails", {
+        const resendRes = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: { "Authorization": `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -326,7 +334,15 @@ export default async function handler(req, res) {
             }),
           }),
         });
-      } catch (err) { console.error("Team notification email error:", err); }
+        if (!resendRes.ok) {
+          const errBody = await resendRes.text();
+          console.error("Resend error (team notification):", resendRes.status, errBody);
+        } else {
+          console.log("Team notification email sent successfully");
+        }
+      } catch (err) {
+        console.error("Team notification email fetch error:", err.message);
+      }
     }
 
   } catch (err) {
