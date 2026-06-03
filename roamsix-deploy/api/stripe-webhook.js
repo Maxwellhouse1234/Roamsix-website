@@ -245,11 +245,9 @@ export default async function handler(req, res) {
     // Promise.race ensures we always respond within 25 seconds even if work stalls.
 
     const workPromise = (async () => {
-      console.log("WEBHOOK: workPromise started");
 
       // ── WRITE TO EVENT REGISTRATIONS (legacy record) ───────────────────────
       if (process.env.AIRTABLE_TOKEN) {
-        console.log("WEBHOOK: writing Event Registrations");
         await writeAirtableRecord(process.env.AIRTABLE_TOKEN, {
           "Name":              customerName || "Not provided",
           "Email":             email,
@@ -262,12 +260,10 @@ export default async function handler(req, res) {
           "Registered At":     registeredAt,
           "Notes":             medicalNotes || "",
         });
-        console.log("WEBHOOK: Event Registrations done");
       }
 
       // ── WRITE TO ATTENDEES (full legal + operational record) ───────────────
       if (process.env.AIRTABLE_TOKEN) {
-        console.log("WEBHOOK: writing Attendees");
         await writeAttendeesRecord(process.env.AIRTABLE_TOKEN, {
           "Full Name":               customerName || "Not provided",
           "Email":                   email,
@@ -288,11 +284,9 @@ export default async function handler(req, res) {
           "Medical or Dietary Notes": medicalNotes,
           "Intake Completed":        "No",
         });
-        console.log("WEBHOOK: Attendees done");
       }
 
       // ── CONFIRMATION EMAIL TO CUSTOMER ─────────────────────────────────────
-      console.log("WEBHOOK: sending customer email");
       if (process.env.RESEND_API_KEY && email) {
         try {
           const resendRes = await fetch("https://api.resend.com/emails", {
@@ -311,8 +305,6 @@ export default async function handler(req, res) {
           if (!resendRes.ok) {
             const errBody = await resendRes.text();
             console.error("Resend error (customer email):", resendRes.status, errBody);
-          } else {
-            console.log("WEBHOOK: customer email done");
           }
         } catch (err) {
           console.error("Customer confirmation email fetch error:", err.message);
@@ -347,7 +339,6 @@ export default async function handler(req, res) {
         }
       }
 
-      console.log("WEBHOOK: workPromise completed");
     })();
 
     const timeoutPromise = new Promise((resolve) => setTimeout(resolve, 25000));
