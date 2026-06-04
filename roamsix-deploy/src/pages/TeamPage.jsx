@@ -61,8 +61,8 @@ const css = `
  /* FOUNDER CARDS */
  .tp-founders { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 80px; }
  .tp-founder { background: var(--panel); border: 1px solid rgba(232,223,208,0.08); }
- .tp-founder-photo { width: 100%; aspect-ratio: 4/3; object-fit: cover; object-position: center top; display: block; filter: brightness(0.9) contrast(1.05); }
- .tp-founder-photo-placeholder { width: 100%; aspect-ratio: 4/3; background: rgba(74,117,117,0.1); display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-size: 48px; font-weight: 600; color: var(--teal); letter-spacing: 4px; }
+ .tp-founder-photo { width: 100%; aspect-ratio: 3/4; object-fit: cover; object-position: top; display: block; filter: brightness(0.9) contrast(1.05); }
+ .tp-founder-photo-placeholder { width: 100%; aspect-ratio: 3/4; background: rgba(74,117,117,0.1); display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-size: 48px; font-weight: 600; color: var(--teal); letter-spacing: 4px; }
  .tp-founder-body { padding: 32px 36px 36px; }
  .tp-founder-role { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
  .tp-founder-name { font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--cream); margin-bottom: 20px; }
