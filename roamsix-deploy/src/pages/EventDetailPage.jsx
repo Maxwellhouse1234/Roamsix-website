@@ -132,6 +132,33 @@ const css = `
   .ed-modal-cancel-notice a:hover { color: var(--cream); }
   .ed-modal-voluntary { font-size: 12px; color: var(--cream-muted); line-height: 1.65; margin-top: 14px; margin-bottom: 4px; }
 
+  /* SINGLE OFFER CARD */
+  .ed-offer-wrap { max-width: 860px; margin: 0 auto; }
+  .ed-offer-positioning { font-size: 17px; color: var(--cream-muted); line-height: 1.75; margin-bottom: 44px; text-align: center; font-style: italic; }
+  .ed-offer { background: var(--panel); border: 1px solid rgba(181,149,88,0.2); border-top: 3px solid var(--gold); }
+  .ed-offer-top { padding: 48px 56px 36px; border-bottom: 1px solid rgba(232,223,208,0.07); }
+  .ed-offer-name { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; }
+  .ed-offer-price-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 20px; }
+  .ed-offer-price { font-family: 'Barlow Condensed', sans-serif; font-size: 72px; font-weight: 700; color: var(--cream); letter-spacing: -1px; line-height: 1; }
+  .ed-offer-price-label { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); }
+  .ed-offer-subcopy { font-size: 18px; line-height: 1.75; color: var(--cream-dim); max-width: 580px; }
+  .ed-offer-body { padding: 40px 56px 48px; }
+  .ed-offer-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-bottom: 40px; }
+  .ed-offer-section-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--teal-light); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid rgba(74,117,117,0.2); }
+  .ed-offer-list { list-style: none; }
+  .ed-offer-list li { font-size: 15px; line-height: 1.6; color: var(--cream-dim); padding: 8px 0; border-bottom: 1px solid rgba(232,223,208,0.05); display: flex; gap: 10px; align-items: flex-start; }
+  .ed-offer-list li:last-child { border-bottom: none; }
+  .ed-offer-list li::before { content: ""; display: block; width: 5px; height: 5px; background: var(--teal); border-radius: 50%; margin-top: 8px; flex-shrink: 0; }
+  .ed-offer-promo { background: rgba(181,149,88,0.05); border: 1px solid rgba(181,149,88,0.2); border-left: 3px solid var(--gold); padding: 20px 24px; margin-bottom: 36px; }
+  .ed-offer-promo-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  .ed-offer-promo-text { font-size: 15px; color: var(--cream-dim); line-height: 1.65; }
+  .ed-offer-promo-code { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; color: var(--cream); letter-spacing: 2px; }
+  .ed-offer-footer { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-top: 1px solid rgba(232,223,208,0.07); padding-top: 32px; flex-wrap: wrap; }
+  .ed-offer-capacity { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); }
+  .ed-offer-btn { padding: 17px 52px; background: var(--gold); color: var(--navy); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; border: none; cursor: pointer; transition: all 0.22s; }
+  .ed-offer-btn:hover { background: var(--cream); color: var(--navy); }
+  .ed-offer-btn-soldout { padding: 17px 52px; background: rgba(232,223,208,0.05); color: var(--cream-muted); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; border: 1px solid rgba(232,223,208,0.1); cursor: not-allowed; }
+
   /* IMAGE DIVIDER */
   .ed-img-divider { width: 100%; aspect-ratio: 16/6; overflow: hidden; margin-bottom: 80px; }
   .ed-img-divider img { width: 100%; height: 100%; object-fit: cover; object-position: center 40%; filter: brightness(0.65) contrast(1.05); display: block; }
@@ -155,6 +182,13 @@ const css = `
     .ed-img-divider { margin-bottom: 60px; }
     .ed-footer { padding: 32px 24px; }
     .ed-footer-top { flex-direction: column; gap: 16px; text-align: center; }
+    .ed-offer-top { padding: 32px 28px 28px; }
+    .ed-offer-body { padding: 28px 28px 36px; }
+    .ed-offer-cols { grid-template-columns: 1fr; gap: 32px; }
+    .ed-offer-price { font-size: 56px; }
+    .ed-offer-footer { flex-direction: column; align-items: flex-start; }
+    .ed-offer-btn { width: 100%; text-align: center; }
+    .ed-offer-btn-soldout { width: 100%; text-align: center; }
   }
   @media (max-width: 480px) {
     .ed-bundle-toggle { grid-template-columns: 1fr; }
@@ -528,65 +562,65 @@ export default function EventDetailPage() {
 
         <hr className="ed-hr" />
 
-        {/* PACKAGES */}
-        <div className="ed-packages-head">
-          <div className="ed-label-row">
+        {/* SINGLE OFFER */}
+        <div className="ed-offer-wrap">
+          <div className="ed-label-row" style={{ justifyContent: "center", marginBottom: "16px" }}>
             <span className="ed-rule" />
             <span className="ed-label">Registration</span>
+            <span className="ed-rule" />
           </div>
-          <h2 className="ed-packages-h2">Choose your experience.</h2>
-        </div>
-
-        <div className="ed-packages-grid">
-          {event.packages.map((pkg, i) => {
-            const isFeatured = i === 1;
-            const soldOut = event.status === "soldout";
-            return (
-              <div key={pkg.id} className={`ed-pkg${isFeatured ? " ed-pkg-featured" : ""}`}>
-                {pkg.id === "private-circle" && <span className="ed-pkg-limited">Limited to 10 guests</span>}
-                <div className="ed-pkg-name">{pkg.name}</div>
-                <div className="ed-pkg-price">{fmtPrice(pkg.price)}</div>
-                <div className="ed-pkg-price-label">per person</div>
-                <p className="ed-pkg-desc">{pkg.description}</p>
-                <div className="ed-pkg-includes-label">Includes</div>
-                <ul className="ed-pkg-includes">
-                  {pkg.includes.map((item, j) => <li key={j}>{item}</li>)}
-                </ul>
-                {pkg.bundleOffer && pkg.bundlePrice && (
-                  <div className="ed-pkg-bundle">
-                    <span className="ed-pkg-bundle-label">Bundle Offer</span>
-                    {pkg.bundleOffer}
+          <p className="ed-offer-positioning">
+            No presentations. No ballroom. No packed schedule. Just good food, open land, thoughtful conversation, and people who care about living well.
+          </p>
+          <div className="ed-offer">
+            <div className="ed-offer-top">
+              <div className="ed-offer-name">{event.packages[0].name}</div>
+              <div className="ed-offer-price-row">
+                <div className="ed-offer-price">{fmtPrice(event.packages[0].price)}</div>
+                <div className="ed-offer-price-label">per person</div>
+              </div>
+              <p className="ed-offer-subcopy">{event.packages[0].description}</p>
+            </div>
+            <div className="ed-offer-body">
+              <div className="ed-offer-cols">
+                <div>
+                  <div className="ed-offer-section-label">What's Included</div>
+                  <ul className="ed-offer-list">
+                    {event.packages[0].includes.map((item, i) => <li key={i}>{item}</li>)}
+                  </ul>
+                </div>
+                {event.conversations && (
+                  <div>
+                    <div className="ed-offer-section-label">Conversations Include</div>
+                    <ul className="ed-offer-list">
+                      {event.conversations.map((item, i) => <li key={i}>{item}</li>)}
+                    </ul>
                   </div>
-                )}
-                {pkg.bundleOffer && !pkg.bundlePrice && (
-                  <div className="ed-pkg-bundle">
-                    <span className="ed-pkg-bundle-label">Special Offer</span>
-                    {pkg.bundleOffer}
-                  </div>
-                )}
-                {soldOut ? (
-                  <div className="ed-pkg-btn-soldout">Sold Out</div>
-                ) : (
-                  <>
-                    <button
-                      className={`ed-pkg-btn${isFeatured ? " ed-pkg-btn-gold" : ""}`}
-                      onClick={() => openModal(pkg, false)}
-                    >
-                      Register
-                    </button>
-                    {pkg.bundlePrice && (
-                      <button
-                        className="ed-pkg-btn-bundle"
-                        onClick={() => openModal(pkg, true)}
-                      >
-                        Couples Bundle: {fmtPrice(pkg.bundlePrice)} for two
-                      </button>
-                    )}
-                  </>
                 )}
               </div>
-            );
-          })}
+              <div className="ed-offer-promo">
+                <div className="ed-offer-promo-label">Father's Day Weekend Offer</div>
+                <p className="ed-offer-promo-text">
+                  Bring someone important. Use code{" "}
+                  <span className="ed-offer-promo-code">FATHER30</span>
+                  {" "}for 30% off at checkout.
+                </p>
+              </div>
+              <div className="ed-offer-footer">
+                <div className="ed-offer-capacity">Limited to 20 guests</div>
+                {event.status === "soldout" ? (
+                  <div className="ed-offer-btn-soldout">Sold Out</div>
+                ) : (
+                  <button
+                    className="ed-offer-btn"
+                    onClick={() => openModal(event.packages[0])}
+                  >
+                    Register Now
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
