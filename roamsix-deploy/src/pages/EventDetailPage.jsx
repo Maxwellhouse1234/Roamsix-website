@@ -151,8 +151,10 @@ const css = `
   .ed-offer-list li::before { content: ""; display: block; width: 5px; height: 5px; background: var(--teal); border-radius: 50%; margin-top: 8px; flex-shrink: 0; }
   .ed-offer-promo { background: rgba(181,149,88,0.05); border: 1px solid rgba(181,149,88,0.2); border-left: 3px solid var(--gold); padding: 20px 24px; margin-bottom: 36px; }
   .ed-offer-promo-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  .ed-offer-two-tickets { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 700; color: var(--cream); letter-spacing: 0.5px; line-height: 1.1; margin-bottom: 10px; }
   .ed-offer-promo-text { font-size: 15px; color: var(--cream-dim); line-height: 1.65; }
-  .ed-offer-promo-code { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; color: var(--cream); letter-spacing: 2px; }
+  .ed-offer-promo-code { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; color: var(--cream); letter-spacing: 2px; }
+  .ed-offer-topic { font-size: 16px; color: var(--cream-muted); line-height: 1.75; margin-bottom: 36px; font-style: italic; }
   .ed-offer-footer { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-top: 1px solid rgba(232,223,208,0.07); padding-top: 32px; flex-wrap: wrap; }
   .ed-offer-capacity { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); }
   .ed-offer-btn { padding: 17px 52px; background: var(--gold); color: var(--navy); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; border: none; cursor: pointer; transition: all 0.22s; }
@@ -569,9 +571,6 @@ export default function EventDetailPage() {
             <span className="ed-label">Registration</span>
             <span className="ed-rule" />
           </div>
-          <p className="ed-offer-positioning">
-            No presentations. No ballroom. No packed schedule. Just good food, open land, thoughtful conversation, and people who care about living well.
-          </p>
           <div className="ed-offer">
             <div className="ed-offer-top">
               <div className="ed-offer-name">{event.packages[0].name}</div>
@@ -582,26 +581,18 @@ export default function EventDetailPage() {
               <p className="ed-offer-subcopy">{event.packages[0].description}</p>
             </div>
             <div className="ed-offer-body">
-              <div className="ed-offer-cols">
-                <div>
-                  <div className="ed-offer-section-label">What's Included</div>
-                  <ul className="ed-offer-list">
-                    {event.packages[0].includes.map((item, i) => <li key={i}>{item}</li>)}
-                  </ul>
-                </div>
-                {event.conversations && (
-                  <div>
-                    <div className="ed-offer-section-label">Conversations Include</div>
-                    <ul className="ed-offer-list">
-                      {event.conversations.map((item, i) => <li key={i}>{item}</li>)}
-                    </ul>
-                  </div>
-                )}
-              </div>
+              <div className="ed-offer-section-label">What's Included</div>
+              <ul className="ed-offer-list" style={{ marginBottom: "28px" }}>
+                {event.packages[0].includes.map((item, i) => <li key={i}>{item}</li>)}
+              </ul>
+              <p className="ed-offer-topic">
+                Throughout the evening we will explore practical ideas around food, recovery, longevity, and building a lifestyle that can hold up over time.
+              </p>
               <div className="ed-offer-promo">
-                <div className="ed-offer-promo-label">Father's Day Weekend Offer</div>
+                <div className="ed-offer-promo-label">Father's Day Weekend</div>
+                <div className="ed-offer-two-tickets">Two tickets for $398</div>
                 <p className="ed-offer-promo-text">
-                  Bring someone important. Use code{" "}
+                  Use code{" "}
                   <span className="ed-offer-promo-code">FATHER30</span>
                   {" "}for 30% off at checkout.
                 </p>
