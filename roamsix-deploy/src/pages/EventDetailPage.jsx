@@ -56,6 +56,15 @@ const css = `
   .ed-highlights-list li::before { content: ""; display: block; width: 6px; height: 6px; background: var(--teal); border-radius: 50%; margin-top: 8px; flex-shrink: 0; }
   .ed-hr { border: none; height: 1px; background: linear-gradient(to right, transparent, rgba(181,149,88,0.14), transparent); margin: 0 0 80px; }
 
+  /* MENU */
+  .ed-menu { margin-bottom: 64px; }
+  .ed-menu-label { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  .ed-menu-sublabel { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); margin-bottom: 32px; }
+  .ed-menu-list { list-style: none; }
+  .ed-menu-list li { font-size: 17px; line-height: 1.85; color: var(--cream-dim); padding: 12px 0; border-bottom: 1px solid rgba(232,223,208,0.06); display: flex; gap: 14px; align-items: baseline; }
+  .ed-menu-list li:last-child { border-bottom: none; }
+  .ed-menu-dash { color: var(--gold); flex-shrink: 0; font-size: 15px; }
+
   /* PACKAGES */
   .ed-packages-head { margin-bottom: 48px; }
   .ed-packages-h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: clamp(28px,3.2vw,42px); letter-spacing: 1px; text-transform: uppercase; color: var(--cream); line-height: 1.05; margin-top: 16px; }
@@ -549,6 +558,17 @@ export default function EventDetailPage() {
         <div className="ed-body-grid">
           <div className="ed-body-text">
             {event.body.map((p, i) => <p key={i}>{p}</p>)}
+            {event.menu && (
+              <div className="ed-menu">
+                <div className="ed-menu-label">{event.menu.label}</div>
+                <div className="ed-menu-sublabel">{event.menu.sublabel}</div>
+                <ul className="ed-menu-list">
+                  {event.menu.items.map((item, i) => (
+                    <li key={i}><span className="ed-menu-dash">-</span>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
           <div className="ed-highlights">
             <div className="ed-highlights-label">What's Included</div>
@@ -585,9 +605,6 @@ export default function EventDetailPage() {
               <ul className="ed-offer-list" style={{ marginBottom: "28px" }}>
                 {event.packages[0].includes.map((item, i) => <li key={i}>{item}</li>)}
               </ul>
-              <p className="ed-offer-topic">
-                Throughout the evening we will explore practical ideas around food, recovery, longevity, and building a lifestyle that can hold up over time.
-              </p>
               <div className="ed-offer-promo">
                 <div className="ed-offer-promo-label">Father's Day Weekend</div>
                 <div className="ed-offer-two-tickets">Two tickets for $398</div>
