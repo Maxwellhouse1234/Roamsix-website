@@ -3,7 +3,7 @@ export const events = [
   {
     id: "high-output-long-game",
     title: "HIGH OUTPUT: THE LONG GAME",
-    subtitle: "A Father's Day Weekend Experience",
+    subtitle: "Father's Day Weekend",
     date: "2026-06-20T15:00:00-07:00",
     location: "Warner Springs, San Diego County",
     locationDetail: "Private farmstead, Warner Springs CA",
@@ -12,9 +12,9 @@ export const events = [
     cityState: "Warner Springs, California",
     timeRange: "3:00 PM - 9:00 PM",
     description:
-      "A Father's Day weekend experience for men, fathers, couples, and people carrying a lot of responsibility. Movement, recovery, pasture-to-table food, and real conversation on open land.",
+      "A pasture-to-table dinner on a private farmstead in Warner Springs. Saturday evening, June 20th. Limited to 20 guests.",
     body: [
-      "A Father's Day evening at Birdsong Ranch. Pasture-to-table dinner, open land, and the kind of conversation that happens when the setting finally feels right. June 20th. Limited to 20 guests.",
+      "A Father's Day weekend evening at Birdsong Ranch. Pasture-to-table dinner, open land, and the kind of conversation that happens when the setting finally feels right. Saturday June 20th. Limited to 20 guests.",
     ],
     menu: {
       label: "THE MENU",
