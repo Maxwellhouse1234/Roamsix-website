@@ -169,6 +169,15 @@ const css = `
   .ed-offer-btn { padding: 17px 52px; background: var(--gold); color: var(--navy); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; border: none; cursor: pointer; transition: all 0.22s; }
   .ed-offer-btn:hover { background: var(--cream); color: var(--navy); }
   .ed-offer-btn-soldout { padding: 17px 52px; background: rgba(232,223,208,0.05); color: var(--cream-muted); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; border: 1px solid rgba(232,223,208,0.1); cursor: not-allowed; }
+  .ed-offer-ctas { display: flex; gap: 16px; flex-wrap: wrap; width: 100%; }
+  .ed-offer-cta { flex: 1 1 220px; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 20px; border: 1px solid rgba(232,223,208,0.08); }
+  .ed-offer-cta-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--cream-muted); }
+  .ed-offer-cta-price { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 700; color: var(--cream); letter-spacing: -0.5px; }
+  .ed-offer-cta-save { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-light); }
+  .ed-offer-btn-block { width: 100%; padding: 17px; background: var(--gold); color: var(--navy); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; border: none; cursor: pointer; transition: all 0.22s; }
+  .ed-offer-btn-block:hover { background: var(--cream); color: var(--navy); }
+  .ed-offer-btn-block-outline { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
+  .ed-offer-btn-block-outline:hover { background: rgba(181,149,88,0.1); color: var(--gold); }
 
   /* IMAGE DIVIDER */
   .ed-img-divider { width: 100%; aspect-ratio: 16/6; overflow: hidden; margin-bottom: 80px; }
@@ -619,12 +628,29 @@ export default function EventDetailPage() {
                 {event.status === "soldout" ? (
                   <div className="ed-offer-btn-soldout">Sold Out</div>
                 ) : (
-                  <button
-                    className="ed-offer-btn"
-                    onClick={() => openModal(event.packages[0])}
-                  >
-                    Register Now
-                  </button>
+                  <div className="ed-offer-ctas">
+                    <div className="ed-offer-cta">
+                      <div className="ed-offer-cta-label">Single Ticket</div>
+                      <div className="ed-offer-cta-price">{fmtPrice(event.packages[0].price)} per person</div>
+                      <button
+                        className="ed-offer-btn-block"
+                        onClick={() => openModal(event.packages[0], false)}
+                      >
+                        Register Now
+                      </button>
+                    </div>
+                    <div className="ed-offer-cta">
+                      <div className="ed-offer-cta-label">Couples Bundle</div>
+                      <div className="ed-offer-cta-price">{fmtPrice(event.packages[0].bundlePrice)} for two</div>
+                      <div className="ed-offer-cta-save">Save $52</div>
+                      <button
+                        className="ed-offer-btn-block ed-offer-btn-block-outline"
+                        onClick={() => openModal(event.packages[0], true)}
+                      >
+                        Register Two
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
