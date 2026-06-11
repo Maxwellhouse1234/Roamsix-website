@@ -162,7 +162,6 @@ const css = `
   .ed-offer-promo-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
   .ed-offer-two-tickets { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 700; color: var(--cream); letter-spacing: 0.5px; line-height: 1.1; margin-bottom: 10px; }
   .ed-offer-promo-text { font-size: 15px; color: var(--cream-dim); line-height: 1.65; }
-  .ed-offer-promo-code { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; color: var(--cream); letter-spacing: 2px; }
   .ed-offer-topic { font-size: 16px; color: var(--cream-muted); line-height: 1.75; margin-bottom: 36px; font-style: italic; }
   .ed-offer-footer { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-top: 1px solid rgba(232,223,208,0.07); padding-top: 32px; flex-wrap: wrap; }
   .ed-offer-capacity { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); }
@@ -618,9 +617,7 @@ export default function EventDetailPage() {
                 <div className="ed-offer-promo-label">Father's Day Weekend</div>
                 <div className="ed-offer-two-tickets">Two tickets for $398</div>
                 <p className="ed-offer-promo-text">
-                  Use code{" "}
-                  <span className="ed-offer-promo-code">FATHER30</span>
-                  {" "}for 30% off at checkout.
+                  Save $52 when you register two guests together.
                 </p>
               </div>
               <div className="ed-offer-footer">
