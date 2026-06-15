@@ -785,6 +785,7 @@ export default function HomePage() {
  <li><Link to="/events">Events</Link></li>
  <li><Link to="/experiences">All Experiences</Link></li>
  <li><a href="/#proving-grounds">Proving Grounds</a></li>
+ <li><Link to="/priority-access">Priority Access</Link></li>
  <li><a href="#contact">Inquire</a></li>
  </ul></div>
  <div className="rs-footer-col"><h4>Connect</h4><ul>

@@ -230,6 +230,7 @@ export default function TeamPage() {
       <li><Link to="/events">Events</Link></li>
       <li><Link to="/experiences">All Experiences</Link></li>
       <li><Link to="/corporate">Corporate</Link></li>
+      <li><Link to="/priority-access">Priority Access</Link></li>
       <li><a href="/#contact">Inquire</a></li>
      </ul></div>
      <div className="tp-footer-col"><h4>Connect</h4><ul>
