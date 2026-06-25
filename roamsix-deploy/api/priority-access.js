@@ -33,17 +33,22 @@ export default async function handler(req, res) {
     mobile = "",
     experienceInterests = [],
     customInterest = "",
-    questionOne = "",
-    questionTwo = "",
     referralSource = "",
+    referralName = "",
+    emailConsent = false,
+    smsConsent = false,
+    termsAccepted = false,
     referredBy = "",
   } = req.body || {};
 
-  if (!firstName.trim() || !email.trim()) {
-    return res.status(400).json({ success: false, error: "First name and email are required." });
+  if (!firstName.trim() || !lastName.trim() || !email.trim()) {
+    return res.status(400).json({ success: false, error: "First name, last name, and email are required." });
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
     return res.status(400).json({ success: false, error: "Please enter a valid email address." });
+  }
+  if (!termsAccepted) {
+    return res.status(400).json({ success: false, error: "You must agree to the Terms of Service and Privacy Policy." });
   }
 
   const token = process.env.AIRTABLE_TOKEN;
@@ -78,10 +83,13 @@ export default async function handler(req, res) {
         "Mobile Number": mobile.trim(),
         "Experience Interests": experienceInterests.join(", "),
         "Custom Experience Interest": customInterest.trim(),
-        "Question One Response": questionOne.trim(),
-        "Question Two Response": questionTwo.trim(),
         "Referral Source": referralSource.trim(),
         "Referred By": referredBy.trim(),
+        "Referral Name": referralName.trim(),
+        "Email Consent": emailConsent ? "Yes" : "No",
+        "SMS Consent": smsConsent ? "Yes" : "No",
+        "Terms Accepted": termsAccepted ? "Yes" : "No",
+        "Status": "Priority Access",
         "Last Updated": now,
       };
       if (!existing.fields["Referral Code"]) updateFields["Referral Code"] = referralCode;
@@ -111,10 +119,13 @@ export default async function handler(req, res) {
               "Source": "Priority Access Page",
               "Experience Interests": experienceInterests.join(", "),
               "Custom Experience Interest": customInterest.trim(),
-              "Question One Response": questionOne.trim(),
-              "Question Two Response": questionTwo.trim(),
               "Referral Source": referralSource.trim(),
               "Referred By": referredBy.trim(),
+              "Referral Name": referralName.trim(),
+              "Email Consent": emailConsent ? "Yes" : "No",
+              "SMS Consent": smsConsent ? "Yes" : "No",
+              "Terms Accepted": termsAccepted ? "Yes" : "No",
+              "Status": "Priority Access",
               "Referral Code": referralCode,
               "Referral Count": 0,
               "Created Date": now,
@@ -154,9 +165,88 @@ export default async function handler(req, res) {
       }
     }
 
+    // Welcome email to submitter (does not block submission success)
+    if (process.env.RESEND_API_KEY) {
+      try {
+        await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            from: "ROAMSIX <info@roamsix.com>",
+            to: [email.trim()],
+            subject: "Welcome to ROAMSIX",
+            html: welcomeHTML(),
+          }),
+        });
+      } catch (err) { console.error("Welcome email error:", err); }
+
+      // Internal notification (does not block submission success)
+      try {
+        await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            from: "ROAMSIX <info@roamsix.com>",
+            to: ["max@roamsix.com"],
+            subject: "New Priority Access Member",
+            html: internalNotifyHTML({
+              firstName: firstName.trim(),
+              lastName: lastName.trim(),
+              email: email.trim(),
+              mobile: mobile.trim(),
+              experienceInterests,
+              referralSource: referralSource.trim(),
+              referralName: referralName.trim(),
+            }),
+          }),
+        });
+      } catch (err) { console.error("Internal notification email error:", err); }
+    }
+
     return res.status(200).json({ success: true, referralCode });
   } catch (err) {
     console.error("Priority Access submission error:", err);
     return res.status(500).json({ success: false, error: "Failed to save your submission. Please contact info@roamsix.com." });
   }
 };
+
+// TODO: 48-hour referral email
+// Template approved. Implement when
+// email automation platform is confirmed.
+
+function welcomeHTML() {
+  return `<p>Welcome.</p>
+<p>We're glad you found us.</p>
+<p>ROAMSIX brings together people who
+care about how they live, what they
+build, and who they become.</p>
+<p>People who stay curious.</p>
+<p>Who value quality over convenience.</p>
+<p>Who believe the people around them
+matter.</p>
+<p>Priority Access is where those
+relationships begin.</p>
+<p>You'll hear from us when there's
+something worth your time.</p>
+<p>An experience.</p>
+<p>A conversation.</p>
+<p>Someone we think you should know.</p>
+<p>For now, we're simply glad you're
+here.</p>
+<br>
+<p>Stay curious.</p>
+<p>The world is still wide.</p>
+<br>
+<p>— Max & Jackie</p>
+<p>ROAMSIX</p>`;
+}
+
+function internalNotifyHTML({ firstName, lastName, email, mobile, experienceInterests, referralSource, referralName }) {
+  return `<p>First Name: ${firstName}</p>
+<p>Last Name: ${lastName}</p>
+<p>Email: ${email}</p>
+<p>Phone: ${mobile}</p>
+<p>Interests: ${experienceInterests.join(", ")}</p>
+<p>Referral Source: ${referralSource}</p>
+${referralName ? `<p>Referral Name: ${referralName}</p>` : ""}`;
+}

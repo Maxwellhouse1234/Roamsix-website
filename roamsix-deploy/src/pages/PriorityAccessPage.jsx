@@ -21,9 +21,22 @@ const INTEREST_OPTIONS = [
   "Long Game",
   "First Light",
   "Private Experiences",
-  "Team Experiences",
+  "Corporate and Team Experiences",
+  "Journeys and Expeditions (Coming Soon)",
   "Podcast Guest or Collaboration",
   "Something Else",
+];
+
+const REFERRAL_OPTIONS = [
+  "Friend",
+  "Instagram",
+  "Facebook",
+  "LinkedIn",
+  "Podcast",
+  "Previous Guest",
+  "Community Partner",
+  "Google",
+  "Other",
 ];
 
 const css = `
@@ -99,6 +112,13 @@ const css = `
   .pa-input:focus, .pa-textarea:focus { border-color: var(--teal); }
   .pa-input::placeholder, .pa-textarea::placeholder { color: rgba(232,223,208,0.3); }
   .pa-textarea { resize: vertical; min-height: 96px; }
+  .pa-select { cursor: pointer; }
+  .pa-select option { background: var(--navy); color: var(--cream); }
+
+  .pa-submit-btn { width: 100%; text-align: center; margin-top: 8px; }
+  @media (min-width: 901px) {
+    .pa-submit-btn { width: auto; display: block; margin: 8px auto 0; min-width: 280px; }
+  }
 
   /* CHECKBOXES */
   .pa-check-grid { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
@@ -107,6 +127,8 @@ const css = `
   .pa-check input:checked { border-color: var(--gold); background: var(--gold); }
   .pa-check input:checked::after { content: ''; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px; border: solid var(--navy); border-width: 0 2px 2px 0; transform: rotate(45deg); }
   .pa-check span { font-size: 16px; color: var(--cream-dim); }
+  .pa-check span a { color: var(--gold); text-decoration: underline; }
+  .pa-check span a:hover { color: var(--cream); }
 
   .pa-form-err { color: #E07070; font-size: 14px; margin-top: 8px; }
 
@@ -162,7 +184,8 @@ export default function PriorityAccessPage() {
   const [form, setForm] = useState({
     firstName: "", lastName: "", email: "", mobile: "",
     interests: [], customInterest: "",
-    questionOne: "", questionTwo: "", questionThree: "",
+    referralSource: "", referralName: "",
+    emailConsent: false, smsConsent: false, termsAccepted: false,
   });
   const [referredBy, setReferredBy] = useState("");
   const [status, setStatus] = useState("idle");
@@ -196,9 +219,11 @@ export default function PriorityAccessPage() {
     });
   };
 
+  const canSubmit = form.firstName.trim() && form.lastName.trim() && form.email.trim() && form.termsAccepted;
+
   const submit = async () => {
-    if (!form.firstName.trim() || !form.email.trim()) {
-      setErr("Please enter your first name and email address.");
+    if (!canSubmit) {
+      setErr("Please complete the required fields and accept the Terms of Service and Privacy Policy.");
       return;
     }
     setStatus("loading"); setErr("");
@@ -212,9 +237,11 @@ export default function PriorityAccessPage() {
           mobile: form.mobile.trim(),
           experienceInterests: form.interests,
           customInterest: form.customInterest.trim(),
-          questionOne: form.questionOne.trim(),
-          questionTwo: form.questionTwo.trim(),
-          referralSource: form.questionThree.trim(),
+          referralSource: form.referralSource.trim(),
+          referralName: form.referralName.trim(),
+          emailConsent: form.emailConsent,
+          smsConsent: form.smsConsent,
+          termsAccepted: form.termsAccepted,
           referredBy: referredBy.trim(),
         }),
       });
@@ -299,13 +326,13 @@ export default function PriorityAccessPage() {
 
               {referralCode && (
                 <div className="pa-referral">
-                  <div className="pa-label-row"><span className="pa-rule"/><span className="pa-label">Bring Someone to the Table</span></div>
-                  <p className="pa-referral-body">Share ROAMSIX with someone you would bring to the table. If they join Priority Access through your link, you will earn a 10% discount on a future ROAMSIX experience.</p>
+                  <div className="pa-label-row"><span className="pa-rule"/><span className="pa-label">Know Someone Who Belongs Here?</span></div>
+                  <p className="pa-referral-body">If someone came to mind, send them your personal invitation. ROAMSIX grows one relationship at a time.</p>
                   <div className="pa-referral-link-row">
                     <input className="pa-referral-link" readOnly value={referralLink}/>
                     <button className="pa-referral-copy" onClick={copyLink}>{copied ? "Copied" : "Copy"}</button>
                   </div>
-                  <p className="pa-referral-share">"I thought of you for this. ROAMSIX is building experiences for people who want more perspective, connection, and life outside the default routine."</p>
+                  <p className="pa-referral-share">If someone came to mind, send them your invitation.</p>
                 </div>
               )}
             </>
@@ -319,8 +346,8 @@ export default function PriorityAccessPage() {
                   <input className="pa-input" placeholder="First name" value={form.firstName} onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))}/>
                 </div>
                 <div className="pa-form-group" style={{ marginBottom: 0 }}>
-                  <label className="pa-form-label">Last Name</label>
-                  <input className="pa-input" placeholder="Optional" value={form.lastName} onChange={e => setForm(f => ({ ...f, lastName: e.target.value }))}/>
+                  <label className="pa-form-label">Last Name *</label>
+                  <input className="pa-input" placeholder="Last name" value={form.lastName} onChange={e => setForm(f => ({ ...f, lastName: e.target.value }))}/>
                 </div>
               </div>
 
@@ -330,8 +357,8 @@ export default function PriorityAccessPage() {
               </div>
 
               <div className="pa-form-group">
-                <label className="pa-form-label">Mobile Number</label>
-                <input className="pa-input" type="tel" placeholder="Optional" value={form.mobile} onChange={e => setForm(f => ({ ...f, mobile: e.target.value }))}/>
+                <label className="pa-form-label">Mobile Number *</label>
+                <input className="pa-input" type="tel" placeholder="Mobile number" value={form.mobile} onChange={e => setForm(f => ({ ...f, mobile: e.target.value }))}/>
               </div>
 
               <div className="pa-form-group">
@@ -357,24 +384,52 @@ export default function PriorityAccessPage() {
               </div>
 
               <div className="pa-form-group">
-                <label className="pa-form-label">What kind of people, conversations, or experiences are you looking for right now?</label>
-                <textarea className="pa-textarea" rows={3} value={form.questionOne} onChange={e => setForm(f => ({ ...f, questionOne: e.target.value }))}/>
-              </div>
-
-              <div className="pa-form-group">
-                <label className="pa-form-label">What would make an experience feel worth leaving the routine for?</label>
-                <textarea className="pa-textarea" rows={3} value={form.questionTwo} onChange={e => setForm(f => ({ ...f, questionTwo: e.target.value }))}/>
-              </div>
-
-              <div className="pa-form-group">
                 <label className="pa-form-label">How did you hear about ROAMSIX?</label>
-                <textarea className="pa-textarea" rows={3} value={form.questionThree} onChange={e => setForm(f => ({ ...f, questionThree: e.target.value }))}/>
+                <select
+                  className="pa-input pa-select"
+                  value={form.referralSource}
+                  onChange={e => setForm(f => ({ ...f, referralSource: e.target.value }))}
+                >
+                  <option value="">Select one</option>
+                  {REFERRAL_OPTIONS.map(opt => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+                {(form.referralSource === "Friend" || form.referralSource === "Previous Guest") && (
+                  <input
+                    className="pa-input"
+                    style={{ marginTop: "14px" }}
+                    placeholder="Their name"
+                    value={form.referralName}
+                    onChange={e => setForm(f => ({ ...f, referralName: e.target.value }))}
+                  />
+                )}
+              </div>
+
+              <div className="pa-form-group">
+                <label className="pa-check">
+                  <input type="checkbox" checked={form.termsAccepted} onChange={() => setForm(f => ({ ...f, termsAccepted: !f.termsAccepted }))}/>
+                  <span>
+                    I agree to the{" "}
+                    <Link to="/terms" target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>Terms of Service</Link>
+                    {" "}and{" "}
+                    <Link to="/privacy" target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>Privacy Policy</Link>.
+                  </span>
+                </label>
+                <label className="pa-check" style={{ marginTop: "14px" }}>
+                  <input type="checkbox" checked={form.emailConsent} onChange={() => setForm(f => ({ ...f, emailConsent: !f.emailConsent }))}/>
+                  <span>I'd like to receive invitations and occasional updates from ROAMSIX.</span>
+                </label>
+                <label className="pa-check" style={{ marginTop: "14px" }}>
+                  <input type="checkbox" checked={form.smsConsent} onChange={() => setForm(f => ({ ...f, smsConsent: !f.smsConsent }))}/>
+                  <span>I'd like to receive occasional SMS updates about invitations and experiences. Message and data rates may apply. Reply STOP to unsubscribe.</span>
+                </label>
               </div>
 
               {err && <p className="pa-form-err">{err}</p>}
 
-              <button className="pa-btn pa-btn-gold" style={{ width: "100%", textAlign: "center", marginTop: "8px" }} onClick={submit} disabled={status === "loading"}>
-                {status === "loading" ? "Submitting..." : "Join Priority Access"}
+              <button className="pa-btn pa-btn-gold pa-submit-btn" onClick={submit} disabled={status === "loading" || !canSubmit}>
+                {status === "loading" ? "Submitting..." : "Request Priority Access"}
               </button>
             </>
           )}
