@@ -5,11 +5,12 @@ const MAX_SRC = "/images/max-ouellette.webp";
 const JACKIE_SRC = "/images/jackie.webp";
 
 const NAV = [
- ["Experiences", "/experiences"],
- ["Events",      "/events"],
- ["Corporate",   "/corporate"],
- ["Team",        "/team"],
- ["Podcast",     "/#podcast"],
+  ["Experiences", "/experiences"],
+  ["Events",      "/events"],
+  ["Podcast",     "#podcast"],
+  ["Corporate",   "/corporate"],
+  ["About",       "/team"],
+  ["Join",        "/priority-access"],
 ];
 
 const css = `
@@ -33,8 +34,8 @@ const css = `
  .tp-nav-links { display: flex; align-items: center; gap: 28px; list-style: none; margin-left: 48px; }
  .tp-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: #CEC7BC; text-decoration: none; transition: color 0.2s; }
  .tp-nav-links a:hover { color: var(--cream); }
- .tp-nav-cta { background: transparent; color: var(--gold); padding: 9px 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; border: 1px solid var(--gold); transition: all 0.2s; }
- .tp-nav-cta:hover { background: rgba(181,149,88,0.1); color: var(--gold); }
+ .tp-nav-join { background: transparent; color: var(--gold); padding: 9px 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; border: 1px solid var(--gold); transition: all 0.2s; }
+ .tp-nav-join:hover { background: rgba(181,149,88,0.1); color: var(--gold); }
 
  /* BURGER */
  .tp-burger { display: none; flex-direction: column; justify-content: center; align-items: center; gap: 5px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; padding: 4px; margin-left: 16px; }
@@ -49,7 +50,7 @@ const css = `
  .tp-mobile-menu a { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--cream); text-decoration: none; padding: 20px 40px; border-bottom: 1px solid rgba(232,223,208,0.07); width: 100%; text-align: center; transition: color 0.2s; }
  .tp-mobile-menu a:first-child { border-top: 1px solid rgba(232,223,208,0.07); }
  .tp-mobile-menu a:hover { color: var(--gold); }
- .tp-mobile-cta { background: transparent; color: var(--gold); margin-top: 32px; border: 1px solid var(--gold); font-size: 20px; }
+ .tp-mobile-join { background: transparent; color: var(--gold) !important; margin-top: 32px; border: 1px solid var(--gold); font-size: 20px !important; }
 
  /* PAGE */
  .tp-page { padding: 140px 56px 100px; max-width: 1100px; margin: 0 auto; }
@@ -136,16 +137,24 @@ export default function TeamPage() {
 
    {/* MOBILE MENU */}
    <div className={`tp-mobile-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
-    {NAV.map(([l, h]) => (h.startsWith('#') || h.startsWith('/#')) ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>)}
-    <a href="/#contact" className="tp-mobile-cta" onClick={close}>Inquire</a>
+    {NAV.map(([l, h]) => {
+     if (l === "Join") return <Link key={l} to={h} className="tp-mobile-join" onClick={close}>{l}</Link>;
+     return (h.startsWith('#') || h.startsWith('/#')) ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>;
+    })}
    </div>
 
    {/* NAV */}
    <nav className="tp-nav">
     <Link className="tp-nav-brand" to="/"><span className="tp-wordmark">ROAMSIX</span></Link>
     <ul className="tp-nav-links">
-     {NAV.map(([l, h]) => <li key={l}>{(h.startsWith('#') || h.startsWith('/#')) ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>}</li>)}
-     <li><a href="/#contact" className="tp-nav-cta">Inquire</a></li>
+     {NAV.map(([l, h]) => (
+      <li key={l}>
+       {l === "Join"
+        ? <Link to={h} className="tp-nav-join">{l}</Link>
+        : (h.startsWith('#') || h.startsWith('/#')) ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>
+       }
+      </li>
+     ))}
     </ul>
     <button className={`tp-burger ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? "Close menu" : "Open menu"}>
      <span/><span/><span/>
@@ -169,7 +178,7 @@ export default function TeamPage() {
       <div className="tp-founder-body">
        <div className="tp-founder-role">Co-Founder</div>
        <div className="tp-founder-name">Max Ouellette</div>
-       <p className="tp-founder-bio">Former professional athlete with a background in performance environments, leadership, hospitality, and experience design.</p>
+       <p className="tp-founder-bio">Former professional athlete with a background in performance environments, hospitality, and experience design.</p>
        <p className="tp-founder-bio">Max leads ROAMSIX with a focus on building experiences that bring the right people together in the right environments at the right time. His work blends structure, atmosphere, movement, conversation, and thoughtful execution to create experiences that stay with people long after they leave.</p>
       </div>
      </div>
@@ -197,15 +206,15 @@ export default function TeamPage() {
       <h2 className="tp-note-h2">Grounded in real life.</h2>
      </div>
      <div className="tp-note-body">
-      <p>ROAMSIX was built from years spent inside high-performance environments, team settings, hosted experiences, and conversations with people carrying significant responsibility in their personal and professional lives.</p>
-      <p>The work blends thoughtful hospitality, real-world experience, movement, nature, conversation, and carefully designed environments that help people reconnect with what matters and move forward with greater clarity.</p>
+      <p>ROAMSIX is built by people who care about intentional experiences, hospitality, movement, meaningful connection, and creating environments where the right people find each other.</p>
+      <p>We believe the quality of the people around you determines the quality of your life. Every experience we design starts from that belief.</p>
      </div>
     </div>
 
     {/* CTA */}
     <div className="tp-cta">
-     <p>Every engagement starts with a direct conversation.</p>
-     <a href="/#contact" className="tp-btn">Start a Conversation</a>
+     <p>Upcoming experiences open to the priority list first.</p>
+     <Link to="/priority-access" className="tp-btn">Request Priority Access</Link>
     </div>
 
    </div>
@@ -222,8 +231,7 @@ export default function TeamPage() {
       </div>
      </div>
      <div className="tp-footer-col"><h4>Company</h4><ul>
-      <li><a href="/#founders">About</a></li>
-      <li><Link to="/approach">Approach</Link></li>
+      <li><Link to="/team">About</Link></li>
       <li><Link to="/team">Team</Link></li>
      </ul></div>
      <div className="tp-footer-col"><h4>Experiences</h4><ul>
@@ -231,7 +239,6 @@ export default function TeamPage() {
       <li><Link to="/experiences">All Experiences</Link></li>
       <li><Link to="/corporate">Corporate</Link></li>
       <li><Link to="/priority-access">Priority Access</Link></li>
-      <li><a href="/#contact">Inquire</a></li>
      </ul></div>
      <div className="tp-footer-col"><h4>Connect</h4><ul>
       <li><a href="mailto:info@roamsix.com">info@roamsix.com</a></li>

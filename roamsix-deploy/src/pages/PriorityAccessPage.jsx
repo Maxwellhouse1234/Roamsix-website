@@ -4,27 +4,25 @@ import { Link } from 'react-router-dom';
 /*
   ROAMSIX — PriorityAccessPage.jsx
   Route: /priority-access
-  Design system matches ExperiencesPage.jsx
-  Form endpoint: POST /api/priority-access
+  Form endpoint: POST /api/priority-access (do not modify)
 */
 
 const NAV = [
   ["Experiences", "/experiences"],
   ["Events",      "/events"],
+  ["Podcast",     "#podcast"],
   ["Corporate",   "/corporate"],
-  ["Team",        "/team"],
-  ["Podcast",     "/#podcast"],
+  ["About",       "/team"],
+  ["Join",        "/priority-access"],
 ];
 
 const INTEREST_OPTIONS = [
-  "Farm-to-Table Gatherings",
+  "Long Table",
+  "Long Game",
   "First Light",
-  "Around the Fire",
-  "Leadership Experiences",
-  "Corporate Experiences",
-  "Couples Experiences",
-  "Family Experiences",
-  "Performance and Recovery",
+  "Private Experiences",
+  "Team Experiences",
+  "Podcast Guest or Collaboration",
   "Something Else",
 ];
 
@@ -51,8 +49,8 @@ const css = `
   .pa-nav-links { display: flex; align-items: center; gap: 28px; list-style: none; margin-left: 48px; }
   .pa-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: #CEC7BC; text-decoration: none; transition: color 0.2s; }
   .pa-nav-links a:hover { color: var(--cream); }
-  .pa-nav-cta { background: transparent; color: var(--gold); padding: 9px 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; border: 1px solid var(--gold); transition: all 0.2s; }
-  .pa-nav-cta:hover { background: rgba(181,149,88,0.1); color: var(--gold); }
+  .pa-nav-join { background: transparent; color: var(--gold); padding: 9px 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; border: 1px solid var(--gold); transition: all 0.2s; }
+  .pa-nav-join:hover { background: rgba(181,149,88,0.1); color: var(--gold); }
 
   /* BURGER */
   .pa-burger { display: none; flex-direction: column; justify-content: center; align-items: center; gap: 5px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; padding: 4px; margin-left: 16px; }
@@ -67,7 +65,7 @@ const css = `
   .pa-mobile-menu a { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--cream); text-decoration: none; padding: 20px 40px; border-bottom: 1px solid rgba(232,223,208,0.07); width: 100%; text-align: center; transition: color 0.2s; }
   .pa-mobile-menu a:first-child { border-top: 1px solid rgba(232,223,208,0.07); }
   .pa-mobile-menu a:hover { color: var(--gold); }
-  .pa-mobile-cta { background: transparent; color: var(--gold); margin-top: 32px; border: 1px solid var(--gold); font-size: 20px; }
+  .pa-mobile-join { background: transparent; color: var(--gold) !important; margin-top: 32px; border: 1px solid var(--gold); font-size: 20px !important; }
 
   /* CHROME */
   .pa-label-row { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
@@ -87,7 +85,6 @@ const css = `
   .pa-hero-eyebrow { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
   .pa-hero-eyebrow::before { content: ''; display: block; width: 24px; height: 1px; background: var(--gold); flex-shrink: 0; }
   .pa-hero-h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(38px, 5vw, 68px); line-height: 1.05; color: var(--cream); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 28px; max-width: 860px; }
-  .pa-hero-sub { font-size: 19px; line-height: 1.8; color: var(--cream-dim); max-width: 640px; margin-bottom: 40px; }
   .pa-hero-body p { font-family: 'EB Garamond', serif; font-style: italic; font-size: 19px; line-height: 1.9; color: var(--cream-muted); max-width: 640px; margin-bottom: 24px; }
   .pa-hero-body p:last-child { margin-bottom: 0; }
 
@@ -251,16 +248,24 @@ export default function PriorityAccessPage() {
 
       {/* MOBILE MENU */}
       <div className={`pa-mobile-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
-        {NAV.map(([l, h]) => (h.startsWith('#') || h.startsWith('/#')) ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>)}
-        <a href="/experiences#contact" className="pa-mobile-cta" onClick={close}>Inquire</a>
+        {NAV.map(([l, h]) => {
+          if (l === "Join") return <Link key={l} to={h} className="pa-mobile-join" onClick={close}>{l}</Link>;
+          return (h.startsWith('#') || h.startsWith('/#')) ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>;
+        })}
       </div>
 
       {/* NAV */}
       <nav className={`pa-nav ${scrolled ? "solid" : ""}`}>
         <Link className="pa-nav-brand" to="/"><span className="pa-wordmark">ROAMSIX</span></Link>
         <ul className="pa-nav-links">
-          {NAV.map(([l, h]) => <li key={l}>{(h.startsWith('#') || h.startsWith('/#')) ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>}</li>)}
-          <li><a href="/experiences#contact" className="pa-nav-cta">Inquire</a></li>
+          {NAV.map(([l, h]) => (
+            <li key={l}>
+              {l === "Join"
+                ? <Link to={h} className="pa-nav-join">{l}</Link>
+                : (h.startsWith('#') || h.startsWith('/#')) ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>
+              }
+            </li>
+          ))}
         </ul>
         <button className={`pa-burger ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? "Close menu" : "Open menu"}>
           <span/><span/><span/>
@@ -270,13 +275,11 @@ export default function PriorityAccessPage() {
       {/* HERO */}
       <section className="pa-hero">
         <div className="pa-hero-eyebrow">Priority Access</div>
-        <h1 className="pa-hero-h1">Choose Differently.</h1>
-        <p className="pa-hero-sub">Receive early invitations to ROAMSIX experiences designed to reconnect people with what matters, expand perspective, and create the conditions for meaningful change.</p>
+        <h1 className="pa-hero-h1">Request Priority Access.</h1>
         <div className="pa-hero-body">
-          <p>The way we live shapes who we become.</p>
-          <p>The conversations we have. The environments we enter. The people we gather with. The experiences we choose.</p>
-          <p>ROAMSIX brings people together through intentionally designed experiences that make it easier to pay attention to what matters and harder to drift through another season unnoticed.</p>
-          <p>If that resonates, we would love to keep a seat at the table.</p>
+          <p>ROAMSIX experiences open to the priority list before anything is shared publicly.</p>
+          <p>Add your name to be considered for upcoming gatherings, podcast releases, and future invitations.</p>
+          <p>If this feels like your kind of people, start here.</p>
         </div>
       </section>
 
@@ -332,7 +335,7 @@ export default function PriorityAccessPage() {
               </div>
 
               <div className="pa-form-group">
-                <label className="pa-form-label">Which ROAMSIX experiences are you most interested in?</label>
+                <label className="pa-form-label">What are you most interested in?</label>
                 <span className="pa-form-note">Select all that apply.</span>
                 <div className="pa-check-grid">
                   {INTEREST_OPTIONS.map(opt => (
@@ -354,7 +357,7 @@ export default function PriorityAccessPage() {
               </div>
 
               <div className="pa-form-group">
-                <label className="pa-form-label">What conversations are you craving but rarely have?</label>
+                <label className="pa-form-label">What kind of people, conversations, or experiences are you looking for right now?</label>
                 <textarea className="pa-textarea" rows={3} value={form.questionOne} onChange={e => setForm(f => ({ ...f, questionOne: e.target.value }))}/>
               </div>
 
@@ -390,16 +393,13 @@ export default function PriorityAccessPage() {
             </div>
           </div>
           <div className="pa-footer-col"><h4>Company</h4><ul>
-            <li><a href="/#founders">About</a></li>
-            <li><Link to="/approach">Approach</Link></li>
+            <li><Link to="/team">About</Link></li>
             <li><Link to="/team">Team</Link></li>
           </ul></div>
           <div className="pa-footer-col"><h4>Experiences</h4><ul>
             <li><Link to="/events">Events</Link></li>
             <li><Link to="/experiences">All Experiences</Link></li>
-            <li><a href="/#proving-grounds">Proving Grounds</a></li>
             <li><Link to="/priority-access">Priority Access</Link></li>
-            <li><a href="/experiences#contact">Inquire</a></li>
           </ul></div>
           <div className="pa-footer-col"><h4>Connect</h4><ul>
             <li><a href="mailto:info@roamsix.com">info@roamsix.com</a></li>

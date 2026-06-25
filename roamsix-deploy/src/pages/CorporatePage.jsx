@@ -11,9 +11,10 @@ import { Link } from 'react-router-dom';
 const NAV = [
   ["Experiences", "/experiences"],
   ["Events",      "/events"],
+  ["Podcast",     "#podcast"],
   ["Corporate",   "/corporate"],
-  ["Team",        "/team"],
-  ["Podcast",     "/#podcast"],
+  ["About",       "/team"],
+  ["Join",        "/priority-access"],
 ];
 
 const FORMATS = [
@@ -96,6 +97,8 @@ const css = `
   .cp-nav-links a:hover { color: var(--cream); }
   .cp-nav-cta { background: transparent; color: var(--gold); padding: 9px 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; border: 1px solid var(--gold); transition: all 0.2s; }
   .cp-nav-cta:hover { background: rgba(181,149,88,0.1); color: var(--gold); }
+  .cp-nav-join { background: transparent; color: var(--gold); padding: 9px 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; border: 1px solid var(--gold); transition: all 0.2s; }
+  .cp-nav-join:hover { background: rgba(181,149,88,0.1); color: var(--gold); }
 
   /* BURGER */
   .cp-burger { display: none; flex-direction: column; justify-content: center; align-items: center; gap: 5px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; padding: 4px; margin-left: 16px; }
@@ -110,7 +113,7 @@ const css = `
   .cp-mobile-menu a { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--cream); text-decoration: none; padding: 20px 40px; border-bottom: 1px solid rgba(232,223,208,0.07); width: 100%; text-align: center; transition: color 0.2s; }
   .cp-mobile-menu a:first-child { border-top: 1px solid rgba(232,223,208,0.07); }
   .cp-mobile-menu a:hover { color: var(--gold); }
-  .cp-mobile-cta { background: transparent; color: var(--gold); margin-top: 32px; border: 1px solid var(--gold); font-size: 20px; }
+  .cp-mobile-join { background: transparent; color: var(--gold) !important; margin-top: 32px; border: 1px solid var(--gold); font-size: 20px !important; }
 
   /* CHROME */
   .cp-label-row { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
@@ -283,16 +286,24 @@ export default function CorporatePage() {
 
       {/* MOBILE MENU */}
       <div className={`cp-mobile-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
-        {NAV.map(([l, h]) => (h.startsWith('#') || h.startsWith('/#')) ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>)}
-        <a href="#contact" className="cp-mobile-cta" onClick={close}>Inquire</a>
+        {NAV.map(([l, h]) => {
+          if (l === "Join") return <Link key={l} to={h} className="cp-mobile-join" onClick={close}>{l}</Link>;
+          return (h.startsWith('#') || h.startsWith('/#')) ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>;
+        })}
       </div>
 
       {/* NAV */}
       <nav className={`cp-nav ${scrolled ? "solid" : ""}`}>
         <Link className="cp-nav-brand" to="/"><span className="cp-wordmark">ROAMSIX</span></Link>
         <ul className="cp-nav-links">
-          {NAV.map(([l, h]) => <li key={l}>{(h.startsWith('#') || h.startsWith('/#')) ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>}</li>)}
-          <li><a href="#contact" className="cp-nav-cta">Inquire</a></li>
+          {NAV.map(([l, h]) => (
+            <li key={l}>
+              {l === "Join"
+                ? <Link to={h} className="cp-nav-join">{l}</Link>
+                : (h.startsWith('#') || h.startsWith('/#')) ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>
+              }
+            </li>
+          ))}
         </ul>
         <button className={`cp-burger ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? "Close menu" : "Open menu"}>
           <span/><span/><span/>
@@ -484,7 +495,6 @@ export default function CorporatePage() {
             <li><Link to="/experiences">All Experiences</Link></li>
             <li><Link to="/corporate">Corporate</Link></li>
             <li><Link to="/priority-access">Priority Access</Link></li>
-            <li><a href="#contact">Inquire</a></li>
           </ul></div>
           <div className="cp-footer-col"><h4>Connect</h4><ul>
             <li><a href="mailto:info@roamsix.com">info@roamsix.com</a></li>

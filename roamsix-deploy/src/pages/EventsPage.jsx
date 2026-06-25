@@ -5,9 +5,10 @@ import { events } from "../data/events";
 const NAV = [
   ["Experiences", "/experiences"],
   ["Events",      "/events"],
+  ["Podcast",     "#podcast"],
   ["Corporate",   "/corporate"],
-  ["Team",        "/team"],
-  ["Podcast",     "/#podcast"],
+  ["About",       "/team"],
+  ["Join",        "/priority-access"],
 ];
 
 const css = `
@@ -31,8 +32,8 @@ const css = `
   .evl-nav-links { display: flex; align-items: center; gap: 28px; list-style: none; margin-left: 48px; }
   .evl-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: #CEC7BC; text-decoration: none; transition: color 0.2s; }
   .evl-nav-links a:hover { color: var(--cream); }
-  .evl-nav-cta { background: transparent; color: var(--gold); padding: 9px 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; border: 1px solid var(--gold); transition: all 0.2s; }
-  .evl-nav-cta:hover { background: rgba(181,149,88,0.1); color: var(--gold); }
+  .evl-nav-join { background: transparent; color: var(--gold); padding: 9px 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; border: 1px solid var(--gold); transition: all 0.2s; }
+  .evl-nav-join:hover { background: rgba(181,149,88,0.1); color: var(--gold); }
 
   /* BURGER */
   .evl-burger { display: none; flex-direction: column; justify-content: center; align-items: center; gap: 5px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; padding: 4px; margin-left: 16px; }
@@ -47,7 +48,7 @@ const css = `
   .evl-mobile-menu a { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--cream); text-decoration: none; padding: 20px 40px; border-bottom: 1px solid rgba(232,223,208,0.07); width: 100%; text-align: center; transition: color 0.2s; }
   .evl-mobile-menu a:first-child { border-top: 1px solid rgba(232,223,208,0.07); }
   .evl-mobile-menu a:hover { color: var(--gold); }
-  .evl-mobile-cta { background: transparent; color: var(--gold); margin-top: 32px; border: 1px solid var(--gold); font-size: 20px; }
+  .evl-mobile-join { background: transparent; color: var(--gold) !important; margin-top: 32px; border: 1px solid var(--gold); font-size: 20px !important; }
 
   /* PAGE */
   .evl-page { padding: 140px 56px 100px; max-width: 1100px; margin: 0 auto; }
@@ -70,6 +71,7 @@ const css = `
   .evl-badge-open { background: rgba(181,149,88,0.1); border-color: rgba(181,149,88,0.3); color: var(--gold); }
   .evl-badge-soldout { background: rgba(232,223,208,0.05); border-color: rgba(232,223,208,0.15); color: var(--cream-muted); }
   .evl-badge-coming-soon { background: rgba(74,117,117,0.08); border-color: rgba(74,117,117,0.25); color: var(--teal-light); }
+  .evl-badge-past { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; padding: 5px 0; color: var(--cream-muted); }
   .evl-card-date { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); }
 
   .evl-card-title { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--cream); line-height: 1.1; margin-bottom: 8px; }
@@ -83,9 +85,11 @@ const css = `
   .evl-btn:hover { background: var(--teal-dim); }
   .evl-sold-label { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); }
 
-  /* EMPTY STATE */
-  .evl-empty { padding: 80px 0; text-align: center; }
-  .evl-empty p { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--cream-muted); text-transform: uppercase; }
+  /* WHAT'S NEXT */
+  .evl-whats-next { padding: 80px 0 0; }
+  .evl-whats-next-body { font-size: 18px; line-height: 1.8; color: var(--cream-dim); max-width: 520px; margin: 16px 0 36px; }
+  .evl-btn-gold { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; padding: 15px 34px; background: var(--gold); color: var(--navy); text-decoration: none; transition: all 0.22s; border: none; cursor: pointer; }
+  .evl-btn-gold:hover { background: var(--cream); color: var(--navy); }
 
   /* SECTION DIVIDER */
   .evl-section-head { margin-top: 80px; margin-bottom: 32px; }
@@ -139,7 +143,10 @@ function EventCard({ event }) {
   return (
     <div className={`evl-card${isPast ? " evl-card-past" : ""}`}>
       <div className="evl-card-meta">
-        <StatusBadge status={event.status} />
+        {isPast
+          ? <span className="evl-badge-past">Past Experience</span>
+          : <StatusBadge status={event.status} />
+        }
         <span className="evl-card-date">{formatDateShort(event.date)}</span>
       </div>
       <div className="evl-card-title">{event.title}</div>
@@ -150,7 +157,7 @@ function EventCard({ event }) {
         <span className="evl-price">From {priceFrom(event)}</span>
         {!isPast && event.status !== "soldout" ? (
           <Link to={`/events/${event.id}`} className="evl-btn">View Experience</Link>
-        ) : event.status === "soldout" ? (
+        ) : event.status === "soldout" && !isPast ? (
           <span className="evl-sold-label">Sold Out</span>
         ) : null}
       </div>
@@ -187,16 +194,24 @@ export default function EventsPage() {
 
       {/* MOBILE MENU */}
       <div className={`evl-mobile-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
-        {NAV.map(([l, h]) => (h.startsWith('#') || h.startsWith('/#')) ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>)}
-        <a href="#contact" className="evl-mobile-cta" onClick={close}>Inquire</a>
+        {NAV.map(([l, h]) => {
+          if (l === "Join") return <Link key={l} to={h} className="evl-mobile-join" onClick={close}>{l}</Link>;
+          return (h.startsWith('#') || h.startsWith('/#')) ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>;
+        })}
       </div>
 
       {/* NAV */}
       <nav className={`evl-nav ${scrolled ? "solid" : ""}`}>
         <Link className="evl-nav-brand" to="/"><span className="evl-wordmark">ROAMSIX</span></Link>
         <ul className="evl-nav-links">
-          {NAV.map(([l, h]) => <li key={l}>{(h.startsWith('#') || h.startsWith('/#')) ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>}</li>)}
-          <li><a href="#contact" className="evl-nav-cta">Inquire</a></li>
+          {NAV.map(([l, h]) => (
+            <li key={l}>
+              {l === "Join"
+                ? <Link to={h} className="evl-nav-join">{l}</Link>
+                : (h.startsWith('#') || h.startsWith('/#')) ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>
+              }
+            </li>
+          ))}
         </ul>
         <button className={`evl-burger ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? "Close menu" : "Open menu"}>
           <span/><span/><span/>
@@ -211,7 +226,14 @@ export default function EventsPage() {
         <h1 className="evl-h1">Upcoming Experiences.</h1>
 
         {upcoming.length === 0 ? (
-          <div className="evl-empty"><p>More experiences coming soon.</p></div>
+          <div className="evl-whats-next">
+            <div className="evl-label-row">
+              <span className="evl-rule" />
+              <span className="evl-label">What's Next</span>
+            </div>
+            <p className="evl-whats-next-body">Upcoming experiences are announced to Priority Access first.</p>
+            <Link to="/priority-access" className="evl-btn-gold">Request Priority Access</Link>
+          </div>
         ) : (
           <div className={`evl-grid${upcoming.length === 1 ? " evl-grid-single" : ""}`}>
             {upcoming.map((ev) => <EventCard key={ev.id} event={ev} />)}

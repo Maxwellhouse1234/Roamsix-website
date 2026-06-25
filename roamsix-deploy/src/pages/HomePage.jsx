@@ -280,10 +280,10 @@ export default function HomePage() {
       <section className="rs-section rs-section-dark" id="what-happens-here">
         <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">What Happens Here</span></div>
         <div className="rs-what-lines">
-          <p className="rs-what-line">"Conversations that don't usually happen."</p>
-          <p className="rs-what-line">"People you wouldn't normally meet."</p>
-          <p className="rs-what-line">"Perspectives that change how you see your own life."</p>
-          <p className="rs-what-line">"Experiences that stay with you long after the drive home."</p>
+          <p className="rs-what-line">Conversations that don't usually happen.</p>
+          <p className="rs-what-line">People you wouldn't normally meet.</p>
+          <p className="rs-what-line">Perspectives that change how you see your own life.</p>
+          <p className="rs-what-line">Experiences that stay with you long after the drive home.</p>
         </div>
       </section>
 

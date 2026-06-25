@@ -11,9 +11,10 @@ import { Link } from 'react-router-dom';
 const NAV = [
   ["Experiences", "/experiences"],
   ["Events",      "/events"],
+  ["Podcast",     "#podcast"],
   ["Corporate",   "/corporate"],
-  ["Team",        "/team"],
-  ["Podcast",     "/#podcast"],
+  ["About",       "/team"],
+  ["Join",        "/priority-access"],
 ];
 
 const OFFERINGS = [
@@ -63,7 +64,7 @@ const OFFERINGS = [
       "Guided conversation and reflection",
       "Optional overnight or multi-day format",
     ],
-    inspiration: "Many high-performers spend years carrying responsibility without creating space to reset themselves. These experiences are designed to remove friction, reduce noise, and create the conditions for clarity, recovery, and renewed energy.",
+    inspiration: "Many people spend years carrying responsibility without creating space to reset themselves. These experiences are designed to remove friction, reduce noise, and create the conditions for clarity, recovery, and renewed energy.",
     cta:     "Inquire to Book",
     ctaLink: "#contact",
     bg:      "dark",
@@ -113,6 +114,8 @@ const css = `
   .xp-nav-links a:hover { color: var(--cream); }
   .xp-nav-cta { background: transparent; color: var(--gold); padding: 9px 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; border: 1px solid var(--gold); transition: all 0.2s; }
   .xp-nav-cta:hover { background: rgba(181,149,88,0.1); color: var(--gold); }
+  .xp-nav-join { background: transparent; color: var(--gold); padding: 9px 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; border: 1px solid var(--gold); transition: all 0.2s; }
+  .xp-nav-join:hover { background: rgba(181,149,88,0.1); color: var(--gold); }
 
   /* BURGER */
   .xp-burger { display: none; flex-direction: column; justify-content: center; align-items: center; gap: 5px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; padding: 4px; margin-left: 16px; }
@@ -127,7 +130,7 @@ const css = `
   .xp-mobile-menu a { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--cream); text-decoration: none; padding: 20px 40px; border-bottom: 1px solid rgba(232,223,208,0.07); width: 100%; text-align: center; transition: color 0.2s; }
   .xp-mobile-menu a:first-child { border-top: 1px solid rgba(232,223,208,0.07); }
   .xp-mobile-menu a:hover { color: var(--gold); }
-  .xp-mobile-cta { background: transparent; color: var(--gold); margin-top: 32px; border: 1px solid var(--gold); font-size: 20px; }
+  .xp-mobile-join { background: transparent; color: var(--gold) !important; margin-top: 32px; border: 1px solid var(--gold); font-size: 20px !important; }
 
   /* CHROME */
   .xp-label-row { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
@@ -258,16 +261,24 @@ export default function ExperiencesPage() {
 
       {/* MOBILE MENU */}
       <div className={`xp-mobile-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
-        {NAV.map(([l, h]) => (h.startsWith('#') || h.startsWith('/#')) ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>)}
-        <a href="#contact" className="xp-mobile-cta" onClick={close}>Inquire</a>
+        {NAV.map(([l, h]) => {
+          if (l === "Join") return <Link key={l} to={h} className="xp-mobile-join" onClick={close}>{l}</Link>;
+          return (h.startsWith('#') || h.startsWith('/#')) ? <a key={l} href={h} onClick={close}>{l}</a> : <Link key={l} to={h} onClick={close}>{l}</Link>;
+        })}
       </div>
 
       {/* NAV */}
       <nav className={`xp-nav ${scrolled ? "solid" : ""}`}>
         <Link className="xp-nav-brand" to="/"><span className="xp-wordmark">ROAMSIX</span></Link>
         <ul className="xp-nav-links">
-          {NAV.map(([l, h]) => <li key={l}>{(h.startsWith('#') || h.startsWith('/#')) ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>}</li>)}
-          <li><a href="#contact" className="xp-nav-cta">Inquire</a></li>
+          {NAV.map(([l, h]) => (
+            <li key={l}>
+              {l === "Join"
+                ? <Link to={h} className="xp-nav-join">{l}</Link>
+                : (h.startsWith('#') || h.startsWith('/#')) ? <a href={h}>{l}</a> : <Link to={h}>{l}</Link>
+              }
+            </li>
+          ))}
         </ul>
         <button className={`xp-burger ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? "Close menu" : "Open menu"}>
           <span/><span/><span/>
@@ -385,9 +396,7 @@ export default function ExperiencesPage() {
           <div className="xp-footer-col"><h4>Experiences</h4><ul>
             <li><Link to="/events">Events</Link></li>
             <li><Link to="/experiences">All Experiences</Link></li>
-            <li><a href="/#proving-grounds">Proving Grounds</a></li>
             <li><Link to="/priority-access">Priority Access</Link></li>
-            <li><a href="#contact">Inquire</a></li>
           </ul></div>
           <div className="xp-footer-col"><h4>Connect</h4><ul>
             <li><a href="mailto:info@roamsix.com">info@roamsix.com</a></li>
