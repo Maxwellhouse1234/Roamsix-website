@@ -225,208 +225,170 @@ function welcomeHTML() {
   <style>
     body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
-    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
+    img { -ms-interpolation-mode: bicubic; border: 0; outline: none;
+          text-decoration: none; display: block; }
     body { margin: 0; padding: 0; background-color: #0f1520; }
     @media only screen and (max-width: 600px) {
       .email-container { width: 100% !important; }
       .content-pad { padding: 32px 24px !important; }
-      .hero-img { height: 220px !important; }
-      .cta-btn { display: block !important; width: 100% !important; text-align: center !important; }
+      .footer-pad { padding: 24px !important; }
     }
   </style>
 </head>
 <body style="margin:0;padding:0;background-color:#0f1520;">
 
-  <!-- Outer wrapper -->
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
     style="background-color:#0f1520;">
     <tr>
-      <td align="center" style="padding: 40px 16px;">
+      <td align="center" style="padding:40px 16px;">
 
-        <!-- Email container -->
         <table class="email-container" role="presentation" width="600" cellpadding="0"
           cellspacing="0" border="0"
-          style="max-width:600px;width:100%;background-color:#141C2A;border-radius:4px;overflow:hidden;">
+          style="max-width:600px;width:100%;background-color:#141C2A;">
 
-          <!-- HEADER -->
+          <!-- GOLD TOP BAR -->
+          <tr>
+            <td style="padding:0;line-height:0;font-size:0;">
+              <div style="height:3px;background-color:#B59558;"></div>
+            </td>
+          </tr>
+
+          <!-- WORDMARK -->
           <tr>
             <td align="center"
-              style="padding:40px 40px 32px;background-color:#141C2A;border-bottom:1px solid #B5955830;">
-              <p style="margin:0;font-family:Georgia,serif;font-size:11px;letter-spacing:6px;
-                text-transform:uppercase;color:#B59558;">ROAMSIX</p>
+              style="padding:40px 40px 36px;background-color:#141C2A;
+                line-height:0;font-size:0;">
+              <img src="https://www.roamsix.com/images/Roamsix_Logo.png"
+                alt="ROAMSIX" width="190"
+                style="display:block;margin:0 auto;width:190px;height:auto;
+                  mix-blend-mode:screen;">
             </td>
           </tr>
 
-          <!-- HERO IMAGE -->
-          <!-- Swap src to hosted URL when available:
-               https://www.roamsix.com/images/homepage/gathering-dusk.webp -->
+          <!-- THIN DIVIDER -->
           <tr>
-            <td style="padding:0;margin:0;">
-              <div class="hero-img" style="height:280px;background-color:#1a2235;
-                background-image:url('https://www.roamsix.com/images/homepage/gathering-dusk.webp');
-                background-size:cover;background-position:center;">
-                <!-- Fallback if image doesn't load -->
-                <div style="width:100%;height:100%;background:linear-gradient(
-                  to bottom,rgba(20,28,42,0.2),rgba(20,28,42,0.7));"></div>
-              </div>
-            </td>
-          </tr>
-
-          <!-- GOLD DIVIDER -->
-          <tr>
-            <td style="padding:0;">
-              <div style="height:2px;background-color:#B59558;"></div>
+            <td style="padding:0 48px;">
+              <div style="height:1px;background-color:#B5955830;"></div>
             </td>
           </tr>
 
           <!-- BODY -->
           <tr>
-            <td class="content-pad" style="padding:48px 48px 40px;">
+            <td class="content-pad"
+              style="padding:48px 48px 40px;background-color:#141C2A;">
 
-              <!-- Headline -->
-              <h1 style="margin:0 0 32px;font-family:Georgia,serif;font-size:28px;
-                font-weight:normal;color:#E8DFD0;letter-spacing:1px;line-height:1.3;">
+              <h1 style="margin:0 0 28px;font-family:Georgia,serif;font-size:26px;
+                font-weight:normal;color:#E8DFD0;letter-spacing:0.5px;line-height:1.4;">
                 Welcome.
               </h1>
 
-              <!-- Body copy -->
               <p style="margin:0 0 20px;font-family:Georgia,serif;font-size:16px;
                 line-height:1.8;color:#E8DFD0;">
                 We're glad you found us.
               </p>
 
-              <p style="margin:0 0 20px;font-family:Georgia,serif;font-size:16px;
-                line-height:1.8;color:#c8bfb0;">
+              <p style="margin:0 0 32px;font-family:Georgia,serif;font-size:16px;
+                line-height:1.8;color:#b8afa0;">
                 ROAMSIX brings together people who care about how they live,
                 what they build, and who they become.
               </p>
 
-              <p style="margin:0 0 8px;font-family:Georgia,serif;font-size:16px;
-                line-height:1.8;color:#c8bfb0;">
+              <p style="margin:0 0 10px;font-family:Georgia,serif;font-size:16px;
+                line-height:1.8;color:#b8afa0;">
                 People who stay curious.
               </p>
-              <p style="margin:0 0 8px;font-family:Georgia,serif;font-size:16px;
-                line-height:1.8;color:#c8bfb0;">
+              <p style="margin:0 0 10px;font-family:Georgia,serif;font-size:16px;
+                line-height:1.8;color:#b8afa0;">
                 Who value quality over convenience.
               </p>
-              <p style="margin:0 0 32px;font-family:Georgia,serif;font-size:16px;
-                line-height:1.8;color:#c8bfb0;">
+              <p style="margin:0 0 36px;font-family:Georgia,serif;font-size:16px;
+                line-height:1.8;color:#b8afa0;">
                 Who believe the people around them matter.
               </p>
 
-              <!-- Divider -->
-              <div style="height:1px;background-color:#B5955830;margin:0 0 32px;"></div>
+              <div style="height:1px;background-color:#B5955825;margin:0 0 36px;"></div>
 
-              <p style="margin:0 0 20px;font-family:Georgia,serif;font-size:16px;
-                line-height:1.8;color:#c8bfb0;">
-                Priority Access is where those relationships begin.
+              <p style="margin:0 0 10px;font-family:Georgia,serif;font-size:16px;
+                line-height:1.8;color:#b8afa0;">
+                When there's something worth your time, you'll hear from us.
               </p>
-
-              <p style="margin:0 0 8px;font-family:Georgia,serif;font-size:16px;
-                line-height:1.8;color:#c8bfb0;">
-                From time to time we'll send something worth opening.
-              </p>
-              <p style="margin:0 0 8px;font-family:Georgia,serif;font-size:16px;
-                line-height:1.8;color:#c8bfb0;">
+              <p style="margin:0 0 10px;font-family:Georgia,serif;font-size:16px;
+                line-height:1.8;color:#b8afa0;">
                 An invitation.
               </p>
-              <p style="margin:0 0 8px;font-family:Georgia,serif;font-size:16px;
-                line-height:1.8;color:#c8bfb0;">
+              <p style="margin:0 0 10px;font-family:Georgia,serif;font-size:16px;
+                line-height:1.8;color:#b8afa0;">
                 A conversation.
               </p>
-              <p style="margin:0 0 8px;font-family:Georgia,serif;font-size:16px;
-                line-height:1.8;color:#c8bfb0;">
+              <p style="margin:0 0 10px;font-family:Georgia,serif;font-size:16px;
+                line-height:1.8;color:#b8afa0;">
                 A story.
               </p>
-              <p style="margin:0 0 8px;font-family:Georgia,serif;font-size:16px;
-                line-height:1.8;color:#c8bfb0;">
+              <p style="margin:0 0 32px;font-family:Georgia,serif;font-size:16px;
+                line-height:1.8;color:#b8afa0;">
                 An introduction.
               </p>
-              <p style="margin:0 0 40px;font-family:Georgia,serif;font-size:16px;
-                line-height:1.8;color:#c8bfb0;">
-              </p>
 
-              <!-- CTA Button -->
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0"
-                style="margin:0 0 48px;">
-                <tr>
-                  <td>
-                    <a class="cta-btn" href="https://www.roamsix.com/priority-access"
-                      style="display:inline-block;padding:14px 36px;
-                        background-color:#B59558;color:#141C2A;
-                        font-family:Arial,sans-serif;font-size:11px;
-                        font-weight:700;letter-spacing:3px;text-transform:uppercase;
-                        text-decoration:none;border-radius:2px;">
-                      EXPLORE ROAMSIX
-                    </a>
-                  </td>
-                </tr>
-              </table>
+              <p style="margin:0 0 44px;font-family:Georgia,serif;font-size:16px;
+                line-height:1.8;color:#b8afa0;">
+                Until then, we're glad you're here.
+              </p>
 
               <!-- Signature -->
               <p style="margin:0 0 4px;font-family:Georgia,serif;font-size:15px;
-                line-height:1.6;color:#c8bfb0;font-style:italic;">
-                With appreciation,
+                line-height:1.7;color:#b8afa0;font-style:italic;">
+                Stay curious.
+              </p>
+              <p style="margin:0 0 20px;font-family:Georgia,serif;font-size:15px;
+                line-height:1.7;color:#b8afa0;font-style:italic;">
+                The world is still wide.
               </p>
               <p style="margin:0 0 4px;font-family:Georgia,serif;font-size:15px;
-                line-height:1.6;color:#E8DFD0;">
+                line-height:1.7;color:#E8DFD0;">
                 Max &amp; Jackie
               </p>
-              <p style="margin:0;font-family:Arial,sans-serif;font-size:11px;
-                letter-spacing:3px;color:#B59558;text-transform:uppercase;">
+              <p style="margin:0;font-family:Arial,sans-serif;font-size:10px;
+                letter-spacing:4px;color:#B59558;text-transform:uppercase;">
                 ROAMSIX
               </p>
 
             </td>
           </tr>
 
-          <!-- GOLD DIVIDER -->
-          <tr>
-            <td>
-              <div style="height:1px;background-color:#B5955830;"></div>
-            </td>
-          </tr>
-
           <!-- FOOTER -->
           <tr>
-            <td style="padding:32px 48px 40px;background-color:#0f1520;">
+            <td class="footer-pad"
+              style="padding:28px 48px 36px;background-color:#0f1520;">
 
-              <!-- Tagline -->
-              <p style="margin:0 0 24px;font-family:Georgia,serif;font-size:13px;
-                line-height:1.7;color:#7a6f5f;font-style:italic;text-align:center;">
+              <p style="margin:0 0 20px;font-family:Georgia,serif;font-size:12px;
+                line-height:1.7;color:#4a4538;font-style:italic;text-align:center;">
                 The world is still wide.
               </p>
 
-              <!-- Social links -->
-              <p style="margin:0 0 24px;text-align:center;">
+              <p style="margin:0 0 20px;text-align:center;">
                 <a href="https://www.instagram.com/roamsix_"
-                  style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:2px;
-                    color:#B59558;text-decoration:none;text-transform:uppercase;
+                  style="font-family:Arial,sans-serif;font-size:9px;letter-spacing:2px;
+                    color:#C8A96E;text-decoration:none;text-transform:uppercase;
                     margin:0 12px;">Instagram</a>
                 <a href="https://www.linkedin.com/company/roamsix"
-                  style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:2px;
-                    color:#B59558;text-decoration:none;text-transform:uppercase;
+                  style="font-family:Arial,sans-serif;font-size:9px;letter-spacing:2px;
+                    color:#C8A96E;text-decoration:none;text-transform:uppercase;
                     margin:0 12px;">LinkedIn</a>
-                <a href="https://www.roamsix.com/priority-access"
-                  style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:2px;
-                    color:#B59558;text-decoration:none;text-transform:uppercase;
+                <a href="https://www.roamsix.com"
+                  style="font-family:Arial,sans-serif;font-size:9px;letter-spacing:2px;
+                    color:#C8A96E;text-decoration:none;text-transform:uppercase;
                     margin:0 12px;">Website</a>
               </p>
 
-              <!-- Legal -->
-              <p style="margin:0;font-family:Arial,sans-serif;font-size:11px;
-                line-height:1.7;color:#4a4538;text-align:center;">
-                You requested Priority Access through ROAMSIX.<br>
-                If you'd rather not receive emails,
-                <a href="https://www.roamsix.com/priority-access"
-                  style="color:#7a6f5f;text-decoration:underline;">unsubscribe here</a>.
+              <p style="margin:0;font-family:Arial,sans-serif;font-size:10px;
+                line-height:1.8;color:#3a342a;text-align:center;">
+                You requested Priority Access through ROAMSIX.
               </p>
 
             </td>
           </tr>
 
         </table>
-        <!-- End email container -->
 
       </td>
     </tr>
