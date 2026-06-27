@@ -38,6 +38,10 @@ const EXPERIENCE_CARDS = [
     cta:     "Join Priority Access",
     ctaLink: "/priority-access",
     bg:      "dark",
+    imageAfter: {
+      src: "/images/events/guests-sharing-food-roamsix.jpg",
+      alt: "Guests sharing food and conversation at the long table",
+    },
   },
   {
     id:       "first-light",
@@ -112,6 +116,10 @@ const EXPERIENCE_CARDS = [
     cta:     "Request Priority Access",
     ctaLink: "/priority-access",
     bg:      "navy",
+    imageAfter: {
+      src: "/images/events/warner-springs-golden-hour-roamsix.jpg",
+      alt: "Golden hour landscape near Warner Springs",
+    },
   },
   {
     id:       "corporate-experiences",
@@ -223,6 +231,10 @@ const css = `
   .xp-perfect-list { list-style: none; margin-bottom: 36px; }
   .xp-perfect-list li { font-size: 16px; color: var(--cream-muted); padding: 9px 0; border-bottom: 1px solid rgba(232,223,208,0.07); display: flex; align-items: baseline; gap: 10px; }
   .xp-perfect-list li::before { content: '\\2013'; color: var(--gold-dim); font-size: 12px; flex-shrink: 0; }
+
+  /* IMAGE BREAK */
+  .xp-image-break { width: 100%; aspect-ratio: 21/9; object-fit: cover; display: block; }
+  @media (max-width: 600px) { .xp-image-break { aspect-ratio: 4/3; } }
 
   /* PRIORITY ACCESS SECTION */
   .xp-priority { padding: 96px 56px; background: var(--panel); text-align: center; }
@@ -340,32 +352,36 @@ export default function ExperiencesPage() {
 
       {/* EXPERIENCE CARDS */}
       {EXPERIENCE_CARDS.map((c) => (
-        <section
-          key={c.id}
-          className={`xp-section ${c.bg === "navy" ? "xp-section-navy" : "xp-section-dark"}`}
-          id={c.id}
-        >
-          <div className="xp-label-row">
-            <span className="xp-rule"/>
-            <span className="xp-label">{c.label}</span>
-          </div>
-          <div className="xp-card">
-            <div>
-              <h2 className="xp-card-headline">{c.headline}</h2>
-              <p className="xp-card-subhead">{c.subhead}</p>
-              <div className="xp-card-body">
-                {c.body.map((p, i) => <p key={i}>{p}</p>)}
+        <div key={c.id}>
+          <section
+            className={`xp-section ${c.bg === "navy" ? "xp-section-navy" : "xp-section-dark"}`}
+            id={c.id}
+          >
+            <div className="xp-label-row">
+              <span className="xp-rule"/>
+              <span className="xp-label">{c.label}</span>
+            </div>
+            <div className="xp-card">
+              <div>
+                <h2 className="xp-card-headline">{c.headline}</h2>
+                <p className="xp-card-subhead">{c.subhead}</p>
+                <div className="xp-card-body">
+                  {c.body.map((p, i) => <p key={i}>{p}</p>)}
+                </div>
+              </div>
+              <div>
+                <div className="xp-perfect-label">Perfect For</div>
+                <ul className="xp-perfect-list">
+                  {c.perfectFor.map(item => <li key={item}>{item}</li>)}
+                </ul>
+                <Link to={c.ctaLink} className="xp-btn xp-btn-gold">{c.cta}</Link>
               </div>
             </div>
-            <div>
-              <div className="xp-perfect-label">Perfect For</div>
-              <ul className="xp-perfect-list">
-                {c.perfectFor.map(item => <li key={item}>{item}</li>)}
-              </ul>
-              <Link to={c.ctaLink} className="xp-btn xp-btn-gold">{c.cta}</Link>
-            </div>
-          </div>
-        </section>
+          </section>
+          {c.imageAfter && (
+            <img className="xp-image-break" src={c.imageAfter.src} alt={c.imageAfter.alt} loading="lazy"/>
+          )}
+        </div>
       ))}
 
       <hr className="xp-hr"/>

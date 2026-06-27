@@ -10,7 +10,7 @@ const NAV = [
   ["Join",        "/priority-access"],
 ];
 
-const PAST_EVENT_IMAGE = "/images/gathering-dusk.webp";
+const PAST_EVENT_IMAGE = "/images/events/long-table-dinner-roamsix.jpg";
 
 const PAST_EVENT_DESCRIPTION = [
   "Twelve guests gathered on a private farmstead in Warner Springs for dinner, movement, sunset, and conversation.",
@@ -183,8 +183,7 @@ function EventCard({ event }) {
           <img
             className="evl-card-past-img"
             src={PAST_EVENT_IMAGE}
-            alt=""
-            aria-hidden="true"
+            alt="Guests seated together at the long table during the first ROAMSIX dinner"
             loading="lazy"
             onError={e => { e.target.style.display = "none"; }}
           />

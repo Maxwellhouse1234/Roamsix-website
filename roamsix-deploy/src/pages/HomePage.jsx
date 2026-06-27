@@ -8,11 +8,11 @@ import { Link } from 'react-router-dom';
 
 const HERO_SRC      = "/images/sunset-valley.webp";
 const HERO_FALLBACK = "/images/sunset-dramatic.webp";
-const STRIP_1       = "/images/gathering-dusk.webp";
-const STRIP_2       = "/images/land-light.webp";
-const STRIP_3       = "/images/sunset-dramatic.webp";
+const STRIP_1       = "/images/events/long-table-dinner-roamsix.jpg";
+const STRIP_2       = "/images/events/empty-table-setting-roamsix.jpg";
+const STRIP_3       = "/images/events/warner-springs-golden-hour-roamsix.jpg";
 const RP_COVER      = "/images/redirection-point-cover.webp";
-const CORPORATE_IMG = "/images/homepage/team-ridge.webp";
+const CORPORATE_IMG = "/images/events/guests-table-golden-hour-roamsix.jpg";
 
 const NAV = [
   ["Experiences", "/experiences"],
@@ -57,8 +57,6 @@ const css = `
     --teal: #4A7575; --teal-dim: #3A5A5A; --teal-light: #5A8A8A;
     --cream: #E8DFD0; --cream-dim: #DDD6CC; --cream-muted: #B8B0A6;
     --gold: #B59558; --gold-dim: #876F3E;
-    --rp-black: #090705; --rp-dark: #0E0B06;
-    --rp-gold: #C9A84C; --rp-gold-dim: #8A7438; --rp-cream: #D0BF9A;
   }
   body.rs-no-scroll { overflow: hidden; }
 
@@ -95,8 +93,8 @@ const css = `
   .rs-btn-gold:hover { background: var(--cream); color: var(--navy); }
   .rs-btn-gold-outline { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
   .rs-btn-gold-outline:hover { background: rgba(181,149,88,0.1); color: var(--gold); }
-  .rs-btn-rp { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; padding: 12px 26px; border: 1px solid rgba(201,168,76,0.35); color: var(--rp-gold); text-decoration: none; transition: all 0.2s; background: transparent; cursor: pointer; }
-  .rs-btn-rp:hover { border-color: var(--rp-gold); }
+  .rs-btn-rp { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; padding: 12px 26px; border: 1px solid rgba(181,149,88,0.35); color: var(--gold); text-decoration: none; transition: all 0.2s; background: transparent; cursor: pointer; }
+  .rs-btn-rp:hover { border-color: var(--gold); }
 
   /* CHROME */
   .rs-label-row { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
@@ -162,11 +160,11 @@ const css = `
   .rs-closing-attr { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); }
 
   /* PODCAST */
-  .rs-podcast { background: var(--rp-dark); border-top: 1px solid rgba(201,168,76,0.1); }
+  .rs-podcast { background: var(--panel); border-top: 1px solid rgba(181,149,88,0.1); }
   .rs-podcast-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; padding: 120px 56px; }
-  .rs-podcast-art { position: relative; background: var(--rp-black); aspect-ratio: 1; max-width: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px; border: 1px solid rgba(201,168,76,0.15); overflow: hidden; }
-  .rs-podcast-frame { position: absolute; inset: 12px; border: 1px solid rgba(201,168,76,0.08); }
-  .rs-podcast-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--rp-gold-dim); margin-bottom: 18px; }
+  .rs-podcast-art { position: relative; background: var(--navy); aspect-ratio: 1; max-width: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px; border: 1px solid rgba(181,149,88,0.15); overflow: hidden; }
+  .rs-podcast-frame { position: absolute; inset: 12px; border: 1px solid rgba(181,149,88,0.08); }
+  .rs-podcast-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 18px; }
   .rs-podcast-h2 { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(38px,4.2vw,54px); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--cream); margin-bottom: 18px; line-height: 1.05; }
   .rs-podcast-tagline { font-family: 'EB Garamond', serif; font-style: italic; font-size: 20px; color: var(--cream-muted); margin-bottom: 36px; line-height: 1.55; }
   .rs-platform { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 8px 16px; border: 1px solid rgba(232,223,208,0.25); color: var(--cream-muted); text-decoration: none; margin-right: 10px; margin-bottom: 10px; transition: all 0.2s; }
@@ -275,9 +273,9 @@ export default function HomePage() {
 
       {/* ── 2. IMAGES ── */}
       <div className="rs-proof-strip">
-        <img src={STRIP_1} alt="" aria-hidden="true" loading="lazy" className="rs-strip-img" onError={e => { e.target.style.display = "none"; }}/>
-        <img src={STRIP_2} alt="" aria-hidden="true" loading="lazy" className="rs-strip-img rs-strip-img-narrow" onError={e => { e.target.style.display = "none"; }}/>
-        <img src={STRIP_3} alt="" aria-hidden="true" loading="lazy" className="rs-strip-img" onError={e => { e.target.style.display = "none"; }}/>
+        <img src={STRIP_1} alt="Guests gathered around the long table sharing a meal" loading="lazy" className="rs-strip-img" onError={e => { e.target.style.display = "none"; }}/>
+        <img src={STRIP_2} alt="An empty table set with flowers before guests arrive" loading="lazy" className="rs-strip-img rs-strip-img-narrow" onError={e => { e.target.style.display = "none"; }}/>
+        <img src={STRIP_3} alt="Golden hour over the Warner Springs landscape" loading="lazy" className="rs-strip-img" onError={e => { e.target.style.display = "none"; }}/>
       </div>
 
       {/* ── 3. WHAT HAPPENS HERE ── */}
@@ -347,7 +345,7 @@ export default function HomePage() {
           <img
             className="rs-corporate-img"
             src={CORPORATE_IMG}
-            alt="A team in conversation on a ridge overlooking the backcountry"
+            alt="Guests in conversation around a long table at golden hour"
             loading="lazy"
             onError={e => { e.target.style.display = "none"; }}
           />

@@ -65,6 +65,9 @@ const css = `
   .wy-p:last-child { margin-bottom: 0; }
   .wy-intro .wy-p { font-style: italic; color: var(--cream-muted); }
 
+  /* IMAGE BREAKS */
+  .wy-image-break { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; margin: 56px 0; }
+
   /* PEOPLE */
   .wy-people { margin-top: 56px; padding-top: 40px; border-top: 1px solid rgba(232,223,208,0.06); }
   .wy-people-h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 500; font-size: 18px; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); margin-bottom: 16px; }
@@ -104,6 +107,9 @@ const css = `
   }
   @media (max-width: 480px) {
     .wy-footer-top { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .wy-image-break { margin: 40px 0; aspect-ratio: 4/3; }
   }
 `;
 
@@ -162,6 +168,8 @@ export default function WhyPage() {
             <p className="wy-p">Not because anything went wrong. Because very little was designed to stay with you.</p>
           </div>
 
+          <img className="wy-image-break" src="/images/events/barrel-lounge-golden-hour-roamsix.jpg" alt="A lounge area beneath oak trees at golden hour, set before guests arrive" loading="lazy"/>
+
           <div className="wy-label-row"><span className="wy-rule"/><span className="wy-label">Why the environment matters</span></div>
           <h2 className="wy-h2">Why the environment matters</h2>
           <p className="wy-p">You have walked into a room and felt it before anyone spoke.</p>
@@ -172,6 +180,8 @@ export default function WhyPage() {
           <p className="wy-p">Sometimes that place is a farm. Sometimes a coastline at first light. Sometimes a mountain trail. Sometimes a long table under the open sky.</p>
           <p className="wy-p">The place becomes part of the conversation.</p>
 
+          <img className="wy-image-break" src="/images/events/empty-table-setting-roamsix.jpg" alt="A long table set with flowers and place settings before guests arrive" loading="lazy"/>
+
           <div className="wy-label-row"><span className="wy-rule"/><span className="wy-label">Why movement matters</span></div>
           <h2 className="wy-h2">Why movement matters</h2>
           <p className="wy-p">You have sat in a conference room for six hours and left knowing less about the person beside you than when you arrived.</p>
@@ -179,6 +189,8 @@ export default function WhyPage() {
           <p className="wy-p">The agenda disappears. You arrive at the top and the scenery does the talking. People stop looking at each other. They look in the same direction.</p>
           <p className="wy-p">Some people open up over food. Others open up in motion. By moving through different environments, everyone finds their moment.</p>
           <p className="wy-p">Everyone finds the edge of their comfort zone somewhere. And that is usually where the real conversation starts.</p>
+
+          <img className="wy-image-break" src="/images/events/warner-springs-golden-hour-roamsix.jpg" alt="Sunset over the high desert landscape near Warner Springs" loading="lazy"/>
 
           <div className="wy-label-row"><span className="wy-rule"/><span className="wy-label">Why the room matters</span></div>
           <h2 className="wy-h2">Why the room matters</h2>
@@ -221,6 +233,8 @@ export default function WhyPage() {
             <p className="wy-p">ROAMSIX is carried forward by people who believe environment, hospitality, movement, and conversation can change what people notice and what they carry home.</p>
             <Link to="/team" className="wy-people-link">Meet the Team</Link>
           </div>
+
+          <img className="wy-image-break" src="/images/events/guests-table-golden-hour-roamsix.jpg" alt="Guests gathered at the table under string lights at golden hour" loading="lazy"/>
 
           <div className="wy-closing">
             <p className="wy-closing-line">Your world is wider. Stay curious. Stay awake.</p>
