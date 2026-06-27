@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 
 /*
-  ROAMSIX — CorporatePage.jsx
+  ROAMSIX, CorporatePage.jsx
   Route: /corporate
   Design system matches ExperiencesPage.jsx (cp- prefix)
   Form endpoint: POST /api/contact (do not modify)
@@ -19,45 +19,15 @@ const NAV = [
 const FORMATS = [
   {
     name: "One-Day Experience",
-    ideal: "Teams of 8 to 50",
-    bestFor: "Alignment days, employee appreciation, leadership development, culture work, and first engagements",
-    includes: [
-      "Full-day structured programming",
-      "Facilitated conversations and team experiences",
-      "Shared meals and hospitality",
-      "Movement, recovery, or outdoor components",
-      "Curated pacing and facilitation",
-      "End-to-end planning and coordination",
-    ],
-    note: "Most popular for first engagements.",
+    body: "Best for teams that need perspective, alignment, or a meaningful shared experience without leaving for multiple days.",
   },
   {
-    name: "Overnight Immersion",
-    ideal: "Teams of 8 to 30",
-    bestFor: "Leadership teams, annual planning, culture reset, deeper alignment work, and meaningful time together",
-    includes: [
-      "Multi-day structured programming",
-      "Accommodation sourcing and coordination",
-      "All meals and hospitality",
-      "Recovery and movement sessions",
-      "Facilitated conversations throughout",
-      "End-to-end logistics management",
-    ],
-    note: "Recommended for leadership teams.",
+    name: "Extended Experience",
+    body: "Best for leadership teams or organizations that need more time, deeper conversation, and a more complete change of environment.",
   },
   {
-    name: "Multi-Day Retreat",
-    ideal: "Teams of 8 to 25",
-    bestFor: "Executive retreats, strategic planning, significant culture work, transitions, and longer-form team development",
-    includes: [
-      "Custom 3 to 5 day experience design",
-      "Private venue sourcing and coordination",
-      "Full hospitality and meal program",
-      "Expert facilitation and programming",
-      "Recovery, movement, and reflection sessions",
-      "Complete logistics from arrival to departure",
-    ],
-    note: "Our deepest format.",
+    name: "Custom Team Experience",
+    body: "Best for companies, partners, or groups navigating a specific transition, milestone, or challenge.",
   },
 ];
 
@@ -133,8 +103,7 @@ const css = `
   .cp-hero-eyebrow { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
   .cp-hero-eyebrow::before { content: ''; display: block; width: 24px; height: 1px; background: var(--gold); flex-shrink: 0; }
   .cp-hero-h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(34px, 4.8vw, 64px); line-height: 1.05; color: var(--cream); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 28px; max-width: 960px; }
-  .cp-hero-sub { font-size: 19px; line-height: 1.8; color: var(--cream-dim); max-width: 640px; margin-bottom: 28px; }
-  .cp-hero-price { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
+  .cp-hero-sub { font-size: 19px; line-height: 1.8; color: var(--cream-dim); max-width: 640px; margin-bottom: 18px; }
 
   /* INTRO */
   .cp-intro { padding: 60px 56px; background: var(--panel); }
@@ -148,15 +117,9 @@ const css = `
   .cp-formats-subhead { font-size: 18px; line-height: 1.8; color: var(--cream-dim); max-width: 600px; margin-top: 14px; margin-bottom: 56px; }
   .cp-formats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
   .cp-format-card { background: var(--panel); border: 1px solid rgba(232,223,208,0.07); padding: 40px 32px; display: flex; flex-direction: column; }
-  .cp-format-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: 1px; text-transform: uppercase; color: var(--cream); margin-bottom: 28px; line-height: 1.1; }
-  .cp-format-meta-label { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
-  .cp-format-meta-val { font-size: 15px; color: var(--cream-dim); margin-bottom: 20px; line-height: 1.6; }
-  .cp-format-includes-label { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
-  .cp-format-list { list-style: none; flex: 1; margin-bottom: 0; }
-  .cp-format-list li { font-size: 14px; color: var(--cream-muted); padding: 7px 0; border-bottom: 1px solid rgba(232,223,208,0.06); line-height: 1.5; }
-  .cp-format-list li::before { content: '\\2013'; color: var(--gold-dim); margin-right: 8px; }
-  .cp-format-note { font-family: 'EB Garamond', serif; font-style: italic; font-size: 15px; color: var(--gold); margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(181,149,88,0.15); }
-  .cp-format-cta { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); text-decoration: none; margin-top: 16px; background: none; border: none; cursor: pointer; padding: 0; transition: color 0.2s; }
+  .cp-format-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: 1px; text-transform: uppercase; color: var(--cream); margin-bottom: 20px; line-height: 1.1; }
+  .cp-format-body { font-size: 16px; line-height: 1.75; color: var(--cream-dim); flex: 1; margin-bottom: 24px; }
+  .cp-format-cta { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); text-decoration: none; margin-top: 0; background: none; border: none; cursor: pointer; padding: 0; transition: color 0.2s; }
   .cp-format-cta:hover { color: var(--cream); }
 
   /* WHAT WE HANDLE */
@@ -259,7 +222,7 @@ export default function CorporatePage() {
 
   const close = () => setMenuOpen(false);
 
-  /* ── FORM HANDLER — DO NOT MODIFY ───────────────────────────────────────── */
+  /* FORM HANDLER, DO NOT MODIFY */
   const submitContact = async () => {
     if (!contact.email.trim() || !contact.message.trim()) { setCtErr("Please enter your email and message."); return; }
     setCtStatus("loading"); setCtErr("");
@@ -314,15 +277,16 @@ export default function CorporatePage() {
       {/* HERO */}
       <section className="cp-hero">
         <div className="cp-hero-eyebrow">Corporate Experiences</div>
-        <h1 className="cp-hero-h1">Built around your team. Designed around what needs to move.</h1>
-        <p className="cp-hero-sub">ROAMSIX plans and executes fully customized experiences for leadership teams, companies, and organizations. Every engagement is shaped around your people, your goals, and the outcomes that need to carry back into work.</p>
-        <div className="cp-hero-price">Starting at $449 per person per day.</div>
+        <h1 className="cp-hero-h1">Better teams begin with better environments.</h1>
+        <p className="cp-hero-sub">The way people communicate changes when the environment changes.</p>
+        <p className="cp-hero-sub">ROAMSIX designs private experiences for leadership teams and organizations looking to strengthen trust, gain perspective, and create better ways of working together.</p>
+        <p className="cp-hero-sub">Every experience is built specifically for the people in the room and the outcome they are trying to create.</p>
         <button
           className="cp-btn cp-btn-gold"
-          style={{ marginTop: "28px" }}
+          style={{ marginTop: "8px" }}
           onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
         >
-          Request a Proposal
+          Request a Conversation
         </button>
       </section>
 
@@ -330,10 +294,12 @@ export default function CorporatePage() {
 
       {/* INTRO */}
       <section className="cp-intro">
-        <h2 className="cp-intro-h2">This is not a standard offsite.</h2>
+        <h2 className="cp-intro-h2">The room changes the conversation.</h2>
         <div className="cp-intro-body">
-          <p>Most offsites are planned around logistics first. A location. A schedule. A few sessions. Some activities. People show up, spend the day together, and return to the same patterns.</p>
-          <p>ROAMSIX starts with what your team actually needs. Clearer direction. Stronger communication. Better trust. Real alignment. Then we design the experience around that.</p>
+          <p>Most teams spend more time together than ever and still miss the conversations that matter most.</p>
+          <p>The setting. The pace. The structure. The people in the room.</p>
+          <p>All of it changes what gets said, what stays hidden, and what becomes possible.</p>
+          <p>ROAMSIX creates environments where teams can step outside familiar patterns and see each other more clearly.</p>
         </div>
       </section>
 
@@ -341,28 +307,19 @@ export default function CorporatePage() {
 
       {/* FORMATS */}
       <section className="cp-formats">
-        <div className="cp-label-row"><span className="cp-rule"/><span className="cp-label">Experience Formats</span></div>
-        <h2 className="cp-formats-h2">Three formats. Fully customized.</h2>
-        <p className="cp-formats-subhead">Every engagement is scoped and priced based on your team size, location, goals, and level of support needed.</p>
+        <div className="cp-label-row"><span className="cp-rule"/><span className="cp-label">Formats</span></div>
+        <h2 className="cp-formats-h2">Ways we work with teams.</h2>
         <div className="cp-formats-grid">
           {FORMATS.map(f => (
             <div className="cp-format-card" key={f.name}>
               <div className="cp-format-name">{f.name}</div>
-              <div className="cp-format-meta-label">Ideal for</div>
-              <div className="cp-format-meta-val">{f.ideal}</div>
-              <div className="cp-format-meta-label">Best for</div>
-              <div className="cp-format-meta-val">{f.bestFor}</div>
-              <div className="cp-format-includes-label">Includes</div>
-              <ul className="cp-format-list">
-                {f.includes.map(item => <li key={item}>{item}</li>)}
-              </ul>
-              <p className="cp-format-note">{f.note}</p>
+              <p className="cp-format-body">{f.body}</p>
               <a
                 href="#contact"
                 className="cp-format-cta"
                 onClick={e => { e.preventDefault(); document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }); }}
               >
-                Request a Proposal
+                Request a Conversation
               </a>
             </div>
           ))}
@@ -374,8 +331,8 @@ export default function CorporatePage() {
       {/* WHAT WE HANDLE */}
       <section className="cp-handles">
         <div className="cp-label-row"><span className="cp-rule"/><span className="cp-label">End-to-End</span></div>
-        <h2 className="cp-handles-h2">We handle everything.</h2>
-        <p className="cp-handles-subhead">You focus on your people. We take care of the rest.</p>
+        <h2 className="cp-handles-h2">We handle the conditions.</h2>
+        <p className="cp-handles-subhead">Your team should not have to think about the details that make the day work. We design the environment, pacing, meals, movement, hospitality, and flow so the people in the room can focus on what matters.</p>
         <div className="cp-handles-grid">
           {HANDLES.map(item => (
             <div className="cp-handle-item" key={item}>{item}</div>
@@ -386,13 +343,13 @@ export default function CorporatePage() {
 
       <hr className="cp-hr"/>
 
-      {/* PRICING */}
+      {/* GETTING STARTED */}
       <section className="cp-pricing">
-        <div className="cp-label-row"><span className="cp-rule"/><span className="cp-label">Investment</span></div>
-        <h2 className="cp-pricing-h2">Custom scoped. Clear proposal.</h2>
-        <p className="cp-pricing-body">Every engagement is priced based on team size, format, location, and scope. We build a clear proposal after a discovery call so your team knows exactly what is included.</p>
-        <div className="cp-pricing-price">Starting at $449 per person per day.</div>
-        <a href="#contact" className="cp-btn cp-btn-gold">Request a Proposal</a>
+        <div className="cp-label-row"><span className="cp-rule"/><span className="cp-label">Getting Started</span></div>
+        <h2 className="cp-pricing-h2">Built around the room.</h2>
+        <p className="cp-pricing-body">Every corporate experience is scoped around the team, the location, the format, and the outcome.</p>
+        <p className="cp-pricing-body">We start with a conversation. If there is a fit, we build a clear proposal from there.</p>
+        <a href="#contact" className="cp-btn cp-btn-gold" style={{ marginTop: "16px", display: "inline-block" }}>Request a Conversation</a>
       </section>
 
       <hr className="cp-hr"/>
@@ -402,8 +359,8 @@ export default function CorporatePage() {
         <div className="cp-contact-grid">
           <div>
             <div className="cp-label-row"><span className="cp-rule"/><span className="cp-label">Start Here</span></div>
-            <h2 className="cp-contact-h2">Tell us about your team.</h2>
-            <p className="cp-contact-body">We will be in touch within one business day to schedule a discovery call.</p>
+            <h2 className="cp-contact-h2">Start with a conversation.</h2>
+            <p className="cp-contact-body">Tell us what is happening inside your team. We will follow up to understand the room, the timing, and what needs to move.</p>
             <div className="cp-contact-links">
               <a href="mailto:info@roamsix.com">info@roamsix.com</a>
               <a href="https://www.instagram.com/roamsix_" target="_blank" rel="noopener noreferrer">@roamsix_</a>
@@ -450,9 +407,9 @@ export default function CorporatePage() {
                     <label className="cp-form-label">Preferred Format</label>
                     <select className="cp-select" value={contact.format} onChange={e => setContact(c => ({ ...c, format: e.target.value }))}>
                       <option value="">Select</option>
-                      <option value="One-Day">One-Day</option>
-                      <option value="Overnight">Overnight</option>
-                      <option value="Multi-Day">Multi-Day</option>
+                      <option value="One-Day Experience">One-Day Experience</option>
+                      <option value="Extended Experience">Extended Experience</option>
+                      <option value="Custom Team Experience">Custom Team Experience</option>
                       <option value="Not Sure Yet">Not Sure Yet</option>
                     </select>
                   </div>
@@ -467,7 +424,7 @@ export default function CorporatePage() {
                 </label>
                 {ctErr && <p className="cp-form-err">{ctErr}</p>}
                 <button className="cp-btn cp-btn-gold" style={{ width: "100%", textAlign: "center", marginTop: "8px" }} onClick={submitContact} disabled={ctStatus === "loading"}>
-                  {ctStatus === "loading" ? "Sending..." : "Request a Proposal"}
+                  {ctStatus === "loading" ? "Sending..." : "Request a Conversation"}
                 </button>
               </>
             )}
@@ -480,7 +437,7 @@ export default function CorporatePage() {
         <div className="cp-footer-top">
           <div>
             <div className="cp-footer-wm">ROAMSIX</div>
-            <p className="cp-footer-tag">Curated experiences for people looking for depth, perspective, and real connection.</p>
+            <p className="cp-footer-tag">ROAMSIX creates gatherings and experiences for people who care about how they live, what they build, and who they become.</p>
             <div className="cp-footer-social">
               <a href="https://www.instagram.com/roamsix_" target="_blank" rel="noopener noreferrer">Instagram</a>
               <a href="https://www.linkedin.com/company/roamsix/" target="_blank" rel="noopener noreferrer">LinkedIn</a>

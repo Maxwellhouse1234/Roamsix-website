@@ -52,7 +52,7 @@ const css = `
  .tp-mobile-join { background: transparent; color: var(--gold) !important; margin-top: 32px; border: 1px solid var(--gold); font-size: 20px !important; }
 
  /* PAGE */
- .tp-page { padding: 140px 56px 100px; max-width: 1100px; margin: 0 auto; }
+ .tp-page { padding: 168px 56px 100px; max-width: 1100px; margin: 0 auto; }
  .tp-label-row { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
  .tp-rule { display: block; width: 24px; height: 1px; background: var(--gold); flex-shrink: 0; }
  .tp-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); }
@@ -104,7 +104,7 @@ const css = `
  .tp-nav { padding: 0 24px; }
  .tp-nav-links { display: none; }
  .tp-burger { display: flex; }
- .tp-page { padding: 120px 24px 72px; }
+ .tp-page { padding: 140px 24px 72px; }
  .tp-founder { grid-template-columns: 1fr; }
  .tp-belief { grid-template-columns: 1fr; gap: 36px; }
  .tp-footer { padding: 56px 24px 36px; }
