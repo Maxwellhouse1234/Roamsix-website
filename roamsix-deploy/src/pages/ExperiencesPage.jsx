@@ -10,9 +10,8 @@ import { Link } from 'react-router-dom';
 const NAV = [
   ["Experiences", "/experiences"],
   ["Events",      "/events"],
-  ["Podcast",     "#podcast"],
+  ["Why",         "/why"],
   ["Corporate",   "/corporate"],
-  ["About",       "/team"],
   ["Join",        "/priority-access"],
 ];
 
@@ -276,6 +275,8 @@ export default function ExperiencesPage() {
   const [scrolled,  setScrolled]  = useState(false);
   const [menuOpen,  setMenuOpen]  = useState(false);
 
+  useEffect(() => { window.scrollTo(0, 0); }, []);
+
   useEffect(() => {
     document.body.classList.toggle("xp-no-scroll", menuOpen);
     return () => document.body.classList.remove("xp-no-scroll");
@@ -403,9 +404,8 @@ export default function ExperiencesPage() {
             </div>
           </div>
           <div className="xp-footer-col"><h4>Company</h4><ul>
-            <li><a href="/#founders">About</a></li>
-            <li><Link to="/team">Team</Link></li>
             <li><Link to="/why">Why We Built ROAMSIX</Link></li>
+            <li><Link to="/team">Team</Link></li>
           </ul></div>
           <div className="xp-footer-col"><h4>Experiences</h4><ul>
             <li><Link to="/events">Events</Link></li>

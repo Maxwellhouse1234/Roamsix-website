@@ -5,9 +5,8 @@ import { events } from "../data/events";
 const NAV = [
   ["Experiences", "/experiences"],
   ["Events",      "/events"],
-  ["Podcast",     "#podcast"],
+  ["Why",         "/why"],
   ["Corporate",   "/corporate"],
-  ["About",       "/team"],
   ["Join",        "/priority-access"],
 ];
 
@@ -64,7 +63,6 @@ const css = `
   /* CARD */
   .evl-card { background: var(--panel); border: 1px solid rgba(232,223,208,0.07); padding: 40px 36px; display: flex; flex-direction: column; transition: border-color 0.25s; }
   .evl-card:hover { border-color: rgba(74,117,117,0.3); }
-  .evl-card-past { opacity: 0.55; }
 
   .evl-card-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
   .evl-badge { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; padding: 5px 12px; border: 1px solid; }
@@ -86,14 +84,15 @@ const css = `
   .evl-sold-label { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); }
 
   /* WHAT'S NEXT */
-  .evl-whats-next { padding: 80px 0 0; }
-  .evl-whats-next-body { font-size: 18px; line-height: 1.8; color: var(--cream-dim); max-width: 520px; margin: 16px 0 36px; }
+  .evl-whats-next-body { font-size: 18px; line-height: 1.8; color: var(--cream-dim); max-width: 520px; margin: 0 0 32px; }
+  .evl-whats-next-body:last-of-type { margin-bottom: 36px; }
   .evl-btn-gold { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; padding: 15px 34px; background: var(--gold); color: var(--navy); text-decoration: none; transition: all 0.22s; border: none; cursor: pointer; }
   .evl-btn-gold:hover { background: var(--cream); color: var(--navy); }
 
   /* SECTION DIVIDER */
-  .evl-section-head { margin-top: 80px; margin-bottom: 32px; }
-  .evl-hr { border: none; height: 1px; background: linear-gradient(to right, transparent, rgba(181,149,88,0.14), transparent); margin: 72px 0 0; }
+  .evl-section-head { margin-top: 0; margin-bottom: 28px; }
+  .evl-h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: clamp(28px,3.2vw,40px); letter-spacing: 1px; text-transform: uppercase; color: var(--cream); line-height: 1.1; }
+  .evl-hr { border: none; height: 1px; background: linear-gradient(to right, transparent, rgba(181,149,88,0.14), transparent); margin: 56px 0 40px; }
 
   /* FOOTER */
   .evl-footer { background: var(--panel); border-top: 1px solid rgba(181,149,88,0.1); padding: 40px 56px; }
@@ -141,7 +140,7 @@ function StatusBadge({ status }) {
 function EventCard({ event }) {
   const isPast = new Date(event.date) <= new Date();
   return (
-    <div className={`evl-card${isPast ? " evl-card-past" : ""}`}>
+    <div className="evl-card">
       <div className="evl-card-meta">
         {isPast
           ? <span className="evl-badge-past">Past Experience</span>
@@ -154,12 +153,18 @@ function EventCard({ event }) {
       <div className="evl-card-location">{event.location}</div>
       <p className="evl-card-desc">{event.description}</p>
       <div className="evl-card-footer">
-        <span className="evl-price">From {priceFrom(event)}</span>
-        {!isPast && event.status !== "soldout" ? (
-          <Link to={`/events/${event.id}`} className="evl-btn">View Experience</Link>
-        ) : event.status === "soldout" && !isPast ? (
-          <span className="evl-sold-label">Sold Out</span>
-        ) : null}
+        {isPast ? (
+          <Link to="/priority-access" className="evl-btn-gold">Join Priority Access</Link>
+        ) : (
+          <>
+            <span className="evl-price">From {priceFrom(event)}</span>
+            {event.status !== "soldout" ? (
+              <Link to={`/events/${event.id}`} className="evl-btn">View Experience</Link>
+            ) : (
+              <span className="evl-sold-label">Sold Out</span>
+            )}
+          </>
+        )}
       </div>
     </div>
   );
@@ -226,13 +231,10 @@ export default function EventsPage() {
         <h1 className="evl-h1">Upcoming Experiences.</h1>
 
         {upcoming.length === 0 ? (
-          <div className="evl-whats-next">
-            <div className="evl-label-row">
-              <span className="evl-rule" />
-              <span className="evl-label">What's Next</span>
-            </div>
-            <p className="evl-whats-next-body">Upcoming experiences are announced to Priority Access first.</p>
-            <Link to="/priority-access" className="evl-btn-gold">Request Priority Access</Link>
+          <div>
+            <p className="evl-whats-next-body">No dates have been announced.</p>
+            <p className="evl-whats-next-body">Priority Access members receive invitations before experiences are shared publicly.</p>
+            <Link to="/priority-access" className="evl-btn-gold">Join Priority Access</Link>
           </div>
         ) : (
           <div className={`evl-grid${upcoming.length === 1 ? " evl-grid-single" : ""}`}>
@@ -244,10 +246,7 @@ export default function EventsPage() {
           <>
             <hr className="evl-hr" />
             <div className="evl-section-head">
-              <div className="evl-label-row">
-                <span className="evl-rule" />
-                <span className="evl-label">Past Experiences</span>
-              </div>
+              <h2 className="evl-h2">Past Experiences</h2>
             </div>
             <div className={`evl-grid${past.length === 1 ? " evl-grid-single" : ""}`}>
               {past.map((ev) => <EventCard key={ev.id} event={ev} />)}

@@ -4,9 +4,8 @@ import { Link } from 'react-router-dom';
 const NAV = [
   ["Experiences", "/experiences"],
   ["Events",      "/events"],
-  ["Podcast",     "#podcast"],
+  ["Why",         "/why"],
   ["Corporate",   "/corporate"],
-  ["About",       "/team"],
   ["Join",        "/priority-access"],
 ];
 
@@ -65,6 +64,12 @@ const css = `
   .wy-p { font-family: 'EB Garamond', serif; font-size: 19px; line-height: 1.9; color: var(--cream-dim); margin-bottom: 24px; }
   .wy-p:last-child { margin-bottom: 0; }
   .wy-intro .wy-p { font-style: italic; color: var(--cream-muted); }
+
+  /* PEOPLE */
+  .wy-people { margin-top: 56px; padding-top: 40px; border-top: 1px solid rgba(232,223,208,0.06); }
+  .wy-people-h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 500; font-size: 18px; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); margin-bottom: 16px; }
+  .wy-people-link { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); text-decoration: none; border-bottom: 1px solid rgba(181,149,88,0.3); padding-bottom: 2px; transition: all 0.2s; }
+  .wy-people-link:hover { border-bottom-color: var(--gold); color: var(--cream); }
 
   /* CLOSING */
   .wy-closing { margin-top: 80px; padding-top: 48px; border-top: 1px solid rgba(232,223,208,0.08); text-align: center; }
@@ -211,6 +216,12 @@ export default function WhyPage() {
           <p className="wy-p">What stays with people is never ours to decide.</p>
           <p className="wy-p">That has always been the point.</p>
 
+          <div className="wy-people">
+            <h2 className="wy-people-h2">The People Behind ROAMSIX</h2>
+            <p className="wy-p">ROAMSIX is carried forward by people who believe environment, hospitality, movement, and conversation can change what people notice and what they carry home.</p>
+            <Link to="/team" className="wy-people-link">Meet the Team</Link>
+          </div>
+
           <div className="wy-closing">
             <p className="wy-closing-line">Your world is wider. Stay curious. Stay awake.</p>
             <div className="wy-closing-attr">— ROAMSIX</div>
@@ -231,9 +242,8 @@ export default function WhyPage() {
             </div>
           </div>
           <div className="wy-footer-col"><h4>Company</h4><ul>
-            <li><Link to="/team">About</Link></li>
-            <li><Link to="/team">Team</Link></li>
             <li><Link to="/why">Why We Built ROAMSIX</Link></li>
+            <li><Link to="/team">Team</Link></li>
           </ul></div>
           <div className="wy-footer-col"><h4>Experiences</h4><ul>
             <li><Link to="/events">Events</Link></li>

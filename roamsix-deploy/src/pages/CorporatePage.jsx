@@ -11,9 +11,8 @@ import { Link } from 'react-router-dom';
 const NAV = [
   ["Experiences", "/experiences"],
   ["Events",      "/events"],
-  ["Podcast",     "#podcast"],
+  ["Why",         "/why"],
   ["Corporate",   "/corporate"],
-  ["About",       "/team"],
   ["Join",        "/priority-access"],
 ];
 
@@ -244,6 +243,8 @@ export default function CorporatePage() {
   const [contact,   setContact]   = useState({ first: "", last: "", email: "", company: "", teamSize: "", format: "", message: "", stayInLoop: false });
   const [ctStatus,  setCtStatus]  = useState("idle");
   const [ctErr,     setCtErr]     = useState("");
+
+  useEffect(() => { window.scrollTo(0, 0); }, []);
 
   useEffect(() => {
     document.body.classList.toggle("cp-no-scroll", menuOpen);
@@ -486,8 +487,7 @@ export default function CorporatePage() {
             </div>
           </div>
           <div className="cp-footer-col"><h4>Company</h4><ul>
-            <li><a href="/#founders">About</a></li>
-            <li><Link to="/approach">Approach</Link></li>
+            <li><Link to="/why">Why We Built ROAMSIX</Link></li>
             <li><Link to="/team">Team</Link></li>
           </ul></div>
           <div className="cp-footer-col"><h4>Experiences</h4><ul>

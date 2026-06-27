@@ -10,9 +10,8 @@ import { Link } from 'react-router-dom';
 const NAV = [
   ["Experiences", "/experiences"],
   ["Events",      "/events"],
-  ["Podcast",     "#podcast"],
+  ["Why",         "/why"],
   ["Corporate",   "/corporate"],
-  ["About",       "/team"],
   ["Join",        "/priority-access"],
 ];
 
@@ -448,7 +447,7 @@ export default function PriorityAccessPage() {
             </div>
           </div>
           <div className="pa-footer-col"><h4>Company</h4><ul>
-            <li><Link to="/team">About</Link></li>
+            <li><Link to="/why">Why We Built ROAMSIX</Link></li>
             <li><Link to="/team">Team</Link></li>
           </ul></div>
           <div className="pa-footer-col"><h4>Experiences</h4><ul>

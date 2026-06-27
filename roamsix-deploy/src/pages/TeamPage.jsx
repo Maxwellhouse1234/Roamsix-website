@@ -7,9 +7,8 @@ const JACKIE_SRC = "/images/jackie.webp";
 const NAV = [
   ["Experiences", "/experiences"],
   ["Events",      "/events"],
-  ["Podcast",     "#podcast"],
+  ["Why",         "/why"],
   ["Corporate",   "/corporate"],
-  ["About",       "/team"],
   ["Join",        "/priority-access"],
 ];
 
@@ -59,22 +58,22 @@ const css = `
  .tp-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); }
  .tp-h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: clamp(36px,4.4vw,56px); letter-spacing: 1px; text-transform: uppercase; color: var(--cream); line-height: 1.05; margin-bottom: 64px; }
 
+ /* BELIEF SECTION */
+ .tp-belief { padding-bottom: 56px; margin-bottom: 56px; border-bottom: 1px solid rgba(181,149,88,0.1); display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: start; }
+ .tp-belief-h2 { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(28px,3.2vw,40px); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--cream); line-height: 1.1; }
+ .tp-belief-body p { font-size: 18px; line-height: 1.85; color: var(--cream-dim); margin-bottom: 20px; }
+ .tp-belief-body p:last-child { margin-bottom: 0; }
+
  /* FOUNDER CARDS */
- .tp-founders { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 80px; }
- .tp-founder { background: var(--panel); border: 1px solid rgba(232,223,208,0.08); }
- .tp-founder-photo { width: 100%; aspect-ratio: 3/4; object-fit: cover; object-position: top; display: block; filter: brightness(0.9) contrast(1.05); }
- .tp-founder-photo-placeholder { width: 100%; aspect-ratio: 3/4; background: rgba(74,117,117,0.1); display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-size: 48px; font-weight: 600; color: var(--teal); letter-spacing: 4px; }
- .tp-founder-body { padding: 32px 36px 36px; }
+ .tp-founders { display: flex; flex-direction: column; gap: 32px; margin-bottom: 80px; }
+ .tp-founder { background: var(--panel); border: 1px solid rgba(232,223,208,0.08); display: grid; grid-template-columns: 300px 1fr; gap: 36px; padding: 32px; }
+ .tp-founder-photo { width: 100%; max-width: 300px; aspect-ratio: 3/4; object-fit: cover; object-position: top; display: block; filter: brightness(0.9) contrast(1.05); }
+ .tp-founder-photo-placeholder { width: 100%; max-width: 300px; aspect-ratio: 3/4; background: rgba(74,117,117,0.1); display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-size: 48px; font-weight: 600; color: var(--teal); letter-spacing: 4px; }
+ .tp-founder-body { padding: 0; }
  .tp-founder-role { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
  .tp-founder-name { font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--cream); margin-bottom: 20px; }
  .tp-founder-bio { font-size: 17px; line-height: 1.8; color: var(--cream-dim); margin-bottom: 16px; }
  .tp-founder-bio:last-child { margin-bottom: 0; }
-
- /* COMPANY NOTE */
- .tp-note { border-top: 1px solid rgba(181,149,88,0.1); padding-top: 56px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: start; }
- .tp-note-h2 { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(28px,3.2vw,40px); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--cream); line-height: 1.1; }
- .tp-note-body p { font-size: 18px; line-height: 1.85; color: var(--cream-dim); margin-bottom: 20px; }
- .tp-note-body p:last-child { margin-bottom: 0; }
 
  /* CTA */
  .tp-cta { margin-top: 56px; padding-top: 48px; border-top: 1px solid rgba(232,223,208,0.08); text-align: center; }
@@ -106,8 +105,8 @@ const css = `
  .tp-nav-links { display: none; }
  .tp-burger { display: flex; }
  .tp-page { padding: 120px 24px 72px; }
- .tp-founders { grid-template-columns: 1fr; }
- .tp-note { grid-template-columns: 1fr; gap: 36px; }
+ .tp-founder { grid-template-columns: 1fr; }
+ .tp-belief { grid-template-columns: 1fr; gap: 36px; }
  .tp-footer { padding: 56px 24px 36px; }
  .tp-footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
  .tp-footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
@@ -166,6 +165,18 @@ export default function TeamPage() {
     <div className="tp-label-row"><span className="tp-rule"/><span className="tp-label">The Team</span></div>
     <h1 className="tp-h1">Built from real experience.</h1>
 
+    {/* BELIEF */}
+    <div className="tp-belief">
+     <div>
+      <h2 className="tp-belief-h2">Built from a Belief.</h2>
+     </div>
+     <div className="tp-belief-body">
+      <p>We did not set out to build another event company.</p>
+      <p>We became fascinated by a different question: why do some environments change people while others leave almost nothing behind?</p>
+      <p>ROAMSIX is the result of that question.</p>
+     </div>
+    </div>
+
     <div className="tp-founders">
 
      {/* MAX */}
@@ -178,37 +189,27 @@ export default function TeamPage() {
       <div className="tp-founder-body">
        <div className="tp-founder-role">Co-Founder</div>
        <div className="tp-founder-name">Max Ouellette</div>
-       <p className="tp-founder-bio">Former professional athlete with a background in performance environments, hospitality, and experience design.</p>
-       <p className="tp-founder-bio">Max leads ROAMSIX with a focus on building experiences that bring the right people together in the right environments at the right time. His work blends structure, atmosphere, movement, conversation, and thoughtful execution to create experiences that stay with people long after they leave.</p>
+       <p className="tp-founder-bio">Max is fascinated by how environment changes behavior.</p>
+       <p className="tp-founder-bio">After years in professional sport, leadership, and hospitality, he became convinced that where people gather matters as much as why they gather.</p>
+       <p className="tp-founder-bio">ROAMSIX is the result of that belief.</p>
       </div>
      </div>
 
      {/* JACKIE */}
      <div className="tp-founder">
       {jackieErr ? (
-       <div className="tp-founder-photo-placeholder">JA</div>
+       <div className="tp-founder-photo-placeholder">JS</div>
       ) : (
-       <img className="tp-founder-photo" src={JACKIE_SRC} alt="Jackie" onError={() => setJackieErr(true)}/>
+       <img className="tp-founder-photo" src={JACKIE_SRC} alt="Jackie Slot" onError={() => setJackieErr(true)}/>
       )}
       <div className="tp-founder-body">
        <div className="tp-founder-role">Co-Founder</div>
-       <div className="tp-founder-name">Jackie</div>
-       <p className="tp-founder-bio">Background in event production, fitness instruction, equestrian therapy, and hosted experiences centered around connection, recovery, and human interaction.</p>
-       <p className="tp-founder-bio">Jackie shapes the feeling behind every ROAMSIX experience. Her work focuses on pacing, hospitality, emotional intelligence, and the details that make people feel comfortable enough to actually be present.</p>
+       <div className="tp-founder-name">Jackie Slot</div>
+       <p className="tp-founder-bio">Jackie believes hospitality is one of the highest forms of care.</p>
+       <p className="tp-founder-bio">Her work shapes the rhythm, atmosphere, and emotional experience that allow people to slow down, connect, and be fully present.</p>
       </div>
      </div>
 
-    </div>
-
-    {/* COMPANY NOTE */}
-    <div className="tp-note">
-     <div>
-      <h2 className="tp-note-h2">Grounded in real life.</h2>
-     </div>
-     <div className="tp-note-body">
-      <p>ROAMSIX is built by people who care about intentional experiences, hospitality, movement, meaningful connection, and creating environments where the right people find each other.</p>
-      <p>We believe the quality of the people around you determines the quality of your life. Every experience we design starts from that belief.</p>
-     </div>
     </div>
 
     {/* CTA */}
@@ -231,9 +232,8 @@ export default function TeamPage() {
       </div>
      </div>
      <div className="tp-footer-col"><h4>Company</h4><ul>
-      <li><Link to="/team">About</Link></li>
-      <li><Link to="/team">Team</Link></li>
       <li><Link to="/why">Why We Built ROAMSIX</Link></li>
+      <li><Link to="/team">Team</Link></li>
      </ul></div>
      <div className="tp-footer-col"><h4>Experiences</h4><ul>
       <li><Link to="/events">Events</Link></li>
