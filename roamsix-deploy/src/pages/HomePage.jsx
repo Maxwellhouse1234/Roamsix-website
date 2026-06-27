@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 const HERO_SRC      = "/images/sunset-valley.webp";
 const HERO_FALLBACK = "/images/sunset-dramatic.webp";
 const STRIP_1       = "/images/events/long-table-dinner-roamsix.jpg";
-const STRIP_2       = "/images/events/empty-table-setting-roamsix.jpg";
+const STRIP_2       = "/images/events/oak-tree-lounge-roamsix.jpg";
 const STRIP_3       = "/images/events/warner-springs-golden-hour-roamsix.jpg";
 const RP_COVER      = "/images/redirection-point-cover.webp";
 const CORPORATE_IMG = "/images/events/guests-table-golden-hour-roamsix.jpg";
@@ -274,7 +274,7 @@ export default function HomePage() {
       {/* ── 2. IMAGES ── */}
       <div className="rs-proof-strip">
         <img src={STRIP_1} alt="Guests gathered around the long table sharing a meal" loading="lazy" className="rs-strip-img" onError={e => { e.target.style.display = "none"; }}/>
-        <img src={STRIP_2} alt="An empty table set with flowers before guests arrive" loading="lazy" className="rs-strip-img rs-strip-img-narrow" onError={e => { e.target.style.display = "none"; }}/>
+        <img src={STRIP_2} alt="A lounge area beneath oak trees at golden hour" loading="lazy" className="rs-strip-img rs-strip-img-narrow" onError={e => { e.target.style.display = "none"; }}/>
         <img src={STRIP_3} alt="Golden hour over the Warner Springs landscape" loading="lazy" className="rs-strip-img" onError={e => { e.target.style.display = "none"; }}/>
       </div>
 

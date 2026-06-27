@@ -39,8 +39,8 @@ const EXPERIENCE_CARDS = [
     ctaLink: "/priority-access",
     bg:      "dark",
     imageAfter: {
-      src: "/images/events/guests-sharing-food-roamsix.jpg",
-      alt: "Guests sharing food and conversation at the long table",
+      src: "/images/events/barrel-lounge-golden-hour-roamsix.jpg",
+      alt: "A lounge area set beneath oak trees at golden hour",
     },
   },
   {

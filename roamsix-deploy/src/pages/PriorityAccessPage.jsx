@@ -94,11 +94,13 @@ const css = `
 
   /* HERO */
   .pa-hero { background: var(--navy); padding: 120px 56px 40px; }
+  .pa-hero-inner { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; align-items: center; }
   .pa-hero-eyebrow { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
   .pa-hero-eyebrow::before { content: ''; display: block; width: 24px; height: 1px; background: var(--gold); flex-shrink: 0; }
-  .pa-hero-h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(38px, 5vw, 68px); line-height: 1.05; color: var(--cream); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 28px; max-width: 860px; }
-  .pa-hero-body p { font-family: 'EB Garamond', serif; font-style: italic; font-size: 19px; line-height: 1.9; color: var(--cream-muted); max-width: 640px; margin-bottom: 24px; }
+  .pa-hero-h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(38px, 5vw, 68px); line-height: 1.05; color: var(--cream); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 28px; }
+  .pa-hero-body p { font-family: 'EB Garamond', serif; font-style: italic; font-size: 19px; line-height: 1.9; color: var(--cream-muted); margin-bottom: 24px; }
   .pa-hero-body p:last-child { margin-bottom: 0; }
+  .pa-hero-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; filter: brightness(0.9) contrast(1.05); }
 
   /* FORM SECTION */
   .pa-form-section { padding: 64px 56px 100px; background: var(--navy); }
@@ -165,6 +167,7 @@ const css = `
     .pa-burger { display: flex; }
     .pa-nav { padding: 0 24px; }
     .pa-hero { padding: 100px 24px 32px; }
+    .pa-hero-inner { grid-template-columns: 1fr; gap: 28px; }
     .pa-form-section { padding: 48px 24px 72px; }
     .pa-form-row { grid-template-columns: 1fr; gap: 0; }
     .pa-footer { padding: 56px 24px 36px; }
@@ -300,12 +303,22 @@ export default function PriorityAccessPage() {
 
       {/* HERO */}
       <section className="pa-hero">
-        <div className="pa-hero-eyebrow">Priority Access</div>
-        <h1 className="pa-hero-h1">Request Priority Access.</h1>
-        <div className="pa-hero-body">
-          <p>ROAMSIX experiences open to the priority list before anything is shared publicly.</p>
-          <p>Add your name to be considered for upcoming gatherings, podcast releases, and future invitations.</p>
-          <p>If this feels like your kind of people, start here.</p>
+        <div className="pa-hero-inner">
+          <div>
+            <div className="pa-hero-eyebrow">Priority Access</div>
+            <h1 className="pa-hero-h1">Request Priority Access.</h1>
+            <div className="pa-hero-body">
+              <p>ROAMSIX experiences open to the priority list before anything is shared publicly.</p>
+              <p>Add your name to be considered for upcoming gatherings, podcast releases, and future invitations.</p>
+              <p>If this feels like your kind of people, start here.</p>
+            </div>
+          </div>
+          <img
+            className="pa-hero-img"
+            src="/images/events/oak-tree-lounge-roamsix.jpg"
+            alt="A lounge area beneath oak trees at golden hour"
+            loading="lazy"
+          />
         </div>
       </section>
 

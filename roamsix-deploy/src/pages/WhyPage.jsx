@@ -180,7 +180,7 @@ export default function WhyPage() {
           <p className="wy-p">Sometimes that place is a farm. Sometimes a coastline at first light. Sometimes a mountain trail. Sometimes a long table under the open sky.</p>
           <p className="wy-p">The place becomes part of the conversation.</p>
 
-          <img className="wy-image-break" src="/images/events/empty-table-setting-roamsix.jpg" alt="A long table set with flowers and place settings before guests arrive" loading="lazy"/>
+          <img className="wy-image-break" src="/images/events/oak-tree-lights-roamsix.jpg" alt="Oak trees strung with lights at dusk, guests gathered beneath them" loading="lazy"/>
 
           <div className="wy-label-row"><span className="wy-rule"/><span className="wy-label">Why movement matters</span></div>
           <h2 className="wy-h2">Why movement matters</h2>

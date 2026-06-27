@@ -100,16 +100,19 @@ const css = `
 
   /* HERO */
   .cp-hero { background: var(--navy); padding: 80px 56px 60px; }
+  .cp-hero-inner { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; align-items: center; }
   .cp-hero-eyebrow { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
   .cp-hero-eyebrow::before { content: ''; display: block; width: 24px; height: 1px; background: var(--gold); flex-shrink: 0; }
-  .cp-hero-h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(34px, 4.8vw, 64px); line-height: 1.05; color: var(--cream); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 28px; max-width: 960px; }
-  .cp-hero-sub { font-size: 19px; line-height: 1.8; color: var(--cream-dim); max-width: 640px; margin-bottom: 18px; }
+  .cp-hero-h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(34px, 4.8vw, 64px); line-height: 1.05; color: var(--cream); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 28px; }
+  .cp-hero-sub { font-size: 19px; line-height: 1.8; color: var(--cream-dim); margin-bottom: 18px; }
+  .cp-hero-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; filter: brightness(0.9) contrast(1.05); }
 
   /* INTRO */
   .cp-intro { padding: 60px 56px; background: var(--panel); }
   .cp-intro-h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(26px, 3.4vw, 46px); line-height: 1.05; color: var(--cream); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 40px; max-width: 800px; }
   .cp-intro-body p { font-size: 18px; line-height: 1.85; color: var(--cream-dim); margin-bottom: 22px; max-width: 720px; }
   .cp-intro-body p:last-child { margin-bottom: 0; }
+  .cp-intro-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; }
 
   /* FORMATS */
   .cp-formats { padding: 72px 56px; background: var(--navy); }
@@ -182,6 +185,7 @@ const css = `
     .cp-burger { display: flex; }
     .cp-nav { padding: 0 24px; }
     .cp-hero { padding: 72px 24px 52px; }
+    .cp-hero-inner { grid-template-columns: 1fr; gap: 32px; }
     .cp-intro { padding: 52px 24px; }
     .cp-formats { padding: 52px 24px; }
     .cp-formats-grid { grid-template-columns: 1fr; }
@@ -276,18 +280,28 @@ export default function CorporatePage() {
 
       {/* HERO */}
       <section className="cp-hero">
-        <div className="cp-hero-eyebrow">Corporate Experiences</div>
-        <h1 className="cp-hero-h1">Better teams begin with better environments.</h1>
-        <p className="cp-hero-sub">The way people communicate changes when the environment changes.</p>
-        <p className="cp-hero-sub">ROAMSIX designs private experiences for leadership teams and organizations looking to strengthen trust, gain perspective, and create better ways of working together.</p>
-        <p className="cp-hero-sub">Every experience is built specifically for the people in the room and the outcome they are trying to create.</p>
-        <button
-          className="cp-btn cp-btn-gold"
-          style={{ marginTop: "8px" }}
-          onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
-        >
-          Request a Conversation
-        </button>
+        <div className="cp-hero-inner">
+          <div>
+            <div className="cp-hero-eyebrow">Corporate Experiences</div>
+            <h1 className="cp-hero-h1">Better teams begin with better environments.</h1>
+            <p className="cp-hero-sub">The way people communicate changes when the environment changes.</p>
+            <p className="cp-hero-sub">ROAMSIX designs private experiences for leadership teams and organizations looking to strengthen trust, gain perspective, and create better ways of working together.</p>
+            <p className="cp-hero-sub">Every experience is built specifically for the people in the room and the outcome they are trying to create.</p>
+            <button
+              className="cp-btn cp-btn-gold"
+              style={{ marginTop: "8px" }}
+              onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
+            >
+              Request a Conversation
+            </button>
+          </div>
+          <img
+            className="cp-hero-img"
+            src="/images/events/guests-table-golden-hour-roamsix.jpg"
+            alt="Guests seated naturally around a long table at golden hour"
+            loading="lazy"
+          />
+        </div>
       </section>
 
       <hr className="cp-hr"/>
@@ -302,6 +316,13 @@ export default function CorporatePage() {
           <p>ROAMSIX creates environments where teams can step outside familiar patterns and see each other more clearly.</p>
         </div>
       </section>
+
+      <img
+        className="cp-intro-img"
+        src="/images/events/long-table-dinner-roamsix.jpg"
+        alt="Guests gathered together at the long table"
+        loading="lazy"
+      />
 
       <hr className="cp-hr"/>
 
