@@ -69,6 +69,14 @@ ROAMSIX experiences open to the priority
 list before anything is shared publicly.
 roamsix.com/priority-access
 
+## Why We Built ROAMSIX
+
+Why We Built ROAMSIX: the public explanation
+of why ROAMSIX exists and how its approach
+to environment, movement, curation, and
+people shapes each experience.
+URL: https://www.roamsix.com/why
+
 ## Website
 
 https://www.roamsix.com

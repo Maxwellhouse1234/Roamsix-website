@@ -233,6 +233,7 @@ export default function TeamPage() {
      <div className="tp-footer-col"><h4>Company</h4><ul>
       <li><Link to="/team">About</Link></li>
       <li><Link to="/team">Team</Link></li>
+      <li><Link to="/why">Why We Built ROAMSIX</Link></li>
      </ul></div>
      <div className="tp-footer-col"><h4>Experiences</h4><ul>
       <li><Link to="/events">Events</Link></li>

@@ -392,6 +392,7 @@ export default function ExperiencesPage() {
             <li><a href="/#founders">About</a></li>
             <li><Link to="/approach">Approach</Link></li>
             <li><Link to="/team">Team</Link></li>
+            <li><Link to="/why">Why We Built ROAMSIX</Link></li>
           </ul></div>
           <div className="xp-footer-col"><h4>Experiences</h4><ul>
             <li><Link to="/events">Events</Link></li>

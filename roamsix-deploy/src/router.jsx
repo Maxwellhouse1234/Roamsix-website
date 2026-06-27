@@ -19,6 +19,7 @@ import WaiverPage from './pages/WaiverPage';
 import MediaReleasePage from './pages/MediaReleasePage';
 import EventIntakePage from './pages/EventIntakePage';
 import PriorityAccessPage from './pages/PriorityAccessPage';
+import WhyPage from './pages/WhyPage';
 
 export const router = createBrowserRouter([
   { path: '/',                                 element: <HomePage /> },
@@ -41,4 +42,5 @@ export const router = createBrowserRouter([
   { path: '/media-release',                    element: <MediaReleasePage /> },
   { path: '/event-intake',                     element: <EventIntakePage /> },
   { path: '/priority-access',                  element: <PriorityAccessPage /> },
+  { path: '/why',                              element: <WhyPage /> },
 ]);
