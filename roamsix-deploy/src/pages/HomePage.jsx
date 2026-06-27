@@ -336,7 +336,7 @@ export default function HomePage() {
           <div>
             <div className="rs-podcast-label">The Podcast</div>
             <h2 className="rs-podcast-h2">Redirection Point.</h2>
-            <p className="rs-podcast-tagline">Conversations with people who decided how they live matters.</p>
+            <p className="rs-podcast-tagline">Conversations with people who decided how they live matters most.</p>
             <div>
               {[["YouTube","https://www.youtube.com/@RedirectionPoint"],["Instagram","https://www.instagram.com/redirectionpoint"],["Spotify","#"],["Apple Podcasts","#"]].map(([p, url]) => (
                 <a href={url} className="rs-platform" key={p} target="_blank" rel="noopener noreferrer">{p}</a>
@@ -392,7 +392,7 @@ export default function HomePage() {
         <div className="rs-footer-top">
           <div>
             <div className="rs-footer-wm">ROAMSIX</div>
-            <p className="rs-footer-tag">Curated experiences for people looking for depth, perspective, and real connection.</p>
+            <p className="rs-footer-tag">ROAMSIX creates gatherings and experiences for people who care about how they live, what they build, and who they become.</p>
             <div className="rs-footer-social">
               <a href="https://www.instagram.com/roamsix_" target="_blank" rel="noopener noreferrer">Instagram</a>
               <a href="https://www.linkedin.com/company/roamsix/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
