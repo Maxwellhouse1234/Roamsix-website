@@ -12,13 +12,13 @@ const STRIP_1       = "/images/gathering-dusk.webp";
 const STRIP_2       = "/images/land-light.webp";
 const STRIP_3       = "/images/sunset-dramatic.webp";
 const RP_COVER      = "/images/redirection-point-cover.webp";
+const CORPORATE_IMG = "/images/homepage/team-ridge.webp";
 
 const NAV = [
   ["Experiences", "/experiences"],
   ["Events",      "/events"],
-  ["Podcast",     "#podcast"],
+  ["Why",         "/why"],
   ["Corporate",   "/corporate"],
-  ["About",       "/team"],
   ["Join",        "/priority-access"],
 ];
 
@@ -143,11 +143,13 @@ const css = `
   .rs-exp-name { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 700; letter-spacing: 2px; color: var(--cream); text-transform: uppercase; margin-bottom: 16px; }
   .rs-exp-desc { font-size: 17px; line-height: 1.8; color: var(--cream-dim); max-width: 640px; }
 
-  /* FOR TEAMS */
-  .rs-for-teams { max-width: 680px; }
-  .rs-for-teams p { font-size: 18px; line-height: 1.8; color: var(--cream-muted); margin-bottom: 24px; }
-  .rs-for-teams-link { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); text-decoration: none; border-bottom: 1px solid rgba(181,149,88,0.3); padding-bottom: 2px; transition: all 0.2s; }
-  .rs-for-teams-link:hover { border-bottom-color: var(--gold); }
+  /* CORPORATE EXPERIENCES */
+  .rs-corporate { padding: 72px 56px; background: var(--panel); }
+  .rs-corporate-inner { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 64px; align-items: center; }
+  .rs-corporate-h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; letter-spacing: 1px; line-height: 1.1; color: var(--cream); text-transform: uppercase; font-size: clamp(28px, 3.4vw, 46px); margin-top: 16px; margin-bottom: 24px; max-width: 560px; }
+  .rs-corporate-body p { font-size: 18px; line-height: 1.8; color: var(--cream-dim); margin-bottom: 18px; max-width: 540px; }
+  .rs-corporate-body { margin-bottom: 32px; }
+  .rs-corporate-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; object-position: center; display: block; filter: brightness(0.88) contrast(1.05); }
 
   /* PRIORITY ACCESS */
   .rs-priority-body { max-width: 560px; margin: 0 auto; text-align: center; }
@@ -199,6 +201,8 @@ const css = `
     .rs-strip-img-narrow { display: none; }
     .rs-testimonials-grid { grid-template-columns: 1fr; }
     .rs-exp-card { grid-template-columns: 1fr; gap: 28px; }
+    .rs-corporate { padding: 52px 24px; }
+    .rs-corporate-inner { grid-template-columns: 1fr; gap: 32px; }
     .rs-podcast-inner { grid-template-columns: 1fr; gap: 48px; padding: 80px 24px; }
     .rs-footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
     .rs-footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
@@ -289,25 +293,7 @@ export default function HomePage() {
 
       <hr className="rs-hr"/>
 
-      {/* ── 4. TESTIMONIALS ── */}
-      <section className="rs-section rs-section-navy" id="testimonials">
-        <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">What People Said</span></div>
-        <div className="rs-testimonials-grid">
-          {TESTIMONIALS.map((t, i) => (
-            <div className="rs-testimonial" key={i}>
-              <p className="rs-testimonial-quote">"{t.quote}"</p>
-              <div className="rs-testimonial-attr">— {t.attr}</div>
-            </div>
-          ))}
-        </div>
-        <p className="rs-testimonials-note">
-          "By the end of the first dinner, strangers were exchanging numbers and asking when the next one would be."
-        </p>
-      </section>
-
-      <hr className="rs-hr"/>
-
-      {/* ── 5. EXPERIENCES ── */}
+      {/* ── 4. EXPERIENCES ── */}
       <section className="rs-section rs-section-dark" id="experiences">
         <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">The Experiences</span></div>
         <div className="rs-exp-cards">
@@ -327,7 +313,50 @@ export default function HomePage() {
 
       <hr className="rs-hr"/>
 
-      {/* ── 6. PODCAST ── */}
+      {/* ── 5. TESTIMONIALS ── */}
+      <section className="rs-section rs-section-navy" id="testimonials">
+        <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">What People Said</span></div>
+        <div className="rs-testimonials-grid">
+          {TESTIMONIALS.map((t, i) => (
+            <div className="rs-testimonial" key={i}>
+              <p className="rs-testimonial-quote">"{t.quote}"</p>
+              <div className="rs-testimonial-attr">— {t.attr}</div>
+            </div>
+          ))}
+        </div>
+        <p className="rs-testimonials-note">
+          "By the end of the first dinner, strangers were exchanging numbers and asking when the next one would be."
+        </p>
+      </section>
+
+      <hr className="rs-hr"/>
+
+      {/* ── 6. CORPORATE EXPERIENCES ── */}
+      <section className="rs-corporate" id="corporate">
+        <div className="rs-corporate-inner">
+          <div>
+            <div className="rs-label-row"><span className="rs-rule"/><span className="rs-label">Corporate Experiences</span></div>
+            <h2 className="rs-corporate-h2">Better teams begin with better environments.</h2>
+            <div className="rs-corporate-body">
+              <p>The way people communicate changes when the environment changes.</p>
+              <p>ROAMSIX designs private experiences for leadership teams and organizations looking to strengthen trust, gain perspective, and create better ways of working together.</p>
+              <p>Every experience is built specifically for the people in the room and the outcome they're trying to create.</p>
+            </div>
+            <Link to="/corporate" className="rs-btn rs-btn-gold-outline">Learn More About Corporate Experiences</Link>
+          </div>
+          <img
+            className="rs-corporate-img"
+            src={CORPORATE_IMG}
+            alt="A team in conversation on a ridge overlooking the backcountry"
+            loading="lazy"
+            onError={e => { e.target.style.display = "none"; }}
+          />
+        </div>
+      </section>
+
+      <hr className="rs-hr"/>
+
+      {/* ── 7. PODCAST ── */}
       <section className="rs-podcast" id="podcast">
         <div className="rs-podcast-inner">
           <div className="rs-podcast-art">
@@ -346,14 +375,6 @@ export default function HomePage() {
               <a href="https://www.youtube.com/@RedirectionPoint" className="rs-btn-rp" target="_blank" rel="noopener noreferrer">Watch or Listen</a>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ── 7. FOR TEAMS ── */}
-      <section className="rs-section rs-section-dark" id="corporate">
-        <div className="rs-for-teams">
-          <p>ROAMSIX also designs private experiences for leadership teams and organizations. A different kind of day than your team is used to.</p>
-          <Link to="/corporate" className="rs-for-teams-link">Learn more about corporate experiences</Link>
         </div>
       </section>
 
@@ -399,8 +420,8 @@ export default function HomePage() {
             </div>
           </div>
           <div className="rs-footer-col"><h4>Company</h4><ul>
-            <li><Link to="/team">About</Link></li>
             <li><Link to="/why">Why We Built ROAMSIX</Link></li>
+            <li><Link to="/team">Team</Link></li>
           </ul></div>
           <div className="rs-footer-col"><h4>Experiences</h4><ul>
             <li><Link to="/events">Events</Link></li>
