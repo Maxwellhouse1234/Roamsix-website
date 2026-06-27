@@ -382,7 +382,7 @@ export default function HomePage() {
       {/* ── 9. CLOSING ── */}
       <section className="rs-closing">
         <p className="rs-closing-quote">
-          "The world is still wide. Stay curious. Stay awake. There is more of your story left to write."
+          "Your world is wider. Stay curious. Stay awake."
         </p>
         <div className="rs-closing-attr">— ROAMSIX</div>
       </section>
@@ -400,7 +400,6 @@ export default function HomePage() {
           </div>
           <div className="rs-footer-col"><h4>Company</h4><ul>
             <li><Link to="/team">About</Link></li>
-            <li><Link to="/team">Team</Link></li>
             <li><Link to="/why">Why We Built ROAMSIX</Link></li>
           </ul></div>
           <div className="rs-footer-col"><h4>Experiences</h4><ul>

@@ -31,8 +31,8 @@ const OFFERINGS = [
       "Thoughtfully designed atmosphere and hospitality",
     ],
     inspiration: "Some of the most meaningful conversations happen around a table, outside the pace of everyday life. ROAMSIX gatherings are designed to bring thoughtful people together through food, atmosphere, and shared experience in environments that make real connection easier.",
-    cta:     "Register Now",
-    ctaLink: "/events",
+    cta:     "Join Priority Access",
+    ctaLink: "/priority-access",
     bg:      "dark",
   },
   {
@@ -48,8 +48,8 @@ const OFFERINGS = [
       "Curated pacing and facilitation",
     ],
     inspiration: "For centuries, leaders, thinkers, and builders have stepped away from their usual environment to gain perspective and think more clearly. ROAMSIX immersions are built around the idea that physical distance from routine changes how people communicate, reflect, and move forward together.",
-    cta:     "Inquire to Book",
-    ctaLink: "#contact",
+    cta:     "Request Priority Access",
+    ctaLink: "/priority-access",
     bg:      "navy",
   },
   {
@@ -65,8 +65,8 @@ const OFFERINGS = [
       "Optional overnight or multi-day format",
     ],
     inspiration: "Many people spend years carrying responsibility without creating space to reset themselves. These experiences are designed to remove friction, reduce noise, and create the conditions for clarity, recovery, and renewed energy.",
-    cta:     "Inquire to Book",
-    ctaLink: "#contact",
+    cta:     "Request Priority Access",
+    ctaLink: "/priority-access",
     bg:      "dark",
   },
   {
@@ -82,8 +82,8 @@ const OFFERINGS = [
       "Intentional pacing for reflection and connection",
     ],
     inspiration: "Some environments change the way people see their lives. Throughout history, founders, artists, athletes, and explorers have traveled in search of perspective, inspiration, and a deeper connection to the world around them. ROAMSIX journeys are designed around that same idea.",
-    cta:     "Inquire to Book",
-    ctaLink: "#contact",
+    cta:     "Request Priority Access",
+    ctaLink: "/priority-access",
     bg:      "navy",
   },
 ];
@@ -390,7 +390,6 @@ export default function ExperiencesPage() {
           </div>
           <div className="xp-footer-col"><h4>Company</h4><ul>
             <li><a href="/#founders">About</a></li>
-            <li><Link to="/approach">Approach</Link></li>
             <li><Link to="/team">Team</Link></li>
             <li><Link to="/why">Why We Built ROAMSIX</Link></li>
           </ul></div>
