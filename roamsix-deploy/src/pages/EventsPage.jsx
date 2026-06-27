@@ -10,6 +10,13 @@ const NAV = [
   ["Join",        "/priority-access"],
 ];
 
+const PAST_EVENT_IMAGE = "/images/gathering-dusk.webp";
+
+const PAST_EVENT_DESCRIPTION = [
+  "Twelve guests gathered on a private farmstead in Warner Springs for dinner, movement, sunset, and conversation.",
+  "By the end of the evening, strangers were exchanging numbers and asking when the next one would be.",
+];
+
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&family=EB+Garamond:ital,wght@1,400&display=swap');
 
@@ -77,6 +84,18 @@ const css = `
   .evl-card-location { font-size: 14px; color: var(--cream-muted); margin-bottom: 20px; }
   .evl-card-desc { font-size: 16px; line-height: 1.75; color: var(--cream-dim); flex: 1; margin-bottom: 36px; }
 
+  /* PAST EVENTS */
+  .evl-past-list { display: flex; flex-direction: column; gap: 24px; }
+
+  /* PAST EVENT CARD (with image) */
+  .evl-card-past { padding: 0; }
+  .evl-card-past-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; align-items: stretch; }
+  .evl-card-past-body { padding: 40px 36px; display: flex; flex-direction: column; }
+  .evl-card-desc-wrap { flex: 1; margin-bottom: 36px; }
+  .evl-card-desc-wrap p { font-size: 16px; line-height: 1.75; color: var(--cream-dim); margin-bottom: 14px; }
+  .evl-card-desc-wrap p:last-child { margin-bottom: 0; }
+  .evl-card-past-img { width: 100%; height: 100%; min-height: 320px; object-fit: cover; display: block; }
+
   .evl-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: auto; border-top: 1px solid rgba(232,223,208,0.08); padding-top: 24px; }
   .evl-price { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 600; color: var(--gold); letter-spacing: 1px; }
   .evl-btn { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; padding: 13px 28px; background: var(--teal); color: var(--cream); text-decoration: none; transition: background 0.22s; }
@@ -110,6 +129,8 @@ const css = `
     .evl-nav { padding: 0 24px; }
     .evl-page { padding: 120px 24px 72px; }
     .evl-grid { grid-template-columns: 1fr; }
+    .evl-card-past-grid { grid-template-columns: 1fr; }
+    .evl-card-past-img { min-height: 240px; }
     .evl-footer { padding: 32px 24px; }
     .evl-footer-top { flex-direction: column; gap: 16px; text-align: center; }
   }
@@ -139,13 +160,43 @@ function StatusBadge({ status }) {
 
 function EventCard({ event }) {
   const isPast = new Date(event.date) <= new Date();
+
+  if (isPast) {
+    return (
+      <div className="evl-card evl-card-past">
+        <div className="evl-card-past-grid">
+          <div className="evl-card-past-body">
+            <div className="evl-card-meta">
+              <span className="evl-badge-past">Past Experience</span>
+              <span className="evl-card-date">{formatDateShort(event.date)}</span>
+            </div>
+            <div className="evl-card-title">{event.title}</div>
+            {event.subtitle && <div className="evl-card-subtitle">{event.subtitle}</div>}
+            <div className="evl-card-location">{event.location}</div>
+            <div className="evl-card-desc-wrap">
+              {PAST_EVENT_DESCRIPTION.map((p, i) => <p key={i}>{p}</p>)}
+            </div>
+            <div className="evl-card-footer">
+              <Link to="/priority-access" className="evl-btn-gold">Join Priority Access</Link>
+            </div>
+          </div>
+          <img
+            className="evl-card-past-img"
+            src={PAST_EVENT_IMAGE}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            onError={e => { e.target.style.display = "none"; }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="evl-card">
       <div className="evl-card-meta">
-        {isPast
-          ? <span className="evl-badge-past">Past Experience</span>
-          : <StatusBadge status={event.status} />
-        }
+        <StatusBadge status={event.status} />
         <span className="evl-card-date">{formatDateShort(event.date)}</span>
       </div>
       <div className="evl-card-title">{event.title}</div>
@@ -153,17 +204,11 @@ function EventCard({ event }) {
       <div className="evl-card-location">{event.location}</div>
       <p className="evl-card-desc">{event.description}</p>
       <div className="evl-card-footer">
-        {isPast ? (
-          <Link to="/priority-access" className="evl-btn-gold">Join Priority Access</Link>
+        <span className="evl-price">From {priceFrom(event)}</span>
+        {event.status !== "soldout" ? (
+          <Link to={`/events/${event.id}`} className="evl-btn">View Experience</Link>
         ) : (
-          <>
-            <span className="evl-price">From {priceFrom(event)}</span>
-            {event.status !== "soldout" ? (
-              <Link to={`/events/${event.id}`} className="evl-btn">View Experience</Link>
-            ) : (
-              <span className="evl-sold-label">Sold Out</span>
-            )}
-          </>
+          <span className="evl-sold-label">Sold Out</span>
         )}
       </div>
     </div>
@@ -248,7 +293,7 @@ export default function EventsPage() {
             <div className="evl-section-head">
               <h2 className="evl-h2">Past Experiences</h2>
             </div>
-            <div className={`evl-grid${past.length === 1 ? " evl-grid-single" : ""}`}>
+            <div className="evl-past-list">
               {past.map((ev) => <EventCard key={ev.id} event={ev} />)}
             </div>
           </>
