@@ -2,10 +2,9 @@ import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 
 /*
-  ROAMSIX — ExperiencesPage.jsx
+  ROAMSIX, ExperiencesPage.jsx
   Route: /experiences
   Design system matches HomePage.jsx
-  Form endpoint: POST /api/contact (do not modify)
 */
 
 const NAV = [
@@ -17,74 +16,128 @@ const NAV = [
   ["Join",        "/priority-access"],
 ];
 
-const OFFERINGS = [
+const EXPERIENCE_CARDS = [
   {
-    label:       "Gatherings",
-    title:       "Gatherings",
-    description: "Curated evenings and hosted experiences designed around food, conversation, movement, and meaningful connection.",
-    price:       "Starting at $95 / person",
-    includes: [
-      "Chef-prepared meals and refreshments",
-      "Curated guest experience",
-      "Fireside or guided conversation",
-      "Movement or outdoor elements",
-      "Thoughtfully designed atmosphere and hospitality",
+    id:       "long-table",
+    label:    "Long Table",
+    headline: "Long Table",
+    subhead:  "Some conversations change the direction of a year.",
+    body: [
+      "Long Table is our signature gathering.",
+      "Thoughtfully prepared food. Carefully curated guests. Beautiful environments. Unhurried conversation.",
+      "People arrive as strangers.",
+      "They rarely leave that way.",
+      "Whether around a farm table, beneath the trees, or overlooking the coast, every detail exists to make conversation feel natural.",
     ],
-    inspiration: "Some of the most meaningful conversations happen around a table, outside the pace of everyday life. ROAMSIX gatherings are designed to bring thoughtful people together through food, atmosphere, and shared experience in environments that make real connection easier.",
+    perfectFor: [
+      "Meeting thoughtful people",
+      "Celebrating meaningful milestones",
+      "Slowing down",
+      "Expanding your circle",
+      "Sharing exceptional food",
+    ],
     cta:     "Join Priority Access",
     ctaLink: "/priority-access",
     bg:      "dark",
   },
   {
-    label:       "Leadership Immersions",
-    title:       "Leadership Immersions",
-    description: "Immersive experiences for leadership teams looking to reconnect, reset perspective, and strengthen alignment outside the normal pace of work.",
-    price:       "Starting at $150 / person",
-    includes: [
-      "Guided team experiences",
-      "Structured conversations and reflection",
-      "Recovery and movement sessions",
-      "Shared meals and hospitality",
-      "Curated pacing and facilitation",
+    id:       "first-light",
+    label:    "First Light",
+    headline: "First Light",
+    subhead:  "The way a day begins changes what becomes possible.",
+    body: [
+      "First Light begins before the world gets loud.",
+      "Movement.",
+      "Recovery.",
+      "Coffee.",
+      "Conversation.",
+      "An environment that invites clarity before demands begin competing for your attention.",
+      "You leave carrying more than a workout.",
+      "You leave seeing your day differently.",
     ],
-    inspiration: "For centuries, leaders, thinkers, and builders have stepped away from their usual environment to gain perspective and think more clearly. ROAMSIX immersions are built around the idea that physical distance from routine changes how people communicate, reflect, and move forward together.",
-    cta:     "Request Priority Access",
+    perfectFor: [
+      "Creating better routines",
+      "Meeting people who value health",
+      "Reflection and recovery",
+      "Starting with intention",
+    ],
+    cta:     "Join Priority Access",
     ctaLink: "/priority-access",
     bg:      "navy",
   },
   {
-    label:       "Private Experiences",
-    title:       "Private Experiences",
-    description: "Personalized experiences for individuals, couples, families, or small groups navigating transition, burnout, growth, or a season of change.",
-    price:       "Starting at $250 / person",
-    includes: [
-      "Customized experience design",
-      "Nature, movement, and recovery elements",
-      "Private dining or hospitality experiences",
-      "Guided conversation and reflection",
-      "Optional overnight or multi-day format",
+    id:       "long-game",
+    label:    "Long Game",
+    headline: "Long Game",
+    subhead:  "Some decisions deserve more than another meeting.",
+    body: [
+      "Long Game is a full-day experience for people navigating growth, transition, or important decisions.",
+      "Distance creates perspective.",
+      "Movement changes conversations.",
+      "Shared meals build trust.",
+      "The agenda is intentionally light so the conversations can become meaningful.",
+      "Many people arrive looking for answers.",
+      "Most leave with better questions.",
     ],
-    inspiration: "Many people spend years carrying responsibility without creating space to reset themselves. These experiences are designed to remove friction, reduce noise, and create the conditions for clarity, recovery, and renewed energy.",
+    perfectFor: [
+      "Major decisions",
+      "Life transitions",
+      "Teams that need perspective",
+      "Couples",
+      "People carrying meaningful responsibility",
+    ],
     cta:     "Request Priority Access",
     ctaLink: "/priority-access",
     bg:      "dark",
   },
   {
-    label:       "Journeys and Expeditions",
-    title:       "Journeys and Expeditions",
-    description: "Perspective-changing travel experiences designed around culture, challenge, immersion, and meaningful redirection.",
-    price:       "Starting at $1,500 / person",
-    includes: [
-      "Curated travel and accommodations",
-      "Cultural and outdoor experiences",
-      "Hosted group conversations",
-      "Movement and exploration",
-      "Intentional pacing for reflection and connection",
+    id:       "journeys",
+    label:    "Journeys",
+    headline: "Journeys",
+    subhead:  "Some places change the way you see your life.",
+    body: [
+      "Throughout history, people have traveled in search of perspective.",
+      "Not to escape life.",
+      "To return to it differently.",
+      "Our journeys combine culture, nature, movement, exceptional hospitality, and conversation into experiences designed to leave a lasting imprint.",
+      "The destination matters.",
+      "So does the person you become while you are there.",
     ],
-    inspiration: "Some environments change the way people see their lives. Throughout history, founders, artists, athletes, and explorers have traveled in search of perspective, inspiration, and a deeper connection to the world around them. ROAMSIX journeys are designed around that same idea.",
+    perfectFor: [
+      "Exploration",
+      "Adventure",
+      "Cultural immersion",
+      "Renewal",
+      "Shared experiences",
+    ],
     cta:     "Request Priority Access",
     ctaLink: "/priority-access",
     bg:      "navy",
+  },
+  {
+    id:       "corporate-experiences",
+    label:    "Corporate Experiences",
+    headline: "Corporate Experiences",
+    subhead:  "Better teams begin with better environments.",
+    body: [
+      "People communicate differently when they step outside the roles they occupy every day.",
+      "Conversations become more honest.",
+      "Strengths become more visible.",
+      "Perspective becomes easier to find.",
+      "Every corporate experience is designed specifically for the people in the room and the outcome they are trying to create.",
+      "No two teams receive the same experience.",
+      "Because no two teams need the same thing.",
+    ],
+    perfectFor: [
+      "Leadership teams",
+      "Team resets",
+      "Culture and alignment",
+      "High-stakes transitions",
+      "Groups that need a different kind of conversation",
+    ],
+    cta:     "Learn More",
+    ctaLink: "/corporate",
+    bg:      "dark",
   },
 ];
 
@@ -151,39 +204,38 @@ const css = `
   .xp-hero-eyebrow { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
   .xp-hero-eyebrow::before { content: ''; display: block; width: 24px; height: 1px; background: var(--gold); flex-shrink: 0; }
   .xp-hero-h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(38px, 5vw, 68px); line-height: 1.05; color: var(--cream); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 28px; max-width: 860px; }
-  .xp-hero-sub { font-size: 19px; line-height: 1.8; color: var(--cream-dim); max-width: 600px; }
+  .xp-hero-question { font-family: 'EB Garamond', serif; font-style: italic; font-size: clamp(20px, 2.2vw, 26px); line-height: 1.6; color: var(--cream-muted); max-width: 640px; margin-bottom: 32px; }
+  .xp-hero-body { max-width: 600px; margin-bottom: 32px; }
+  .xp-hero-body p { font-size: 19px; line-height: 1.8; color: var(--cream-dim); margin-bottom: 10px; }
+  .xp-hero-body p:last-child { margin-bottom: 0; }
+  .xp-hero-supporting { font-size: 18px; line-height: 1.85; color: var(--cream-dim); max-width: 680px; margin-bottom: 28px; }
+  .xp-hero-invite { font-family: 'EB Garamond', serif; font-style: italic; font-size: 19px; line-height: 1.7; color: var(--gold); max-width: 600px; }
 
-  /* OFFERING SECTIONS */
+  /* EXPERIENCE CARD SECTIONS */
   .xp-section { padding: 72px 56px; }
   .xp-section-dark { background: var(--panel); }
   .xp-section-navy { background: var(--navy); }
-  .xp-offering { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
-  .xp-offering-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(34px, 4vw, 54px); letter-spacing: 1px; text-transform: uppercase; color: var(--cream); line-height: 1.05; margin-bottom: 20px; }
-  .xp-offering-desc { font-size: 18px; line-height: 1.85; color: var(--cream-dim); margin-bottom: 20px; }
-  .xp-offering-price { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 36px; }
-  .xp-includes-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
-  .xp-includes-list { list-style: none; margin-bottom: 40px; }
-  .xp-includes-list li { font-size: 16px; color: var(--cream-muted); padding: 9px 0; border-bottom: 1px solid rgba(232,223,208,0.07); display: flex; align-items: baseline; gap: 10px; }
-  .xp-includes-list li::before { content: '\\2013'; color: var(--gold-dim); font-size: 12px; flex-shrink: 0; }
-  .xp-inspiration { font-family: 'EB Garamond', serif; font-style: italic; font-size: 18px; line-height: 1.8; color: var(--cream-muted); padding-top: 20px; border-top: 1px solid rgba(232,223,208,0.08); margin-bottom: 20px; max-width: 720px; margin-left: auto; margin-right: auto; }
+  .xp-card { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+  .xp-card-headline { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(34px, 4vw, 54px); letter-spacing: 1px; text-transform: uppercase; color: var(--cream); line-height: 1.05; margin-bottom: 16px; }
+  .xp-card-subhead { font-family: 'EB Garamond', serif; font-style: italic; font-size: 19px; line-height: 1.6; color: var(--cream-muted); margin-bottom: 24px; max-width: 520px; }
+  .xp-card-body p { font-size: 17px; line-height: 1.8; color: var(--cream-dim); margin-bottom: 14px; max-width: 540px; }
+  .xp-card-body p:last-child { margin-bottom: 0; }
+  .xp-perfect-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+  .xp-perfect-list { list-style: none; margin-bottom: 36px; }
+  .xp-perfect-list li { font-size: 16px; color: var(--cream-muted); padding: 9px 0; border-bottom: 1px solid rgba(232,223,208,0.07); display: flex; align-items: baseline; gap: 10px; }
+  .xp-perfect-list li::before { content: '\\2013'; color: var(--gold-dim); font-size: 12px; flex-shrink: 0; }
 
-  /* CONTACT SECTION */
-  .xp-contact { padding: 72px 56px; background: var(--panel); }
-  .xp-contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: start; }
-  .xp-contact-intro-h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; letter-spacing: 1px; line-height: 1.05; color: var(--cream); text-transform: uppercase; font-size: clamp(34px, 4.4vw, 56px); margin-top: 16px; margin-bottom: 24px; }
-  .xp-contact-body { font-size: 18px; line-height: 1.8; color: var(--cream-dim); margin-bottom: 32px; }
-  .xp-contact-links a { display: block; color: var(--teal-light); text-decoration: none; font-size: 16px; margin-bottom: 12px; transition: color 0.2s; }
-  .xp-contact-links a:hover { color: var(--cream); }
-  .xp-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-  .xp-form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-  .xp-form-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-muted); }
-  .xp-input, .xp-textarea { background: rgba(255,255,255,0.04); border: 1px solid rgba(232,223,208,0.15); color: var(--cream); font-family: 'Barlow', sans-serif; font-size: 16px; padding: 13px 16px; width: 100%; outline: none; transition: border-color 0.2s; appearance: none; -webkit-appearance: none; }
-  .xp-input:focus, .xp-textarea:focus { border-color: var(--teal); }
-  .xp-input::placeholder, .xp-textarea::placeholder { color: rgba(232,223,208,0.3); }
-  .xp-textarea { resize: vertical; min-height: 140px; }
-  .xp-form-err { color: #E07070; font-size: 14px; margin-top: 8px; }
-  .xp-form-success { background: rgba(74,117,117,0.12); border: 1px solid rgba(74,117,117,0.3); padding: 20px 24px; }
-  .xp-form-success p { color: var(--cream-dim); font-size: 16px; line-height: 1.65; }
+  /* PRIORITY ACCESS SECTION */
+  .xp-priority { padding: 96px 56px; background: var(--panel); text-align: center; }
+  .xp-priority-inner { max-width: 640px; margin: 0 auto; }
+  .xp-priority-h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; letter-spacing: 1px; line-height: 1.1; color: var(--cream); text-transform: uppercase; font-size: clamp(30px, 3.6vw, 48px); margin-top: 16px; margin-bottom: 28px; }
+  .xp-priority-body p { font-size: 18px; line-height: 1.85; color: var(--cream-dim); margin-bottom: 20px; }
+  .xp-priority-body p:last-child { margin-bottom: 40px; }
+
+  /* CLOSING */
+  .xp-closing { padding: 96px 56px; text-align: center; background: var(--navy); }
+  .xp-closing-quote { font-family: 'EB Garamond', serif; font-style: italic; font-size: clamp(22px, 2.8vw, 36px); line-height: 1.55; color: var(--cream); max-width: 720px; margin: 0 auto 28px; }
+  .xp-closing-attr { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); }
 
   /* FOOTER */
   .xp-footer { background: var(--panel); border-top: 1px solid rgba(181,149,88,0.1); padding: 72px 56px 48px; }
@@ -208,13 +260,12 @@ const css = `
     .xp-nav { padding: 0 24px; }
     .xp-hero { padding: 72px 24px 52px; }
     .xp-section { padding: 52px 24px; }
-    .xp-offering { grid-template-columns: 1fr; gap: 48px; }
-    .xp-contact { padding: 52px 24px; }
-    .xp-contact-grid { grid-template-columns: 1fr; gap: 52px; }
+    .xp-card { grid-template-columns: 1fr; gap: 36px; }
+    .xp-priority { padding: 64px 24px; }
+    .xp-closing { padding: 64px 24px; }
     .xp-footer { padding: 56px 24px 36px; }
     .xp-footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
     .xp-footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
-    .xp-form-row { grid-template-columns: 1fr; }
   }
   @media (max-width: 480px) {
     .xp-footer-top { grid-template-columns: 1fr; }
@@ -224,9 +275,6 @@ const css = `
 export default function ExperiencesPage() {
   const [scrolled,  setScrolled]  = useState(false);
   const [menuOpen,  setMenuOpen]  = useState(false);
-  const [contact,   setContact]   = useState({ first: "", last: "", email: "", company: "", message: "" });
-  const [ctStatus,  setCtStatus]  = useState("idle");
-  const [ctErr,     setCtErr]     = useState("");
 
   useEffect(() => {
     document.body.classList.toggle("xp-no-scroll", menuOpen);
@@ -240,20 +288,6 @@ export default function ExperiencesPage() {
   }, []);
 
   const close = () => setMenuOpen(false);
-
-  /* ── FORM HANDLER — DO NOT MODIFY ───────────────────────────────────────── */
-  const submitContact = async () => {
-    if (!contact.email.trim() || !contact.message.trim()) { setCtErr("Please enter your email and message."); return; }
-    setCtStatus("loading"); setCtErr("");
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName: contact.first.trim(), lastName: contact.last.trim(), email: contact.email.trim(), company: contact.company.trim(), inquiryType: "", message: contact.message.trim(), source: "Experiences Page Contact Form" }),
-      });
-      if (res.ok) { setCtStatus("success"); }
-      else { const d = await res.json().catch(() => ({})); setCtErr(d.error || "Submission failed. Please email info@roamsix.com directly."); setCtStatus("idle"); }
-    } catch { setCtErr("Network error. Please email info@roamsix.com directly."); setCtStatus("idle"); }
-  };
 
   return (
     <div className="xp">
@@ -287,37 +321,47 @@ export default function ExperiencesPage() {
 
       {/* HERO */}
       <section className="xp-hero">
-        <div className="xp-hero-eyebrow">What We Create</div>
-        <h1 className="xp-hero-h1">Experiences designed around people, place, and purpose.</h1>
-        <p className="xp-hero-sub">Every offering is fully planned and executed end-to-end. You focus on your people. We handle everything else.</p>
+        <div className="xp-hero-eyebrow">Experiences</div>
+        <h1 className="xp-hero-h1">Every experience begins with the same question.</h1>
+        <p className="xp-hero-question">What has become harder than it needs to be?</p>
+        <div className="xp-hero-body">
+          <p>Sometimes it is making time to think.</p>
+          <p>Sometimes it is reconnecting with a partner, a team, or yourself.</p>
+          <p>Sometimes it is remembering what originally made your work meaningful.</p>
+          <p>The experience changes.</p>
+          <p>The intention does not.</p>
+        </div>
+        <p className="xp-hero-supporting">Every ROAMSIX experience is designed around people, place, and purpose. We create the conditions for better conversations, fresh perspective, and genuine connection by carefully choosing the environment, the people, the pace, and every detail in between.</p>
+        <p className="xp-hero-invite">Choose the experience that feels most like where you are today.</p>
       </section>
 
       <hr className="xp-hr"/>
 
-      {/* OFFERINGS */}
-      {OFFERINGS.map((o, i) => (
+      {/* EXPERIENCE CARDS */}
+      {EXPERIENCE_CARDS.map((c) => (
         <section
-          key={o.title}
-          className={`xp-section ${o.bg === "navy" ? "xp-section-navy" : "xp-section-dark"}`}
-          id={o.title.toLowerCase().replace(/\s+/g, "-")}
+          key={c.id}
+          className={`xp-section ${c.bg === "navy" ? "xp-section-navy" : "xp-section-dark"}`}
+          id={c.id}
         >
           <div className="xp-label-row">
             <span className="xp-rule"/>
-            <span className="xp-label">{o.label}</span>
+            <span className="xp-label">{c.label}</span>
           </div>
-          <div className="xp-offering">
+          <div className="xp-card">
             <div>
-              <h2 className="xp-offering-name">{o.title}</h2>
-              <p className="xp-offering-desc">{o.description}</p>
-              <div className="xp-offering-price">{o.price}</div>
-              {o.ctaLink.startsWith('#') ? <a href={o.ctaLink} className={`xp-btn ${i === 0 ? "xp-btn-gold" : "xp-btn-outline"}`}>{o.cta}</a> : <Link to={o.ctaLink} className={`xp-btn ${i === 0 ? "xp-btn-gold" : "xp-btn-outline"}`}>{o.cta}</Link>}
+              <h2 className="xp-card-headline">{c.headline}</h2>
+              <p className="xp-card-subhead">{c.subhead}</p>
+              <div className="xp-card-body">
+                {c.body.map((p, i) => <p key={i}>{p}</p>)}
+              </div>
             </div>
             <div>
-              <div className="xp-includes-label">Includes</div>
-              <ul className="xp-includes-list">
-                {o.includes.map(item => <li key={item}>{item}</li>)}
+              <div className="xp-perfect-label">Perfect For</div>
+              <ul className="xp-perfect-list">
+                {c.perfectFor.map(item => <li key={item}>{item}</li>)}
               </ul>
-              <p className="xp-inspiration">{o.inspiration}</p>
+              <Link to={c.ctaLink} className="xp-btn xp-btn-gold">{c.cta}</Link>
             </div>
           </div>
         </section>
@@ -325,56 +369,26 @@ export default function ExperiencesPage() {
 
       <hr className="xp-hr"/>
 
-      {/* CONTACT */}
-      <section className="xp-contact" id="contact">
-        <div className="xp-contact-grid">
-          <div>
-            <div className="xp-label-row"><span className="xp-rule"/><span className="xp-label">Start Here</span></div>
-            <h2 className="xp-contact-intro-h2">Start with a conversation.</h2>
-            <p className="xp-contact-body">Tell us what you're envisioning. Team size, timing, type of experience, any ideas you have in mind. We will take it from there.</p>
-            <div className="xp-contact-links">
-              <a href="mailto:info@roamsix.com">info@roamsix.com</a>
-              <a href="https://www.instagram.com/roamsix_" target="_blank" rel="noopener noreferrer">@roamsix_</a>
-              <a href="https://www.linkedin.com/company/roamsix/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-            </div>
+      {/* PRIORITY ACCESS */}
+      <section className="xp-priority" id="priority-access">
+        <div className="xp-priority-inner">
+          <div className="xp-label-row" style={{ justifyContent: "center" }}><span className="xp-rule"/><span className="xp-label">Priority Access</span><span className="xp-rule"/></div>
+          <h2 className="xp-priority-h2">The next experience begins long before the invitation.</h2>
+          <div className="xp-priority-body">
+            <p>Every ROAMSIX gathering opens to the Priority Access community before it is announced publicly.</p>
+            <p>Members receive early invitations, limited opportunities, and updates as new experiences are released.</p>
+            <p>If these feel like your kind of people, start here.</p>
           </div>
-          <div>
-            {ctStatus === "success" ? (
-              <div className="xp-form-success">
-                <p>We received your message and will follow up directly within 48 hours.</p>
-              </div>
-            ) : (
-              <>
-                <div className="xp-form-row">
-                  <div className="xp-form-group">
-                    <label className="xp-form-label">First Name</label>
-                    <input className="xp-input" placeholder="First" value={contact.first} onChange={e => setContact(c => ({ ...c, first: e.target.value }))}/>
-                  </div>
-                  <div className="xp-form-group">
-                    <label className="xp-form-label">Last Name</label>
-                    <input className="xp-input" placeholder="Last" value={contact.last} onChange={e => setContact(c => ({ ...c, last: e.target.value }))}/>
-                  </div>
-                </div>
-                <div className="xp-form-group">
-                  <label className="xp-form-label">Email *</label>
-                  <input className="xp-input" placeholder="your@email.com" type="email" value={contact.email} onChange={e => setContact(c => ({ ...c, email: e.target.value }))}/>
-                </div>
-                <div className="xp-form-group">
-                  <label className="xp-form-label">Company or Organization</label>
-                  <input className="xp-input" placeholder="Optional" value={contact.company} onChange={e => setContact(c => ({ ...c, company: e.target.value }))}/>
-                </div>
-                <div className="xp-form-group">
-                  <label className="xp-form-label">Tell us what's going on *</label>
-                  <textarea className="xp-textarea" placeholder="Tell us what you're envisioning. Team size, timing, type of experience, any ideas you have in mind. We will take it from there." value={contact.message} onChange={e => setContact(c => ({ ...c, message: e.target.value }))}/>
-                </div>
-                {ctErr && <p className="xp-form-err">{ctErr}</p>}
-                <button className="xp-btn xp-btn-gold" style={{ width: "100%", textAlign: "center", marginTop: "8px" }} onClick={submitContact} disabled={ctStatus === "loading"}>
-                  {ctStatus === "loading" ? "Sending..." : "Start a Conversation"}
-                </button>
-              </>
-            )}
-          </div>
+          <Link to="/priority-access" className="xp-btn xp-btn-gold" style={{ width: "100%", textAlign: "center", display: "block" }}>Join Priority Access</Link>
         </div>
+      </section>
+
+      {/* CLOSING */}
+      <section className="xp-closing">
+        <p className="xp-closing-quote">
+          "Your world is wider. Stay curious. Stay awake."
+        </p>
+        <div className="xp-closing-attr">— ROAMSIX</div>
       </section>
 
       {/* FOOTER */}
