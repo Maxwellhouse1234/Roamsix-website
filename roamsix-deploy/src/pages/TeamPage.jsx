@@ -56,29 +56,37 @@ const css = `
  .tp-label-row { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
  .tp-rule { display: block; width: 24px; height: 1px; background: var(--gold); flex-shrink: 0; }
  .tp-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); }
- .tp-h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: clamp(36px,4.4vw,56px); letter-spacing: 1px; text-transform: uppercase; color: var(--cream); line-height: 1.05; margin-bottom: 64px; }
+ .tp-h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: clamp(36px,4.4vw,56px); letter-spacing: 1px; text-transform: uppercase; color: var(--cream); line-height: 1.05; margin-bottom: 12px; }
+ .tp-h1-sub { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: clamp(22px,2.8vw,34px); letter-spacing: 2px; text-transform: uppercase; color: var(--gold); line-height: 1.1; margin-bottom: 64px; }
 
  /* BELIEF SECTION */
- .tp-belief { padding-bottom: 56px; margin-bottom: 56px; border-bottom: 1px solid rgba(181,149,88,0.1); display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: start; }
- .tp-belief-h2 { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(28px,3.2vw,40px); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--cream); line-height: 1.1; }
- .tp-belief-body p { font-size: 18px; line-height: 1.85; color: var(--cream-dim); margin-bottom: 20px; }
+ .tp-belief { padding-bottom: 56px; margin-bottom: 56px; border-bottom: 1px solid rgba(181,149,88,0.1); }
+ .tp-belief-body p { font-family: 'EB Garamond', serif; font-size: 19px; line-height: 1.85; color: var(--cream-dim); margin-bottom: 20px; }
  .tp-belief-body p:last-child { margin-bottom: 0; }
 
  /* FOUNDER CARDS */
- .tp-founders { display: flex; flex-direction: column; gap: 32px; margin-bottom: 80px; }
- .tp-founder { background: var(--panel); border: 1px solid rgba(232,223,208,0.08); display: grid; grid-template-columns: 300px 1fr; gap: 36px; padding: 32px; }
+ .tp-founders { display: flex; flex-direction: column; gap: 56px; margin-bottom: 80px; }
+
+ /* Desktop: two-column layout, image left for Max, image right for Jackie */
+ .tp-founder { display: grid; gap: 56px; align-items: start; padding: 48px 0; border-bottom: 1px solid rgba(181,149,88,0.08); }
+ .tp-founder:last-child { border-bottom: none; }
+ .tp-founder-left  { grid-template-columns: 300px 1fr; }
+ .tp-founder-right { grid-template-columns: 1fr 300px; }
+ .tp-founder-right .tp-founder-photo-wrap { order: 2; }
+ .tp-founder-right .tp-founder-body      { order: 1; }
+
  .tp-founder-photo { width: 100%; max-width: 300px; aspect-ratio: 3/4; object-fit: cover; object-position: top; display: block; filter: brightness(0.9) contrast(1.05); }
  .tp-founder-photo-placeholder { width: 100%; max-width: 300px; aspect-ratio: 3/4; background: rgba(74,117,117,0.1); display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-size: 48px; font-weight: 600; color: var(--teal); letter-spacing: 4px; }
  .tp-founder-body { padding: 0; }
- .tp-founder-role { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
- .tp-founder-name { font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--cream); margin-bottom: 20px; }
- .tp-founder-bio { font-size: 17px; line-height: 1.8; color: var(--cream-dim); margin-bottom: 16px; }
+ .tp-founder-name { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--cream); margin-bottom: 10px; }
+ .tp-founder-perspective { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 28px; }
+ .tp-founder-bio { font-family: 'EB Garamond', serif; font-size: 18px; line-height: 1.85; color: var(--cream-dim); margin-bottom: 18px; }
  .tp-founder-bio:last-child { margin-bottom: 0; }
 
  /* CTA */
  .tp-cta { margin-top: 56px; padding-top: 48px; border-top: 1px solid rgba(232,223,208,0.08); text-align: center; }
- .tp-cta p { font-size: 18px; color: var(--cream-dim); margin-bottom: 24px; }
- .tp-btn { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; padding: 15px 34px; text-decoration: none; cursor: pointer; border: none; transition: all 0.22s; background: var(--gold); color: var(--navy); }
+ .tp-cta p { font-family: 'EB Garamond', serif; font-size: 19px; color: var(--cream-dim); margin-bottom: 16px; line-height: 1.8; }
+ .tp-btn { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; padding: 15px 34px; text-decoration: none; cursor: pointer; border: none; transition: all 0.22s; background: var(--gold); color: var(--navy); margin-top: 16px; }
  .tp-btn:hover { background: var(--cream); color: var(--navy); }
 
  /* HR */
@@ -105,8 +113,9 @@ const css = `
  .tp-nav-links { display: none; }
  .tp-burger { display: flex; }
  .tp-page { padding: 140px 24px 72px; }
- .tp-founder { grid-template-columns: 1fr; }
- .tp-belief { grid-template-columns: 1fr; gap: 36px; }
+ .tp-founder { grid-template-columns: 1fr !important; gap: 28px; }
+ .tp-founder-right .tp-founder-photo-wrap { order: 0; }
+ .tp-founder-right .tp-founder-body      { order: 0; }
  .tp-footer { padding: 56px 24px 36px; }
  .tp-footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
  .tp-footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
@@ -163,13 +172,11 @@ export default function TeamPage() {
    <div className="tp-page">
 
     <div className="tp-label-row"><span className="tp-rule"/><span className="tp-label">The Team</span></div>
-    <h1 className="tp-h1">Built from real experience.</h1>
+    <h1 className="tp-h1">THE TEAM</h1>
+    <div className="tp-h1-sub">BUILT FROM A BELIEF.</div>
 
     {/* BELIEF */}
     <div className="tp-belief">
-     <div>
-      <h2 className="tp-belief-h2">Built from a Belief.</h2>
-     </div>
      <div className="tp-belief-body">
       <p>We did not set out to build another event company.</p>
       <p>We became fascinated by a different question: why do some environments change people while others leave almost nothing behind?</p>
@@ -180,33 +187,43 @@ export default function TeamPage() {
     <div className="tp-founders">
 
      {/* MAX */}
-     <div className="tp-founder">
-      {maxErr ? (
-       <div className="tp-founder-photo-placeholder">MO</div>
-      ) : (
-       <img className="tp-founder-photo" src={MAX_SRC} alt="Max Ouellette" onError={() => setMaxErr(true)}/>
-      )}
+     <div className="tp-founder tp-founder-left">
+      <div className="tp-founder-photo-wrap">
+       {maxErr ? (
+        <div className="tp-founder-photo-placeholder">MO</div>
+       ) : (
+        <img className="tp-founder-photo" src={MAX_SRC} alt="Max Ouellette" onError={() => setMaxErr(true)}/>
+       )}
+      </div>
       <div className="tp-founder-body">
-       <div className="tp-founder-role">Co-Founder</div>
-       <div className="tp-founder-name">Max Ouellette</div>
-       <p className="tp-founder-bio">Max is fascinated by how environment changes behavior.</p>
-       <p className="tp-founder-bio">After years in professional sport, leadership, and hospitality, he became convinced that where people gather matters as much as why they gather.</p>
-       <p className="tp-founder-bio">ROAMSIX is the result of that belief.</p>
+       <div className="tp-founder-name">MAX OUELLETTE</div>
+       <div className="tp-founder-perspective">Perspective</div>
+       <p className="tp-founder-bio">Max has spent much of his life stepping into unfamiliar environments.</p>
+       <p className="tp-founder-bio">New countries. New cultures. New careers. New seasons of life.</p>
+       <p className="tp-founder-bio">Again and again, he found the same thing waiting for him. The people willing to share a meal, a conversation, or a piece of their world shaped him far more than the places themselves.</p>
+       <p className="tp-founder-bio">ROAMSIX grew from that conviction.</p>
+       <p className="tp-founder-bio">Every experience is built around a simple idea: when the right people come together in the right environment, perspective expands. And when perspective expands, so does the future people imagine for themselves.</p>
       </div>
      </div>
 
      {/* JACKIE */}
-     <div className="tp-founder">
-      {jackieErr ? (
-       <div className="tp-founder-photo-placeholder">JS</div>
-      ) : (
-       <img className="tp-founder-photo" src={JACKIE_SRC} alt="Jackie Slot" onError={() => setJackieErr(true)}/>
-      )}
+     <div className="tp-founder tp-founder-right">
+      <div className="tp-founder-photo-wrap">
+       {jackieErr ? (
+        <div className="tp-founder-photo-placeholder">JS</div>
+       ) : (
+        <img className="tp-founder-photo" src={JACKIE_SRC} alt="Jackie Slot" onError={() => setJackieErr(true)}/>
+       )}
+      </div>
       <div className="tp-founder-body">
-       <div className="tp-founder-role">Co-Founder</div>
-       <div className="tp-founder-name">Jackie Slot</div>
-       <p className="tp-founder-bio">Jackie believes hospitality is one of the highest forms of care.</p>
-       <p className="tp-founder-bio">Her work shapes the rhythm, atmosphere, and emotional experience that allow people to slow down, connect, and be fully present.</p>
+       <div className="tp-founder-name">JACKIE SLOT</div>
+       <div className="tp-founder-perspective">Presence</div>
+       <p className="tp-founder-bio">Jackie Slot is drawn to the moments when people stop performing and start showing up as themselves.</p>
+       <p className="tp-founder-bio">She believes the way someone feels in an environment determines what becomes possible there. When people feel genuinely welcomed, supported, and safe, conversations become more honest, confidence begins to grow, and meaningful connection follows.</p>
+       <p className="tp-founder-bio">That belief shapes every ROAMSIX experience. From the rhythm of the evening to the smallest details of hospitality, her work is guided by one question:</p>
+       <p className="tp-founder-bio">What helps someone feel safe enough to be fully present?</p>
+       <p className="tp-founder-bio">She hopes people leave with more than a memory.</p>
+       <p className="tp-founder-bio">She hopes they leave feeling more like themselves.</p>
       </div>
      </div>
 
@@ -214,8 +231,11 @@ export default function TeamPage() {
 
     {/* CTA */}
     <div className="tp-cta">
-     <p>Upcoming experiences open to the priority list first.</p>
-     <Link to="/priority-access" className="tp-btn">Request Priority Access</Link>
+     <p>Some people leave with new ideas.</p>
+     <p>Some leave with new friendships.</p>
+     <p>Some leave seeing their own lives differently.</p>
+     <p>That possibility is why ROAMSIX exists.</p>
+     <Link to="/priority-access" className="tp-btn">REQUEST PRIORITY ACCESS</Link>
     </div>
 
    </div>
