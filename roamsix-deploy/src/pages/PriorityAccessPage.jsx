@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
+import BookCallButton from '../components/BookCallButton';
 
 /*
   ROAMSIX — PriorityAccessPage.jsx
@@ -443,6 +444,10 @@ export default function PriorityAccessPage() {
               <button className="pa-btn pa-btn-gold pa-submit-btn" onClick={submit} disabled={status === "loading" || !canSubmit}>
                 {status === "loading" ? "Submitting..." : "Request Priority Access"}
               </button>
+
+              <BookCallButton className="pa-btn pa-btn-gold pa-submit-btn mt-4">
+                Book a call
+              </BookCallButton>
             </>
           )}
         </div>
