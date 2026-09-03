@@ -1,3 +1,5 @@
+import { captureCrmActivity } from "../lib/crm.js";
+
 // api/contact.js
 // Dual-purpose handler:
 //
@@ -126,6 +128,30 @@ export default async function handler(req, res) {
       });
     } catch (err) { console.error("Airtable write error:", err); }
   }
+
+  const inquiryText = `${inquiryType} ${message}`.toLowerCase();
+  const relationships = [];
+  if (inquiryText.includes("collaborat")) relationships.push("Collaborator");
+  if (inquiryText.includes("speaker") || inquiryText.includes("speak at")) relationships.push("Speaker");
+  if (inquiryText.includes("corporate") || inquiryText.includes("organization") || inquiryText.includes("team")) relationships.push("Corporate Lead");
+  const topics = [];
+  if (inquiryText.includes("microbiome") || inquiryText.includes("gut health")) topics.push("Microbiome & Gut Health");
+  if (inquiryText.includes("sleep") || inquiryText.includes("recovery")) topics.push("Sleep & Recovery");
+  if (inquiryText.includes("stress") || inquiryText.includes("resilience")) topics.push("Stress & Resilience");
+  if (inquiryText.includes("strength") || inquiryText.includes("mobility") || inquiryText.includes("longevity")) topics.push("Strength & Longevity");
+  await captureCrmActivity({
+    contact: {
+      firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim(), organization: company.trim(),
+      lifecycleStage: relationships.includes("Speaker") ? "Speaker" : relationships.includes("Collaborator") ? "Collaborator" : "New Lead",
+      relationships, topics, sources: ["Website", "Contact Form"], emailPermission: "Unknown",
+      notes: `${inquiryType || "General"}: ${message.trim()}`,
+    },
+    engagement: {
+      engagementType: relationships.includes("Speaker") ? "Speaker" : relationships.includes("Collaborator") ? "Collaborator" : "Inquired",
+      status: "New", topic: topics[0] || "General", eventName: "", source: "Website",
+      uniqueKey: `contact:${email.trim().toLowerCase()}:${new Date().toISOString()}`, details: message.trim(),
+    },
+  });
 
   return res.status(200).json({ success: true });
 }

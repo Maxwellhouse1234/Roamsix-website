@@ -301,7 +301,7 @@ export default function EventDetailPage() {
       setErr("Please enter a valid email address.");
       return;
     }
-    if (!ageConfirmed) {
+    if (event.requiresAge21 && !ageConfirmed) {
       setErr("Please confirm that you are 21 years of age or older.");
       return;
     }
@@ -389,7 +389,7 @@ export default function EventDetailPage() {
             <div className="ed-modal-header">
               <div>
                 <div className="ed-modal-pkg">{modal.name}</div>
-                <div className="ed-modal-price">{modalPrice} <span style={{ fontSize: "16px", fontWeight: 400, color: "var(--cream-muted)" }}>/ person{isBundle && modal.bundlePrice ? " x2" : ""}</span></div>
+                <div className="ed-modal-price">{modalPrice} <span style={{ fontSize: "16px", fontWeight: 400, color: "var(--cream-muted)" }}>{isBundle && modal.bundlePrice ? "/ two guests" : "/ person"}</span></div>
               </div>
               <button className="ed-modal-close" onClick={closeModal} aria-label="Close">&#215;</button>
             </div>
@@ -413,7 +413,7 @@ export default function EventDetailPage() {
                     tabIndex={0}
                     onKeyDown={(e) => e.key === "Enter" && setIsBundle(true)}
                   >
-                    <span className="ed-bundle-opt-label">Couples Bundle</span>
+                    <span className="ed-bundle-opt-label">Two Tickets</span>
                     <span className="ed-bundle-opt-price">{fmtPrice(modal.bundlePrice)}</span>
                   </div>
                 </div>
@@ -469,10 +469,10 @@ export default function EventDetailPage() {
               </div>
               <div className="ed-modal-divider" />
               <p className="ed-modal-cancel-notice">
-                Tickets are non-refundable and non-transferable. If you are unable to attend, you must notify ROAMSIX at least 48 hours before the scheduled event start time. At ROAMSIX's sole discretion, your registration may be credited toward a future ROAMSIX event. No credits, transfers, or rescheduling requests will be granted within 48 hours of the event. No-shows forfeit their registration.{" "}
+                Ticket sales are final. Dinner guests who contact ROAMSIX by 5:00 p.m. Pacific on the Monday before a Saturday dinner may choose one approved guest-name substitution or a one-time credit equal to the amount paid toward a future comparable dinner. Future reservations are subject to availability. After the final-count deadline, accommodations are not guaranteed. No-shows forfeit registration.{" "}
                 <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a>
               </p>
-              <div className="ed-modal-consent">
+              {event.requiresAge21 && <div className="ed-modal-consent">
                 <input
                   type="checkbox"
                   className="ed-modal-consent-check"
@@ -483,7 +483,7 @@ export default function EventDetailPage() {
                 <label htmlFor="ed-age-confirmed" className="ed-modal-consent-text">
                   I confirm that I am 21 years of age or older.
                 </label>
-              </div>
+              </div>}
               <p className="ed-modal-voluntary">
                 Participation in ROAMSIX events is voluntary. Participants are responsible for determining whether they are physically capable of participating and may discontinue participation at any time.
               </p>
@@ -513,10 +513,10 @@ export default function EventDetailPage() {
                   status === "loading" ||
                   !form.name.trim() || !form.email.trim() || !form.phone.trim() ||
                   !form.emergencyContactName.trim() || !form.emergencyContactPhone.trim() ||
-                  !ageConfirmed || !agreedToTerms
+                  (event.requiresAge21 && !ageConfirmed) || !agreedToTerms
                 }
               >
-                {status === "loading" ? "Redirecting..." : "Proceed to Checkout"}
+                {status === "loading" ? "Redirecting..." : "Proceed to secure checkout"}
               </button>
               <p className="ed-modal-note">
                 You will be redirected to a secure Stripe checkout page.
@@ -587,7 +587,7 @@ export default function EventDetailPage() {
         </div>
 
         <div className="ed-img-divider">
-          <img src="/images/events/event-dinner-placeholder.webp" alt="" loading="lazy" onError={e=>{e.target.style.display='none'}}/>
+          <img src={event.image || "/images/events/event-dinner-placeholder.webp"} alt="Guests gathered at a ROAMSIX farm-to-table dinner" loading="lazy" onError={e=>{e.target.style.display='none'}}/>
         </div>
 
         <hr className="ed-hr" />
@@ -613,15 +613,13 @@ export default function EventDetailPage() {
               <ul className="ed-offer-list" style={{ marginBottom: "28px" }}>
                 {event.packages[0].includes.map((item, i) => <li key={i}>{item}</li>)}
               </ul>
-              <div className="ed-offer-promo">
-                <div className="ed-offer-promo-label">Father's Day Weekend</div>
-                <div className="ed-offer-two-tickets">Two tickets for $398</div>
-                <p className="ed-offer-promo-text">
-                  Save $52 when you register two guests together.
-                </p>
-              </div>
+              {event.promoHeadline && <div className="ed-offer-promo">
+                <div className="ed-offer-promo-label">{event.promoLabel}</div>
+                <div className="ed-offer-two-tickets">{event.promoHeadline}</div>
+                <p className="ed-offer-promo-text">{event.promoText}</p>
+              </div>}
               <div className="ed-offer-footer">
-                <div className="ed-offer-capacity">Limited to 20 guests</div>
+                <div className="ed-offer-capacity">{event.capacityLabel}</div>
                 {event.status === "soldout" ? (
                   <div className="ed-offer-btn-soldout">Sold Out</div>
                 ) : (
@@ -633,18 +631,18 @@ export default function EventDetailPage() {
                         className="ed-offer-btn-block"
                         onClick={() => openModal(event.packages[0], false)}
                       >
-                        Register Now
+                        Reserve my seat
                       </button>
                     </div>
                     <div className="ed-offer-cta">
-                      <div className="ed-offer-cta-label">Couples Bundle</div>
+                      <div className="ed-offer-cta-label">Two Tickets</div>
                       <div className="ed-offer-cta-price">{fmtPrice(event.packages[0].bundlePrice)} for two</div>
-                      <div className="ed-offer-cta-save">Save $52</div>
+                      <div className="ed-offer-cta-save">Save {fmtPrice((event.packages[0].price * 2) - event.packages[0].bundlePrice)}</div>
                       <button
                         className="ed-offer-btn-block ed-offer-btn-block-outline"
                         onClick={() => openModal(event.packages[0], true)}
                       >
-                        Register Two
+                        Reserve two seats
                       </button>
                     </div>
                   </div>

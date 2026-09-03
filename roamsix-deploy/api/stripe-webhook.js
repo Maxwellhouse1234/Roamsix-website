@@ -7,6 +7,8 @@
 //   4. Sends notification email to max@roamsix.com + jackie@roamsix.com
 
 import { createHmac, timingSafeEqual } from "crypto";
+import { captureCrmActivity, recordReferralConversion } from "../lib/crm.js";
+import { claimDinnerWaitlist } from "../lib/dinner-operations.js";
 
 function readRawBody(req) {
   return new Promise((resolve, reject) => {
@@ -216,6 +218,7 @@ export default async function handler(req, res) {
     const eventId               = session.metadata?.eventId || "";
     const packageId             = session.metadata?.packageId || "";
     const customerName          = session.metadata?.customerName || "";
+    const guestNames            = (session.metadata?.guestNames || "").split("|").map((name) => name.trim()).filter(Boolean);
     const isBundle              = session.metadata?.isBundle === "true";
     const quantity              = parseInt(session.metadata?.quantity || "1", 10);
     const amountPaid            = (session.amount_total || 0) / 100;
@@ -224,6 +227,7 @@ export default async function handler(req, res) {
     const emergencyContactName  = session.metadata?.emergencyContactName || "";
     const emergencyContactPhone = session.metadata?.emergencyContactPhone || "";
     const medicalNotes          = session.metadata?.medicalNotes || "";
+    const guestMedicalNotes     = session.metadata?.guestMedicalNotes || "";
     const eventName             = session.metadata?.eventName || eventId.replace(/-/g, " ").toUpperCase();
     const eventDate             = session.metadata?.eventDate || "";
     const legalVersion          = session.metadata?.acceptedLegalVersion || "";
@@ -231,6 +235,13 @@ export default async function handler(req, res) {
     const agreedToTerms         = session.metadata?.agreedToTerms === "true";
     const ageConfirmed          = session.metadata?.ageConfirmed  || "No";
     const smsConsent            = session.metadata?.smsConsent    || "No";
+    const discountCode          = session.metadata?.discountCode || "";
+    const discountType          = session.metadata?.discountType || "None";
+    const stripePromotionId     = session.metadata?.stripePromotionId || "";
+    const discountAmount        = Number(session.metadata?.discountAmount || 0);
+    const referrerCode          = session.metadata?.referrerCode || "";
+    const referrerContactId     = session.metadata?.referrerContactId || "";
+    const referrerName          = session.metadata?.referrerName || "";
     const timestamp             = new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" });
     const registeredAt          = new Date().toISOString();
 
@@ -252,13 +263,13 @@ export default async function handler(req, res) {
           "Name":              customerName || "Not provided",
           "Email":             email,
           "Event":             eventId,
-          "Package":           packageId + (isBundle ? " (Couples Bundle)" : ""),
+          "Package":           packageId + (isBundle ? " (Two Tickets)" : ""),
           "Amount Paid":       amountPaid,
-          "Quantity":          quantity,
+          "Quantity":          isBundle ? 2 : quantity,
           "Stripe Session ID": sessionId,
           "Status":            "Confirmed",
           "Registered At":     registeredAt,
-          "Notes":             medicalNotes || "",
+          "Notes":             [medicalNotes && `Purchaser dietary notes: ${medicalNotes}`, guestMedicalNotes && `Second guest dietary notes: ${guestMedicalNotes}`, guestNames.length ? `Additional guests: ${guestNames.join(", ")}` : ""].filter(Boolean).join("\n"),
         });
       }
 
@@ -270,7 +281,7 @@ export default async function handler(req, res) {
           "Phone":                   phone,
           "Event Name":              eventName,
           "Event Date":              eventDate,
-          "Package":                 packageId + (isBundle ? " (Couples Bundle)" : ""),
+          "Package":                 packageId + (isBundle ? " (Two Tickets)" : ""),
           "Amount Paid":             amountPaid,
           "Stripe Session ID":       sessionId,
           "Payment Status":          "Paid",
@@ -286,6 +297,54 @@ export default async function handler(req, res) {
         });
       }
 
+      // One Airtable attendee record per additional ticket holder. These
+      // records share the Stripe session ID so the group stays connected.
+      if (process.env.AIRTABLE_TOKEN && guestNames.length) {
+        await Promise.all(guestNames.map((guestName) => writeAttendeesRecord(process.env.AIRTABLE_TOKEN, {
+          "Full Name":               guestName,
+          "Email":                   email,
+          "Phone":                   "",
+          "Event Name":              eventName,
+          "Event Date":              eventDate,
+          "Package":                 `${packageId} (Additional Guest)`,
+          "Amount Paid":             0,
+          "Stripe Session ID":       sessionId,
+          "Payment Status":          "Paid with purchaser",
+          "Legal Accepted":          "Pending guest confirmation",
+          "Legal Version":           "",
+          "Accepted At":             "",
+          "Age Confirmed":           "Pending guest confirmation",
+          "SMS Consent":             "No",
+          "Emergency Contact Name":  "",
+          "Emergency Contact Phone": "",
+          "Medical or Dietary Notes": [guestMedicalNotes, `Purchased by ${customerName || email}`].filter(Boolean).join("\n"),
+          "Intake Completed":        "No",
+        })));
+      }
+
+      const crmResult = await captureCrmActivity({
+        contact: {
+          fullName: customerName, email, mobile: phone,
+          lifecycleStage: "Customer", relationships: ["Dinner Guest", "Event Attendee"],
+          topics: ["Farm-to-Table Dinners"], sources: ["Website", "Stripe", "Event Registration"],
+          emailPermission: "Transactional Only", smsPermission: smsConsent === "Yes" ? "Opted In" : "Unknown",
+          occurredAt: registeredAt, notes: guestNames.length ? `Additional guests: ${guestNames.join(", ")}` : "",
+        },
+        engagement: {
+          engagementType: "Registered", status: "Confirmed", topic: "Farm-to-Table Dinners",
+          eventName, occurredAt: registeredAt, source: "Stripe", amountPaid,
+          stripeSessionId: sessionId, uniqueKey: `stripe:${sessionId}`,
+          discountCode, discountType, stripePromotionId, discountAmount,
+          referrerCode, referrerContactId,
+          details: `${packageId}${isBundle ? " (Two Tickets)" : ""}; quantity ${isBundle ? 2 : quantity}${referrerName ? `; referred by ${referrerName}` : ""}`,
+        },
+      });
+
+      if (crmResult?.engagement?.created && referrerContactId) {
+        await recordReferralConversion({ referrerContactId, amountPaid });
+      }
+      if (eventId === "olive-grove-dinner") await claimDinnerWaitlist(email);
+
       // ── CONFIRMATION EMAIL TO CUSTOMER ─────────────────────────────────────
       if (process.env.RESEND_API_KEY && email) {
         try {
@@ -296,10 +355,10 @@ export default async function handler(req, res) {
               from:    "ROAMSIX Events <info@roamsix.com>",
               to:      [email],
               subject: "Your ROAMSIX Registration is Confirmed",
-              html:    customerConfirmHTML({
-                name: customerName, eventId, eventName, packageId, isBundle, amountPaid, quantity,
+              html:    currentEmailPalette(customerConfirmHTML({
+                name: customerName, guestNames, eventId, eventName, packageId, isBundle, amountPaid, quantity,
                 sessionId, origin,
-              }),
+              })),
             }),
           });
           if (!resendRes.ok) {
@@ -322,12 +381,12 @@ export default async function handler(req, res) {
               to:       ["max@roamsix.com", "jackie@roamsix.com"],
               reply_to: email || undefined,
               subject:  `New Registration: ${customerName || email} - ${packageId}`,
-              html:     teamNotifyHTML({
-                name: customerName, email, eventId, eventName, packageId, isBundle,
+              html:     currentEmailPalette(teamNotifyHTML({
+                name: customerName, guestNames, email, eventId, eventName, packageId, isBundle,
                 amountPaid, quantity, sessionId, timestamp, phone,
-                emergencyContactName, emergencyContactPhone, medicalNotes,
+                emergencyContactName, emergencyContactPhone, medicalNotes: [medicalNotes && `Purchaser: ${medicalNotes}`, guestMedicalNotes && `Second guest: ${guestMedicalNotes}`].filter(Boolean).join("\n"),
                 legalVersion, agreedToTerms,
-              }),
+              })),
             }),
           });
           if (!resendRes.ok) {
@@ -383,7 +442,21 @@ function fmtPkgId(id) {
   return (id || "").replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-function customerConfirmHTML({ name, eventId, eventName, packageId, isBundle, amountPaid, quantity, sessionId, origin }) {
+function currentEmailPalette(html) {
+  return String(html)
+    .replaceAll("#0C1220", "#0A0A0A")
+    .replaceAll("#141C2A", "#18181A")
+    .replaceAll("#E8DFD0", "#FAFAF9")
+    .replaceAll("#C8C0B4", "#E5E3E0")
+    .replaceAll("#B59558", "#B8562F")
+    .replaceAll("#4A7575", "#B8562F")
+    .replaceAll("rgba(74,117,117", "rgba(184,86,47")
+    .replaceAll("rgba(181,149,88", "rgba(184,86,47")
+    .replaceAll("rgba(232,223,208", "rgba(250,250,249")
+    .replaceAll("Warner Springs, CA", "251 Little Falls Drive, Wilmington, DE 19808");
+}
+
+function customerConfirmHTML({ name, guestNames = [], eventId, eventName, packageId, isBundle, amountPaid, quantity, sessionId, origin }) {
   const firstName = (name || "").split(" ")[0] || "there";
   const displayEvent = eventName || fmtEventId(eventId);
   const intakeUrl = `${origin}/event-intake?session_id=${sessionId}`;
@@ -420,8 +493,9 @@ function customerConfirmHTML({ name, eventId, eventName, packageId, isBundle, am
             <div style="background:rgba(74,117,117,0.08);border:1px solid rgba(74,117,117,0.2);border-left:3px solid #4A7575;padding:24px;margin-bottom:32px;">
               <table width="100%" cellpadding="0" cellspacing="0">
                 ${row("Event",   displayEvent)}
-                ${row("Package", fmtPkgId(packageId) + (isBundle ? " (Couples Bundle)" : ""))}
+                ${row("Package", fmtPkgId(packageId) + (isBundle ? " (Two Tickets)" : ""))}
                 ${row("Guests",  String(isBundle ? 2 : quantity))}
+                ${guestNames.length ? row("Additional Guest", guestNames.join(", ")) : ""}
                 ${row("Paid",    "$" + amountPaid.toFixed(2))}
               </table>
             </div>
@@ -460,7 +534,7 @@ function customerConfirmHTML({ name, eventId, eventName, packageId, isBundle, am
             )}
 
             ${section("Cancellation Policy",
-              "Tickets are non-refundable. If you are unable to attend more than 14 days before the event, your ticket may be transferred or credited toward a future event at ROAMSIX's discretion. Within 14 days of the event, no refunds or credits apply unless otherwise approved by ROAMSIX. No-shows forfeit registration."
+              "Dinner ticket sales are final. If plans change, contact ROAMSIX by 5:00 p.m. Pacific on the Monday before a Saturday dinner. You may choose one approved guest-name substitution or a one-time credit equal to the amount paid toward a future comparable dinner. Future reservations are subject to availability. After the Monday final count, a transfer or credit is not guaranteed. No-shows forfeit registration. If ROAMSIX cancels, the ticket price will be refunded; rescheduled-event refunds are available as required by California law."
             )}
 
             ${section("Event Changes",
@@ -494,7 +568,7 @@ function customerConfirmHTML({ name, eventId, eventName, packageId, isBundle, am
 </html>`;
 }
 
-function teamNotifyHTML({ name, email, eventId, eventName, packageId, isBundle, amountPaid, quantity, sessionId, timestamp, phone, emergencyContactName, emergencyContactPhone, medicalNotes, legalVersion, agreedToTerms }) {
+function teamNotifyHTML({ name, guestNames = [], email, eventId, eventName, packageId, isBundle, amountPaid, quantity, sessionId, timestamp, phone, emergencyContactName, emergencyContactPhone, medicalNotes, legalVersion, agreedToTerms }) {
   const displayEvent = eventName || fmtEventId(eventId);
   return `<!DOCTYPE html>
 <html>
@@ -521,8 +595,9 @@ function teamNotifyHTML({ name, email, eventId, eventName, packageId, isBundle, 
               ${row("Email",                  email ? `<a href="mailto:${email}" style="color:#4A7575;text-decoration:none;">${email}</a>` : "Not provided")}
               ${row("Phone",                  phone || "Not provided")}
               ${row("Event",                  displayEvent)}
-              ${row("Package",               fmtPkgId(packageId) + (isBundle ? " (Couples Bundle)" : ""))}
+              ${row("Package",               fmtPkgId(packageId) + (isBundle ? " (Two Tickets)" : ""))}
               ${row("Guests",                String(isBundle ? 2 : quantity))}
+              ${guestNames.length ? row("Additional Guest", guestNames.join(", ")) : ""}
               ${row("Amount",                "$" + amountPaid.toFixed(2))}
               ${row("Emergency Contact",      emergencyContactName ? `${emergencyContactName} - ${emergencyContactPhone}` : "Not provided")}
               ${row("Medical / Dietary",      medicalNotes || "None disclosed")}

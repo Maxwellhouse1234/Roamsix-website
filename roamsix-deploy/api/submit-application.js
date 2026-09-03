@@ -1,3 +1,5 @@
+import { captureCrmActivity } from "../lib/crm.js";
+
 export default async function handler(req, res) {
   // Only allow POST
   if (req.method !== "POST") {
@@ -84,6 +86,29 @@ export default async function handler(req, res) {
         airtableResponse: responseText,
       });
     }
+
+    const applicationText = `${formData.role || ""} ${formData.relationship || ""} ${formData.transition || ""} ${formData.whyNow || ""}`.toLowerCase();
+    const relationships = ["Applicant"];
+    if (applicationText.includes("collaborat")) relationships.push("Collaborator");
+    if (applicationText.includes("speaker")) relationships.push("Speaker");
+    if (pathway === "Corporate" || formData.company || formData.organizationName) relationships.push("Corporate Lead");
+    await captureCrmActivity({
+      contact: {
+        fullName: formData.fullName, email: formData.email, mobile: formData.phone,
+        organization: formData.company || formData.organizationName, role: formData.role,
+        lifecycleStage: relationships.includes("Speaker") ? "Speaker" : relationships.includes("Collaborator") ? "Collaborator" : "Interested",
+        relationships, topics: pathway === "Corporate" ? ["Corporate Experiences"] : [],
+        sources: ["Website", "Application"], emailPermission: "Unknown",
+        notes: `${formData.transition || ""}\n${formData.whyNow || ""}`.trim(),
+      },
+      engagement: {
+        engagementType: relationships.includes("Speaker") ? "Speaker" : relationships.includes("Collaborator") ? "Collaborator" : "Applied",
+        status: "New", topic: pathway === "Corporate" ? "Corporate Experiences" : "General",
+        eventName: "ROAMSIX Application", source: "Website",
+        uniqueKey: `application:${String(formData.email || "").toLowerCase()}:${invitationCode}`,
+        details: `Pathway: ${pathway}; invitation: ${invitationCode}`,
+      },
+    });
 
     // Airtable normally returns JSON, but we’ll guard anyway
     let data;

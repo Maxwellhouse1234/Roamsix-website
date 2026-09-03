@@ -2,7 +2,7 @@ import LegalPage from "./LegalPage";
 
 export default function TermsPage() {
   return (
-    <LegalPage title="Terms of Service" lastUpdated="June 2026">
+    <LegalPage title="Terms of Service" lastUpdated="August 20, 2026">
 
       <div className="lp-section">
         <h2 className="lp-section-title">Event Registration and Payment</h2>
@@ -17,19 +17,19 @@ export default function TermsPage() {
       <div className="lp-section">
         <h2 className="lp-section-title">Refund and Cancellation Policy</h2>
         <p>
-          All ticket sales are final and non-refundable.
+          Unless the event page states otherwise, ticket sales are final. Guest cancellations do not receive cash refunds, but the dinner accommodation policy below is intended to help guests preserve the value of their reservation when plans change.
         </p>
         <p>
-          If you are unable to attend and notify ROAMSIX more than 14 days before the event date, ROAMSIX may, at its sole discretion, allow a transfer of your registration to another eligible person or apply a credit toward a future ROAMSIX event. This is not guaranteed and must be approved by ROAMSIX in writing.
+          For Saturday dinners, guests who contact <a href="mailto:info@roamsix.com" style={{ color: "#B8562F" }}>info@roamsix.com</a> by 5:00 p.m. Pacific on the Monday immediately before the dinner may choose either one approved guest-name substitution or a one-time credit equal to the amount paid toward a future comparable ROAMSIX dinner. Future reservations remain subject to availability. Approved replacement guests must complete all required participant information and agreements.
         </p>
         <p>
-          If you are unable to attend and notify ROAMSIX within 14 days of the event, no refunds, transfers, or credits will be provided unless otherwise approved in writing by ROAMSIX.
+          After that Monday deadline, the final guest count is committed and ROAMSIX cannot promise a transfer or credit. We may still make a compassionate exception when circumstances warrant, but an exception is not guaranteed. Tickets may not be resold.
         </p>
         <p>
           No-shows forfeit their registration and are not eligible for a refund or credit.
         </p>
         <p>
-          To request a transfer or credit, contact us at <a href="mailto:info@roamsix.com" style={{ color: "#5A8A8A" }}>info@roamsix.com</a> with your name, order details, and the reason for your request.
+          Event formats other than dinners may have different cancellation or credit deadlines stated on their event page. To request an accommodation, contact us with your name, order details, and the event you reserved.
         </p>
       </div>
 
@@ -39,7 +39,7 @@ export default function TermsPage() {
           ROAMSIX reserves the right to modify, reschedule, or cancel events due to weather, safety concerns, venue issues, operational needs, facilitator availability, or circumstances outside our reasonable control. This may include changes to the schedule, programming, activities, venue, facilitators, meals, or other event components.
         </p>
         <p>
-          In the event of a cancellation initiated by ROAMSIX, registered participants will receive a credit toward a future ROAMSIX event of equal or greater value. Refunds are not guaranteed in the event of cancellation unless required by applicable law.
+          If ROAMSIX cancels an event, the full ticket price will be refunded to the original payment method within 30 calendar days. If an event is postponed or rescheduled, the registration will remain valid for the new date; purchasers may instead request a full refund, which will be processed within 30 calendar days of the request, as required by applicable California law.
         </p>
         <p>
           ROAMSIX is not responsible for travel costs, accommodations, or other third-party expenses incurred by participants in connection with an event change or cancellation.

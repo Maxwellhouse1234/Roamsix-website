@@ -1,3 +1,5 @@
+import { captureCrmActivity } from "../lib/crm.js";
+
 // api/priority-access.js
 // Handles Priority Access sign-up submissions.
 // Writes/updates a record in the Airtable "Priority Access" table and
@@ -164,6 +166,32 @@ export default async function handler(req, res) {
         }
       }
     }
+
+    const interestText = [...experienceInterests, customInterest].join(" ").toLowerCase();
+    const relationships = ["Priority Access", "Interest Subscriber"];
+    if (interestText.includes("collaborat") || interestText.includes("podcast guest")) relationships.push("Collaborator");
+    if (interestText.includes("speaker")) relationships.push("Speaker");
+    const topics = [];
+    if (interestText.includes("microbiome") || interestText.includes("gut health")) topics.push("Microbiome & Gut Health");
+    if (interestText.includes("sleep") || interestText.includes("recovery")) topics.push("Sleep & Recovery");
+    if (interestText.includes("stress") || interestText.includes("resilience")) topics.push("Stress & Resilience");
+    if (interestText.includes("strength") || interestText.includes("mobility") || interestText.includes("longevity")) topics.push("Strength & Longevity");
+    if (interestText.includes("table") || interestText.includes("dinner") || interestText.includes("fire")) topics.push("Farm-to-Table Dinners");
+    await captureCrmActivity({
+      contact: {
+        firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim(), mobile: mobile.trim(),
+        lifecycleStage: relationships.includes("Speaker") ? "Speaker" : relationships.includes("Collaborator") ? "Collaborator" : "Interested",
+        relationships, topics, sources: ["Website", "Priority Access"],
+        emailPermission: emailConsent ? "Opted In" : "Unknown", smsPermission: smsConsent ? "Opted In" : "Unknown",
+        occurredAt: now, notes: customInterest.trim(),
+      },
+      engagement: {
+        engagementType: relationships.includes("Speaker") ? "Speaker" : relationships.includes("Collaborator") ? "Collaborator" : "Interested",
+        status: "Active", topic: topics[0] || "General", eventName: "ROAMSIX Priority Access", occurredAt: now,
+        source: "Website", uniqueKey: `priority-access:${email.trim().toLowerCase()}:${now}`,
+        details: [...experienceInterests, customInterest].filter(Boolean).join(", "),
+      },
+    });
 
     // Welcome email to submitter (does not block submission success)
     if (process.env.RESEND_API_KEY) {

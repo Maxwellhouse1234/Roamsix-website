@@ -1,3 +1,5 @@
+import { captureCrmActivity } from "../lib/crm.js";
+
 // api/pg-interest.js
 // Proving Grounds interest / waitlist form handler
 // - Notifies max@roamsix.com + jackie@roamsix.com
@@ -74,6 +76,21 @@ export default async function handler(req, res) {
       );
     } catch (err) { console.error("Airtable PG error:", err); }
   }
+
+  await captureCrmActivity({
+    contact: {
+      fullName: name.trim(), email: email.trim(), role,
+      lifecycleStage: "Interested", relationships: ["Interest Subscriber", "Proving Grounds"],
+      topics: ["Proving Grounds"], sources: ["Website"], emailPermission: "Unknown",
+      notes: "Proving Grounds waitlist",
+    },
+    engagement: {
+      engagementType: "Waitlisted", status: "Active", topic: "Proving Grounds",
+      eventName: "ROAMSIX Proving Grounds — May 2026", source: "Website",
+      uniqueKey: `pg-interest:${email.trim().toLowerCase()}:${new Date().toISOString()}`,
+      details: role || "Role not specified",
+    },
+  });
 
   return res.status(200).json({ success: true });
 }

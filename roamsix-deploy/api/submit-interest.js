@@ -1,3 +1,5 @@
+import { captureCrmActivity } from "../lib/crm.js";
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -65,6 +67,25 @@ export default async function handler(req, res) {
 
     const data = JSON.parse(responseText);
     const recordId = data?.records?.[0]?.id;
+
+    const interestText = interests.join(" ").toLowerCase();
+    const topics = [];
+    if (interestText.includes("microbiome") || interestText.includes("gut")) topics.push("Microbiome & Gut Health");
+    if (interestText.includes("sleep") || interestText.includes("recovery")) topics.push("Sleep & Recovery");
+    if (interestText.includes("stress") || interestText.includes("resilience")) topics.push("Stress & Resilience");
+    if (interestText.includes("strength") || interestText.includes("mobility") || interestText.includes("longevity")) topics.push("Strength & Longevity");
+    if (interestText.includes("dinner") || interestText.includes("table") || interestText.includes("fire")) topics.push("Farm-to-Table Dinners");
+    await captureCrmActivity({
+      contact: {
+        fullName, email, lifecycleStage: "Interested", relationships: ["Interest Subscriber"], topics,
+        sources: ["Website"], emailPermission: "Unknown", notes: `Interests: ${interests.join(", ")}`,
+      },
+      engagement: {
+        engagementType: "Interested", status: "Active", topic: topics[0] || "General",
+        eventName: "ROAMSIX Interest", source: "Website",
+        uniqueKey: `interest:${email.toLowerCase()}:${recordId || Date.now()}`, details: interests.join(", "),
+      },
+    });
 
     return res.status(200).json({ success: true, recordId });
   } catch (err) {
