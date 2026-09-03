@@ -19,9 +19,9 @@ export default function HomePage() {
         <div className="hero-image" aria-hidden="true" />
         <div className="hero-shade" aria-hidden="true" />
         <div className="hero-content container">
-          <p className="eyebrow">Immersive professional learning in distinctive places</p>
+          <p className="eyebrow">Hands-on learning in distinctive places</p>
           <h1>Learn from experts. Experience the subject firsthand.</h1>
-          <p className="hero-copy">ROAMSIX creates hands-on retreats, dinners, and learning experiences for people working across health, wellness, fitness, food, and human performance. Each experience connects expert knowledge with real places, practical activities, and thoughtful conversation.</p>
+          <p className="hero-copy">ROAMSIX creates hands-on retreats, dinners, and learning experiences led by experts across health, wellness, fitness, food, and human performance. Each experience brings together executives, entrepreneurs, independent professionals, and thoughtful leaders to explore foundational principles, emerging science, longevity, lifestyle, and practical methods through distinctive places, hands-on activities, and meaningful conversation.</p>
           <div className="button-row">
             <Link className="button" to="/experiences">See upcoming experiences</Link>
             <Link className="text-link light" to="/how-it-works">How ROAMSIX works <span aria-hidden="true">→</span></Link>

@@ -27,7 +27,7 @@ export default function FirstRetreatPage() {
         <div className="container narrow">
           <p className="eyebrow">Upcoming immersive retreat · 2027 program, Q1</p>
           <h1>The Microbiome in Practice</h1>
-          <p className="page-lead">Follow the microbiome from soil and food to the way you move, think, and recover. This retreat is being developed for professionals across health, wellness, fitness, food, and human performance.</p>
+          <p className="page-lead">Follow the microbiome from soil and food to the way you move, think, and recover. This hands-on retreat brings foundational principles and emerging science into practical methods, purposeful activities, and meaningful conversation.</p>
           <OfferCta offer={retreatOffer} position="retreat_hero" />
           <p className="status-note">{state.message}</p>
         </div>

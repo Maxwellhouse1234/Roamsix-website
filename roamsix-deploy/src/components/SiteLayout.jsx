@@ -59,7 +59,7 @@ export default function SiteLayout({ children, theme = 'light' }) {
       <footer className="site-footer">
         <div>
           <Link className="footer-brand" to="/">ROAMSIX</Link>
-          <p>Immersive professional learning in distinctive places.</p>
+          <p>Hands-on retreats, dinners, and learning experiences in distinctive places.</p>
         </div>
         <div className="footer-navigation">
           <div className="footer-social" aria-label="ROAMSIX social media">

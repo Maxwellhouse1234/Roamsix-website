@@ -8,7 +8,7 @@ export default function ExperiencesPage() {
         <div className="container narrow">
           <p className="eyebrow">Upcoming ROAMSIX experiences</p>
           <h1>Choose how you want to take part.</h1>
-          <p className="page-lead">Join us for a dinner, go deeper at an immersive retreat, or follow the subjects we are developing for 2027.</p>
+          <p className="page-lead">Join us for a dinner, explore foundational principles and emerging science at a hands-on retreat, or follow the subjects we are developing for 2027.</p>
         </div>
       </section>
 
@@ -23,7 +23,7 @@ export default function ExperiencesPage() {
           <article>
             <p className="eyebrow">Upcoming retreat</p>
             <h2>The Microbiome in Practice</h2>
-            <p>An immersive retreat for health, wellness, fitness, food, and human-performance professionals, following the microbiome from soil and food into movement, focus, and recovery.</p>
+            <p>A hands-on retreat led by experts across health, wellness, fitness, food, and human performance, following the microbiome from soil and food into movement, focus, and recovery.</p>
             <Link className="button" to="/first-retreat">View retreat preview</Link>
           </article>
         </div>
