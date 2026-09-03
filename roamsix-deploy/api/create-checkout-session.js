@@ -39,6 +39,18 @@ const PACKAGE_DATA = {
 };
 
 const OLIVE_GROVE_PROMOTIONS = {
+  GUESTOFROAMSIX: {
+    promotionId: "promo_1UBjPLLgUPmdquZoQjIiCRj0",
+    type: "ROAMSIX VIP Guest",
+    amountOff: 5000,
+    appliesTo: "both",
+  },
+  AP10: {
+    promotionId: "promo_1UBjPdLgUPmdquZokEGCXSl0",
+    type: "Artisan Palate",
+    percentOff: 10,
+    appliesTo: "both",
+  },
   FOUNDERPAIR: {
     promotionId: "promo_1U6PABLgUPmdquZo3cW9b4p2",
     type: "Founder Guest Pair",
@@ -126,7 +138,9 @@ export default async function handler(req, res) {
   const appliedPromotion = useBundle
     ? normalizedCode === "FOUNDERPAIR" || normalizedCode === "FOUNDER15"
       ? founderPairPromotion
-      : null
+      : requestedPromotion?.appliesTo === "both"
+        ? requestedPromotion
+        : null
     : requestedPromotion;
   const discountType = useBundle && isReferral
     ? "Founder Friend Referral (Pair Attribution)"
@@ -192,7 +206,7 @@ export default async function handler(req, res) {
   const discountAmount = appliedPromotion?.amountOff
     ? appliedPromotion.amountOff / 100
     : appliedPromotion?.percentOff
-      ? (pkg.price * appliedPromotion.percentOff) / 10000
+      ? (unitAmount * appliedPromotion.percentOff) / 10000
       : 0;
   params.set("metadata[discountCode]", requestedPromotion ? normalizedCode : "");
   params.set("metadata[discountType]", discountType);
