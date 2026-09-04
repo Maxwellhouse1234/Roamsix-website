@@ -11,11 +11,11 @@ export const retreatOffer = {
   name: 'The Microbiome in Practice',
   eyebrow: 'Upcoming immersive retreat',
   audience:
-    'Executives, entrepreneurs, independent professionals, and thoughtful leaders who want to understand the microbiome as a connected system, not an isolated topic.',
+    'People who want to understand the microbiome as a connected system, not an isolated topic, and explore how it relates to food, movement, focus, and recovery.',
   problem:
     'Gut health is discussed everywhere, but usually one fragment at a time. Food, movement, stress, sleep, recovery, and the living systems that produce our food are rarely experienced as parts of the same story.',
   outcome:
-    'Follow the microbiome from soil and food into emerging science, longevity, lifestyle, and practical methods, then leave with a more connected understanding of what supports it and how that knowledge may inform your own work and life.',
+    'Follow the microbiome from soil and food into movement, focus, and recovery, then leave with a more connected understanding of what supports it and how that knowledge may inform your own life.',
   expert: undefined,
   startDate: undefined,
   endDate: undefined,

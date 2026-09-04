@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="630" viewBox="0 0 1200 630">
+  <image width="1200" height="630" xlink:href="roamsix-social-card-source.png" />
+  <defs>
+    <linearGradient id="cover" x1="0" x2="1">
+      <stop offset="0" stop-color="#000000" />
+      <stop offset="0.76" stop-color="#000000" />
+      <stop offset="1" stop-color="#000000" stop-opacity="0" />
+    </linearGradient>
+    <filter id="logo-clean" color-interpolation-filters="sRGB">
+      <feComponentTransfer>
+        <feFuncR type="gamma" amplitude="1" exponent="2.4" offset="0" />
+        <feFuncG type="gamma" amplitude="1" exponent="2.4" offset="0" />
+        <feFuncB type="gamma" amplitude="1" exponent="2.4" offset="0" />
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="760" height="550" fill="url(#cover)" />
+  <text x="56" y="170" fill="#f4f0e8" font-family="Helvetica Neue, Arial, sans-serif" font-size="39" font-weight="400" letter-spacing="0.2">
+    <tspan x="56" dy="0">People and experts.</tspan>
+    <tspan x="56" dy="52">Subjects that shape</tspan>
+    <tspan x="56" dy="52">how we live.</tspan>
+  </text>
+  <image x="18" y="360" width="410" height="231" xlink:href="roamsix-logo-lockup.svg" filter="url(#logo-clean)" style="mix-blend-mode: screen" />
+</svg>

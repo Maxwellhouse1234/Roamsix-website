@@ -27,7 +27,7 @@ export default function FirstRetreatPage() {
         <div className="container narrow">
           <p className="eyebrow">Upcoming immersive retreat · 2027 program, Q1</p>
           <h1>The Microbiome in Practice</h1>
-          <p className="page-lead">Follow the microbiome from soil and food to the way you move, think, and recover. This hands-on retreat brings foundational principles and emerging science into practical methods, purposeful activities, and meaningful conversation.</p>
+          <p className="page-lead">Follow the microbiome from soil and food to the way you move, think, and recover. Guided by experts and grounded in emerging science, this hands-on retreat brings the subject to life through practical activities, shared meals, and meaningful conversation.</p>
           <OfferCta offer={retreatOffer} position="retreat_hero" />
           <p className="status-note">{state.message}</p>
         </div>
@@ -59,7 +59,7 @@ export default function FirstRetreatPage() {
 
       <section className="section light-section">
         <div className="container audience-grid">
-          <div><p className="eyebrow">Who it is for</p><h2>People who help others live, feel, or perform better.</h2><p>{retreatOffer.audience}</p><p>You do not need to be a microbiome specialist. Curiosity, professional responsibility, and a willingness to learn across disciplines matter more.</p><a className="button button-secondary" href="#interest">Get retreat updates</a></div>
+          <div><p className="eyebrow">Who it is for</p><h2>For people who want to understand how the microbiome connects to everyday life.</h2><p>{retreatOffer.audience}</p><p>You do not need to be a microbiome specialist. An open mind and a willingness to learn across disciplines matter more.</p><a className="button button-secondary" href="#interest">Get retreat updates</a></div>
           <div className="quiet-panel"><h3>What this will not be</h3><ul className="check-list negative"><li>A day of passive lectures</li><li>Medical diagnosis or individual treatment</li><li>A shortcut to a credential</li><li>A promise that one protocol works for everyone</li></ul></div>
         </div>
       </section>
