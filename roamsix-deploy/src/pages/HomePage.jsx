@@ -22,9 +22,9 @@ export default function HomePage() {
         <div className="hero-content container">
           <p className="eyebrow">Curated in-person experiences</p>
           <h1>We bring people and experts together around the subjects that shape how we live.</h1>
-          <p className="hero-copy">ROAMSIX creates hands-on retreats, dinners, and learning experiences that explore how we eat, move, recover, focus, connect, and age. Guided by experts and grounded in emerging science, each experience brings these ideas to life through distinctive places, practical activities, shared meals, and meaningful conversation.</p>
+          <p className="hero-copy">ROAMSIX creates hands-on retreats, dinners, and learning experiences for executives, entrepreneurs, founders, business owners, independent professionals, and high performers who want to keep learning, living fully, and meeting people beyond their usual circles. Guided by experts and grounded in emerging science, each experience brings consequential ideas to life through distinctive places, practical activities, shared meals, and meaningful conversation.</p>
           <div className="button-row">
-            <Link className="button" to="/dinner#tickets">Reserve the September 19 dinner</Link>
+            <Link className="button button-accent" to="/dinner#tickets">Reserve the September 19 dinner</Link>
             <Link className="text-link light" to="/find-your-experience">Find your ROAMSIX fit <span aria-hidden="true">→</span></Link>
           </div>
         </div>
@@ -58,12 +58,21 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="section fog-section expert-home-callout">
+        <div className="container organization-callout">
+          <p className="eyebrow">For scientists, doctors, and specialists</p>
+          <h2>Your work deserves more than a stage and a slide deck.</h2>
+          <p>Bring a consequential question, body of research, practice, or point of view. ROAMSIX can shape the place, people, and hands-on journey that help others understand it more deeply.</p>
+          <Link className="button button-accent" to="/collaborate">Explore collaborating with us</Link>
+        </div>
+      </section>
+
       <section className="fieldwork-cta membership-home-cta">
         <div className="container">
           <div>
             <p className="eyebrow">Founding membership · 2027</p>
             <h2>Stay connected across the full year.</h2>
-            <p>Weekly fireside conversations, a professional community, and first access to selected ROAMSIX experiences. The 2027 founding year is $600 and does not renew automatically.</p>
+            <p>Weekly fireside conversations, a cross-disciplinary circle of ambitious and curious people, and first access to selected ROAMSIX experiences. The 2027 founding year is $600 and does not renew automatically.</p>
           </div>
           <Link className="button" to="/membership">Explore membership</Link>
         </div>

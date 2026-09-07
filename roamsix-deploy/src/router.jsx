@@ -26,6 +26,7 @@ import FounderFriendInvitePage from './pages/FounderFriendInvitePage';
 import ExperienceFinderPage from './pages/ExperienceFinderPage';
 import MembershipPage from './pages/MembershipPage';
 import MembershipSuccessPage from './pages/MembershipSuccessPage';
+import CollaboratePage from './pages/CollaboratePage';
 
 export const router = createBrowserRouter([
   { path: '/', element: <HomePage /> },
@@ -40,6 +41,7 @@ export const router = createBrowserRouter([
   { path: '/find-your-experience', element: <ExperienceFinderPage /> },
   { path: '/membership', element: <MembershipPage /> },
   { path: '/membership/success', element: <MembershipSuccessPage /> },
+  { path: '/collaborate', element: <CollaboratePage /> },
 
   { path: '/events', element: <FieldworkPage /> },
   { path: '/events/q1', element: <FieldworkQuarterPage quarterSlug="q1" /> },

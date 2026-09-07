@@ -8,6 +8,7 @@ const NAV = [
   ['Membership', '/membership'],
   ['How it works', '/how-it-works'],
   ['Organizations', '/organizations'],
+  ['Collaborate', '/collaborate'],
   ['About', '/about'],
 ];
 
@@ -69,6 +70,7 @@ export default function SiteLayout({ children, theme = 'light' }) {
             <a href="mailto:info@roamsix.com">Email</a>
           </div>
           <div className="footer-links" aria-label="Footer navigation">
+            <Link to="/collaborate">Collaborate with us</Link>
             <Link to="/privacy">Privacy</Link>
             <Link to="/terms">Terms</Link>
             <Link to="/waiver">Waiver</Link>

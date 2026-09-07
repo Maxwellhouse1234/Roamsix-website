@@ -69,7 +69,7 @@ const RESULTS = {
   membership: {
     eyebrow: 'Your strongest fit · The full 2027 journey',
     title: 'ROAMSIX Founding Membership',
-    copy: 'Stay connected across the year through weekly fireside conversations, the professional community, and first access to selected experiences.',
+    copy: 'Stay connected across the year through weekly fireside conversations, a cross-disciplinary circle, and first access to selected experiences.',
     action: 'Explore founding membership',
     href: '/membership',
     secondary: '$600 for the 2027 founding year',

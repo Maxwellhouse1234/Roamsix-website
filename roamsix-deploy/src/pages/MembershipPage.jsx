@@ -39,9 +39,9 @@ export default function MembershipPage() {
         <div className="container membership-hero-grid">
           <div>
             <p className="eyebrow">ROAMSIX Founding Membership · 2027</p>
-            <h1>Stay with the questions that shape your work and life.</h1>
-            <p className="page-lead">A year for people building the future of health, wellness, fitness, food, and human performance. Follow practical subjects over time, meet the people working beside them, and take part as ROAMSIX grows.</p>
-            <a className="button" href="#join">Secure founding membership</a>
+            <h1>Spend a year around ideas and people that move you forward.</h1>
+            <p className="page-lead">For founders, leaders, creators, practitioners, experts, and deeply curious people who want more than another room full of small talk. Follow consequential questions across disciplines, meet the people shaping them, and turn what you learn into how you live and lead.</p>
+            <a className="button button-accent" href="#join">Become a founding member</a>
           </div>
           <aside className="membership-price" aria-label="Membership price">
             <span>2027 founding year</span>
@@ -53,16 +53,30 @@ export default function MembershipPage() {
 
       <section className="section light-section">
         <div className="container split-copy">
-          <p className="eyebrow">What membership opens</p>
+          <p className="eyebrow">What the year opens</p>
           <div>
-            <h2>A consistent place to keep learning and connecting.</h2>
+            <h2>A place to keep becoming more informed, connected, and fully engaged.</h2>
             <div className="membership-benefits">
-              <article><span>01</span><h3>Weekly fireside conversations</h3><p>About an hour in person, following questions across microbiome health, recovery, resilience, and longevity.</p></article>
-              <article><span>02</span><h3>The professional community</h3><p>Build relationships with thoughtful people working across health, wellness, fitness, food, and human performance.</p></article>
-              <article><span>03</span><h3>First access</h3><p>Receive calendars, invitations, and reservation opportunities for selected ROAMSIX experiences before they are shared more broadly.</p></article>
-              <article><span>04</span><h3>A voice in what grows</h3><p>Founding members will be invited to give direct feedback as the membership experience and 2027 program take shape.</p></article>
+              <article><span>01</span><h3>Weekly fireside conversations</h3><p>Spend an hour in person with doctors, scientists, founders, makers, and practitioners exploring questions that affect how we live, work, lead, and age.</p></article>
+              <article><span>02</span><h3>A cross-disciplinary circle</h3><p>Build real relationships with people whose work and perspective would rarely place them in the same room.</p></article>
+              <article><span>03</span><h3>First access to what comes next</h3><p>Receive the calendar, early invitations, and priority opportunities for selected dinners, learning days, retreats, and journeys.</p></article>
+              <article><span>04</span><h3>A hand in shaping ROAMSIX</h3><p>Founding members will help us identify the questions, people, and experiences worth building as the 2027 program develops.</p></article>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="section light-section membership-audience-section">
+        <div className="container">
+          <p className="eyebrow">Who this is for</p>
+          <h2>Different fields. Shared appetite.</h2>
+          <p className="lead">You may be building a company, leading people, advancing a field, practicing a craft, changing careers, or simply refusing to let curiosity disappear from adult life. What matters is the way you enter the room.</p>
+          <div className="membership-audience-grid">
+            <article><h3>Builders and leaders</h3><p>Founders, executives, operators, and creators looking for sharper perspective and more substantial relationships.</p></article>
+            <article><h3>Experts and practitioners</h3><p>Scientists, physicians, coaches, educators, chefs, farmers, and specialists who value exchange across disciplines.</p></article>
+            <article><h3>Curious people in motion</h3><p>People drawn to better questions, lived experiences, and a community that asks more of life than passive consumption.</p></article>
+          </div>
+          <p className="membership-expert-note">Have expertise or research you want people to encounter differently? <Link className="text-link" to="/collaborate">Explore collaborating with ROAMSIX <span aria-hidden="true">→</span></Link></p>
         </div>
       </section>
 
@@ -80,8 +94,8 @@ export default function MembershipPage() {
         <div className="container membership-checkout-layout">
           <div>
             <p className="eyebrow">Founding membership</p>
-            <h2>Secure your place for 2027.</h2>
-            <p>Pay $600 today for the complete founding year. This purchase does not renew automatically. We will send the launch calendar and activation details before the program begins.</p>
+            <h2>Help shape the first year.</h2>
+            <p>Pay $600 today for the complete founding year. You will join the earliest circle around ROAMSIX and receive the launch calendar and activation details before the program begins. This purchase does not renew automatically.</p>
           </div>
           <form className="membership-checkout-form" onSubmit={checkout}>
             <label>Full name<input name="name" value={form.name} onChange={change} autoComplete="name" required /></label>
