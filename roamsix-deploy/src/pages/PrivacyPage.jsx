@@ -2,7 +2,7 @@ import LegalPage from "./LegalPage";
 
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" lastUpdated="June 2026">
+    <LegalPage title="Privacy Policy" lastUpdated="September 7, 2026">
 
       <div className="lp-section">
         <h2 className="lp-section-title">Information We Collect</h2>
@@ -16,6 +16,7 @@ export default function PrivacyPage() {
           <li>Medical conditions, injuries, mobility considerations, or dietary restrictions you choose to disclose</li>
           <li>Payment status (not full payment card details, which are handled by Stripe)</li>
           <li>Event registration details including package selected and registration date</li>
+          <li>Membership purchase, status, activation, and communication preferences</li>
           <li>How you heard about ROAMSIX</li>
           <li>Responses to optional intake questions</li>
           <li>Marketing source or referral information if applicable</li>
@@ -33,6 +34,7 @@ export default function PrivacyPage() {
           <li>Prepare for food allergies, dietary restrictions, and accessibility needs</li>
           <li>Contact your emergency contact if a medical situation arises</li>
           <li>Send event-related updates and follow-up communications</li>
+          <li>Administer membership, member communication, calendars, and invitations</li>
           <li>Improve the quality of future ROAMSIX events and offerings</li>
           <li>Send occasional marketing communications about future events (you may opt out at any time)</li>
         </ul>

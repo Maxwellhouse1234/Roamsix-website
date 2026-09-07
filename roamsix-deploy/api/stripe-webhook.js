@@ -208,12 +208,15 @@ export default async function handler(req, res) {
       event = req.body || {};
     }
 
-    if (!event || event.type !== "checkout.session.completed") {
+    if (!event || !["checkout.session.completed", "checkout.session.async_payment_succeeded"].includes(event.type)) {
       return res.status(200).json({ received: true });
     }
 
     // ── STEP 4: Extract all metadata (synchronous) ───────────────────────────
     const session               = event.data?.object || {};
+    if (session.payment_status && session.payment_status !== "paid") {
+      return res.status(200).json({ received: true, paymentPending: true });
+    }
     const sessionId             = session.id || "";
     const eventId               = session.metadata?.eventId || "";
     const packageId             = session.metadata?.packageId || "";
@@ -249,6 +252,12 @@ export default async function handler(req, res) {
     const host   = req.headers["x-forwarded-host"] || req.headers.host || "roamsix.com";
     const proto  = req.headers["x-forwarded-proto"] || "https";
     const origin = `${proto}://${host}`;
+
+    if (session.metadata?.purchaseType === "foundingMembership") {
+      const membershipWork = handleMembershipPurchase({ session, sessionId, customerName, email, amountPaid, registeredAt, origin });
+      await Promise.race([membershipWork, new Promise((resolve) => setTimeout(resolve, 25000))]);
+      return res.status(200).json({ received: true });
+    }
 
     // ── STEP 5: RUN ALL WORK WITHIN 25s, THEN ACK STRIPE ───────────────────────
     // Vercel terminates the function as soon as res.json() is called, so all
@@ -413,6 +422,69 @@ export default async function handler(req, res) {
       return res.status(200).json({ received: true, error: err.message });
     }
   }
+}
+
+async function handleMembershipPurchase({ session, sessionId, customerName, email, amountPaid, registeredAt, origin }) {
+  const membershipYear = session.metadata?.membershipYear || "2027";
+  const emailPermission = session.metadata?.emailConsent === "true" ? "Opted In" : "Transactional Only";
+  await captureCrmActivity({
+    contact: {
+      fullName: customerName,
+      email,
+      lifecycleStage: "Customer",
+      relationships: ["Priority Access", "Interest Subscriber"],
+      topics: ["2027 Program"],
+      sources: ["Website", "Stripe"],
+      emailPermission,
+      occurredAt: registeredAt,
+      consentUpdatedAt: registeredAt,
+      consentSource: "2027 Founding Membership checkout",
+      notes: `${membershipYear} Founding Membership paid in full. Activation expected Q1 ${membershipYear}.`,
+    },
+    engagement: {
+      engagementType: "Registered",
+      status: "Confirmed",
+      topic: "General",
+      eventName: `ROAMSIX Founding Membership — ${membershipYear}`,
+      occurredAt: registeredAt,
+      source: "Stripe",
+      amountPaid,
+      stripeSessionId: sessionId,
+      uniqueKey: `stripe:${sessionId}`,
+      details: `${membershipYear} founding year; one-time presale payment; no automatic renewal`,
+    },
+  });
+
+  if (!process.env.RESEND_API_KEY || !email) return;
+  const firstName = escapeMembershipHtml(customerName.split(" ")[0] || "there");
+  const safeEmail = escapeMembershipHtml(email);
+  const customerHtml = currentEmailPalette(`<!doctype html><html><body style="margin:0;background:#0C1220;font-family:Arial,sans-serif;"><table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px;background:#0C1220;"><tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#141C2A;"><tr><td style="padding:34px 40px;border-bottom:2px solid #B59558;"><div style="font-size:22px;font-weight:700;letter-spacing:5px;color:#E8DFD0;">ROAMSIX</div><div style="margin-top:6px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#B59558;">Founding Membership Confirmed</div></td></tr><tr><td style="padding:38px 40px;color:#C8C0B4;font-size:16px;line-height:1.75;"><p style="color:#E8DFD0;font-size:19px;">${firstName},</p><p>Your place in the ${membershipYear} ROAMSIX founding year is confirmed.</p><p>Your $${amountPaid.toFixed(2)} payment covers the complete founding year. Membership is expected to begin during the first quarter of ${membershipYear} and will run for 12 months from activation. It does not renew automatically.</p><p>We will send the launch calendar and activation details before the program begins. Until then, you can <a href="${origin}/events" style="color:#B59558;">explore the 2027 program</a>.</p><p style="margin-top:34px;color:#E8DFD0;">ROAMSIX<br><span style="color:#C8C0B4;">Bridging knowing and doing.</span></p></td></tr></table></td></tr></table></body></html>`);
+  const teamHtml = `<p><strong>New 2027 Founding Member</strong></p><p>${escapeMembershipHtml(customerName)} · ${safeEmail}</p><p>Paid: $${amountPaid.toFixed(2)}</p><p>Stripe session: ${escapeMembershipHtml(sessionId)}</p>`;
+
+  const requests = [
+    fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from: "ROAMSIX <info@roamsix.com>", to: [email], subject: "Your ROAMSIX Founding Membership is confirmed", html: customerHtml }),
+    }),
+    fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from: "ROAMSIX <info@roamsix.com>", to: ["max@roamsix.com", "jackie@roamsix.com"], reply_to: email, subject: `New Founding Member: ${customerName || email}`, html: teamHtml }),
+    }),
+  ];
+  const responses = await Promise.allSettled(requests);
+  responses.forEach((response) => {
+    if (response.status === "rejected") {
+      console.error("Membership email failed:", response.reason?.message || "unknown error");
+    } else if (!response.value.ok) {
+      console.error("Membership email failed:", response.value.status);
+    }
+  });
+}
+
+function escapeMembershipHtml(value) {
+  return String(value || "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
 }
 
 // ── EMAIL TEMPLATES ───────────────────────────────────────────────────────────

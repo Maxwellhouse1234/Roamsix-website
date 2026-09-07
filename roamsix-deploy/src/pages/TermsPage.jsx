@@ -2,7 +2,20 @@ import LegalPage from "./LegalPage";
 
 export default function TermsPage() {
   return (
-    <LegalPage title="Terms of Service" lastUpdated="August 20, 2026">
+    <LegalPage title="Terms of Service" lastUpdated="September 7, 2026">
+
+      <div className="lp-section">
+        <h2 className="lp-section-title">2027 Founding Membership Presale</h2>
+        <p>
+          The ROAMSIX Founding Membership is a prepaid membership for the 2027 founding year. The $600 membership fee is charged in full at checkout. It does not renew automatically. Any future membership year will require a separate offer and purchase.
+        </p>
+        <p>
+          The founding year is expected to begin during the first quarter of 2027 and will run for 12 months from activation. Membership includes the ongoing member experience and weekly fireside conversations. Dinners, one-day learning experiences, quarterly retreats, travel, lodging, and other separately ticketed experiences are not included unless the applicable offer expressly says otherwise.
+        </p>
+        <p>
+          A purchaser may request a full refund within 14 calendar days of purchase if membership has not yet activated. If ROAMSIX does not activate the 2027 founding membership by March 31, 2027, the purchaser may request a full refund. After the 14-day period or activation, whichever occurs first, the membership fee is nonrefundable except where required by law. Membership is personal and may not be resold.
+        </p>
+      </div>
 
       <div className="lp-section">
         <h2 className="lp-section-title">Event Registration and Payment</h2>

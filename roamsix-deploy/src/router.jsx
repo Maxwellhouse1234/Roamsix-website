@@ -23,6 +23,9 @@ import OliveGroveDinnerPage from './pages/OliveGroveDinnerPage';
 import ExperiencesPage from './pages/ExperiencesPage';
 import EmailPreferencesPage from './pages/EmailPreferencesPage';
 import FounderFriendInvitePage from './pages/FounderFriendInvitePage';
+import ExperienceFinderPage from './pages/ExperienceFinderPage';
+import MembershipPage from './pages/MembershipPage';
+import MembershipSuccessPage from './pages/MembershipSuccessPage';
 
 export const router = createBrowserRouter([
   { path: '/', element: <HomePage /> },
@@ -34,6 +37,9 @@ export const router = createBrowserRouter([
   { path: '/organizations', element: <OrganizationsPage /> },
   { path: '/about', element: <AboutPage /> },
   { path: '/experiences', element: <ExperiencesPage /> },
+  { path: '/find-your-experience', element: <ExperienceFinderPage /> },
+  { path: '/membership', element: <MembershipPage /> },
+  { path: '/membership/success', element: <MembershipSuccessPage /> },
 
   { path: '/events', element: <FieldworkPage /> },
   { path: '/events/q1', element: <FieldworkQuarterPage quarterSlug="q1" /> },

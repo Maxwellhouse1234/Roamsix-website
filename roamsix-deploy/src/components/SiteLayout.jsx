@@ -5,6 +5,7 @@ import { Menu, X } from 'lucide-react';
 const NAV = [
   ['Experiences', '/experiences'],
   ['2027 program', '/events'],
+  ['Membership', '/membership'],
   ['How it works', '/how-it-works'],
   ['Organizations', '/organizations'],
   ['About', '/about'],

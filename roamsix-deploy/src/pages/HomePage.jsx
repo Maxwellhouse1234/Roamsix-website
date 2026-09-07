@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import SiteLayout from '../components/SiteLayout';
 import OfferCta from '../components/OfferCta';
 import { retreatOffer } from '../config/retreatOffer';
+import ExperienceFinder from '../components/ExperienceFinder';
 
 const PILLARS = [
   ['Explore', 'Go deeper into the subject than a talk ever could, and further outside your comfort zone than you planned on.'],
@@ -23,9 +24,27 @@ export default function HomePage() {
           <h1>We bring people and experts together around the subjects that shape how we live.</h1>
           <p className="hero-copy">ROAMSIX creates hands-on retreats, dinners, and learning experiences that explore how we eat, move, recover, focus, connect, and age. Guided by experts and grounded in emerging science, each experience brings these ideas to life through distinctive places, practical activities, shared meals, and meaningful conversation.</p>
           <div className="button-row">
-            <Link className="button" to="/experiences">See upcoming experiences</Link>
-            <Link className="text-link light" to="/how-it-works">How ROAMSIX works <span aria-hidden="true">→</span></Link>
+            <Link className="button" to="/dinner#tickets">Reserve the September 19 dinner</Link>
+            <Link className="text-link light" to="/find-your-experience">Find your ROAMSIX fit <span aria-hidden="true">→</span></Link>
           </div>
+        </div>
+      </section>
+
+      <section className="dinner-deadline-strip">
+        <div className="container">
+          <p><strong>An Evening in the Olive Groves</strong><span>September 19 · Father’s Farmhouse · Reservations close September 14</span></p>
+          <Link className="text-link" to="/dinner#tickets">View the evening and reserve <span aria-hidden="true">→</span></Link>
+        </div>
+      </section>
+
+      <section className="section fog-section home-finder-section" id="find-your-fit">
+        <div className="container finder-layout">
+          <div>
+            <p className="eyebrow">Find your ROAMSIX experience</p>
+            <h2>Start with what you need.</h2>
+            <p className="lead">Four short questions will point you toward the dinner, conversation, retreat, membership, or private experience that fits best.</p>
+          </div>
+          <ExperienceFinder compact />
         </div>
       </section>
 
@@ -36,6 +55,17 @@ export default function HomePage() {
             <h2>Most learning stops just before the part that matters.</h2>
             <p className="lead">We learn from the expert, then bring the subject to life. ROAMSIX builds a journey around the idea so people can see it, taste it, move through it, question it, and decide how it belongs in their own work and life.</p>
           </div>
+        </div>
+      </section>
+
+      <section className="fieldwork-cta membership-home-cta">
+        <div className="container">
+          <div>
+            <p className="eyebrow">Founding membership · 2027</p>
+            <h2>Stay connected across the full year.</h2>
+            <p>Weekly fireside conversations, a professional community, and first access to selected ROAMSIX experiences. The 2027 founding year is $600 and does not renew automatically.</p>
+          </div>
+          <Link className="button" to="/membership">Explore membership</Link>
         </div>
       </section>
 

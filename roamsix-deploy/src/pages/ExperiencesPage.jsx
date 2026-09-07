@@ -39,6 +39,8 @@ export default function ExperiencesPage() {
           </div>
         </div>
       </section>
+
+      <section className="fieldwork-cta membership-home-cta"><div className="container"><div><p className="eyebrow">ROAMSIX Founding Membership · 2027</p><h2>Follow the full year.</h2><p>Join the weekly fireside conversations, build relationships across the professional community, and receive first access to selected experiences.</p></div><Link className="button" to="/membership">Explore membership · $600</Link></div></section>
     </SiteLayout>
   );
 }
