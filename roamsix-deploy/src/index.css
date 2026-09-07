@@ -83,6 +83,18 @@ p { margin: 0 0 1.25em; }
 .dinner-deadline-strip p { display: flex; align-items: baseline; gap: 18px; margin: 0; }
 .dinner-deadline-strip p span { font-size: .82rem; font-weight: 600; letter-spacing: .04em; }
 .dinner-deadline-strip .text-link { flex: 0 0 auto; }
+.buyer-story-intro { display: grid; grid-template-columns: minmax(180px,.34fr) 1fr; gap: 7vw; align-items: start; }
+.buyer-story-intro h2 { max-width: 850px; }
+.buyer-tensions, .home-bridge-grid { display: grid; grid-template-columns: repeat(3,1fr); margin-top: 64px; border-top: 1px solid var(--stone); }
+.buyer-tensions article, .home-bridge-grid article { padding: 32px 30px 18px 0; }
+.buyer-tensions article + article, .home-bridge-grid article + article { padding-left: 30px; border-left: 1px solid var(--stone); }
+.buyer-tensions span, .home-bridge-grid span { color: var(--rust); font: 600 .72rem 'Space Grotesk'; }
+.buyer-tensions h3, .home-bridge-grid h3 { margin-top: 26px; }
+.buyer-tensions p { color: var(--deep-gray); }
+.home-bridge-section h2 { max-width: 940px; }
+.home-bridge-grid { border-color: #404042; }
+.home-bridge-grid article + article { border-color: #404042; }
+.home-bridge-grid p { color: #c8c8c5; }
 
 .section { padding: clamp(80px, 11vw, 150px) 0; }
 .light-section { background: var(--warm-white); }
@@ -366,7 +378,7 @@ p { margin: 0 0 1.25em; }
   .mobile-nav { position: fixed; inset: 78px 0 0; background: var(--ink); color: var(--white); display: flex; flex-direction: column; padding: 34px 24px; gap: 0; transform: translateX(100%); transition: transform .25s ease; }
   .mobile-nav.open { transform: translateX(0); }
   .mobile-nav a { font: 600 clamp(2rem, 9vw, 3.5rem) 'Space Grotesk'; text-decoration: none; padding: 18px 0; border-bottom: 1px solid #39393b; }
-  .split-copy, .feature-grid, .audience-grid, .organization-options, .founder-grid, .form-layout, .dinner-included, .dinner-ticket-layout, .invite-layout, .finder-layout, .membership-hero-grid, .membership-boundaries, .membership-checkout-layout, .path-guide-result, .collaborate-layout { grid-template-columns: 1fr; }
+  .split-copy, .feature-grid, .audience-grid, .organization-options, .founder-grid, .form-layout, .dinner-included, .dinner-ticket-layout, .invite-layout, .finder-layout, .membership-hero-grid, .membership-boundaries, .membership-checkout-layout, .path-guide-result, .collaborate-layout, .buyer-story-intro { grid-template-columns: 1fr; }
   .finder-layout > div:first-child { position: static; }
   .dinner-deadline-strip .container, .dinner-deadline-strip p { align-items: flex-start; flex-direction: column; gap: 8px; }
   .theme-grid, .rhythm-grid { grid-template-columns: 1fr 1fr; }
@@ -393,6 +405,9 @@ p { margin: 0 0 1.25em; }
   body { font-size: 16px; }
   .hero { min-height: 88vh; }
   .hero-content { padding-top: 150px; }
+  .buyer-tensions, .home-bridge-grid { grid-template-columns: 1fr; margin-top: 42px; }
+  .buyer-tensions article, .buyer-tensions article + article, .home-bridge-grid article, .home-bridge-grid article + article { padding: 26px 0 16px; border-left: 0; border-bottom: 1px solid var(--stone); }
+  .home-bridge-grid article, .home-bridge-grid article + article { border-color: #404042; }
   .method-grid { grid-template-columns: 1fr; }
   .pillar-grid { grid-template-columns: 1fr; }
   .theme-grid, .rhythm-grid { grid-template-columns: 1fr; }

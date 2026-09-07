@@ -20,9 +20,9 @@ export default function HomePage() {
         <div className="hero-image" aria-hidden="true" />
         <div className="hero-shade" aria-hidden="true" />
         <div className="hero-content container">
-          <p className="eyebrow">Curated in-person experiences</p>
-          <h1>We bring people and experts together around the subjects that shape how we live.</h1>
-          <p className="hero-copy">ROAMSIX creates hands-on retreats, dinners, and learning experiences for executives, entrepreneurs, founders, business owners, independent professionals, and high performers who want to keep learning, living fully, and meeting people beyond their usual circles. Guided by experts and grounded in emerging science, each experience brings consequential ideas to life through distinctive places, practical activities, shared meals, and meaningful conversation.</p>
+          <p className="eyebrow">For people building full and consequential lives</p>
+          <h1>You have built a full life. Make sure you are still fully living it.</h1>
+          <p className="hero-copy">Ambition can quietly narrow the world to the same rooms, routines, inputs, and conversations. ROAMSIX brings executives, entrepreneurs, founders, business owners, independent professionals, and high performers into distinctive places with experts and people beyond their usual circles, so consequential ideas become experiences they can feel, question, and carry forward.</p>
           <div className="button-row">
             <Link className="button button-accent" to="/dinner#tickets">Reserve the September 19 dinner</Link>
             <Link className="text-link light" to="/find-your-experience">Find your ROAMSIX fit <span aria-hidden="true">→</span></Link>
@@ -37,6 +37,18 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="section light-section buyer-story-section">
+        <div className="container buyer-story-intro">
+          <p className="eyebrow">The problem beneath the calendar</p>
+          <div><h2>Life can become efficient and strangely small.</h2><p className="lead">You handle the work, the decisions, and the responsibility. Curiosity, meaningful connection, and the parts of life that expand you keep getting pushed to a quieter season that never quite arrives.</p></div>
+        </div>
+        <div className="container buyer-tensions">
+          <article><span>01</span><h3>The same circles</h3><p>Your world becomes shaped by people who work like you, think like you, and face the same pressures.</p></article>
+          <article><span>02</span><h3>More input, little integration</h3><p>You consume ideas through books, podcasts, meetings, and screens, with little space to test what belongs in your own life.</p></article>
+          <article><span>03</span><h3>Meaning deferred</h3><p>The experiences and relationships that make life feel expansive wait behind the next deadline, launch, or obligation.</p></article>
+        </div>
+      </section>
+
       <section className="section fog-section home-finder-section" id="find-your-fit">
         <div className="container finder-layout">
           <div>
@@ -45,6 +57,18 @@ export default function HomePage() {
             <p className="lead">Four short questions will point you toward the dinner, conversation, retreat, membership, or private experience that fits best.</p>
           </div>
           <ExperienceFinder compact />
+        </div>
+      </section>
+
+      <section className="section ink-section home-bridge-section">
+        <div className="container">
+          <p className="eyebrow">A clear way in</p>
+          <h2>From knowing something is missing to doing something about it.</h2>
+          <div className="home-bridge-grid">
+            <article><span>01</span><h3>Name what you need</h3><p>Use the experience finder or begin with the question already following you.</p></article>
+            <article><span>02</span><h3>Step into the right room</h3><p>Choose an evening, an ongoing circle, a deep retreat, or a private experience built for your people.</p></article>
+            <article><span>03</span><h3>Carry something forward</h3><p>Leave with a sharper understanding, a meaningful relationship, or a change you can bring into the way you live and lead.</p></article>
+          </div>
         </div>
       </section>
 
