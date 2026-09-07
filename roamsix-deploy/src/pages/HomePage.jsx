@@ -39,13 +39,14 @@ export default function HomePage() {
 
       <section className="section light-section buyer-story-section">
         <div className="container buyer-story-intro">
-          <p className="eyebrow">The problem beneath the calendar</p>
-          <div><h2>Life can become efficient and strangely small.</h2><p className="lead">You handle the work, the decisions, and the responsibility. Curiosity, meaningful connection, and the parts of life that expand you keep getting pushed to a quieter season that never quite arrives.</p></div>
+          <p className="eyebrow">Problems that hide inside a full life</p>
+          <div><h2>Some problems do not feel like problems until someone puts words to them.</h2><p className="lead">Nothing may be obviously wrong. Work is moving, the calendar is full, and you are still learning. Yet the way you spend your time can quietly narrow who you meet, what changes you, and how alive your life feels.</p></div>
         </div>
         <div className="container buyer-tensions">
-          <article><span>01</span><h3>The same circles</h3><p>Your world becomes shaped by people who work like you, think like you, and face the same pressures.</p></article>
-          <article><span>02</span><h3>More input, little integration</h3><p>You consume ideas through books, podcasts, meetings, and screens, with little space to test what belongs in your own life.</p></article>
-          <article><span>03</span><h3>Meaning deferred</h3><p>The experiences and relationships that make life feel expansive wait behind the next deadline, launch, or obligation.</p></article>
+          <article><span>01</span><h3>Your calendar expands. Your world repeats.</h3><p>You stay busy while spending time in the same places with people who work, think, and live much like you do.</p></article>
+          <article><span>02</span><h3>You keep learning. Very little changes.</h3><p>Books, podcasts, meetings, and screens add information, but rarely give you the conditions to test it, feel it, or use it.</p></article>
+          <article><span>03</span><h3>Your network grows. Your relationships thin out.</h3><p>You meet more people while having fewer conversations where nobody is pitching, performing, or rushing to the next thing.</p></article>
+          <article><span>04</span><h3>Time away gives relief. Then you return unchanged.</h3><p>A dinner, vacation, or weekend can interrupt the pressure without helping you see what needs to shift when ordinary life begins again.</p></article>
         </div>
       </section>
 
