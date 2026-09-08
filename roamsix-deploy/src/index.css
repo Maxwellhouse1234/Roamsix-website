@@ -174,6 +174,8 @@ p { margin: 0 0 1.25em; }
 
 .page-hero { padding: 210px 0 110px; background: var(--warm-white); border-bottom: 1px solid var(--stone); }
 .page-hero h1 { font-size: clamp(3.3rem, 7vw, 6.4rem); }
+.organization-hero { padding-top: 170px; padding-bottom: 85px; }
+.organization-hero h1 { font-size: clamp(3.2rem, 5.8vw, 5.6rem); }
 .retreat-hero { background: var(--ink); color: var(--white); }
 .retreat-hero .button { background: var(--white); color: var(--ink); border-color: var(--white); }
 .retreat-hero .button:hover { background: var(--fog); }
@@ -254,9 +256,9 @@ p { margin: 0 0 1.25em; }
 .capstone-cta::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 6px; background: var(--rust); }
 .capstone-cta .button { white-space: nowrap; }
 .membership-home-cta { background: linear-gradient(120deg, #18181a 0%, #241a16 100%); }
-.membership-hero { min-height: 88vh; display: flex; align-items: flex-end; padding: 200px 0 clamp(80px, 10vw, 135px); background: linear-gradient(120deg, rgba(10,10,10,.98), rgba(27,21,18,.96)), url('/images/events/guests-table-golden-hour-roamsix.jpg') center/cover; color: var(--white); }
+.membership-hero { min-height: 88vh; display: flex; align-items: flex-end; padding: 160px 0 64px; background: linear-gradient(120deg, rgba(10,10,10,.98), rgba(27,21,18,.96)), url('/images/events/guests-table-golden-hour-roamsix.jpg') center/cover; color: var(--white); }
 .membership-hero-copy { max-width: 1240px; }
-.membership-hero h1 { max-width: 920px; }
+.membership-hero h1 { max-width: 1040px; font-size: clamp(3rem, 5.8vw, 5.8rem); }
 .membership-proof-band { background: var(--rust); color: var(--white); }
 .membership-proof-band .container { display: grid; grid-template-columns: repeat(3, 1fr); }
 .membership-proof-band span { padding: 20px 24px; text-align: center; font-size: .82rem; font-weight: 700; letter-spacing: .04em; }
