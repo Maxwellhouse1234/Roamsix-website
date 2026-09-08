@@ -1,59 +1,53 @@
-import { useState } from 'react';
 import SiteLayout from '../components/SiteLayout';
 import { Link } from 'react-router-dom';
 
-const PILLARS = ['Move', 'Nourish', 'Recover', 'Connect', 'Explore', 'Build'];
-
-const PATHS = {
-  guest: {
-    label: 'I want to attend', eyebrow: 'Your path · Attend an experience', title: 'Choose the depth that fits your life.',
-    copy: 'Come for one evening, follow a subject through the year, or step into a multi-day retreat. You arrive curious. We take care of the journey from welcome to reflection.',
-    steps: ['Choose a question or format', 'Meet the expert and the people around it', 'Experience the idea through place, food, movement, and conversation', 'Leave with something concrete to carry forward'],
-    action: 'Find your experience', href: '/find-your-experience',
-  },
-  expert: {
-    label: 'I have expertise to share', eyebrow: 'Your path · Collaborate with us', title: 'Turn your work into something people can enter.',
-    copy: 'Bring the research, practice, craft, or question. We help translate it into a thoughtful experience without flattening its depth or turning it into a conventional lecture.',
-    steps: ['Introduce your work and the question behind it', 'Identify what people should understand, feel, or practice', 'Connect your perspective with the right place and collaborators', 'Build a guided experience around the idea'],
-    action: 'Introduce your work', href: '/collaborate',
-  },
-  organization: {
-    label: 'I lead a team', eyebrow: 'Your path · Build for an organization', title: 'Start with a question your people already face.',
-    copy: 'We shape a private experience around the capability, tension, or transition that matters to your team, then bring together the right faculty, environment, and practical work.',
-    steps: ['Clarify the real question beneath the request', 'Design the faculty, place, pace, and format', 'Guide the team through a shared learning journey', 'Create a bridge back to work'],
-    action: 'Start an organization conversation', href: '/organizations',
-  },
-};
+const PILLARS = ['Explore', 'Nourish', 'Move', 'Recover', 'Connect', 'Build'];
 
 export default function HowItWorksPage() {
-  const [selected, setSelected] = useState('guest');
-  const path = PATHS[selected];
-
   return (
     <SiteLayout>
-      <section className="page-hero"><div className="container narrow"><p className="eyebrow">How ROAMSIX works</p><h1>We build the experience around the question.</h1><p className="page-lead">Experts bring depth. Place, people, food, movement, and conversation turn that depth into something you can understand, feel, and use.</p></div></section>
-
-      <section className="section fog-section path-guide-section">
-        <div className="container">
-          <div className="path-guide-heading"><p className="eyebrow">Show me how it works</p><h2>What brings you here?</h2></div>
-          <div className="path-guide-tabs" role="tablist" aria-label="Choose your ROAMSIX path">
-            {Object.entries(PATHS).map(([key, option]) => <button key={key} type="button" role="tab" aria-selected={selected === key} className={selected === key ? 'active' : ''} onClick={() => setSelected(key)}>{option.label}</button>)}
-          </div>
-          <div className="path-guide-result" role="tabpanel">
-            <div><p className="eyebrow">{path.eyebrow}</p><h3>{path.title}</h3><p>{path.copy}</p><Link className="button button-accent" to={path.href}>{path.action}</Link></div>
-            <ol>{path.steps.map((step, index) => <li key={step}><span>0{index + 1}</span><p>{step}</p></li>)}</ol>
-          </div>
+      <section className="page-hero">
+        <div className="container narrow">
+          <p className="eyebrow">How ROAMSIX works</p>
+          <h1>Expert knowledge becomes a lived experience.</h1>
+          <p className="page-lead">ROAMSIX starts with a subject that affects how people live or perform. We bring together the right experts, environment, activities, meals, movement, and conversation so people can understand the science, practice it, and decide what to change.</p>
         </div>
       </section>
 
-      <section className="section light-section"><div className="container process-list">
-        <article><span>01</span><div><h2>Find the question worth leaving home for.</h2><p>The subject must matter in people’s real lives or work. We identify what they want to understand, what is being misunderstood, and what can honestly be experienced.</p></div></article>
-        <article><span>02</span><div><h2>Bring different perspectives together.</h2><p>A physician may explain the science. A farmer, chef, coach, artist, founder, or practitioner may reveal what the same subject looks like from another angle.</p></div></article>
-        <article><span>03</span><div><h2>Involve the whole person.</h2><div className="inline-pillars">{PILLARS.map((pillar) => <span key={pillar}>{pillar}</span>)}</div><p>Explore, Nourish, Move, Recover, Connect, and Build guide what people do. The balance changes with the subject, while the goal stays constant: make the learning tangible and useful.</p></div></article>
-        <article><span>04</span><div><h2>Design the sequence with purpose.</h2><p>Every detail, transition, and change of pace carries part of the story. The experience feels natural because the structure behind it is deliberate.</p></div></article>
-        <article><span>05</span><div><h2>Create a bridge back to life.</h2><p>People identify what changed in their understanding and what they want to apply. Follow-up conversations help the learning and relationships continue.</p></div></article>
-      </div></section>
-      <section className="closing-section"><div className="container"><p className="closing-line">Come curious. Leave seeing the whole system differently.</p><Link className="button" to="/find-your-experience">Find your way in</Link></div></section>
+      <section className="section light-section format-section">
+        <div className="container split-copy">
+          <p className="eyebrow">Choose a format</p>
+          <div><h2>Start with the amount of time you can make.</h2><p className="lead">Each format is complete on its own. More time allows for more practice, exploration, and connection around the subject.</p></div>
+        </div>
+        <div className="container format-grid">
+          <article><span>One evening</span><h3>Dinners and fireside conversations</h3><p>One focused subject explored through expert guidance, meaningful conversation, and a shared experience.</p></article>
+          <article><span>One day</span><h3>Immersive learning days</h3><p>Learn the science, see it applied, practice it, move, share a meal, and connect it to your own life or work.</p></article>
+          <article><span>One weekend</span><h3>Focused retreats</h3><p>Give a meaningful subject enough time for deeper learning, application, recovery, and relationships to develop.</p></article>
+          <article><span>Several days</span><h3>Deep retreats and journeys</h3><p>Follow one subject across experts, places, and practices, then build a clear plan for what continues at home.</p></article>
+        </div>
+      </section>
+
+      <section className="section ink-section">
+        <div className="container process-intro">
+          <p className="eyebrow">What ROAMSIX provides</p>
+          <h2>Every part of the experience serves the outcome.</h2>
+        </div>
+        <div className="container journey-list">
+          <article><span className="journey-number">01</span><div><h3>Define what should improve.</h3><p>We begin with a practical outcome: better energy, stronger recovery, healthier nutrition, greater longevity, clearer leadership, stronger relationships, or more sustainable performance.</p></div></article>
+          <article><span className="journey-number">02</span><div><h3>Bring together the right expertise and environment.</h3><p>Scientists, physicians, practitioners, coaches, farmers, chefs, leaders, and other specialists contribute where their knowledge is most useful. The setting helps people pay attention and engage differently.</p></div></article>
+          <article><span className="journey-number">03</span><div><h3>Make the learning physical and practical.</h3><div className="inline-pillars">{PILLARS.map((pillar) => <span key={pillar}>{pillar}</span>)}</div><p>People listen, question, taste, move, practice, reflect, and connect. Explore, Nourish, Move, Recover, Connect, and Build guide how the subject becomes something people can use.</p></div></article>
+          <article><span className="journey-number">04</span><div><h3>Build the bridge back to daily life.</h3><p>Participants identify the practices, decisions, and conversations that matter next. Follow-up learning helps turn a memorable experience into sustainable change.</p></div></article>
+        </div>
+      </section>
+
+      <section className="section fog-section">
+        <div className="container organization-callout">
+          <p className="eyebrow">Find your place to begin</p>
+          <h2>Choose a subject. Choose a format. We design the rest.</h2>
+          <p>Use the experience finder to match your interests with an evening, a day, a weekend, a multi-day retreat, or the full 2027 membership.</p>
+          <Link className="button button-accent" to="/#find-your-fit">Find your ROAMSIX experience</Link>
+        </div>
+      </section>
     </SiteLayout>
   );
 }

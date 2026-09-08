@@ -8,8 +8,8 @@ const PILLARS = [
   ['Explore', 'Go deeper into the subject than a talk ever could, and further outside your comfort zone than you planned on.'],
   ['Nourish', 'Understand how food, preparation, and nourishment shape the way we live and perform.'],
   ['Move', 'Put understanding into the body. Movement is how an idea stops being information and starts being something you can feel.'],
-  ['Recover', 'Create room for rest, reflection, and the conditions that help learning settle.'],
-  ['Connect', 'Learn alongside people who see the subject differently than you do, and build the kind of relationships that outlast the room.'],
+  ['Recover', 'Make space for rest, reflection, and the conditions that help learning settle.'],
+  ['Connect', 'Learn alongside people who see the subject differently than you do, and build relationships that outlast the experience.'],
   ['Build', 'Take what you experienced and build forward with it, onto a stronger foundation, in a way that works differently than before.'],
 ];
 
@@ -22,7 +22,7 @@ export default function HomePage() {
         <div className="hero-content container">
           <p className="eyebrow">For people building full and consequential lives</p>
           <h1>You have built a full life. Make sure you are still fully living it.</h1>
-          <p className="hero-copy">Ambition can quietly narrow the world to the same rooms, routines, inputs, and conversations. ROAMSIX brings executives, entrepreneurs, founders, business owners, independent professionals, and high performers into distinctive places with experts and people beyond their usual circles, so consequential ideas become experiences they can feel, question, and carry forward.</p>
+          <p className="hero-copy">A high-performing life requires more than financial security. It requires the health, energy, perspective, and relationships to sustain what you are building. ROAMSIX turns expert knowledge into lived experiences that help you invest in all of it.</p>
           <div className="button-row">
             <Link className="button button-accent" to="/dinner#tickets">Reserve the September 19 dinner</Link>
             <Link className="text-link light" to="/find-your-experience">Find your ROAMSIX fit <span aria-hidden="true">→</span></Link>
@@ -39,14 +39,26 @@ export default function HomePage() {
 
       <section className="section light-section buyer-story-section">
         <div className="container buyer-story-intro">
-          <p className="eyebrow">Problems that hide inside a full life</p>
-          <div><h2>Some problems do not feel like problems until someone puts words to them.</h2><p className="lead">Nothing may be obviously wrong. Work is moving, the calendar is full, and you are still learning. Yet the way you spend your time can quietly narrow who you meet, what changes you, and how alive your life feels.</p></div>
+          <p className="eyebrow">What success can leave unattended</p>
+          <div><h2>You can be doing well and still be underinvesting in the life that makes success worth having.</h2><p className="lead">Responsibility pulls attention toward work, family, and the future. Health gets postponed. Familiar routines replace exploration. Information piles up without changing how you live. These problems are easy to miss because life still looks successful.</p></div>
         </div>
         <div className="container buyer-tensions">
-          <article><span>01</span><h3>Your calendar expands. Your world repeats.</h3><p>You stay busy while spending time in the same places with people who work, think, and live much like you do.</p></article>
-          <article><span>02</span><h3>You keep learning. Very little changes.</h3><p>Books, podcasts, meetings, and screens add information, but rarely give you the conditions to test it, feel it, or use it.</p></article>
-          <article><span>03</span><h3>Your network grows. Your relationships thin out.</h3><p>You meet more people while having fewer conversations where nobody is pitching, performing, or rushing to the next thing.</p></article>
-          <article><span>04</span><h3>Time away gives relief. Then you return unchanged.</h3><p>A dinner, vacation, or weekend can interrupt the pressure without helping you see what needs to shift when ordinary life begins again.</p></article>
+          <article><span>01</span><h3>Your calendar expands. Your world repeats.</h3><p>The same routines, places, and professional circles keep you productive while limiting what challenges or renews you.</p></article>
+          <article><span>02</span><h3>You know more. Your life changes less.</h3><p>Books, podcasts, and experts add information. Without the right setting and practice, very little becomes part of how you live.</p></article>
+          <article><span>03</span><h3>You meet more people. Fewer expand how you think.</h3><p>A larger network does not guarantee honest conversation, meaningful relationships, or perspectives beyond your field.</p></article>
+          <article><span>04</span><h3>You take time away. The same patterns return.</h3><p>Relief can restore your energy for a few days. Lasting change requires the insight, practice, and support to live differently afterward.</p></article>
+        </div>
+      </section>
+
+      <section className="section ink-section home-entry-section">
+        <div className="container">
+          <p className="eyebrow">What brings you to ROAMSIX?</p>
+          <h2>Choose where you want to begin.</h2>
+          <div className="home-entry-grid">
+            <article><span>01</span><h3>For yourself</h3><p>Find the subject and format that match what you want to strengthen in your health, performance, relationships, or life.</p><a className="text-link light" href="#find-your-fit">Find your experience <span aria-hidden="true">→</span></a></article>
+            <article><span>02</span><h3>For your team</h3><p>Build stronger health, energy, resilience, leadership, and team performance around the needs of your organization.</p><Link className="text-link light" to="/organizations">Explore team experiences <span aria-hidden="true">→</span></Link></article>
+            <article><span>03</span><h3>With your expertise</h3><p>Work with ROAMSIX to turn your research, practice, place, or craft into an experience people can apply.</p><Link className="text-link light" to="/collaborate">Explore collaboration <span aria-hidden="true">→</span></Link></article>
+          </div>
         </div>
       </section>
 
@@ -54,22 +66,10 @@ export default function HomePage() {
         <div className="container finder-layout">
           <div>
             <p className="eyebrow">Find your ROAMSIX experience</p>
-            <h2>Start with what you need.</h2>
-            <p className="lead">Four short questions will point you toward the dinner, conversation, retreat, membership, or private experience that fits best.</p>
+            <h2>Start with the life you want to strengthen.</h2>
+            <p className="lead">Tell us what interests you, how you prefer to learn, and how much time you can make. We will match you with a ROAMSIX curriculum and format, then send the best options to your inbox.</p>
           </div>
           <ExperienceFinder compact />
-        </div>
-      </section>
-
-      <section className="section ink-section home-bridge-section">
-        <div className="container">
-          <p className="eyebrow">A clear way in</p>
-          <h2>From knowing something is missing to doing something about it.</h2>
-          <div className="home-bridge-grid">
-            <article><span>01</span><h3>Name what you need</h3><p>Use the experience finder or begin with the question already following you.</p></article>
-            <article><span>02</span><h3>Step into the right room</h3><p>Choose an evening, an ongoing circle, a deep retreat, or a private experience built for your people.</p></article>
-            <article><span>03</span><h3>Carry something forward</h3><p>Leave with a sharper understanding, a meaningful relationship, or a change you can bring into the way you live and lead.</p></article>
-          </div>
         </div>
       </section>
 
@@ -96,8 +96,8 @@ export default function HomePage() {
         <div className="container">
           <div>
             <p className="eyebrow">Founding membership · 2027</p>
-            <h2>Stay connected across the full year.</h2>
-            <p>Weekly fireside conversations, a cross-disciplinary circle of ambitious and curious people, and first access to selected ROAMSIX experiences. The 2027 founding year is $600 and does not renew automatically.</p>
+            <h2>Build better health, stronger relationships, and wider perspective across the year.</h2>
+            <p>Membership includes weekly expert-led fireside conversations, a cross-disciplinary community, and priority access to selected ROAMSIX dinners, learning days, and retreats.</p>
           </div>
           <Link className="button" to="/membership">Explore membership</Link>
         </div>
@@ -141,15 +141,15 @@ export default function HomePage() {
       <section className="section light-section">
         <div className="container organization-callout">
           <p className="eyebrow">For organizations</p>
-          <h2>Give your people something they can bring back with them.</h2>
-          <p>Organizations may support an individual’s place or speak with us about a future experience built around a question their people are already facing.</p>
-          <Link className="button button-secondary" to="/organizations">Start a conversation</Link>
+          <h2>Turn better health into a business advantage.</h2>
+          <p>ROAMSIX builds team experiences around applied health science, sustainable performance, leadership, communication, and the practices that help people perform better at work and at home.</p>
+          <Link className="button button-secondary" to="/organizations">Explore organization experiences</Link>
         </div>
       </section>
 
       <section className="closing-section">
         <div className="container">
-          <p className="closing-line">The right people change what’s possible.</p>
+          <p className="closing-line">Bridging knowing and doing.</p>
           <Link className="button" to="/experiences">See upcoming experiences</Link>
         </div>
       </section>
