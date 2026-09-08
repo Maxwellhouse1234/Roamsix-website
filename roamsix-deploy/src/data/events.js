@@ -85,7 +85,7 @@ export const events = [
       "Outdoor movement and recovery session",
       "Curated gift bag",
     ],
-    image: "/images/events/high-output-long-game.webp",
+    image: "/images/events/long-table-dinner-roamsix.jpg",
     status: "open",
     stripeEnabled: true,
     requiresAge21: true,
