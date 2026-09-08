@@ -2,13 +2,13 @@ import { useRef, useState } from 'react';
 import SiteLayout from '../components/SiteLayout';
 import { trackEvent } from '../lib/analytics';
 
-const EXPERT_TYPES = [
-  'Lead a fireside conversation or learning session',
-  'Join the faculty for a retreat',
-  'Develop an original experience around my work',
-  'Contribute a place, craft, ingredient, or method',
-  'I am open to the right format',
+const CONTRIBUTIONS = [
+  { title: 'Lead a fireside conversation or learning session', format: '60–90 minutes · In person', detail: 'A focused conversation or practical session built around one useful question.' },
+  { title: 'Join the faculty for a retreat', format: 'Two days or more · Multi-expert', detail: 'Contribute your expertise alongside specialists from other fields.' },
+  { title: 'Develop an original experience around my work', format: 'Custom format · Co-developed', detail: 'Build a dinner, learning day, retreat, or journey around your research or practice.' },
+  { title: 'Contribute a place, craft, ingredient, or method', format: 'Integrated contribution · Flexible', detail: 'Bring a setting, ingredient, process, or activity that makes the subject tangible.' },
 ];
+const EXPERT_TYPES = [...CONTRIBUTIONS.map(({ title }) => title), 'I am open to the right format'];
 
 export default function CollaboratePage() {
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', company: '', inquiryType: EXPERT_TYPES[0], message: '' });
@@ -60,7 +60,7 @@ export default function CollaboratePage() {
             <h2>Turn your expertise into an experience people can use.</h2>
             <p className="lead">You bring the research, practice, place, or craft. ROAMSIX designs the environment, format, activities, and supporting perspectives that help people understand it and apply it.</p>
             <ul className="collaborate-list">
-              {EXPERT_TYPES.slice(0, 4).map((type) => <li key={type}><button type="button" onClick={() => chooseContribution(type)}>{type}<span aria-hidden="true">→</span></button></li>)}
+              {CONTRIBUTIONS.map(({ title, format, detail }) => <li key={title}><details><summary>{title}</summary><div className="collaborate-detail"><span>{format}</span><p>{detail}</p><button type="button" onClick={() => chooseContribution(title)}>Choose this format <span aria-hidden="true">→</span></button></div></details></li>)}
             </ul>
           </div>
 

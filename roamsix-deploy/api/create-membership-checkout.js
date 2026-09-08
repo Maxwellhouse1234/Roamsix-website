@@ -1,7 +1,7 @@
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MEMBERSHIP_CAP = Number(process.env.MEMBERSHIP_CAP || 100);
-const ACTIVATION_UNIX = Number(process.env.MEMBERSHIP_ACTIVATION_UNIX || 1806508800);
-const LEGAL_VERSION = 'ROAMSIX_MEMBERSHIP_TERMS_V2_2026-09-08';
+const ACTIVATION_UNIX = Number(process.env.MEMBERSHIP_ACTIVATION_UNIX || 1799686800);
+const LEGAL_VERSION = 'ROAMSIX_MEMBERSHIP_TERMS_V3_2026-09-08';
 const PLANS = {
   monthly: { env: 'STRIPE_MEMBERSHIP_MONTHLY_PRICE_ID', amount: '$60', frequency: 'monthly' },
   quarterly: { env: 'STRIPE_MEMBERSHIP_QUARTERLY_PRICE_ID', amount: '$165', frequency: 'every three months' },

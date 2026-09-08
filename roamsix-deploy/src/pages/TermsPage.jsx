@@ -10,13 +10,13 @@ export default function TermsPage() {
           The ROAMSIX Founding Membership is limited to 100 members. It may be paid at $60 per month, $165 every three months, or $600 per year. All payment schedules include the same membership benefits.
         </p>
         <p>
-          Your payment method is collected when you reserve. No membership fee is charged until membership activates. Membership is expected to activate during the first quarter of 2027 and no later than March 31, 2027. If it does not activate by that date, no membership fee will be charged.
+          Your payment method is collected when you reserve. No membership fee is charged until membership begins on January 11, 2027. You may cancel at no cost before that date.
         </p>
         <p>
-          By selecting a payment schedule and affirmatively accepting these terms, you authorize ROAMSIX to charge the stated amount when membership activates and automatically at the selected frequency until you cancel. You may cancel online or by emailing info@roamsix.com before your next charge. Cancellation stops future charges and takes effect at the end of the paid billing period. Fees already charged are nonrefundable except where required by law.
+          By selecting a payment schedule and affirmatively accepting these terms, you authorize ROAMSIX to charge the stated amount on January 11, 2027 and automatically at the selected frequency until you cancel. You may cancel online or by emailing info@roamsix.com before your next charge. Cancellation stops future charges and takes effect at the end of the paid billing period. Fees already charged are nonrefundable except where required by law.
         </p>
         <p>
-          Before completing checkout, you will see the amount, billing frequency, automatic-renewal terms, and cancellation method. We will send a confirmation containing those terms, required renewal reminders, and advance notice of material fee changes. Membership includes weekly expert conversations, community access, and priority access to selected experiences. Ticketed dinners, learning days, retreats, travel, and lodging are separately priced unless an offer expressly says otherwise. Membership is personal and may not be resold.
+          Before completing checkout, you will see the amount, billing frequency, automatic-renewal terms, and cancellation method. We will send a confirmation containing those terms, required renewal reminders, and advance notice of material fee changes. Membership includes up to 40 expert conversations and admission to one ROAMSIX dinner during the membership year. Members receive a 15 percent discount on ROAMSIX learning days, quarterly retreats, and the year-end journey, plus early access and select member offers for family experiences. These experiences, travel, and lodging are separately priced except for the included dinner. Membership is personal and may not be resold.
         </p>
       </div>
 
