@@ -23,10 +23,18 @@ export default function SiteLayout({ children, theme = 'light' }) {
 
   useEffect(() => {
     if (location.hash) {
-      window.requestAnimationFrame(() => document.querySelector(location.hash)?.scrollIntoView({ block: 'start' }));
+      let secondFrame;
+      const firstFrame = window.requestAnimationFrame(() => {
+        secondFrame = window.requestAnimationFrame(() => document.getElementById(location.hash.slice(1))?.scrollIntoView({ block: 'start' }));
+      });
+      return () => {
+        window.cancelAnimationFrame(firstFrame);
+        if (secondFrame) window.cancelAnimationFrame(secondFrame);
+      };
     } else {
       window.scrollTo({ top: 0 });
     }
+    return undefined;
   }, [location.pathname, location.hash]);
 
   return (

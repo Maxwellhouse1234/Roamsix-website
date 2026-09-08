@@ -22,7 +22,6 @@ export default function OliveGroveDinnerPage() {
   const isTwoTickets = ticketType === 'two';
 
   useEffect(() => {
-    window.scrollTo(0, 0);
     fetch('/api/dinner-availability').then((response) => response.ok ? response.json() : null).then(setAvailability).catch(() => {});
   }, []);
   const update = (event) => setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
