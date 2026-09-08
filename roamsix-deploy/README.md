@@ -1,5 +1,19 @@
 # Roamsix Website - Deployment Guide
 
+## Membership billing configuration
+
+The recurring membership checkout requires these Vercel environment variables:
+
+- `STRIPE_MEMBERSHIP_MONTHLY_PRICE_ID`
+- `STRIPE_MEMBERSHIP_QUARTERLY_PRICE_ID`
+- `STRIPE_MEMBERSHIP_ANNUAL_PRICE_ID`
+- `MEMBERSHIP_ACTIVATION_UNIX` (defaults to March 31, 2027 at 9:00 a.m. Pacific)
+- `MEMBERSHIP_CAP` (defaults to 100)
+- `STRIPE_CUSTOMER_PORTAL_URL`
+- `VITE_STRIPE_CUSTOMER_PORTAL_URL`
+
+The Stripe product should have one recurring Price for each payment schedule. Activate Stripe's no-code Customer Portal and use its login URL for both portal variables. The daily membership compliance cron sends annual renewal-term reminders. Material price changes still require an operational notice 7 to 30 days before they take effect.
+
 ## 🚀 Deploy to Vercel (Easiest - 5 Minutes)
 
 ### Step 1: Create a GitHub Account (if you don't have one)

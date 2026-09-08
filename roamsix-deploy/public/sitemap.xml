@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.roamsix.com/</loc><lastmod>2026-08-13</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://www.roamsix.com/</loc><lastmod>2026-09-08</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://www.roamsix.com/experiences</loc><lastmod>2026-08-13</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://www.roamsix.com/find-your-experience</loc><lastmod>2026-09-07</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://www.roamsix.com/membership</loc><lastmod>2026-09-07</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.roamsix.com/find-your-experience</loc><lastmod>2026-09-08</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.roamsix.com/membership</loc><lastmod>2026-09-08</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>https://www.roamsix.com/first-retreat</loc><lastmod>2026-08-13</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>https://www.roamsix.com/events</loc><lastmod>2026-08-13</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>https://www.roamsix.com/events/q1</loc><lastmod>2026-08-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
@@ -11,8 +11,8 @@
   <url><loc>https://www.roamsix.com/events/q3</loc><lastmod>2026-08-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.roamsix.com/events/q4</loc><lastmod>2026-08-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.roamsix.com/events/olive-grove-dinner</loc><lastmod>2026-08-12</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://www.roamsix.com/how-it-works</loc><lastmod>2026-08-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://www.roamsix.com/organizations</loc><lastmod>2026-08-12</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.roamsix.com/how-it-works</loc><lastmod>2026-09-08</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.roamsix.com/organizations</loc><lastmod>2026-09-08</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://www.roamsix.com/about</loc><lastmod>2026-08-12</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://www.roamsix.com/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://www.roamsix.com/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>

@@ -214,9 +214,6 @@ export default async function handler(req, res) {
 
     // ── STEP 4: Extract all metadata (synchronous) ───────────────────────────
     const session               = event.data?.object || {};
-    if (session.payment_status && session.payment_status !== "paid") {
-      return res.status(200).json({ received: true, paymentPending: true });
-    }
     const sessionId             = session.id || "";
     const eventId               = session.metadata?.eventId || "";
     const packageId             = session.metadata?.packageId || "";
@@ -257,6 +254,10 @@ export default async function handler(req, res) {
       const membershipWork = handleMembershipPurchase({ session, sessionId, customerName, email, amountPaid, registeredAt, origin });
       await Promise.race([membershipWork, new Promise((resolve) => setTimeout(resolve, 25000))]);
       return res.status(200).json({ received: true });
+    }
+
+    if (session.payment_status && session.payment_status !== "paid") {
+      return res.status(200).json({ received: true, paymentPending: true });
     }
 
     // ── STEP 5: RUN ALL WORK WITHIN 25s, THEN ACK STRIPE ───────────────────────
@@ -426,6 +427,9 @@ export default async function handler(req, res) {
 
 async function handleMembershipPurchase({ session, sessionId, customerName, email, amountPaid, registeredAt, origin }) {
   const membershipYear = session.metadata?.membershipYear || "2027";
+  const billingCycle = session.metadata?.billingCycle || "annual";
+  const billingAmount = session.metadata?.billingAmount || "$600";
+  const billingFrequency = session.metadata?.billingFrequency || "annually";
   const emailPermission = session.metadata?.emailConsent === "true" ? "Opted In" : "Transactional Only";
   await captureCrmActivity({
     contact: {
@@ -439,7 +443,7 @@ async function handleMembershipPurchase({ session, sessionId, customerName, emai
       occurredAt: registeredAt,
       consentUpdatedAt: registeredAt,
       consentSource: "2027 Founding Membership checkout",
-      notes: `${membershipYear} Founding Membership paid in full. Activation expected Q1 ${membershipYear}.`,
+      notes: `${membershipYear} Founding Membership reserved with ${billingCycle} billing. Activation expected by March 31, ${membershipYear}.`,
     },
     engagement: {
       engagementType: "Registered",
@@ -451,15 +455,16 @@ async function handleMembershipPurchase({ session, sessionId, customerName, emai
       amountPaid,
       stripeSessionId: sessionId,
       uniqueKey: `stripe:${sessionId}`,
-      details: `${membershipYear} founding year; one-time presale payment; no automatic renewal`,
+      details: `${membershipYear} founding membership; ${billingAmount} billed ${billingFrequency}; renews automatically until canceled`,
     },
   });
 
   if (!process.env.RESEND_API_KEY || !email) return;
   const firstName = escapeMembershipHtml(customerName.split(" ")[0] || "there");
   const safeEmail = escapeMembershipHtml(email);
-  const customerHtml = currentEmailPalette(`<!doctype html><html><body style="margin:0;background:#0C1220;font-family:Arial,sans-serif;"><table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px;background:#0C1220;"><tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#141C2A;"><tr><td style="padding:34px 40px;border-bottom:2px solid #B59558;"><div style="font-size:22px;font-weight:700;letter-spacing:5px;color:#E8DFD0;">ROAMSIX</div><div style="margin-top:6px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#B59558;">Founding Membership Confirmed</div></td></tr><tr><td style="padding:38px 40px;color:#C8C0B4;font-size:16px;line-height:1.75;"><p style="color:#E8DFD0;font-size:19px;">${firstName},</p><p>Your place in the ${membershipYear} ROAMSIX founding year is confirmed.</p><p>Your $${amountPaid.toFixed(2)} payment covers the complete founding year. Membership is expected to begin during the first quarter of ${membershipYear} and will run for 12 months from activation. It does not renew automatically.</p><p>We will send the launch calendar and activation details before the program begins. Until then, you can <a href="${origin}/events" style="color:#B59558;">explore the 2027 program</a>.</p><p style="margin-top:34px;color:#E8DFD0;">ROAMSIX<br><span style="color:#C8C0B4;">Bridging knowing and doing.</span></p></td></tr></table></td></tr></table></body></html>`);
-  const teamHtml = `<p><strong>New 2027 Founding Member</strong></p><p>${escapeMembershipHtml(customerName)} · ${safeEmail}</p><p>Paid: $${amountPaid.toFixed(2)}</p><p>Stripe session: ${escapeMembershipHtml(sessionId)}</p>`;
+  const cancelUrl = process.env.STRIPE_CUSTOMER_PORTAL_URL || `${origin}/membership/manage`;
+  const customerHtml = currentEmailPalette(`<!doctype html><html><body style="margin:0;background:#0C1220;font-family:Arial,sans-serif;"><table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px;background:#0C1220;"><tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#141C2A;"><tr><td style="padding:34px 40px;border-bottom:2px solid #B59558;"><div style="font-size:22px;font-weight:700;letter-spacing:5px;color:#E8DFD0;">ROAMSIX</div><div style="margin-top:6px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#B59558;">Membership Reserved</div></td></tr><tr><td style="padding:38px 40px;color:#C8C0B4;font-size:16px;line-height:1.75;"><p style="color:#E8DFD0;font-size:19px;">${firstName},</p><p>One of 100 places in the ${membershipYear} ROAMSIX founding membership is reserved for you.</p><p>No membership fee was charged today. Your first charge will be ${escapeMembershipHtml(billingAmount)}, followed by automatic renewal ${escapeMembershipHtml(billingFrequency)} until you cancel. Membership will activate no later than March 31, ${membershipYear}, and we will confirm the date before the first charge.</p><p>You may cancel before your next charge through <a href="${cancelUrl}" style="color:#B59558;">online billing management</a> or by emailing info@roamsix.com.</p><p style="margin-top:34px;color:#E8DFD0;">ROAMSIX<br><span style="color:#C8C0B4;">Bridging knowing and doing.</span></p></td></tr></table></td></tr></table></body></html>`);
+  const teamHtml = `<p><strong>New 2027 Founding Membership reservation</strong></p><p>${escapeMembershipHtml(customerName)} · ${safeEmail}</p><p>${escapeMembershipHtml(billingAmount)} ${escapeMembershipHtml(billingFrequency)}</p><p>Stripe session: ${escapeMembershipHtml(sessionId)}</p>`;
 
   const requests = [
     fetch("https://api.resend.com/emails", {
