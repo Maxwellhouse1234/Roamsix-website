@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 export default function AboutPage() {
   return (
     <SiteLayout>
-      <section className="page-hero"><div className="container narrow"><p className="eyebrow">About ROAMSIX</p><h1>We built ROAMSIX for people who want to understand health by living it, not only hearing about it.</h1><p className="page-lead">The idea is simple: bring the right people into a real place, build a thoughtful journey around one subject, and let experience do part of the teaching.</p></div></section>
+      <section className="page-hero about-hero"><div className="container narrow"><p className="eyebrow">About ROAMSIX</p><h1>We built ROAMSIX for people who want to understand health by living it, not only hearing about it.</h1><p className="page-lead">The idea is simple: bring the right people into a real place, build a thoughtful journey around one subject, and let experience do part of the teaching.</p></div></section>
 
       <section className="section light-section"><div className="container founder-grid">
         <img src="/images/maxime-ouellette-founder.webp" alt="Maxime Ouellette, founder and CEO of ROAMSIX" />

@@ -174,8 +174,9 @@ p { margin: 0 0 1.25em; }
 
 .page-hero { padding: 210px 0 110px; background: var(--warm-white); border-bottom: 1px solid var(--stone); }
 .page-hero h1 { font-size: clamp(3.3rem, 7vw, 6.4rem); }
+.about-hero h1 { font-size: clamp(3rem, 5.2vw, 5rem); }
 .organization-hero { padding-top: 170px; padding-bottom: 85px; }
-.organization-hero h1 { font-size: clamp(3.2rem, 5.8vw, 5.6rem); }
+.organization-hero h1 { font-size: clamp(3rem, 4.8vw, 4.8rem); }
 .retreat-hero { background: var(--ink); color: var(--white); }
 .retreat-hero .button { background: var(--white); color: var(--ink); border-color: var(--white); }
 .retreat-hero .button:hover { background: var(--fog); }
