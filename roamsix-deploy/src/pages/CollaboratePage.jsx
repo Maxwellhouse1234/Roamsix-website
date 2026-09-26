@@ -3,9 +3,9 @@ import SiteLayout from '../components/SiteLayout';
 import { trackEvent } from '../lib/analytics';
 
 const CONTRIBUTIONS = [
-  { title: 'Lead a fireside conversation or learning session', format: '60–90 minutes · In person', detail: 'A focused conversation or practical session built around one useful question.' },
+  { title: 'Lead a fireside conversation or learning session', format: '60 to 90 minutes · In person', detail: 'A focused conversation or practical session built around one meaningful subject.' },
   { title: 'Join the faculty for a retreat', format: 'Two days or more · Multi-expert', detail: 'Contribute your expertise alongside specialists from other fields.' },
-  { title: 'Develop an original experience around my work', format: 'Custom format · Co-developed', detail: 'Build a dinner, learning day, retreat, or journey around your research or practice.' },
+  { title: 'Develop an original experience around my work', format: 'Custom format · Co-developed', detail: 'Build a conversation, learning day, retreat, or journey around your research or practice.' },
   { title: 'Contribute a place, craft, ingredient, or method', format: 'Integrated contribution · Flexible', detail: 'Bring a setting, ingredient, process, or activity that makes the subject tangible.' },
 ];
 const EXPERT_TYPES = [...CONTRIBUTIONS.map(({ title }) => title), 'I am open to the right format'];
@@ -48,8 +48,8 @@ export default function CollaboratePage() {
       <section className="page-hero collaborate-hero">
         <div className="container narrow">
           <p className="eyebrow">For experts and collaborators</p>
-          <h1>Bring your work into the real world.</h1>
-          <p className="page-lead">ROAMSIX works with scientists, physicians, practitioners, farmers, chefs, educators, artists, and other specialists whose ideas deserve to be experienced, questioned, and understood beyond a stage.</p>
+          <h1>Some ideas lose something when they stay on a stage.</h1>
+          <p className="page-lead">If your work deserves participation, context, and honest conversation, ROAMSIX can help people encounter it in a more memorable and human way.</p>
         </div>
       </section>
 
@@ -57,8 +57,8 @@ export default function CollaboratePage() {
         <div className="container collaborate-layout">
           <div>
             <p className="eyebrow">What we build together</p>
-            <h2>Turn your expertise into an experience people can use.</h2>
-            <p className="lead">You bring the research, practice, place, or craft. ROAMSIX designs the environment, format, activities, and supporting perspectives that help people understand it and apply it.</p>
+            <h2>Your work deserves a format that lets people feel its relevance.</h2>
+            <p className="lead">You bring the research, practice, place, or craft. ROAMSIX shapes the environment, pace, and participation around it so people can understand the idea, reflect on its meaning, and consider how it fits their lives.</p>
             <ul className="collaborate-list">
               {CONTRIBUTIONS.map(({ title, format, detail }) => <li key={title}><details><summary>{title}</summary><div className="collaborate-detail"><span>{format}</span><p>{detail}</p><button type="button" onClick={() => chooseContribution(title)}>Choose this format <span aria-hidden="true">→</span></button></div></details></li>)}
             </ul>
@@ -79,7 +79,7 @@ export default function CollaboratePage() {
               <label>Tell us about your work and the question you want people to explore<textarea name="message" value={form.message} onChange={change} rows="6" required /></label>
               {error ? <p className="form-error" role="alert">{error}</p> : null}
               <button className="button button-accent" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Sending…' : 'Introduce your work'}</button>
-              <p className="form-note">We review every inquiry personally. A thoughtful introduction is more useful than a formal pitch deck.</p>
+              <p className="form-note">We review every inquiry personally and choose collaborators for the quality, integrity, and relevance of their work. A considered introduction is more useful than a formal pitch deck.</p>
             </form>
           )}
         </div>

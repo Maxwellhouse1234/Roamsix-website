@@ -2,21 +2,24 @@ import LegalPage from "./LegalPage";
 
 export default function TermsPage() {
   return (
-    <LegalPage title="Terms of Service" lastUpdated="September 8, 2026">
+    <LegalPage title="Terms of Service" lastUpdated="September 26, 2026">
 
       <div className="lp-section">
-        <h2 className="lp-section-title">2027 Founding Membership Presale</h2>
+        <h2 className="lp-section-title">Annual Membership</h2>
         <p>
-          The ROAMSIX Founding Membership is limited to 100 members. It may be paid at $60 per month, $165 every three months, or $600 per year. All payment schedules include the same membership benefits.
+          Annual membership options are Core at $900 per year, Field at $2,200 per year, and Journey at $4,500 per year. Private membership is invitation-based and is offered only through a separate written scope.
         </p>
         <p>
-          Your payment method is collected when you reserve. No membership fee is charged until membership begins on January 11, 2027. You may cancel at no cost before that date.
+          Your first annual charge is collected when you complete Stripe Checkout. By selecting a tier and affirmatively accepting these terms, you authorize ROAMSIX to charge the displayed annual price now and automatically each year until you cancel. You may cancel online or by emailing info@roamsix.com before the next renewal. Cancellation stops future charges and takes effect at the end of the paid membership period. Fees already charged are nonrefundable except where required by law.
         </p>
         <p>
-          By selecting a payment schedule and affirmatively accepting these terms, you authorize ROAMSIX to charge the stated amount on January 11, 2027 and automatically at the selected frequency until you cancel. You may cancel online or by emailing info@roamsix.com before your next charge. Cancellation stops future charges and takes effect at the end of the paid billing period. Fees already charged are nonrefundable except where required by law.
+          Membership provides the access described for the selected option across eligible ROAMSIX conversations, gatherings, movement and outdoor experiences, and confirmed partner experiences. Capacity, booking windows, guest-pass eligibility, and event-specific rules apply. Partner benefits are offered only after their terms are signed and will be identified separately.
         </p>
         <p>
-          Before completing checkout, you will see the amount, billing frequency, automatic-renewal terms, and cancellation method. We will send a confirmation containing those terms, required renewal reminders, and advance notice of material fee changes. Membership includes up to 40 expert conversations and admission to one ROAMSIX dinner during the membership year. Members receive a 15 percent discount on ROAMSIX learning days, quarterly retreats, and the year-end journey, plus early access and select member offers for family experiences. These experiences, travel, and lodging are separately priced except for the included dinner. Membership is personal and may not be resold.
+          Membership opens in cohorts of up to 25 paid members to support continuity and meaningful participation. Your cohort is separate from your Core, Field, or Journey tier and does not restrict you to events with only that cohort. Event capacities are set separately for each format. When an active cohort is full, joining the next-cohort interest list does not reserve a place or create a membership.
+        </p>
+        <p>
+          If offered, the larger member gathering is reserved separately and has its own ticket price. It proceeds only after its cash costs are covered. The year-end Journey is purchased separately by every traveler and proceeds only after required deposits and minimum participation are secured. Some partner-hosted or premium experiences may have their own price, which will be stated before booking. The calendar develops throughout the year and does not guarantee a ROAMSIX-produced event every week. Membership is personal and may not be resold.
         </p>
       </div>
 
@@ -33,19 +36,19 @@ export default function TermsPage() {
       <div className="lp-section">
         <h2 className="lp-section-title">Refund and Cancellation Policy</h2>
         <p>
-          Unless the event page states otherwise, ticket sales are final. Guest cancellations do not receive cash refunds, but the dinner accommodation policy below is intended to help guests preserve the value of their reservation when plans change.
+          Unless an event page states otherwise, ticket sales are final. When an event offers a guest substitution or credit, the applicable deadline and conditions will be stated on that event's listing or confirmation.
         </p>
         <p>
-          For Saturday dinners, guests who contact <a href="mailto:info@roamsix.com" style={{ color: "#B8562F" }}>info@roamsix.com</a> by 5:00 p.m. Pacific on the Monday immediately before the dinner may choose either one approved guest-name substitution or a one-time credit equal to the amount paid toward a future comparable ROAMSIX dinner. Future reservations remain subject to availability. Approved replacement guests must complete all required participant information and agreements.
+          Approved replacement guests must complete all required participant information and agreements. Future reservations and any credits remain subject to availability and the terms stated for that experience. Tickets may not be resold.
         </p>
         <p>
-          After that Monday deadline, the final guest count is committed and ROAMSIX cannot promise a transfer or credit. We may still make a compassionate exception when circumstances warrant, but an exception is not guaranteed. Tickets may not be resold.
+          After an event-specific cancellation or substitution deadline, ROAMSIX cannot promise a transfer or credit. We may make a compassionate exception when circumstances warrant, but an exception is not guaranteed.
         </p>
         <p>
           No-shows forfeit their registration and are not eligible for a refund or credit.
         </p>
         <p>
-          Event formats other than dinners may have different cancellation or credit deadlines stated on their event page. To request an accommodation, contact us with your name, order details, and the event you reserved.
+          To request an accommodation, contact <a href="mailto:info@roamsix.com" style={{ color: "#B8562F" }}>info@roamsix.com</a> with your name, order details, and the experience you reserved.
         </p>
       </div>
 

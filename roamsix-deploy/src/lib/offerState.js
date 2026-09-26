@@ -10,9 +10,9 @@ const STATES = {
     message: 'Registration for the preview session is open.',
   },
   applications_open: {
-    label: 'Apply for the founding cohort',
+    label: 'Apply for the first group',
     href: '/first-retreat/apply',
-    message: 'Applications for the founding cohort are open.',
+    message: 'Applications for the first group are open.',
   },
   direct_sale_open: {
     label: 'Reserve your place',

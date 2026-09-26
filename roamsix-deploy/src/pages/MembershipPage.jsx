@@ -1,50 +1,55 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SiteLayout from '../components/SiteLayout';
-import { trackEvent } from '../lib/analytics';
-
-const PLANS = {
-  monthly: { name: 'Monthly', price: '$60', cadence: 'per month', annual: '$720 per year' },
-  quarterly: { name: 'Quarterly', price: '$165', cadence: 'every three months', annual: '$660 per year' },
-  annual: { name: 'Annual', price: '$600', cadence: 'per year', annual: '$50 per month equivalent' },
-};
-
-const YEAR_VALUE = [
-  ['Weekly expert conversations', 'Up to 40 included', '$35 each · up to $1,400'],
-  ['One ROAMSIX dinner', 'One admission included', '$175 value'],
-  ['ROAMSIX learning days', '15% member savings', 'Published individually'],
-  ['Quarterly retreats', '15% member savings', 'Published individually'],
-  ['Year-end journey', '15% member savings', 'Published individually'],
-  ['Family invitations', 'Early access and select member offers', 'Available experiences vary'],
-];
+import MembershipRequestForm from '../components/MembershipRequestForm';
+import { EXTRA_COST_EXPLANATION, GUEST_PASS_DEFINITION, MEMBERSHIP_TIERS } from '../data/membership';
 
 export default function MembershipPage() {
-  const [billingCycle, setBillingCycle] = useState('annual');
-  const [form, setForm] = useState({ name: '', email: '', termsAccepted: false, emailConsent: false });
-  const [status, setStatus] = useState('idle'); const [error, setError] = useState('');
-  const plan = PLANS[billingCycle];
-  function change(event) { const { name, value, type, checked } = event.target; setForm((current) => ({ ...current, [name]: type === 'checkbox' ? checked : value })); }
-  function selectPlan(key) { setBillingCycle(key); document.querySelector('#join')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-  async function checkout(event) {
-    event.preventDefault(); setStatus('loading'); setError('');
-    try {
-      const response = await fetch('/api/create-membership-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, billingCycle, acceptedAt: new Date().toISOString() }) });
-      const data = await response.json().catch(() => ({})); if (!response.ok || !data.url) throw new Error(data.error || 'Checkout could not be started.');
-      trackEvent('membership_checkout_start', { membership_year: '2027', billing_cycle: billingCycle }); window.location.href = data.url;
-    } catch (checkoutError) { setStatus('error'); setError(`${checkoutError.message} Please try again or email info@roamsix.com.`); }
+  const [requestedTier, setRequestedTier] = useState('Field');
+
+  function requestTier(tier) {
+    setRequestedTier(tier);
+    window.requestAnimationFrame(() => document.querySelector('#request-membership')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }
 
   return <SiteLayout theme="dark">
-    <section className="membership-hero"><div className="container membership-hero-copy"><p className="eyebrow">2027 founding membership · limited to 100 members</p><h1>Build a year around the health, knowledge, and people that help you live and perform better.</h1><p className="page-lead">A year-long curriculum led by scientists, physicians, practitioners, coaches, chefs, farmers, and other experts selected for the subject at hand.</p><a className="button button-accent" href="#year-included">See what your year includes</a></div></section>
+    <section className="membership-hero"><div className="container membership-hero-copy">
+      <p className="eyebrow">ROAMSIX membership</p><h1>Some questions are too important to leave to a single evening.</h1>
+      <p className="page-lead">Membership gives you an ongoing place to make sense of health, take part in practical experiences, and build relationships across health, wellness, and human performance.</p>
+      <div className="button-row"><a className="button button-accent" href="#pricing">Explore membership</a><Link className="text-link light" to="/member/login">Member sign in <span aria-hidden="true">→</span></Link></div>
+    </div></section>
 
-    <section className="membership-proof-band"><div className="container"><span>Up to 40 expert conversations</span><span>One dinner included</span><span>15% savings on select experiences</span></div></section>
+    <section className="section light-section"><div className="container membership-value-intro"><p className="eyebrow">Why membership</p><div><h2>Build a clearer view of your health over time.</h2><p className="lead">ROAMSIX brings carefully selected experts and practical experiences together so you can understand how different parts of your health affect one another.</p></div></div><div className="container membership-benefits">
+      <article><span>Clarity</span><h3>See how the pieces influence one another</h3><p>Make sense of nutrition, recovery, focus, movement, and longevity without treating each one as an isolated problem.</p></article>
+      <article><span>Access</span><h3>Know where to turn next</h3><p>Follow a developing calendar of experts, conversations, movement, nature, and relevant opportunities with confirmed partners.</p></article>
+      <article><span>Continuity</span><h3>Return instead of starting over</h3><p>Let one experience inform the next while choosing the subjects and formats that fit your life.</p></article>
+    </div></section>
 
-    <section className="section light-section" id="year-included"><div className="container membership-value-intro"><p className="eyebrow">Your 2027 membership</p><div><h2>Keep learning, applying, and connecting throughout the year.</h2><p className="lead">Each subject is explored through several credible perspectives, then connected to decisions and practices you can use. If 2027 is the year you want to change how you experience life, ROAMSIX gives that intention a structure.</p></div></div><div className="container membership-value-summary"><div><span>Included annual value</span><strong>$1,575</strong><p>Up to 40 expert conversations and one ROAMSIX dinner.</p></div><div><span>Plus</span><strong>15% savings</strong><p>On ROAMSIX learning days, quarterly retreats, and the year-end journey.</p></div></div><div className="container membership-inclusions" aria-label="2027 membership value"><div className="membership-inclusions-head"><span>Experience</span><span>Member benefit</span><span>Standalone value</span></div>{YEAR_VALUE.map(([experience,benefit,value]) => <div className="membership-inclusions-row" key={experience}><strong>{experience}</strong><span>{benefit}</span><span>{value}</span></div>)}</div><div className="container membership-value-footer"><p className="membership-value-note">The $1,575 figure counts only the included talks and dinner. Learning days, retreats, journeys, and family offers are priced separately, so their savings are additional.</p><a className="button button-accent" href="#pricing">See membership price</a></div></section>
+    <section className="section fog-section"><div className="container"><p className="eyebrow">The member journey</p><h2>Stay connected without feeling you have to do everything.</h2><p className="section-intro">New experiences open throughout the year. Join at any point and choose what feels useful now.</p><div className="member-path-grid">
+      <article><span>01</span><h3>Tell us what matters to you.</h3><p>Set your nonclinical interests and preferences so the calendar and updates are more relevant to you.</p></article>
+      <article><span>02</span><h3>See what is opening next.</h3><p>Receive member updates, invitations, and the booking access included with your membership.</p></article>
+      <article><span>03</span><h3>Choose what fits.</h3><p>Take part when the subject, people, place, or format feels useful. Stay connected between experiences.</p></article>
+    </div><div className="membership-inclusion-notes"><p><strong>Membership opens in small cohorts of up to 25.</strong> This keeps participation personal and gives relationships time to grow. The first group is the Founding Cohort; every cohort remains part of the wider ROAMSIX community.</p><p>Event capacity is set separately for each format and is not limited to one cohort.</p></div></div></section>
 
-    <section className="section fog-section membership-pricing-section" id="pricing"><div className="container"><p className="eyebrow">Join the 2027 founding membership</p><h2>One membership. Three ways to pay.</h2><p className="section-intro">All plans include the same year. Membership begins January 11, 2027 and renews automatically on the schedule you choose until you cancel.</p><div className="membership-pricing-grid">{Object.entries(PLANS).map(([key,item]) => <article className={key === 'annual' ? 'featured' : ''} key={key}>{key === 'annual' ? <span className="pricing-badge">Save $120</span> : null}<h3>{item.name}</h3><strong>{item.price}</strong><p>{item.cadence}</p><small>{item.annual}</small><button className={`button ${key === 'annual' ? 'button-accent' : 'button-secondary'}`} type="button" onClick={() => selectPlan(key)}>Choose {item.name.toLowerCase()}</button></article>)}</div></div></section>
+    <section className="section light-section membership-pricing-section" id="pricing"><div className="container"><p className="eyebrow">Annual membership options</p><h2>Choose the access that fits how you want to take part.</h2><p className="section-intro">Core is open for direct enrollment. Field and Journey begin with a brief conversation so we can protect the smaller-group access and make sure the membership matches how you want to take part.</p>
+      <div className="membership-tier-grid">{Object.entries(MEMBERSHIP_TIERS).map(([key, item]) => <article className={key === 'field' ? 'featured' : ''} key={key}>
+        {key === 'field' ? <span className="pricing-badge">Priority access</span> : null}<p className="eyebrow">Annual membership</p><h3>{item.name}</h3><strong>{item.price}</strong><p className="tier-audience"><strong>Best for:</strong> {item.forWhom}</p><p>{item.summary}</p><ul>{item.features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
+        {key === 'core' ? <Link className="button button-secondary" to="/membership/checkout/core">Start my Core membership</Link> : <button className={`button ${key === 'field' ? 'button-accent' : 'button-secondary'}`} type="button" onClick={() => requestTier(item.name)}>Request {item.name} membership</button>}
+      </article>)}
+      <article className="private-tier"><p className="eyebrow">By invitation</p><h3>Private</h3><strong>Written scope</strong><p className="tier-audience"><strong>Best for:</strong> A tailored relationship with ROAMSIX.</p><p>Private membership is considered individually and defined through a written scope. No public price or standard package is offered.</p><a className="text-link" href="mailto:info@roamsix.com?subject=ROAMSIX%20Private%20membership">Ask about Private membership <span aria-hidden="true">→</span></a></article>
+      </div>
+      <div className="membership-inclusion-notes"><p><strong>Guest passes:</strong> {GUEST_PASS_DEFINITION}</p><p><strong>Experiences with a separate price:</strong> {EXTRA_COST_EXPLANATION}</p><p><strong>Expert access:</strong> Specialist access is educational, not clinical. Introductions are made only when relevant and appropriate and are not guaranteed.</p></div>
+    </div></section>
 
-    <section className="section ink-section" id="join"><div className="container membership-checkout-layout"><div className="membership-offer"><p className="eyebrow">Limited to 100 founding members</p><h2>{plan.price} {plan.cadence}.</h2><p>Reserve your place now. No charge is made today. Your first charge will be January 11, 2027, when membership begins.</p><p>You may cancel at no cost before January 11. After membership begins, cancel any time before your next renewal to stop future charges.</p></div><form className="membership-checkout-form" onSubmit={checkout}><p className="eyebrow">Continue with {plan.name.toLowerCase()} billing</p><label>Full name<input name="name" value={form.name} onChange={change} autoComplete="name" required /></label><label>Email<input type="email" name="email" value={form.email} onChange={change} autoComplete="email" required /></label><label className="check"><input type="checkbox" name="termsAccepted" checked={form.termsAccepted} onChange={change} required /><span>I authorize ROAMSIX to charge {plan.price} {plan.cadence} beginning January 11, 2027. It will renew automatically at that price and frequency until I cancel. I can cancel online before the next charge. I agree to the <Link to="/terms">Membership Terms</Link> and <Link to="/privacy">Privacy Policy</Link>.</span></label><label className="check"><input type="checkbox" name="emailConsent" checked={form.emailConsent} onChange={change} /><span>Send me optional ROAMSIX news and invitations. Membership service emails are sent regardless of this choice.</span></label>{error ? <p className="form-error" role="alert">{error}</p> : null}<button className="button" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Opening secure checkout…' : `Reserve with ${plan.name.toLowerCase()} billing`}</button><p className="form-note">Secure checkout by Stripe. No charge is made today.</p></form></div></section>
+    <section className="section ink-section" id="request-membership"><div className="container membership-checkout-layout"><div className="membership-offer"><p className="eyebrow">Field and Journey membership</p><h2>Begin with a brief conversation.</h2><p>Tell us what would make membership useful to you. We will follow up personally and, if the membership is a match, send you the secure annual checkout link.</p><p>Submitting this form is not a membership, does not reserve a place, and does not count as payment.</p><div className="button-row"><button className={`button ${requestedTier === 'Field' ? 'button-accent' : 'button-secondary'}`} type="button" onClick={() => setRequestedTier('Field')}>Request Field</button><button className={`button ${requestedTier === 'Journey' ? 'button-accent' : 'button-secondary'}`} type="button" onClick={() => setRequestedTier('Journey')}>Request Journey</button></div></div><MembershipRequestForm key={requestedTier} tier={requestedTier} /></div></section>
 
-    <section className="section light-section"><div className="container faq"><p className="eyebrow">Membership questions</p><h2>Before you join.</h2><details><summary>When does membership and billing begin?</summary><p>Membership begins January 11, 2027. Your payment method is collected when you reserve, but your first charge is not made until January 11.</p></details><details><summary>Does membership renew automatically?</summary><p>Yes. It renews monthly, every three months, or annually according to your selection until you cancel. We will send required renewal notices and reminders.</p></details><details><summary>How do I cancel?</summary><p>You may cancel online at any time before your next charge through membership billing management. You may also email <a href="mailto:info@roamsix.com?subject=Cancel%20ROAMSIX%20membership">info@roamsix.com</a>.</p></details><details><summary>What is included?</summary><p>Membership includes up to 40 expert conversations and one ROAMSIX dinner. Members also save 15% on ROAMSIX learning days, quarterly retreats, and the year-end journey, with early access and select offers for family experiences. Travel and lodging are separate.</p></details></div></section>
+    <section className="section light-section"><div className="container faq"><p className="eyebrow">Before you join</p><h2>Practical details.</h2>
+      <details><summary>Why join before every experience is announced?</summary><p>Membership is ongoing access to the developing ROAMSIX calendar, member benefits, and community. New dates open throughout the year, and you choose what is relevant to you.</p></details>
+      <details><summary>What is a membership cohort?</summary><p>ROAMSIX membership opens in small groups of up to 25 so participation can stay personal and relationships can develop over time. Your cohort organizes part of your membership experience, but you still belong to the wider ROAMSIX community. Event capacities are set separately by format.</p></details>
+      <details><summary>What does a guest pass cover?</summary><p>{GUEST_PASS_DEFINITION} Guest passes do not include a larger member gathering, Journey travel, or a separately charged partner-hosted experience.</p></details>
+      <details><summary>Which experiences have their own price?</summary><p>{EXTRA_COST_EXPLANATION}</p></details>
+      <details><summary>Is expert access medical care?</summary><p>No. ROAMSIX offers education and community experiences, not diagnosis, treatment, clinical monitoring, or individualized medical advice.</p></details>
+      <details><summary>How do I manage renewal or cancel?</summary><p>Your annual charge is collected when you complete secure Stripe checkout and renews annually until you cancel. You can manage billing through the secure member area or email info@roamsix.com before your next renewal. Cancellation takes effect at the end of the paid membership period.</p></details>
+    </div></section>
   </SiteLayout>;
 }

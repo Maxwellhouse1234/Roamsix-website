@@ -1,4 +1,5 @@
 import { captureCrmActivity } from '../lib/crm.js';
+import { sendTransactionalEmail } from '../lib/transactional-email.js';
 
 const BASE_ID = 'app2b2mTCtAIMmo79';
 const LEGACY_INTEREST_TABLE_ID = 'tblZto5jr9k7C4fE3';
@@ -30,7 +31,7 @@ function crmTopics(data) {
   if (value.includes('sleep') || value.includes('q2-')) topics.push('Sleep & Recovery');
   if (value.includes('stress') || value.includes('resilience') || value.includes('q3-')) topics.push('Stress & Resilience');
   if (value.includes('strength') || value.includes('mobility') || value.includes('longevity') || value.includes('q4-')) topics.push('Strength & Longevity');
-  if (value.includes('2027-program')) topics.push('2027 Program');
+  if (value.includes('2027-program')) topics.push('2027 Themes and Calendar');
   if (value.includes('year-end')) topics.push('Year-End Journey');
   return topics;
 }
@@ -70,6 +71,10 @@ export default async function handler(req, res) {
   }
 
   const now = new Date().toISOString();
+  const isMembershipRequest = data.source === 'membership-request';
+  if (isMembershipRequest && !process.env.RESEND_API_KEY) {
+    return res.status(503).json({ success: false, error: 'Membership request email is not configured yet.' });
+  }
   const values = { ...data, participantStatus: 'interest', createdAt: now };
   let tableId = configuredTableId;
   let fields = {};
@@ -100,7 +105,7 @@ export default async function handler(req, res) {
       'Email Consent': data.emailConsent ? 'Yes' : 'No',
       'SMS Consent': data.smsConsent ? 'Yes' : 'No',
       'Terms Accepted': data.privacyAccepted ? 'Yes' : 'No',
-      'Status': 'Experience interest',
+      'Status': isMembershipRequest ? 'Membership request' : 'Experience interest',
     };
     fields = Object.fromEntries(Object.entries(fields).filter(([, value]) => value !== undefined));
   }
@@ -115,10 +120,12 @@ export default async function handler(req, res) {
       console.error('Retreat interest Airtable request failed with status', airtableResponse.status);
       return res.status(502).json({ success: false, error: 'We could not save your interest right now.' });
     }
+    const interestRecord = await airtableResponse.json().catch(() => ({}));
 
     const topics = crmTopics(data);
+    const isEventInterest = data.source === 'experience-page';
     const relationshipText = `${data.role} ${data.challenge}`.toLowerCase();
-    const relationships = ['Interest Subscriber'];
+    const relationships = [isMembershipRequest ? 'Prospective Member' : 'Interest Subscriber'];
     if (relationshipText.includes('collaborat')) relationships.push('Collaborator');
     if (relationshipText.includes('speaker')) relationships.push('Speaker');
     await captureCrmActivity({
@@ -129,7 +136,7 @@ export default async function handler(req, res) {
         mobile: data.mobile,
         organization: data.organization,
         role: data.role,
-        lifecycleStage: relationships.includes('Speaker') ? 'Speaker' : relationships.includes('Collaborator') ? 'Collaborator' : 'Interested',
+        lifecycleStage: relationships.includes('Speaker') ? 'Speaker' : relationships.includes('Collaborator') ? 'Collaborator' : isMembershipRequest ? 'Prospective Member' : 'Interested',
         relationships,
         topics,
         sources: ['Website'],
@@ -139,10 +146,10 @@ export default async function handler(req, res) {
         notes: `${data.professionalCategory}: ${data.challenge}`,
       },
       engagement: {
-        engagementType: relationships.includes('Speaker') ? 'Speaker' : relationships.includes('Collaborator') ? 'Collaborator' : 'Interested',
+        engagementType: relationships.includes('Speaker') ? 'Speaker' : relationships.includes('Collaborator') ? 'Collaborator' : isMembershipRequest ? 'Membership Request' : 'Interested',
         status: 'Active',
-        topic: topics[0] && !['2027 Program', 'Year-End Journey'].includes(topics[0]) ? topics[0] : 'General',
-        eventName: data.retreatSlug === 'fieldwork-curriculum' ? 'Fieldwork 2027 Program' : 'ROAMSIX Retreat Interest',
+        topic: topics[0] && !['2027 Themes and Calendar', 'Year-End Journey'].includes(topics[0]) ? topics[0] : 'General',
+        eventName: isEventInterest ? data.challenge.replace('Interested in:', '').trim() : isMembershipRequest ? data.professionalCategory : data.retreatSlug === 'fieldwork-curriculum' ? 'ROAMSIX 2027 Themes and Calendar' : 'ROAMSIX Retreat Interest',
         occurredAt: now,
         source: 'Website',
         uniqueKey: `retreat-interest:${data.email}:${data.campaign || data.retreatSlug}:${now}`,
@@ -150,15 +157,36 @@ export default async function handler(req, res) {
       },
     });
 
-    if (process.env.RESEND_API_KEY) {
+    if (isMembershipRequest) {
+      const requestId = interestRecord.id || `${data.email}:${now}`;
+      await Promise.all([
+        sendTransactionalEmail({
+          key: `membership-request:${requestId}:acknowledgment:${data.email}`,
+          purpose: 'membership-request-acknowledgment',
+          to: data.email,
+          subject: `We received your ${data.professionalCategory} request`,
+          html: `<p>Thank you for requesting <strong>${escapeHtml(data.professionalCategory)}</strong>.</p><p>We will follow up personally about the next step. This request is not a membership, does not reserve a place, and does not require payment.</p><p>ROAMSIX</p>`,
+        }),
+        sendTransactionalEmail({
+          key: `membership-request:${requestId}:notification:max@roamsix.com`,
+          purpose: 'membership-request-notification',
+          to: 'max@roamsix.com',
+          replyTo: data.email,
+          subject: `New ${data.professionalCategory} request`,
+          html: `<p><strong>${escapeHtml(data.firstName)} ${escapeHtml(data.lastName)}</strong></p><p>${escapeHtml(data.email)} · ${escapeHtml(data.role)}</p><p>${escapeHtml(data.professionalCategory)} · payment: ${escapeHtml(data.paymentSource)}</p><p>${escapeHtml(data.challenge)}</p>`,
+        }),
+      ]);
+    } else if (process.env.RESEND_API_KEY) {
       const emailRequests = [
         fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            from: 'ROAMSIX <info@roamsix.com>', to: [data.email], subject: data.retreatSlug === 'fieldwork-curriculum' ? 'Your ROAMSIX Fieldwork interest is confirmed' : 'Your ROAMSIX retreat interest is confirmed',
-            html: data.retreatSlug === 'fieldwork-curriculum'
-              ? `<p>Thank you for registering your interest in ROAMSIX Fieldwork.</p><p>We recorded: <strong>${escapeHtml(data.challenge.replace('Interested in:', '').trim())}</strong>.</p><p>We will share details as they are released and send a calendar invitation when an event in this area is scheduled.</p><p>ROAMSIX</p>`
+            from: 'ROAMSIX <info@roamsix.com>', to: [data.email], subject: isEventInterest ? 'Your ROAMSIX event interest is confirmed' : data.retreatSlug === 'fieldwork-curriculum' ? 'Your ROAMSIX calendar interest is confirmed' : 'Your ROAMSIX retreat interest is confirmed',
+            html: isEventInterest
+              ? `<p>Thank you for your interest in <strong>${escapeHtml(data.challenge.replace('Interested in:', '').trim())}</strong>.</p><p>We will share the confirmed location, timing, and registration details when places open. This does not reserve a place or require payment.</p><p>ROAMSIX</p>`
+              : data.retreatSlug === 'fieldwork-curriculum'
+              ? `<p>Thank you for registering your interest in the ROAMSIX themes and calendar.</p><p>We recorded: <strong>${escapeHtml(data.challenge.replace('Interested in:', '').trim())}</strong>.</p><p>We will share relevant dates, locations, and booking details as they are released.</p><p>ROAMSIX</p>`
               : '<p>Thank you for your interest in the first ROAMSIX professional field experience.</p><p>We are still validating the expert team, format, date, place, and investment. We will share a complete written offer before asking you to apply, reserve a place, or pay.</p><p>ROAMSIX</p>',
           }),
         }),
@@ -166,7 +194,7 @@ export default async function handler(req, res) {
           method: 'POST',
           headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            from: 'ROAMSIX <info@roamsix.com>', to: ['max@roamsix.com'], subject: 'New first-retreat interest',
+            from: 'ROAMSIX <info@roamsix.com>', to: ['max@roamsix.com'], subject: isEventInterest ? 'New ROAMSIX event interest' : 'New ROAMSIX program interest',
             html: `<p><strong>${escapeHtml(data.firstName)} ${escapeHtml(data.lastName)}</strong></p><p>${escapeHtml(data.email)} · ${escapeHtml(data.role)}</p><p>${escapeHtml(data.professionalCategory)} · payment: ${escapeHtml(data.paymentSource)}</p><p>${escapeHtml(data.challenge)}</p>`,
           }),
         }),

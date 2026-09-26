@@ -1,46 +1,19 @@
 import { Link } from 'react-router-dom';
 import SiteLayout from '../components/SiteLayout';
+import EventInterestForm from '../components/EventInterestForm';
 
 export default function ExperiencesPage() {
-  return (
-    <SiteLayout>
-      <section className="page-hero">
-        <div className="container narrow">
-          <p className="eyebrow">Upcoming ROAMSIX experiences</p>
-          <h1>Choose how you want to take part.</h1>
-          <p className="page-lead">Join us for a dinner, experience a subject firsthand at a hands-on retreat, or follow a year of questions about how we eat, move, recover, focus, connect, and age.</p>
-        </div>
-      </section>
-
-      <section className="section light-section">
-        <div className="container organization-options">
-          <article>
-            <p className="eyebrow">Dinner · September 19, 2026</p>
-            <h2>An Evening in the Olive Groves</h2>
-            <p>A garden tour and farm-to-table dinner at Father’s Farmhouse in Winchester, California. Tickets are available now.</p>
-            <Link className="button" to="/dinner">View dinner details</Link>
-          </article>
-          <article>
-            <p className="eyebrow">Upcoming retreat</p>
-            <h2>The Microbiome in Practice</h2>
-            <p>A hands-on retreat guided by experts and grounded in emerging science, following the microbiome from soil and food into movement, focus, and recovery.</p>
-            <Link className="button" to="/first-retreat">View retreat preview</Link>
-          </article>
-        </div>
-      </section>
-
-      <section className="section fog-section">
-        <div className="container split-copy">
-          <p className="eyebrow">2027 program</p>
-          <div>
-            <h2>A full year of conversations, one-day experiences, and retreats.</h2>
-            <p className="lead">Explore four practical themes across microbiome health, recovery, resilience, and longevity. Follow a single topic or stay with the program throughout the year.</p>
-            <Link className="button button-secondary" to="/events">Explore the 2027 program</Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="fieldwork-cta membership-home-cta"><div className="container"><div><p className="eyebrow">ROAMSIX Founding Membership · 2027</p><h2>Follow the full year.</h2><p>Join the weekly fireside conversations, build relationships across the professional community, and receive first access to selected experiences.</p></div><Link className="button" to="/membership">Explore membership · $600</Link></div></section>
-    </SiteLayout>
-  );
+  return <SiteLayout>
+    <section className="page-hero editorial-page-hero"><div className="container narrow"><p className="eyebrow">A place to begin</p><h1>When health advice starts to blur together, one clear conversation can help.</h1><p className="page-lead">ROAMSIX events bring carefully selected experts into small, welcoming settings so you can understand what matters, ask better questions, and leave knowing what you want to explore next.</p></div></section>
+    <section className="section light-section"><div className="container experience-status-grid">
+      <article className="experience-feature-card"><p className="eyebrow">October 24, 2026 · San Diego</p><h2>The gut-brain connection: food, stress, and everyday performance.</h2><p className="lead">Gut-health advice is everywhere. Knowing what deserves your attention is harder.</p><p>Dr. Sulaiman Bharwani joins ROAMSIX for a conversation about the relationship between the gut and brain, how stress can show up across the mind and body, and the daily choices that support recovery and resilience. We will talk about food, sleep, movement, breathing, and decision-making, and separate useful guidance from misinformation and oversimplified health claims.</p><a className="button button-accent" href="#dr-sal-interest">Tell me when registration opens</a><p className="form-note">Registration is not open yet. Joining the interest list does not reserve a place.</p></article>
+      <aside className="experience-status-note"><p className="eyebrow">Confirmed so far</p><h3>October 24, 2026 in San Diego</h3><p>The date, city, expert, and topic are confirmed. The venue will be announced after it is selected.</p><h3>A focused evening with Dr. Sal</h3><p>A moderated conversation followed by audience questions and time to connect.</p><h3>Registration details to come</h3><p>Venue, capacity, hospitality, timing, and price will be shared before registration opens.</p></aside>
+    </div></section>
+    <section className="section fog-section" id="dr-sal-interest"><div className="container form-layout event-interest-panel"><div><p className="eyebrow">October 24, 2026 · San Diego</p><h2>Know when registration opens.</h2><p>Share your name and email. We will send the venue and final registration details when they are ready. Joining the interest list does not reserve a place.</p></div><EventInterestForm eventId="dr-sal-gut-brain-2026" eventName="October 24, 2026 with Dr. Sulaiman Bharwani in San Diego" /></div></section>
+    <section className="section ink-section"><div className="container expert-profile">
+      <div className="profile-placeholder dark" role="img" aria-label="Dr. Sulaiman Bharwani portrait placeholder"><span>SB</span></div>
+      <div><p className="eyebrow">Featured expert</p><h2>Dr. Sulaiman Bharwani</h2><p className="profile-role">Founder, GutRewired</p><p className="lead">Pediatric gastroenterologist and educator focused on the gut-brain connection, microbiome, nutrition, and practical strategies for long-term health. Dr. Bharwani brings decades of clinical, academic, and teaching experience to conversations that translate complex science into useful, everyday understanding.</p></div>
+    </div></section>
+    <section className="section fog-section"><div className="container organization-options"><article><p className="eyebrow">Explore what is ahead</p><h2>Four themes. A more complete view of your health.</h2><p>See how gut health, recovery, focus, and longevity influence one another.</p><Link className="button" to="/events">Explore the year</Link></article><article><p className="eyebrow">Stay connected</p><h2>Keep exploring after the evening ends.</h2><p>Membership gives you ongoing invitations, booking access, and a community to return to.</p><Link className="button button-accent" to="/membership">Find the membership that fits me</Link></article></div></section>
+  </SiteLayout>;
 }

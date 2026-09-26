@@ -1,7 +1,9 @@
+import { retryFailedTransactionalEmails, sendTransactionalEmail } from '../../lib/transactional-email.js';
+
 const PLANS = {
-  [process.env.STRIPE_MEMBERSHIP_MONTHLY_PRICE_ID]: { amount: '$60', frequency: 'monthly' },
-  [process.env.STRIPE_MEMBERSHIP_QUARTERLY_PRICE_ID]: { amount: '$165', frequency: 'every three months' },
-  [process.env.STRIPE_MEMBERSHIP_ANNUAL_PRICE_ID]: { amount: '$600', frequency: 'annually' },
+  [process.env.STRIPE_MEMBERSHIP_CORE_PRICE_ID]: { amount: '$900', frequency: 'annually', tier: 'Core' },
+  [process.env.STRIPE_MEMBERSHIP_FIELD_PRICE_ID]: { amount: '$2,200', frequency: 'annually', tier: 'Field' },
+  [process.env.STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID]: { amount: '$4,500', frequency: 'annually', tier: 'Journey' },
 };
 
 async function stripe(path, options = {}) {
@@ -23,17 +25,24 @@ async function sendReminder(subscription, plan) {
   const customer = subscription.customer || {};
   if (!customer.email) return false;
   const portal = process.env.STRIPE_CUSTOMER_PORTAL_URL || 'https://www.roamsix.com/membership/manage';
-  const html = `<p>Your ROAMSIX membership renews automatically at ${plan.amount} ${plan.frequency} until canceled.</p><p>You can review, manage, or cancel your membership online before your next charge: <a href="${portal}">${portal}</a>.</p><p>Questions? Email info@roamsix.com.</p>`;
-  const response = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json', 'Idempotency-Key': `membership-annual-reminder-${subscription.id}-${new Date().getUTCFullYear()}` }, body: JSON.stringify({ from: 'ROAMSIX <info@roamsix.com>', to: [customer.email], subject: 'Your ROAMSIX membership renewal terms', html }) });
-  if (!response.ok) throw new Error(`Resend ${response.status}`);
+  const html = `<p>Your ROAMSIX ${plan.tier} membership renews automatically at ${plan.amount} ${plan.frequency} until canceled.</p><p>You can review, manage, or cancel your membership online before your next charge: <a href="${portal}">${portal}</a>.</p><p>Questions? Email info@roamsix.com.</p>`;
+  await sendTransactionalEmail({
+    key: `membership-annual-reminder:${subscription.id}:${new Date().getUTCFullYear()}:${customer.email}`,
+    purpose: 'membership-renewal-reminder',
+    to: customer.email,
+    subject: 'Your ROAMSIX membership renewal terms',
+    html,
+  });
   return true;
 }
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
   if (!process.env.CRON_SECRET || req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) return res.status(401).json({ error: 'Unauthorized' });
-  if (!process.env.STRIPE_SECRET_KEY || !process.env.RESEND_API_KEY) return res.status(503).json({ error: 'Membership reminders are not configured' });
+  const required = ['STRIPE_SECRET_KEY', 'RESEND_API_KEY', 'AIRTABLE_TOKEN', 'STRIPE_CUSTOMER_PORTAL_URL', 'STRIPE_MEMBERSHIP_CORE_PRICE_ID', 'STRIPE_MEMBERSHIP_FIELD_PRICE_ID', 'STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID'];
+  if (required.some((name) => !process.env[name])) return res.status(503).json({ error: 'Membership email automation is not configured' });
   try {
+    const retries = await retryFailedTransactionalEmails(25);
     const params = new URLSearchParams({ status: 'active', limit: '100' }); params.append('expand[]', 'data.customer');
     const subscriptions = await stripe(`subscriptions?${params}`);
     const now = new Date(); let sent = 0;
@@ -47,6 +56,6 @@ export default async function handler(req, res) {
         await stripe(`subscriptions/${subscription.id}`, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: metadata.toString() }); sent += 1;
       }
     }
-    return res.status(200).json({ checked: (subscriptions.data || []).length, sent });
+    return res.status(200).json({ checked: (subscriptions.data || []).length, sent, retries });
   } catch (error) { console.error('Membership compliance cron failed:', error.message); return res.status(500).json({ error: 'Membership reminder automation failed' }); }
 }

@@ -2,17 +2,27 @@
 
 ## Membership billing configuration
 
-The recurring membership checkout requires these Vercel environment variables:
+The V10 founding membership checkout and member area require these Vercel environment variables:
 
-- `STRIPE_MEMBERSHIP_MONTHLY_PRICE_ID`
-- `STRIPE_MEMBERSHIP_QUARTERLY_PRICE_ID`
-- `STRIPE_MEMBERSHIP_ANNUAL_PRICE_ID`
-- `MEMBERSHIP_ACTIVATION_UNIX` (defaults to March 31, 2027 at 9:00 a.m. Pacific)
-- `MEMBERSHIP_CAP` (defaults to 100)
+- `STRIPE_MEMBERSHIP_CORE_PRICE_ID` (annual recurring price: $900)
+- `STRIPE_MEMBERSHIP_FIELD_PRICE_ID` (annual recurring price: $2,200)
+- `STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID` (annual recurring price: $4,500)
+- `STRIPE_MEMBERSHIP_PRIVATE_PRICE_ID` (optional; Private remains invitation-based)
+- `ACTIVE_MEMBERSHIP_COHORT_ID` (set to `founding` for the first cohort)
+- `ACTIVE_MEMBERSHIP_COHORT_LABEL` (set to `Founding Cohort` for the first cohort)
+- `MEMBERSHIP_COHORT_CAPACITY` (set to `25`)
 - `STRIPE_CUSTOMER_PORTAL_URL`
 - `VITE_STRIPE_CUSTOMER_PORTAL_URL`
+- `MEMBER_AUTH_SECRET` (at least 32 random bytes; used only to sign short-lived login links and HTTP-only sessions)
+- `MEMBERSHIP_INVITE_SECRET` (at least 32 random bytes; signs expiring Field and Journey invitation links; use a different value from `MEMBER_AUTH_SECRET`)
+- `MEMBERSHIP_APPROVAL_SECRET` (at least 32 random bytes; authorizes the manual approval-to-invitation endpoint)
+- `PUBLIC_SITE_URL` (optional for invitation generation; defaults to `https://roamsix.com`)
+- `RESEND_WEBHOOK_SECRET`, `CRON_SECRET`, and `STRIPE_CUSTOMER_PORTAL_URL`
+- Optional: `ROAMSIX_CRM_EMAIL_TABLE_ID`, `ROAMSIX_CRM_APPROVALS_TABLE_ID`, `ROAMSIX_CRM_MEMBERSHIP_TABLE_ID`, and `TRANSACTIONAL_EMAIL_MAX_RETRIES`
+- `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `AIRTABLE_TOKEN`, and `RESEND_API_KEY`
+- `VITE_HOLLY_PUBLIC_PROFILE_APPROVED=true` (Holly Beck's approved profile and title are cleared for publication)
 
-The Stripe product should have one recurring Price for each payment schedule. Activate Stripe's no-code Customer Portal and use its login URL for both portal variables. The daily membership compliance cron sends annual renewal-term reminders. Material price changes still require an operational notice 7 to 30 days before they take effect.
+Create one annual recurring Stripe Price for each tier. Core is publicly purchasable. Field and Journey require a signed, expiring invitation tied to the approved email, tier, and active cohort. Run `npm run email:provision` once to create or update the Airtable operations tables, then use `npm run membership:approve -- <approval-id> <field|journey> <approved-email> <approved-by> [name] [hours]` after human approval. The member area verifies membership against Stripe, stores nonclinical member preferences in the existing Airtable CRM, and uses Resend for 15-minute magic sign-in links. The daily compliance cron sends annual renewal-term reminders and retries failed transactional messages. Membership is organized in small cohorts of up to 25; duplicate paid Checkout sessions for the same email or Stripe customer count once. When the configured operating guideline is reached, enrollment moves to an interest-list state until ROAMSIX intentionally activates the next cohort. See `MEMBERSHIP_COHORT_OPERATIONS.md` and `EMAIL_OPERATIONS.md`.
 
 ## 🚀 Deploy to Vercel (Easiest - 5 Minutes)
 

@@ -1,7 +1,9 @@
 export const FIELDWORK_PROGRAM = [
   {
     slug: 'q1', quarter: 'Q1 · January–March', subject: 'Microbiome and Gut Health', title: 'The living system within us',
-    description: 'Follow the connections among soil, food, the microbiome, the gut-brain axis, movement, and metabolic health.',
+    recognition: 'It can be difficult to know which gut-health advice is useful, which is overstated, and what food, stress, sleep, and movement have to do with one another.',
+    description: 'Explore how soil, food, the microbiome, the gut-brain axis, movement, and metabolic health influence one another.',
+    outcome: 'Leave with a clearer picture of the system and a more grounded way to think about your own choices.',
     retreat: 'The Microbiome in Practice',
     fields: 'Gastroenterology · Nutrition · Regenerative agriculture · Culinary science · Movement · Recovery',
     months: [
@@ -12,7 +14,9 @@ export const FIELDWORK_PROGRAM = [
   },
   {
     slug: 'q2', quarter: 'Q2 · April–June', subject: 'Sleep Science and Recovery', title: 'The architecture of recovery',
+    recognition: 'You can take recovery seriously and still wonder why rest does not always leave you restored.',
     description: 'Explore how light, sleep, circadian rhythm, stress load, and the environment shape recovery and sustainable performance.',
+    outcome: 'See how the different parts of recovery relate, so you can consider your own rhythms with greater clarity.',
     retreat: 'Recovery by Design',
     fields: 'Sleep science · Chronobiology · Neuroscience · Coaching · Environment · Recovery practice',
     months: [
@@ -23,7 +27,9 @@ export const FIELDWORK_PROGRAM = [
   },
   {
     slug: 'q3', quarter: 'Q3 · July–September', subject: 'Stress, Focus, and Resilience', title: 'Attention under pressure',
-    description: 'Examine focus, emotional regulation, neuroplasticity, connection, and the physiology of resilience.',
+    recognition: 'You can be focused and capable while still feeling how much modern life asks of your attention.',
+    description: 'Examine focus, emotional regulation, neuroplasticity, and the physiology of resilience.',
+    outcome: 'Understand what shapes attention and recovery, and find more room to return to what matters.',
     retreat: 'Attention, Stress, and Resilience',
     fields: 'Psychology · Neuroscience · Breath and movement · Leadership · Nature · Community',
     months: [
@@ -34,13 +40,15 @@ export const FIELDWORK_PROGRAM = [
   },
   {
     slug: 'q4', quarter: 'Q4 · October–December', subject: 'Strength, Mobility, and Longevity', title: 'Capacity for a longer life',
-    description: 'Connect strength, mobility, cognition, nourishment, and belonging to the systems that support healthy aging.',
+    recognition: 'Longevity can sound like a collection of numbers and protocols. Most people want something simpler: to stay capable, connected, and fully themselves.',
+    description: 'Connect strength, mobility, cognition, nourishment, and social wellbeing to the systems that support healthy aging.',
+    outcome: 'Build a more human picture of longevity and the capacities you may want to protect over time.',
     retreat: 'Strength for the Long Game',
     fields: 'Kinesiology · Geroscience · Nutrition · Cognitive health · Coaching · Social connection',
     months: [
       ['October', 'Strength, mobility, and independence', ['What physical capacities matter most over time?', 'How do strength and mobility support one another?', 'What changes in training across the lifespan?', 'How can professionals build adherence without fear?']],
       ['November', 'Brain health across the lifespan', ['How do movement and cardiovascular health affect the brain?', 'What roles do sleep, learning, and connection play?', 'How should we interpret emerging longevity research?', 'Which habits have value beyond a single metric?']],
-      ['December', 'Building a life that can sustain itself', ['How do food, movement, recovery, and community reinforce one another?', 'What deserves to be measured?', 'How do we turn knowledge into a durable practice?', 'What should we carry into the next year?']],
+      ['December', 'Building a life that can sustain itself', ['How do food, movement, recovery, and community reinforce one another?', 'Which signals are useful, and which can distract?', 'How do we turn knowledge into a durable practice?', 'What should we carry into the next year?']],
     ],
   },
 ];

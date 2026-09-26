@@ -45,7 +45,7 @@ export default function EmailPreferencesPage() {
         <div className="preference-card">
           <p className="eyebrow">Email preferences</p>
           <h1>{state.firstName ? `${state.firstName}, choose what feels right.` : 'Choose what feels right.'}</h1>
-          <p>ROAMSIX sends occasional invitations and updates about upcoming dinners, talks, and field experiences. Choose whether you’d like to receive them.</p>
+          <p>ROAMSIX sends occasional invitations and updates about upcoming conversations, experiences, and membership opportunities. Choose whether you’d like to receive them.</p>
 
           {state.loading && <p className="preference-status" role="status">Loading your preferences…</p>}
           {state.error && <p className="preference-error" role="alert">{state.error}</p>}

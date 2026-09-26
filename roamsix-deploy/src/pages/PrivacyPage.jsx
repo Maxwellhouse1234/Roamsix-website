@@ -2,7 +2,7 @@ import LegalPage from "./LegalPage";
 
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" lastUpdated="September 7, 2026">
+    <LegalPage title="Privacy Policy" lastUpdated="September 26, 2026">
 
       <div className="lp-section">
         <h2 className="lp-section-title">Information We Collect</h2>
@@ -16,7 +16,7 @@ export default function PrivacyPage() {
           <li>Medical conditions, injuries, mobility considerations, or dietary restrictions you choose to disclose</li>
           <li>Payment status (not full payment card details, which are handled by Stripe)</li>
           <li>Event registration details including package selected and registration date</li>
-          <li>Membership purchase, status, activation, and communication preferences</li>
+          <li>Membership purchase, tier, cohort assignment, status, activation, and communication preferences</li>
           <li>How you heard about ROAMSIX</li>
           <li>Responses to optional intake questions</li>
           <li>Marketing source or referral information if applicable</li>
@@ -54,6 +54,16 @@ export default function PrivacyPage() {
         <h2 className="lp-section-title">Data Storage</h2>
         <p>
           Participant registration information is stored in Airtable, a cloud-based database service. Data stored includes registration details, contact information, intake form responses, and payment status. Airtable operates its own security and access controls. ROAMSIX limits access to participant data to authorized staff only.
+        </p>
+      </div>
+
+      <div className="lp-section">
+        <h2 className="lp-section-title">Member Profile and Preference Data</h2>
+        <p>
+          The member area is intended for nonclinical preferences such as topic interests, communication preference, general movement and food preferences, and accessibility or scheduling needs. Do not submit diagnoses, treatment information, test results, medical records, or other clinical data through the member profile.
+        </p>
+        <p>
+          Member access uses a time-limited sign-in link sent through Resend and a signed, HTTP-only session cookie. Membership status is verified against Stripe, and profile information is stored in the existing Airtable CRM.
         </p>
       </div>
 

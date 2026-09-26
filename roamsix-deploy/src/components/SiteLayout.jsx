@@ -3,13 +3,14 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 
 const NAV = [
-  ['Experiences', '/experiences'],
-  ['2027 program', '/events'],
   ['Membership', '/membership'],
+  ['Experiences', '/experiences'],
+  ['Themes & calendar', '/events'],
   ['How it works', '/how-it-works'],
   ['Organizations', '/organizations'],
   ['Collaborate', '/collaborate'],
   ['About', '/about'],
+  ['Member sign in', '/member/login'],
 ];
 
 export default function SiteLayout({ children, theme = 'light' }) {
@@ -69,8 +70,8 @@ export default function SiteLayout({ children, theme = 'light' }) {
       <footer className="site-footer">
         <div>
           <Link className="footer-brand" to="/">ROAMSIX</Link>
-          <p>Expert-led experiences for health, performance, and a fully lived life.</p>
-          <p className="footer-tagline">Bridging knowing and doing.</p>
+          <p>A place to make sense of health, performance, and how you want to live.</p>
+          <p className="footer-tagline">Learn together. Carry it forward.</p>
         </div>
         <div className="footer-navigation">
           <div className="footer-social" aria-label="ROAMSIX social media">
@@ -83,6 +84,7 @@ export default function SiteLayout({ children, theme = 'light' }) {
             <Link to="/privacy">Privacy</Link>
             <Link to="/terms">Terms</Link>
             <Link to="/membership/manage">Manage membership</Link>
+            <Link to="/member/login">Member sign in</Link>
             <Link to="/waiver">Waiver</Link>
             <Link to="/media-release">Media release</Link>
           </div>

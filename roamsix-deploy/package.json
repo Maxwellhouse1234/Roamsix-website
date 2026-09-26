@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --test tests/*.test.js",
+    "membership:approve": "node scripts/send-membership-invite.js",
+    "email:provision": "node scripts/provision-email-operations.js"
   },
   "dependencies": {
     "@calcom/embed-react": "^1.5.3",

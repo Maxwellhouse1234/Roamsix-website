@@ -39,20 +39,20 @@ export default function TopicInterestForm({ interest }) {
     }
   }
 
-  if (status === 'success') return <div className="form-success" role="status"><p className="eyebrow">Interest confirmed</p><h3>You’re connected to {interest.label}.</h3><p>We’ll email you as details are released and send the calendar invitation when an event in this area is scheduled.</p></div>;
+  if (status === 'success') return <div className="form-success" role="status"><p className="eyebrow">Updates requested</p><h3>We will send you updates about {interest.label}.</h3><p>Expect the relevant dates, locations, and booking details as they are released.</p></div>;
 
   return (
     <form className="topic-interest-form" onSubmit={submit}>
-      <p className="eyebrow">Your selection</p>
+      <p className="eyebrow">Send me updates about</p>
       <h3>{interest.label}</h3>
       <div className="form-grid two">
         <label>Name<input value={fullName} onChange={(event) => setFullName(event.target.value)} autoComplete="name" required /></label>
         <label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required /></label>
       </div>
-      <label className="check"><input type="checkbox" checked={privacyAccepted} onChange={(event) => setPrivacyAccepted(event.target.checked)} required /> I agree to the <a href="/privacy">Privacy Policy</a> and want updates about this topic.</label>
+      <label className="check"><input type="checkbox" checked={privacyAccepted} onChange={(event) => setPrivacyAccepted(event.target.checked)} required /> I agree to the <a href="/privacy">Privacy Policy</a> and want ROAMSIX updates about this part of the program.</label>
       {error ? <p className="form-error" role="alert">{error}</p> : null}
-      <button className="button" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Submitting…' : 'Sign up for updates'}</button>
-      <p className="form-note">No payment is required. This does not reserve a seat.</p>
+      <button className="button" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Sending…' : 'Send me 2027 updates'}</button>
+      <p className="form-note">This does not reserve a place or require payment.</p>
     </form>
   );
 }

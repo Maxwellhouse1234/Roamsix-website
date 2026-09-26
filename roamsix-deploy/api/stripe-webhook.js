@@ -9,6 +9,17 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { captureCrmActivity, recordReferralConversion } from "../lib/crm.js";
 import { claimDinnerWaitlist } from "../lib/dinner-operations.js";
+import { handleMembershipLifecycleEvent, sendMembershipPurchaseEmails } from "../lib/membership-emails.js";
+import { cohortFromMetadata } from "../lib/membership-cohort.js";
+import { recordMembershipPurchase } from "../lib/membership-records.js";
+import { sendTransactionalEmail } from "../lib/transactional-email.js";
+
+const MEMBERSHIP_LIFECYCLE_EVENTS = new Set([
+  "invoice.paid",
+  "invoice.payment_failed",
+  "customer.subscription.updated",
+  "customer.subscription.deleted",
+]);
 
 function readRawBody(req) {
   return new Promise((resolve, reject) => {
@@ -29,6 +40,7 @@ function verifyStripeSignature(rawBodyStr, sigHeader, secret) {
   const timestamp = parts.t;
   const sig = parts.v1;
   if (!timestamp || !sig) return false;
+  if (!Number.isFinite(Number(timestamp)) || Math.abs(Date.now() / 1000 - Number(timestamp)) > 5 * 60) return false;
 
   const signedPayload = `${timestamp}.${rawBodyStr}`;
   const expected = createHmac("sha256", secret).update(signedPayload, "utf8").digest("hex");
@@ -189,15 +201,10 @@ export default async function handler(req, res) {
     const sigHeader = req.headers["stripe-signature"] || "";
     const secret    = process.env.STRIPE_WEBHOOK_SECRET;
 
-    if (secret && sigHeader) {
-      if (rawBodyStr) {
-        if (!verifyStripeSignature(rawBodyStr, sigHeader, secret)) {
-          console.error("Stripe webhook: signature verification failed");
-          return res.status(400).json({ error: "Invalid signature" });
-        }
-      } else {
-        console.warn("Stripe webhook: raw body unavailable, signature verification skipped");
-      }
+    if (!secret) return res.status(503).json({ error: "Stripe webhook is not configured" });
+    if (!sigHeader || !rawBodyStr || !verifyStripeSignature(rawBodyStr, sigHeader, secret)) {
+      console.error("Stripe webhook: signature verification failed");
+      return res.status(400).json({ error: "Invalid signature" });
     }
 
     // ── STEP 3: Parse event (synchronous) ────────────────────────────────────
@@ -208,7 +215,8 @@ export default async function handler(req, res) {
       event = req.body || {};
     }
 
-    if (!event || !["checkout.session.completed", "checkout.session.async_payment_succeeded"].includes(event.type)) {
+    const checkoutEvent = ["checkout.session.completed", "checkout.session.async_payment_succeeded"].includes(event?.type);
+    if (!event || (!checkoutEvent && !MEMBERSHIP_LIFECYCLE_EVENTS.has(event.type))) {
       return res.status(200).json({ received: true });
     }
 
@@ -250,9 +258,16 @@ export default async function handler(req, res) {
     const proto  = req.headers["x-forwarded-proto"] || "https";
     const origin = `${proto}://${host}`;
 
-    if (session.metadata?.purchaseType === "foundingMembership") {
-      const membershipWork = handleMembershipPurchase({ session, sessionId, customerName, email, amountPaid, registeredAt, origin });
-      await Promise.race([membershipWork, new Promise((resolve) => setTimeout(resolve, 25000))]);
+    if (MEMBERSHIP_LIFECYCLE_EVENTS.has(event.type)) {
+      const result = await handleMembershipLifecycleEvent(event, origin);
+      return res.status(200).json({ received: true, ...result });
+    }
+
+    if (["membership", "foundingMembership"].includes(session.metadata?.purchaseType)) {
+      if (session.payment_status && session.payment_status !== "paid") {
+        return res.status(200).json({ received: true, paymentPending: true });
+      }
+      await handleMembershipPurchase({ eventId: event.id, session, sessionId, customerName, email, amountPaid, registeredAt, origin });
       return res.status(200).json({ received: true });
     }
 
@@ -355,141 +370,88 @@ export default async function handler(req, res) {
       }
       if (eventId === "olive-grove-dinner") await claimDinnerWaitlist(email);
 
-      // ── CONFIRMATION EMAIL TO CUSTOMER ─────────────────────────────────────
-      if (process.env.RESEND_API_KEY && email) {
-        try {
-          const resendRes = await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-            body: JSON.stringify({
-              from:    "ROAMSIX Events <info@roamsix.com>",
-              to:      [email],
-              subject: "Your ROAMSIX Registration is Confirmed",
-              html:    currentEmailPalette(customerConfirmHTML({
-                name: customerName, guestNames, eventId, eventName, packageId, isBundle, amountPaid, quantity,
-                sessionId, origin,
-              })),
-            }),
-          });
-          if (!resendRes.ok) {
-            const errBody = await resendRes.text();
-            console.error("Resend error (customer email):", resendRes.status, errBody);
-          }
-        } catch (err) {
-          console.error("Customer confirmation email fetch error:", err.message);
-        }
-      }
-
-      // ── NOTIFICATION EMAIL TO ROAMSIX TEAM ────────────────────────────────
-      if (process.env.RESEND_API_KEY) {
-        try {
-          const resendRes = await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-            body: JSON.stringify({
-              from:     "ROAMSIX Events <info@roamsix.com>",
-              to:       ["max@roamsix.com", "jackie@roamsix.com"],
-              reply_to: email || undefined,
-              subject:  `New Registration: ${customerName || email} - ${packageId}`,
-              html:     currentEmailPalette(teamNotifyHTML({
-                name: customerName, guestNames, email, eventId, eventName, packageId, isBundle,
-                amountPaid, quantity, sessionId, timestamp, phone,
-                emergencyContactName, emergencyContactPhone, medicalNotes: [medicalNotes && `Purchaser: ${medicalNotes}`, guestMedicalNotes && `Second guest: ${guestMedicalNotes}`].filter(Boolean).join("\n"),
-                legalVersion, agreedToTerms,
-              })),
-            }),
-          });
-          if (!resendRes.ok) {
-            const errBody = await resendRes.text();
-            console.error("Resend error (team notification):", resendRes.status, errBody);
-          }
-        } catch (err) {
-          console.error("Team notification email fetch error:", err.message);
-        }
-      }
+      // ── DURABLE TRANSACTIONAL EMAILS ───────────────────────────────────────
+      if (!email) throw new Error("Paid event registration is missing a customer email");
+      const customerHtml = currentEmailPalette(customerConfirmHTML({
+        name: customerName, guestNames, eventId, eventName, packageId, isBundle, amountPaid, quantity,
+        sessionId, origin,
+      }));
+      const teamHtml = currentEmailPalette(teamNotifyHTML({
+        name: customerName, guestNames, email, eventId, eventName, packageId, isBundle,
+        amountPaid, quantity, sessionId, timestamp, phone,
+        emergencyContactName, emergencyContactPhone, medicalNotes: [medicalNotes && `Purchaser: ${medicalNotes}`, guestMedicalNotes && `Second guest: ${guestMedicalNotes}`].filter(Boolean).join("\n"),
+        legalVersion, agreedToTerms,
+      }));
+      const common = { stripeEventId: event.id, stripeSessionId: sessionId };
+      await Promise.all([
+        sendTransactionalEmail({ ...common, key: `stripe:${event.id}:${sessionId}:event-registration:${email}`, purpose: "event-registration-confirmation", from: "ROAMSIX Events <info@roamsix.com>", to: email, subject: "Your ROAMSIX Registration is Confirmed", html: customerHtml }),
+        sendTransactionalEmail({ ...common, key: `stripe:${event.id}:${sessionId}:event-registration:max@roamsix.com`, purpose: "event-registration-notification", from: "ROAMSIX Events <info@roamsix.com>", to: "max@roamsix.com", replyTo: email, subject: `New Registration: ${customerName || email} - ${packageId}`, html: teamHtml }),
+        sendTransactionalEmail({ ...common, key: `stripe:${event.id}:${sessionId}:event-registration:jackie@roamsix.com`, purpose: "event-registration-notification", from: "ROAMSIX Events <info@roamsix.com>", to: "jackie@roamsix.com", replyTo: email, subject: `New Registration: ${customerName || email} - ${packageId}`, html: teamHtml }),
+      ]);
 
     })();
 
-    const timeoutPromise = new Promise((resolve) => setTimeout(resolve, 25000));
+    await workPromise;
 
-    await Promise.race([workPromise, timeoutPromise]);
-
-    // ── ACK STRIPE — all work done (or timed out) ─────────────────────────────
+    // ── ACK STRIPE — all required work completed ──────────────────────────────
     return res.status(200).json({ received: true });
 
   } catch (err) {
     console.error("Webhook error:", err);
     if (!res.headersSent) {
-      return res.status(200).json({ received: true, error: err.message });
+      return res.status(500).json({ received: false, error: "Webhook processing failed and should be retried" });
     }
   }
 }
 
-async function handleMembershipPurchase({ session, sessionId, customerName, email, amountPaid, registeredAt, origin }) {
-  const membershipYear = session.metadata?.membershipYear || "2027";
+async function handleMembershipPurchase({ eventId, session, sessionId, customerName, email, amountPaid, registeredAt, origin }) {
+  const membershipTier = session.metadata?.membershipTier || "Core";
+  const cohort = cohortFromMetadata(session.metadata);
+  if (!cohort.id) throw new Error("Paid membership is missing a cohort assignment");
   const billingCycle = session.metadata?.billingCycle || "annual";
-  const billingAmount = session.metadata?.billingAmount || "$600";
+  const billingAmount = session.metadata?.billingAmount || "$900";
   const billingFrequency = session.metadata?.billingFrequency || "annually";
   const emailPermission = session.metadata?.emailConsent === "true" ? "Opted In" : "Transactional Only";
-  await captureCrmActivity({
+  const crmResult = await captureCrmActivity({
     contact: {
       fullName: customerName,
       email,
       lifecycleStage: "Customer",
-      relationships: ["Priority Access", "Interest Subscriber"],
-      topics: ["2027 Program"],
+      relationships: ["Member", "Priority Access"],
+      topics: ["2027 Themes and Calendar"],
       sources: ["Website", "Stripe"],
       emailPermission,
       occurredAt: registeredAt,
       consentUpdatedAt: registeredAt,
-      consentSource: "2027 Founding Membership checkout",
-      notes: `${membershipYear} Founding Membership reserved with ${billingCycle} billing. Membership begins January 11, ${membershipYear}.`,
+      consentSource: "Annual Membership checkout",
+      notes: `${membershipTier} Membership purchased with ${billingCycle} billing. Cohort: ${cohort.label} (${cohort.id}).`,
     },
     engagement: {
       engagementType: "Registered",
       status: "Confirmed",
       topic: "General",
-      eventName: `ROAMSIX Founding Membership — ${membershipYear}`,
+      eventName: "ROAMSIX Membership",
       occurredAt: registeredAt,
       source: "Stripe",
       amountPaid,
       stripeSessionId: sessionId,
       uniqueKey: `stripe:${sessionId}`,
-      details: `${membershipYear} founding membership; ${billingAmount} billed ${billingFrequency}; renews automatically until canceled`,
+      details: `${membershipTier} membership; cohort ${cohort.label} (${cohort.id}); ${billingAmount} billed ${billingFrequency}; renews automatically until canceled`,
     },
   });
+  if (!crmResult?.contact || !crmResult?.engagement) throw new Error("Membership CRM capture failed");
 
-  if (!process.env.RESEND_API_KEY || !email) return;
-  const firstName = escapeMembershipHtml(customerName.split(" ")[0] || "there");
-  const safeEmail = escapeMembershipHtml(email);
-  const cancelUrl = process.env.STRIPE_CUSTOMER_PORTAL_URL || `${origin}/membership/manage`;
-  const customerHtml = currentEmailPalette(`<!doctype html><html><body style="margin:0;background:#0C1220;font-family:Arial,sans-serif;"><table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px;background:#0C1220;"><tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#141C2A;"><tr><td style="padding:34px 40px;border-bottom:2px solid #B59558;"><div style="font-size:22px;font-weight:700;letter-spacing:5px;color:#E8DFD0;">ROAMSIX</div><div style="margin-top:6px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#B59558;">Membership Reserved</div></td></tr><tr><td style="padding:38px 40px;color:#C8C0B4;font-size:16px;line-height:1.75;"><p style="color:#E8DFD0;font-size:19px;">${firstName},</p><p>One of 100 places in the ${membershipYear} ROAMSIX founding membership is reserved for you.</p><p>No membership fee was charged today. Membership begins January 11, ${membershipYear}. Your first charge will be ${escapeMembershipHtml(billingAmount)}, followed by automatic renewal ${escapeMembershipHtml(billingFrequency)} until you cancel.</p><p>You may cancel before your next charge through <a href="${cancelUrl}" style="color:#B59558;">online billing management</a> or by emailing info@roamsix.com.</p><p style="margin-top:34px;color:#E8DFD0;">ROAMSIX<br><span style="color:#C8C0B4;">Bridging knowing and doing.</span></p></td></tr></table></td></tr></table></body></html>`);
-  const teamHtml = `<p><strong>New 2027 Founding Membership reservation</strong></p><p>${escapeMembershipHtml(customerName)} · ${safeEmail}</p><p>${escapeMembershipHtml(billingAmount)} ${escapeMembershipHtml(billingFrequency)}</p><p>Stripe session: ${escapeMembershipHtml(sessionId)}</p>`;
-
-  const requests = [
-    fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: "ROAMSIX <info@roamsix.com>", to: [email], subject: "Your ROAMSIX Founding Membership is confirmed", html: customerHtml }),
-    }),
-    fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: "ROAMSIX <info@roamsix.com>", to: ["max@roamsix.com", "jackie@roamsix.com"], reply_to: email, subject: `New Founding Member: ${customerName || email}`, html: teamHtml }),
-    }),
-  ];
-  const responses = await Promise.allSettled(requests);
-  responses.forEach((response) => {
-    if (response.status === "rejected") {
-      console.error("Membership email failed:", response.reason?.message || "unknown error");
-    } else if (!response.value.ok) {
-      console.error("Membership email failed:", response.value.status);
-    }
+  await recordMembershipPurchase({
+    session,
+    email,
+    name: customerName,
+    tier: membershipTier,
+    cohortId: cohort.id,
+    cohortLabel: cohort.label,
+    joinedAt: registeredAt,
   });
-}
 
-function escapeMembershipHtml(value) {
-  return String(value || "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+  await sendMembershipPurchaseEmails({ eventId, session, sessionId, customerName, email, origin });
 }
 
 // ── EMAIL TEMPLATES ───────────────────────────────────────────────────────────

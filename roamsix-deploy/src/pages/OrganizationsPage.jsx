@@ -1,17 +1,17 @@
 import SiteLayout from '../components/SiteLayout';
 import BookCallButton from '../components/BookCallButton';
 
-const OUTCOMES = [
-  ['01', 'Sustainable performance', 'Improve energy, focus, recovery, resilience, and the capacity to perform well over time.'],
-  ['02', 'Health in practice', 'Apply useful guidance in nutrition, metabolic health, movement, fitness, and longevity.'],
-  ['03', 'Stronger teams', 'Strengthen leadership, communication, trust, and how people work together.'],
+const OFFERS = [
+  ['A focused team session', 'Bring a small leadership or working team together around one clear priority, such as energy, recovery, focus, resilience, or connection.'],
+  ['A shared team experience', 'Give a growing team time to learn from an expert, try something together, and have the conversations that daily work rarely makes room for.'],
+  ['An organization-wide wellbeing experience', 'Create an engaging experience that helps more of your people understand and practice healthier ways of working.'],
+  ['A learning program over time', 'Help a defined group turn expert learning into repeatable action through several sessions, shared language, and accountability.'],
 ];
 
 export default function OrganizationsPage() {
-  const emailHref = 'mailto:info@roamsix.com?subject=ROAMSIX%20organization%20inquiry';
   return <SiteLayout>
-    <section className="page-hero organization-hero"><div className="container narrow"><p className="eyebrow">For organizations</p><h1>Help your team perform better, stay healthier, and sustain both.</h1><p className="page-lead">ROAMSIX creates private experiences around the health, performance, and team outcomes your people need.</p><div className="button-row"><BookCallButton className="button button-accent">Build a private team experience</BookCallButton><a className="text-link" href={emailHref}>Send an email <span aria-hidden="true">→</span></a></div></div></section>
-    <section className="section light-section"><div className="container organization-promise"><p className="eyebrow">What we can improve</p><div><h2>Health becomes a business advantage when people know how to use it.</h2><p className="lead">We focus the experience on three connected outcomes.</p></div></div><div className="container organization-delivery-grid">{OUTCOMES.map(([number,title,copy]) => <article key={number}><span>{number}</span><h3>{title}</h3><p>{copy}</p></article>)}</div></section>
-    <section className="section fog-section"><div className="container split-copy"><p className="eyebrow">What ROAMSIX provides</p><div><h2>The right experts, environment, and complete experience.</h2><p className="lead">You identify the need. We select the faculty and setting, then design the learning, movement, meals, activities, and conversation around it.</p><p>Available as a focused day, a two-day offsite, or a multi-day retreat.</p><BookCallButton className="button button-accent">Build an experience for your team</BookCallButton></div></div></section>
+    <section className="page-hero organization-hero"><div className="container narrow"><p className="eyebrow">For organizations</p><h1>How do I help the people I lead live well and do their best work?</h1><p className="page-lead">Your people may already be capable and committed. What they may be missing is the space to step back, make sense of what affects their energy and recovery, and experience something useful together.</p><div className="button-row"><BookCallButton className="button button-accent">Help me choose the right format</BookCallButton><a className="text-link" href="#organization-formats">See how we can work together <span aria-hidden="true">→</span></a></div></div></section>
+    <section className="section light-section" id="organization-formats"><div className="container"><p className="eyebrow">Start with what your people are carrying</p><h2>Give your team the space and guidance to live well and perform at their best for the long term.</h2><p className="section-intro">ROAMSIX combines carefully selected expertise, practical application, and shared experience around the outcome you care about. Begin with one focused session or build a path over time.</p><div className="organization-offer-grid">{OFFERS.map(([title, copy], index) => <article key={title}><span>{String(index + 1).padStart(2, '0')}</span><h3>{title}</h3><p>{copy}</p></article>)}</div><div className="button-row"><BookCallButton className="button button-accent">Help me choose the right format</BookCallButton></div></div></section>
+    <section className="section fog-section"><div className="container split-copy"><p className="eyebrow">Designed around your people</p><div><h2>You know what your team is navigating. We help you create the right response.</h2><p className="lead">Tell us what you want your people to understand, experience, or do differently. We will recommend experts whose work we trust, the right format and setting, and a clear plan and price before you commit.</p><BookCallButton className="button button-accent">Build the right experience for my team</BookCallButton></div></div></section>
   </SiteLayout>;
 }

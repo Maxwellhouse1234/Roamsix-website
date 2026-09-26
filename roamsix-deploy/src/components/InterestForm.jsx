@@ -104,7 +104,7 @@ export default function InterestForm({
             <option>Podcast (Redirection Point)</option>
             <option>Referral from a friend or colleague</option>
             <option>ROAMSIX member or community</option>
-            <option>A ROAMSIX event or dinner</option>
+            <option>A ROAMSIX conversation or experience</option>
             <option>Google search</option>
             <option>Other</option>
           </select>
