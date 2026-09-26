@@ -298,7 +298,7 @@ test('Dr. Sal public and member-facing references use the confirmed October 24, 
   assert.match(experiences, /roamsix-outdoor-panel-bw-v1\.jpg/);
   assert.match(home, /An intimate outdoor panel conversation with an audience\./);
   assert.match(experiences, /dr-sulaiman-bharwani-editorial-v1\.jpg/);
-  assert.match(fieldwork, /roamsix-journey-mediterranean-v1\.jpg/);
+  assert.match(fieldwork, /roamsix-journey-mediterranean-v2\.jpg/);
   assert.match(dashboard, /Dr\. Sal · October 24, 2026 · San Diego/);
 });
 
