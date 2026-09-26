@@ -293,8 +293,8 @@ test('Dr. Sal public and member-facing references use the confirmed October 24, 
   }
   assert.match(experiences, /dr-sal-gut-brain-2026/);
   assert.doesNotMatch(experiences, /dr-sal-gut-brain-2027/);
-  assert.match(home, /roamsix-outdoor-panel-bw-v1\.png/);
-  assert.match(experiences, /roamsix-outdoor-panel-bw-v1\.png/);
+  assert.match(home, /roamsix-outdoor-panel-bw-v1\.jpg/);
+  assert.match(experiences, /roamsix-outdoor-panel-bw-v1\.jpg/);
   assert.match(home, /An intimate outdoor panel conversation with an audience\./);
   assert.match(dashboard, /Dr\. Sal · October 24, 2026 · San Diego/);
 });
