@@ -256,9 +256,29 @@ test('checkout fails closed when Stripe cannot verify cohort capacity', async ()
 test('shared membership language matches the approved founding offer', async () => {
   const { EXTRA_COST_EXPLANATION, MEMBERSHIP_TIERS } = await import('../src/data/membership.js');
   assert.equal(MEMBERSHIP_TIERS.core.forWhom, 'For staying connected while choosing the experiences that matter most to you.');
+  assert.deepEqual(
+    Object.values(MEMBERSHIP_TIERS).map(({ monthlyEquivalent, annualBilling }) => ({ monthlyEquivalent, annualBilling })),
+    [
+      { monthlyEquivalent: '$75', annualBilling: 'Billed annually at $900' },
+      { monthlyEquivalent: '≈ $183', annualBilling: 'Billed annually at $2,200' },
+      { monthlyEquivalent: '$375', annualBilling: 'Billed annually at $4,500' },
+    ],
+  );
   assert.ok(MEMBERSHIP_TIERS.core.features.includes('Access to the developing member calendar'));
   assert.ok(MEMBERSHIP_TIERS.field.features.includes('Four smaller-group expert Q&A sessions or conversations across each membership year'));
   assert.match(EXTRA_COST_EXPLANATION, /^If offered, the larger member gathering is reserved separately and has its own ticket price\./);
+});
+
+test('public pricing is transparent about annual billing and keeps the cohort capped at 25', async () => {
+  const [membership, checkout] = await Promise.all([
+    readFile(new URL('../src/pages/MembershipPage.jsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/pages/MembershipCheckoutPage.jsx', import.meta.url), 'utf8'),
+  ]);
+  assert.match(membership, /Monthly figures below are annual-price equivalents, not monthly payment options\./);
+  assert.match(membership, /small cohorts of up to 25/);
+  assert.doesNotMatch(membership, /Founding (100|150)/i);
+  assert.match(checkout, /I authorize ROAMSIX to charge \{tier\.price\} now and annually until I cancel\./);
+  assert.match(checkout, /Start my \$\{tier\.name\} membership · \$\{tier\.price\}/);
 });
 
 test('Dr. Sal public and member-facing references use the confirmed October 24, 2026 event identity', async () => {
@@ -273,6 +293,9 @@ test('Dr. Sal public and member-facing references use the confirmed October 24, 
   }
   assert.match(experiences, /dr-sal-gut-brain-2026/);
   assert.doesNotMatch(experiences, /dr-sal-gut-brain-2027/);
+  assert.match(home, /roamsix-outdoor-panel-bw-v1\.png/);
+  assert.match(experiences, /roamsix-outdoor-panel-bw-v1\.png/);
+  assert.match(home, /An intimate outdoor panel conversation with an audience\./);
   assert.match(dashboard, /Dr\. Sal · October 24, 2026 · San Diego/);
 });
 

@@ -171,8 +171,9 @@ p { margin: 0 0 1.25em; }
 
 .feature-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(48px, 8vw, 110px); align-items: center; }
 .feature-image { min-height: 620px; background-size: cover; background-position: center; filter: grayscale(1) contrast(1.05); }
+.feature-image img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .retreat-image { background-image: url('/images/events/long-table-dinner-roamsix.jpg'); }
-.sal-fireside-image { background-image: url('/images/events/barrel-lounge-golden-hour-roamsix.jpg'); background-position: center; }
+.sal-fireside-image { min-height: 0; aspect-ratio: 4 / 5; margin: 0; overflow: hidden; background: var(--charcoal); }
 .feature-copy p:not(.eyebrow) { font-size: 1.12rem; }
 .quiet { color: var(--deep-gray); }
 .organization-callout { max-width: 920px; text-align: center; }
@@ -662,7 +663,12 @@ p { margin: 0 0 1.25em; }
 .membership-tier-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 48px; }
 .membership-tier-grid article { position: relative; display: flex; flex-direction: column; padding: clamp(28px, 4vw, 42px); background: var(--white); border: 1px solid var(--stone); }
 .membership-tier-grid article.featured { border: 2px solid var(--rust); }
-.membership-tier-grid strong { display: block; font: 600 clamp(2.4rem, 5vw, 4.2rem)/1 'Space Grotesk'; letter-spacing: -.05em; margin: 10px 0 20px; }
+.membership-tier-grid > article > strong { display: block; font: 600 clamp(2.4rem, 5vw, 4.2rem)/1 'Space Grotesk'; letter-spacing: -.05em; margin: 10px 0 20px; }
+.membership-price-disclosure { max-width: 760px; margin: 24px 0 0; padding: 16px 18px; border-left: 3px solid var(--rust); background: var(--fog); color: var(--deep-gray); }
+.membership-tier-price { margin: 12px 0 24px; padding-bottom: 22px; border-bottom: 1px solid var(--stone); }
+.membership-tier-price strong { display: inline; font: 600 clamp(2.8rem, 5vw, 4.6rem)/1 'Space Grotesk'; letter-spacing: -.06em; }
+.membership-tier-price span { margin-left: 8px; color: var(--deep-gray); font-size: .82rem; font-weight: 700; }
+.membership-tier-price p { margin: 10px 0 0; color: var(--ink); font-size: .95rem; font-weight: 700; }
 .membership-tier-grid ul { padding-left: 20px; margin: 8px 0 32px; color: var(--deep-gray); }
 .membership-tier-grid .tier-audience { color: var(--ink); font-weight: 700; }
 .membership-tier-grid .button { width: 100%; margin-top: auto; }
@@ -687,6 +693,8 @@ p { margin: 0 0 1.25em; }
 .experience-status-grid { display: grid; grid-template-columns: 1.5fr .5fr; gap: clamp(40px, 7vw, 90px); align-items: start; }
 .experience-feature-card { padding: clamp(18px, 3vw, 34px) 0; border: 0; border-top: 2px solid var(--ink); background: transparent; }
 .experience-feature-card .eyebrow { margin-top: 0; }
+.experience-event-image { width: 100%; aspect-ratio: 16 / 10; margin: 0 0 32px; overflow: hidden; background: var(--charcoal); }
+.experience-event-image img { width: 100%; height: 100%; object-fit: cover; object-position: center 62%; filter: grayscale(1) contrast(1.04); }
 .experience-status-note { padding: 30px; background: var(--fog); }
 .experience-status-note h3 { margin-bottom: 8px; }
 .experience-status-note p:not(.eyebrow) { color: var(--deep-gray); font-size: .9rem; }
@@ -738,6 +746,8 @@ p { margin: 0 0 1.25em; }
   .organization-offer-grid article p { grid-column: 2; }
   .framework-list article { grid-template-columns: minmax(160px, .4fr) 1fr; }
   .framework-list article p { grid-column: 2; }
+  .experience-event-image { aspect-ratio: 4 / 5; }
+  .experience-event-image img { object-position: center; }
 }
 
 @media (max-width: 560px) {
