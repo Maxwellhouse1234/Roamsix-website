@@ -2,7 +2,7 @@ import { sendTransactionalEmail } from "./transactional-email.js";
 import { cohortFromMetadata } from "./membership-cohort.js";
 
 const TIER_BY_PRICE = () => ({
-  [process.env.STRIPE_MEMBERSHIP_CORE_PRICE_ID]: { name: "Core", amount: "$900" },
+  [process.env.STRIPE_MEMBERSHIP_CORE_PRICE_ID]: { name: "Core", amount: "$850" },
   [process.env.STRIPE_MEMBERSHIP_FIELD_PRICE_ID]: { name: "Field", amount: "$2,200" },
   [process.env.STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID]: { name: "Journey", amount: "$4,500" },
 });
@@ -12,7 +12,7 @@ function escapeHtml(value) {
 }
 
 function shell(title, body) {
-  return `<!doctype html><html><body style="margin:0;background:#0A0A0A;font-family:Arial,sans-serif;color:#E5E3E0"><table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px"><tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#18181A"><tr><td style="padding:30px 38px;border-bottom:2px solid #B8562F"><div style="font-size:22px;font-weight:700;letter-spacing:5px;color:#FAFAF9">ROAMSIX</div><div style="margin-top:6px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#B8562F">${escapeHtml(title)}</div></td></tr><tr><td style="padding:36px 38px;font-size:16px;line-height:1.75">${body}<p style="margin-top:32px;color:#FAFAF9">ROAMSIX<br><span style="color:#E5E3E0">Learn together. Carry it forward.</span></p></td></tr></table></td></tr></table></body></html>`;
+  return `<!doctype html><html><body style="margin:0;background:#0A0A0A;font-family:Arial,sans-serif;color:#E5E3E0"><table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px"><tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#18181A"><tr><td style="padding:30px 38px;border-bottom:2px solid #B8562F"><div style="font-size:22px;font-weight:700;letter-spacing:5px;color:#FAFAF9">ROAMSIX</div><div style="margin-top:6px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#B8562F">${escapeHtml(title)}</div></td></tr><tr><td style="padding:36px 38px;font-size:16px;line-height:1.75">${body}<p style="margin-top:32px;color:#FAFAF9">ROAMSIX<br><span style="color:#E5E3E0">Bridging knowing and doing.</span></p></td></tr></table></td></tr></table></body></html>`;
 }
 
 function portalUrl(origin = "https://www.roamsix.com") {
@@ -80,11 +80,11 @@ export async function sendMembershipPurchaseEmails({ eventId, session, sessionId
   assertMembershipEmailConfig();
   if (!eventId || !sessionId || !email) throw new Error("Membership confirmation requires Stripe event, session, and customer email");
   const tier = session.metadata?.membershipTier || "Core";
-  const amount = session.metadata?.billingAmount || "$900";
+  const amount = session.metadata?.billingAmount || "$850";
   const cohort = cohortFromMetadata(session.metadata);
   const firstName = escapeHtml(String(customerName || "").split(" ")[0] || "there");
   const portal = portalUrl(origin);
-  const cohortLine = cohort.id ? `<p>You are joining the <strong>${escapeHtml(cohort.label)}</strong>. Your cohort organizes the membership experience while you remain part of the wider ROAMSIX community.</p>` : "";
+  const cohortLine = cohort.id ? `<p>You are joining the <strong>${escapeHtml(cohort.label)}</strong>. Your cohort organizes enrollment and helps ROAMSIX manage access as programming grows.</p>` : "";
   const memberHtml = shell("Membership Confirmed", `<p style="color:#FAFAF9;font-size:19px">${firstName},</p><p>Your ROAMSIX ${escapeHtml(tier)} membership is confirmed.</p>${cohortLine}<p>Your annual charge of ${escapeHtml(amount)} was collected securely by Stripe and renews annually until you cancel.</p><p>You may manage renewal and payment details through <a href="${portal}" style="color:#B8562F">online billing management</a> or by emailing info@roamsix.com.</p><p>If offered, the larger member gathering is reserved separately and has its own ticket price. It proceeds only after its cash costs are covered. The year-end Journey is purchased separately by every traveler. Some partner-hosted or premium experiences may also have their own price, stated before booking.</p>`);
   const internalHtml = `<p><strong>New Annual ${escapeHtml(tier)} Membership</strong></p><p>${escapeHtml(customerName)} · ${escapeHtml(email)}</p><p>${escapeHtml(amount)} annually</p><p>Cohort: ${escapeHtml(cohort.label || "Unassigned")} (${escapeHtml(cohort.id || "missing")})</p><p>Stripe event: ${escapeHtml(eventId)}</p><p>Stripe session: ${escapeHtml(sessionId)}</p>`;
   const common = { stripeEventId: eventId, stripeSessionId: sessionId };

@@ -7,7 +7,7 @@ export default function TermsPage() {
       <div className="lp-section">
         <h2 className="lp-section-title">Annual Membership</h2>
         <p>
-          Annual membership options are Core at $900 per year, Field at $2,200 per year, and Journey at $4,500 per year. Private membership is invitation-based and is offered only through a separate written scope.
+          Annual membership options are Core at $850 per year, Field at $2,200 per year, and Journey at $4,500 per year. Private membership is invitation-based, individually designed, and priced before commitment.
         </p>
         <p>
           Your first annual charge is collected when you complete Stripe Checkout. By selecting a tier and affirmatively accepting these terms, you authorize ROAMSIX to charge the displayed annual price now and automatically each year until you cancel. You may cancel online or by emailing info@roamsix.com before the next renewal. Cancellation stops future charges and takes effect at the end of the paid membership period. Fees already charged are nonrefundable except where required by law.
@@ -16,7 +16,7 @@ export default function TermsPage() {
           Membership provides the access described for the selected option across eligible ROAMSIX conversations, gatherings, movement and outdoor experiences, and confirmed partner experiences. Capacity, booking windows, guest-pass eligibility, and event-specific rules apply. Partner benefits are offered only after their terms are signed and will be identified separately.
         </p>
         <p>
-          Membership opens in cohorts of up to 25 paid members to support continuity and meaningful participation. Your cohort is separate from your Core, Field, or Journey tier and does not restrict you to events with only that cohort. Event capacities are set separately for each format. When an active cohort is full, joining the next-cohort interest list does not reserve a place or create a membership.
+          Membership generally opens in intentionally sized enrollment groups of up to 25 paid members so ROAMSIX can protect access and manage capacity as programming grows. Your cohort is separate from your Core, Field, or Journey tier and does not restrict you to events with only that cohort. Event capacities are set separately for each format. When an active cohort is full, joining the next-cohort interest list does not reserve a place or create a membership.
         </p>
         <p>
           If offered, the larger member gathering is reserved separately and has its own ticket price. It proceeds only after its cash costs are covered. The year-end Journey is purchased separately by every traveler and proceeds only after required deposits and minimum participation are secured. Some partner-hosted or premium experiences may have their own price, which will be stated before booking. The calendar develops throughout the year and does not guarantee a ROAMSIX-produced event every week. Membership is personal and may not be resold.

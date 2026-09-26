@@ -4,6 +4,7 @@ import { trackEvent } from '../lib/analytics';
 
 export default function MembershipRequestForm({ tier, mode = 'request' }) {
   const isCohortWaitlist = mode === 'cohort-waitlist';
+  const isCoreEnrollment = tier === 'Core' && !isCohortWaitlist;
   const [form, setForm] = useState({ fullName: '', email: '', mobile: '', reason: '', privacyAccepted: false });
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
@@ -54,17 +55,17 @@ export default function MembershipRequestForm({ tier, mode = 'request' }) {
     }
   }
 
-  if (status === 'success') return <div className="form-success" role="status"><p className="eyebrow">Interest received</p><h3>{isCohortWaitlist ? 'We will contact you when the next membership cohort opens.' : `We will follow up about ${tier} membership.`}</h3><p>This does not reserve a place and does not require payment. We will contact you about the next step.</p></div>;
+  if (status === 'success') return <div className="form-success" role="status"><p className="eyebrow">{isCoreEnrollment ? 'Enrollment started' : 'Interest received'}</p><h3>{isCohortWaitlist ? 'We will contact you when the next membership cohort opens.' : isCoreEnrollment ? 'We will send your secure Core enrollment step.' : `We will follow up about ${tier} membership.`}</h3><p>No payment was taken here. We will contact you with the appropriate secure next step.</p></div>;
 
   return <form className="membership-checkout-form" onSubmit={submit}>
-    <p className="eyebrow">{isCohortWaitlist ? 'Next membership cohort' : `Request ${tier} membership`}</p>
+    <p className="eyebrow">{isCohortWaitlist ? 'Next membership cohort' : isCoreEnrollment ? 'Core enrollment' : `Request ${tier} membership`}</p>
     <label>Full name<input name="fullName" value={form.fullName} onChange={change} autoComplete="name" required /></label>
     <label>Email<input type="email" name="email" value={form.email} onChange={change} autoComplete="email" required /></label>
     <label>Phone <span className="optional">Optional</span><input type="tel" name="mobile" value={form.mobile} onChange={change} autoComplete="tel" /></label>
     <label>What would make this membership useful to you?<textarea name="reason" value={form.reason} onChange={change} rows="4" required /></label>
     <label className="check"><input type="checkbox" name="privacyAccepted" checked={form.privacyAccepted} onChange={change} required /><span>I agree to the <Link to="/privacy">Privacy Policy</Link> and want ROAMSIX to contact me about this request and relevant membership updates.</span></label>
     {error ? <p className="form-error" role="alert">{error}</p> : null}
-    <button className="button" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Sending request…' : isCohortWaitlist ? 'Join the next-cohort interest list' : `Send my ${tier} request`}</button>
-    <p className="form-note">This is an expression of interest, not a membership or reservation. No payment is taken here.</p>
+    <button className="button" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Sending…' : isCohortWaitlist ? 'Join the next-cohort interest list' : isCoreEnrollment ? 'Continue Core enrollment' : `Send my ${tier} request`}</button>
+    <p className="form-note">{isCoreEnrollment ? 'No payment is taken here. Membership begins after you review the terms and complete secure checkout.' : 'This is an expression of interest, not a membership or reservation. No payment is taken here.'}</p>
   </form>;
 }

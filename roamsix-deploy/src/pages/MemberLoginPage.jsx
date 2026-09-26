@@ -16,8 +16,8 @@ export default function MemberLoginPage() {
     } catch (error) { setStatus('error'); setMessage(error.message); }
   }
   return <SiteLayout><section className="member-login-page"><div className="container member-login-card">
-    <p className="eyebrow">Secure member sign in</p><h1>Open your ROAMSIX member area.</h1>
-    <p>Enter the email used at checkout. We will send a secure, time-limited sign-in link. No password is required.</p>
+    <p className="eyebrow">Secure member sign in</p><h1>Sign in to your ROAMSIX membership.</h1>
+    <p>Enter the email you used to join. We will send a secure, time-limited link to your member dashboard. No password is required.</p>
     <form onSubmit={submit}><label>Email address<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required /></label>
       <button className="button button-accent" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Sending secure link…' : 'Email me a sign-in link'}</button>
     </form>

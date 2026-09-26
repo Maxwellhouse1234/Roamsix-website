@@ -255,17 +255,17 @@ test('checkout fails closed when Stripe cannot verify cohort capacity', async ()
 
 test('shared membership language matches the approved founding offer', async () => {
   const { EXTRA_COST_EXPLANATION, MEMBERSHIP_TIERS } = await import('../src/data/membership.js');
-  assert.equal(MEMBERSHIP_TIERS.core.forWhom, 'For staying connected while choosing the experiences that matter most to you.');
+  assert.equal(MEMBERSHIP_TIERS.core.forWhom, 'People who want a trusted way to keep up with what matters in health and choose experiences selectively.');
   assert.deepEqual(
     Object.values(MEMBERSHIP_TIERS).map(({ monthlyEquivalent, annualBilling }) => ({ monthlyEquivalent, annualBilling })),
     [
-      { monthlyEquivalent: '$75', annualBilling: 'Billed annually at $900' },
-      { monthlyEquivalent: '≈ $183', annualBilling: 'Billed annually at $2,200' },
-      { monthlyEquivalent: '$375', annualBilling: 'Billed annually at $4,500' },
+      { monthlyEquivalent: '$75', annualBilling: '$850 billed annually · available now' },
+      { monthlyEquivalent: '$185', annualBilling: '$2,200 billed annually' },
+      { monthlyEquivalent: '$395', annualBilling: '$4,500 billed annually' },
     ],
   );
-  assert.ok(MEMBERSHIP_TIERS.core.features.includes('Access to the developing member calendar'));
-  assert.ok(MEMBERSHIP_TIERS.field.features.includes('Four smaller-group expert Q&A sessions or conversations across each membership year'));
+  assert.ok(MEMBERSHIP_TIERS.core.features.some((feature) => feature.title === 'Vetted guidance'));
+  assert.ok(MEMBERSHIP_TIERS.field.features.some((feature) => feature.title === 'Closer expert access'));
   assert.match(EXTRA_COST_EXPLANATION, /^If offered, the larger member gathering is reserved separately and has its own ticket price\./);
 });
 
@@ -274,18 +274,19 @@ test('public pricing is transparent about annual billing and keeps the cohort ca
     readFile(new URL('../src/pages/MembershipPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/MembershipCheckoutPage.jsx', import.meta.url), 'utf8'),
   ]);
-  assert.match(membership, /Monthly figures below are annual-price equivalents, not monthly payment options\./);
-  assert.match(membership, /small cohorts of up to 25/);
+  assert.match(membership, /Annual enrollment is the available billing option today\./);
+  assert.match(membership, /intentionally sized groups, generally up to 25/);
   assert.doesNotMatch(membership, /Founding (100|150)/i);
   assert.match(checkout, /I authorize ROAMSIX to charge \{tier\.price\} now and annually until I cancel\./);
   assert.match(checkout, /Start my \$\{tier\.name\} membership · \$\{tier\.price\}/);
 });
 
 test('Dr. Sal public and member-facing references use the confirmed October 24, 2026 event identity', async () => {
-  const [home, experiences, dashboard] = await Promise.all([
+  const [home, experiences, dashboard, fieldwork] = await Promise.all([
     readFile(new URL('../src/pages/HomePage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/ExperiencesPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/MemberDashboardPage.jsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/pages/FieldworkPage.jsx', import.meta.url), 'utf8'),
   ]);
   for (const source of [home, experiences, dashboard]) {
     assert.doesNotMatch(source, /October 24, 2027/);
@@ -296,6 +297,8 @@ test('Dr. Sal public and member-facing references use the confirmed October 24, 
   assert.match(home, /roamsix-outdoor-panel-bw-v1\.jpg/);
   assert.match(experiences, /roamsix-outdoor-panel-bw-v1\.jpg/);
   assert.match(home, /An intimate outdoor panel conversation with an audience\./);
+  assert.match(experiences, /dr-sulaiman-bharwani-editorial-v1\.jpg/);
+  assert.match(fieldwork, /roamsix-journey-mediterranean-v1\.jpg/);
   assert.match(dashboard, /Dr\. Sal · October 24, 2026 · San Diego/);
 });
 

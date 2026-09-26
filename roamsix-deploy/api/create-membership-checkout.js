@@ -6,7 +6,7 @@ const LEGAL_VERSION = "2026-09-24-v10";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const TIERS = {
-  core: { name: "Core", amount: "$900", priceEnv: "STRIPE_MEMBERSHIP_CORE_PRICE_ID" },
+  core: { name: "Core", amount: "$850", priceEnv: "STRIPE_MEMBERSHIP_CORE_PRICE_ID" },
   field: { name: "Field", amount: "$2,200", priceEnv: "STRIPE_MEMBERSHIP_FIELD_PRICE_ID" },
   journey: { name: "Journey", amount: "$4,500", priceEnv: "STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID" },
 };

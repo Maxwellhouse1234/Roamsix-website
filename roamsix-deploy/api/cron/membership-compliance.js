@@ -1,7 +1,7 @@
 import { retryFailedTransactionalEmails, sendTransactionalEmail } from '../../lib/transactional-email.js';
 
 const PLANS = {
-  [process.env.STRIPE_MEMBERSHIP_CORE_PRICE_ID]: { amount: '$900', frequency: 'annually', tier: 'Core' },
+  [process.env.STRIPE_MEMBERSHIP_CORE_PRICE_ID]: { amount: '$850', frequency: 'annually', tier: 'Core' },
   [process.env.STRIPE_MEMBERSHIP_FIELD_PRICE_ID]: { amount: '$2,200', frequency: 'annually', tier: 'Field' },
   [process.env.STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID]: { amount: '$4,500', frequency: 'annually', tier: 'Journey' },
 };

@@ -78,7 +78,7 @@ function emailStore({ resendFailures = 0 } = {}) {
     if (value.includes('/v1/checkout/sessions?')) return response({ data: [], has_more: false });
     if (value === 'https://api.stripe.com/v1/checkout/sessions') return response({ url: 'https://checkout.stripe.test/approved-membership' });
     if (value.includes('/v1/subscriptions/')) return response({
-      id: 'sub_member', customer: 'cus_member', metadata: { membershipTier: 'Core', billingAmount: '$900' },
+      id: 'sub_member', customer: 'cus_member', metadata: { membershipTier: 'Core', billingAmount: '$850' },
       items: { data: [{ price: { id: 'price_core' } }] },
     });
     if (value.includes('/v1/customers/')) return response({ id: 'cus_member', email: 'member@example.com' });
@@ -117,7 +117,7 @@ test('membership purchase messages send once to the member, Max, and Jackie', as
   const { sendMembershipPurchaseEmails } = await import('../lib/membership-emails.js');
   const input = {
     eventId: 'evt_checkout', sessionId: 'cs_member', customerName: 'Test Member', email: 'member@example.com', origin: 'https://www.roamsix.test',
-    session: { metadata: { membershipTier: 'Core', membershipCohortId: 'founding', membershipCohortLabel: 'Founding Cohort', billingAmount: '$900', emailConsent: 'false' } },
+    session: { metadata: { membershipTier: 'Core', membershipCohortId: 'founding', membershipCohortLabel: 'Founding Cohort', billingAmount: '$850', emailConsent: 'false' } },
   };
   await sendMembershipPurchaseEmails(input);
   await sendMembershipPurchaseEmails(input);
@@ -135,7 +135,7 @@ test('Stripe membership webhook returns a retryable failure when a required emai
     data: { object: {
       id: 'cs_webhook_failure', payment_status: 'paid', amount_total: 90000,
       customer_details: { email: 'member@example.com' },
-      metadata: { purchaseType: 'membership', membershipTier: 'Core', membershipCohortId: 'founding', membershipCohortLabel: 'Founding Cohort', billingAmount: '$900', customerName: 'Test Member', billingCycle: 'annual', billingFrequency: 'annually' },
+      metadata: { purchaseType: 'membership', membershipTier: 'Core', membershipCohortId: 'founding', membershipCohortLabel: 'Founding Cohort', billingAmount: '$850', customerName: 'Test Member', billingCycle: 'annual', billingFrequency: 'annually' },
     } },
   });
   const timestamp = String(Math.floor(Date.now() / 1000));

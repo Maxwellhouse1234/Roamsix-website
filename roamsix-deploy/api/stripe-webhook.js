@@ -409,7 +409,7 @@ async function handleMembershipPurchase({ eventId, session, sessionId, customerN
   const cohort = cohortFromMetadata(session.metadata);
   if (!cohort.id) throw new Error("Paid membership is missing a cohort assignment");
   const billingCycle = session.metadata?.billingCycle || "annual";
-  const billingAmount = session.metadata?.billingAmount || "$900";
+  const billingAmount = session.metadata?.billingAmount || "$850";
   const billingFrequency = session.metadata?.billingFrequency || "annually";
   const emailPermission = session.metadata?.emailConsent === "true" ? "Opted In" : "Transactional Only";
   const crmResult = await captureCrmActivity({

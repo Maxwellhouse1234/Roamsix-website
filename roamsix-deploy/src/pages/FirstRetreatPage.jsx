@@ -12,7 +12,7 @@ const JOURNEY = [
   ['03', 'Understand what reaches the body', 'Dr. Sal connects variety, color, prebiotics, probiotics, and the gut microbiome, with space to separate useful evidence from oversimplified claims.', 'Nourish · Build'],
   ['04', 'Put the system in motion', 'Movement makes the conversation physical. The group explores how gut health may relate to energy, performance, and the ability to sustain effort.', 'Move · Connect'],
   ['05', 'Slow down enough to recover', 'Guided recovery, mindful connection, visualization, and focus turn attention toward stress, restoration, and the gut-brain relationship.', 'Recover · Connect'],
-  ['06', 'Carry it into practice', 'The experience closes by bringing the pieces back together. Participants identify what changed in their understanding and what deserves further exploration in their work and life. A follow-through touchpoint will bring the cohort back together to share what they applied and continue the relationships that began here.', 'Build · Connect'],
+  ['06', 'Carry it into practice', 'The experience closes by bringing the pieces back together. Participants identify what changed in their understanding, what deserves further exploration, and what they want to test in work and life. A follow-through touchpoint gives the group a defined moment to compare what they applied and what they learned.', 'Build · Apply'],
 ];
 
 export default function FirstRetreatPage() {
