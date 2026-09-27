@@ -2,7 +2,7 @@ import LegalPage from "./LegalPage";
 
 export default function TermsPage() {
   return (
-    <LegalPage title="Terms of Service" lastUpdated="September 26, 2026">
+    <LegalPage title="Terms of Service" lastUpdated="September 27, 2026">
 
       <div className="lp-section">
         <h2 className="lp-section-title">Recurring Membership</h2>
@@ -33,6 +33,9 @@ export default function TermsPage() {
         </p>
         <p>
           ROAMSIX may make reasonable changes that preserve the overall purpose and value of the selected membership. Material changes affecting an active paid membership will be communicated directly. Changes to future renewal pricing or renewal terms will be handled according to applicable notice and consent requirements.
+        </p>
+        <p>
+          Recordings, clips, notes, action cards, and other event resources are provided only when the format, speaker permissions, participant media choices, and applicable rights allow. Not every experience will be recorded, and ROAMSIX may edit or withhold a recording to protect privacy, safety, confidential discussion, or third-party rights.
         </p>
       </div>
 

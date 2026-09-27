@@ -265,7 +265,7 @@ test('checkout fails closed when Stripe cannot verify cohort capacity', async ()
 
 test('shared membership language matches the approved founding offer', async () => {
   const { EXTRA_COST_EXPLANATION, MEMBERSHIP_TIERS } = await import('../src/data/membership.js');
-  assert.match(MEMBERSHIP_TIERS.core.forWhom, /clarity without chasing every health trend/);
+  assert.match(MEMBERSHIP_TIERS.core.forWhom, /one trusted place to make sense of health information/);
   assert.deepEqual(
     Object.values(MEMBERSHIP_TIERS).map(({ monthlyEquivalent, monthlyEquivalentLabel, annualBilling }) => ({ monthlyEquivalent, monthlyEquivalentLabel, annualBilling })),
     [
@@ -274,8 +274,11 @@ test('shared membership language matches the approved founding offer', async () 
       { monthlyEquivalent: '$395', monthlyEquivalentLabel: 'per month', annualBilling: '$4,500 billed annually' },
     ],
   );
-  assert.ok(MEMBERSHIP_TIERS.core.features.some((feature) => feature.title === 'Vetted guidance'));
-  assert.ok(MEMBERSHIP_TIERS.field.features.some((feature) => feature.title === 'Closer expert access'));
+  assert.match(MEMBERSHIP_TIERS.core.signatureBenefit, /36 planned ROAMSIX experiences/);
+  assert.ok(MEMBERSHIP_TIERS.core.features.some((feature) => feature.title === 'Keep learning when you cannot attend'));
+  assert.match(MEMBERSHIP_TIERS.field.signatureBenefit, /4 smaller expert sessions/);
+  assert.ok(MEMBERSHIP_TIERS.field.features.some((feature) => feature.title === 'Earlier access to limited rooms'));
+  assert.match(MEMBERSHIP_TIERS.journey.signatureBenefit, /Personalized briefings/);
   assert.match(EXTRA_COST_EXPLANATION, /^If offered, the larger member gathering is reserved separately and has its own ticket price\./);
 });
 
