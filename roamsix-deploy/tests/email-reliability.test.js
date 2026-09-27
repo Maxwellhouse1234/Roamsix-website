@@ -130,6 +130,24 @@ test('membership purchase messages send once to the member, Max, and Jackie', as
   assert.match(store.resendCalls.find((call) => call.body.to[0] === 'member@example.com').body.html, /monthly charge of \$75/);
 });
 
+test('unfinished membership checkout sends a branded continuation email once', async () => {
+  const store = emailStore();
+  global.fetch = store.fetchMock;
+  const { sendMembershipCheckoutStartedEmail } = await import('../lib/membership-emails.js');
+  const input = {
+    sessionId: 'cs_checkout_started', customerName: 'Clarity Seeker', email: 'seeker@example.com',
+    tier: 'Core', amount: '$75', billingFrequency: 'monthly', checkoutUrl: 'https://checkout.stripe.test/continue',
+  };
+  await sendMembershipCheckoutStartedEmail(input);
+  await sendMembershipCheckoutStartedEmail(input);
+  assert.equal(store.resendCalls.length, 1);
+  assert.equal(store.resendCalls[0].body.to[0], 'seeker@example.com');
+  assert.match(store.resendCalls[0].body.subject, /ready when you are/i);
+  assert.match(store.resendCalls[0].body.html, /Complete my membership/);
+  assert.match(store.resendCalls[0].body.html, /roamsix-outdoor-panel-bw-v1\.jpg/);
+  assert.match(store.resendCalls[0].body.html, /roamsix-journey-mediterranean-v2\.jpg/);
+});
+
 test('Stripe membership webhook returns a retryable failure when a required email fails', async () => {
   const store = emailStore({ resendFailures: 1 });
   global.fetch = store.fetchMock;
@@ -228,7 +246,7 @@ test('human-approved membership invitation is recorded and repeat sends are idem
   const checkoutResponse = mockRes();
   await checkout({
     method: 'POST',
-    body: { name: 'Approved Person', email: 'approved@example.com', tier: 'field', invite: approval.fields['Invitation Token'], termsAccepted: true },
+    body: { name: 'Approved Person', email: 'approved@example.com', tier: 'field', invite: approval.fields['Invitation Token'], renewalAccepted: true, termsAccepted: true },
     headers: { host: 'www.roamsix.test', 'x-forwarded-proto': 'https' },
   }, checkoutResponse);
   assert.equal(checkoutResponse.statusCode, 200);

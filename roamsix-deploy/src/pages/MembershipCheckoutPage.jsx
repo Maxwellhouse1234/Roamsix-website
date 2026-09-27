@@ -12,7 +12,7 @@ export default function MembershipCheckoutPage() {
   const invite = searchParams.get('invite') || '';
   const requestedBilling = searchParams.get('billing') === 'annual' ? 'annual' : 'monthly';
   const [billingCycle, setBillingCycle] = useState(requestedBilling);
-  const [form, setForm] = useState({ name: '', email: '', termsAccepted: false, emailConsent: false });
+  const [form, setForm] = useState({ name: '', email: '', renewalAccepted: false, termsAccepted: false, emailConsent: false });
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
   const [invitation, setInvitation] = useState(tierKey === 'core' ? 'approved' : 'checking');
@@ -96,7 +96,10 @@ export default function MembershipCheckoutPage() {
   return <SiteLayout theme="dark">
     <section className="section ink-section"><div className="container membership-checkout-layout">
       <div className="membership-offer"><p className="eyebrow">{tier.name} membership</p><h1>{selectedPlan.label}.</h1>
-        <p>Complete your membership through secure Stripe checkout. Your {selectedPlan.frequency === 'monthly' ? 'monthly' : 'annual'} charge is collected now and renews {selectedPlan.frequency} until you cancel.</p>
+        <p>You are one step away from a more considered way to learn, ask better questions, and choose what deserves your attention.</p>
+        <div className="membership-checkout-steps" aria-label="Membership enrollment steps"><span><strong>01</strong> Choose your membership</span><span className="active"><strong>02</strong> Review and agree</span><span><strong>03</strong> Secure payment</span></div>
+        <ul className="membership-checkout-preview">{tier.features.slice(0, 3).map((feature) => <li key={feature.title}><strong>{feature.title}</strong><span>{feature.copy}</span></li>)}</ul>
+        <img className="membership-checkout-image" src="/images/homepage/roamsix-outdoor-panel-bw-v1.jpg" alt="An intimate ROAMSIX outdoor panel and audience." />
         <div className="membership-billing-choice" role="group" aria-label="Billing frequency">
           <button className={`button ${billingCycle === 'monthly' ? 'button-accent' : 'button-secondary'}`} type="button" onClick={() => setBillingCycle('monthly')}>{tier.monthlyEquivalent} monthly</button>
           <button className={`button ${billingCycle === 'annual' ? 'button-accent' : 'button-secondary'}`} type="button" onClick={() => setBillingCycle('annual')}>{tier.price} annually</button>
@@ -109,11 +112,13 @@ export default function MembershipCheckoutPage() {
         <p className="eyebrow">Continue with {tier.name}</p>
         <label>Full name<input name="name" value={form.name} onChange={change} autoComplete="name" required /></label>
         <label>{tierKey === 'core' ? 'Email' : 'Approved email'}<input type="email" name="email" value={form.email} onChange={change} autoComplete="email" readOnly={tierKey !== 'core'} required /></label>
-        <label className="check"><input type="checkbox" name="termsAccepted" checked={form.termsAccepted} onChange={change} required /><span>I authorize ROAMSIX to charge {selectedPlan.price} now and {selectedPlan.frequency} until I cancel. I understand that, if offered, the larger member gathering has its own ticket price and proceeds only after its cash costs are covered; the year-end Journey and some partner-hosted or premium experiences are also separately purchased. I agree to the <Link to="/terms">Membership Terms</Link> and <Link to="/privacy">Privacy Policy</Link>.</span></label>
+        <div className="membership-agreement-summary"><strong>Before you continue</strong><ul><li>Your membership renews at the selected price and interval until you cancel.</li><li>You can cancel online or by email before your next renewal.</li><li>Some events, travel, and premium experiences have a separate price.</li><li>Programming, dates, experts, and benefits may evolve as explained in the Membership Terms.</li><li>ROAMSIX is educational and experiential. It is not medical care.</li></ul></div>
+        <label className="check"><input type="checkbox" name="renewalAccepted" checked={form.renewalAccepted} onChange={change} required /><span>I authorize ROAMSIX to charge {selectedPlan.price} now and {selectedPlan.frequency} until I cancel. I can cancel online at <Link to="/membership/manage">roamsix.com/membership/manage</Link> or by emailing info@roamsix.com before my next renewal.</span></label>
+        <label className="check"><input type="checkbox" name="termsAccepted" checked={form.termsAccepted} onChange={change} required /><span>I have reviewed and agree to the <Link to="/terms" target="_blank">Membership Terms</Link> and <Link to="/privacy" target="_blank">Privacy Policy</Link>. The event-specific <Link to="/waiver" target="_blank">Participant Agreement</Link> and <Link to="/media-release" target="_blank">Media Release</Link> will be presented separately before I participate in an event.</span></label>
         <label className="check"><input type="checkbox" name="emailConsent" checked={form.emailConsent} onChange={change} /><span>Send me optional ROAMSIX news and invitations. Essential membership messages are sent regardless of this choice.</span></label>
         {error ? <p className="form-error" role="alert">{error}</p> : null}
         <button className="button" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Opening secure payment…' : `Start my ${tier.name} membership · ${selectedPlan.label}`}</button>
-        <p className="form-note">After checkout, you can add nonclinical interests and preferences in the secure member area. Do not submit diagnoses, treatment information, or medical records.</p>
+        <p className="form-note">We will email you a secure link to continue if you leave before paying. No membership begins and no charge is made until Stripe confirms payment.</p>
       </form>
     </div></section>
   </SiteLayout>;

@@ -159,13 +159,14 @@ export default async function handler(req, res) {
 
     if (isMembershipRequest) {
       const requestId = interestRecord.id || `${data.email}:${now}`;
+      const requestedTier = data.professionalCategory.split(' membership')[0] || 'ROAMSIX';
       await Promise.all([
         sendTransactionalEmail({
           key: `membership-request:${requestId}:acknowledgment:${data.email}`,
           purpose: 'membership-request-acknowledgment',
           to: data.email,
-          subject: `We received your ${data.professionalCategory} request`,
-          html: `<p>Thank you for requesting <strong>${escapeHtml(data.professionalCategory)}</strong>.</p><p>We will follow up personally about the next step. This request is not a membership, does not reserve a place, and does not require payment.</p><p>ROAMSIX</p>`,
+          subject: `Your ROAMSIX ${requestedTier} membership request`,
+          html: `<!doctype html><html><body style="margin:0;background:#0A0A0A;font-family:Arial,sans-serif;color:#E5E3E0"><table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px"><tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#18181A"><tr><td style="padding:30px 38px;border-bottom:2px solid #B8562F"><div style="font-size:22px;font-weight:700;letter-spacing:5px;color:#FAFAF9">ROAMSIX</div><div style="margin-top:6px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#B8562F">Membership Request Received</div></td></tr><tr><td style="padding:36px 38px;font-size:16px;line-height:1.75"><p style="color:#FAFAF9;font-size:19px">${escapeHtml(data.firstName)},</p><p>Thank you for telling us what you hope to gain from ROAMSIX ${escapeHtml(requestedTier)} membership.</p><p>We created Field and Journey for people who want more than another stream of wellness information. They are designed for deeper questions, carefully selected expertise, memorable experiences, and the kind of perspective that changes what you notice and what you do next.</p><img src="https://www.roamsix.com/images/homepage/roamsix-outdoor-panel-bw-v1.jpg" width="524" alt="An intimate ROAMSIX outdoor conversation" style="display:block;width:100%;max-width:524px;height:auto;margin:28px 0 22px;border:0" /><p>We will review your request personally and follow up with the most appropriate next step. This request is not yet a membership, does not reserve a place, and does not require payment.</p><p>We are glad you are here, and we are excited to learn what clarity, access, and experience could make possible for you.</p><p style="margin-top:32px;color:#FAFAF9">ROAMSIX<br><span style="color:#E5E3E0">Bridging knowing and doing.</span></p></td></tr></table></td></tr></table></body></html>`,
         }),
         sendTransactionalEmail({
           key: `membership-request:${requestId}:notification:max@roamsix.com`,

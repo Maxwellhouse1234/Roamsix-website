@@ -47,7 +47,7 @@ test('Core checkout creates monthly or annual Stripe subscription sessions', asy
     return response({ url: 'https://checkout.stripe.test/session' });
   };
   const { default: checkout } = await import('../api/create-membership-checkout.js');
-  const req = { method: 'POST', body: { name: 'Test Member', email: 'member@example.com', tier: 'core', billingCycle: 'monthly', termsAccepted: true, emailConsent: false }, headers: { host: 'localhost:3000' } };
+  const req = { method: 'POST', body: { name: 'Test Member', email: 'member@example.com', tier: 'core', billingCycle: 'monthly', renewalAccepted: true, termsAccepted: true, emailConsent: false }, headers: { host: 'localhost:3000' } };
   const res = mockRes();
   await checkout(req, res);
   assert.equal(res.statusCode, 200);
@@ -79,7 +79,7 @@ test('direct Field and Journey checkout requests are rejected without an approve
     assert.equal(validation.body.authorized, false);
 
     const res = mockRes();
-    await checkout({ method: 'POST', body: { name: 'Unapproved Applicant', email: 'applicant@example.com', tier, termsAccepted: true }, headers: { host: 'localhost:3000' } }, res);
+    await checkout({ method: 'POST', body: { name: 'Unapproved Applicant', email: 'applicant@example.com', tier, renewalAccepted: true, termsAccepted: true }, headers: { host: 'localhost:3000' } }, res);
     assert.equal(res.statusCode, 403);
     assert.match(res.body.error, /approved invitation/);
   }
@@ -103,18 +103,18 @@ test('approved invitation authorizes only its email and Field tier', async () =>
   assert.equal(validation.body.email, 'approved@example.com');
 
   const approved = mockRes();
-  await checkout({ method: 'POST', body: { name: 'Approved Applicant', email: 'approved@example.com', tier: 'field', invite, termsAccepted: true }, headers: { host: 'localhost:3000' } }, approved);
+  await checkout({ method: 'POST', body: { name: 'Approved Applicant', email: 'approved@example.com', tier: 'field', invite, renewalAccepted: true, termsAccepted: true }, headers: { host: 'localhost:3000' } }, approved);
   assert.equal(approved.statusCode, 200);
   assert.equal(approved.body.url, 'https://checkout.stripe.test/field-session');
   assert.match(String(calls.at(-1).options.body), /price_field_monthly/);
   assert.match(String(calls.at(-1).options.body), /approved-invitation/);
 
   const wrongTier = mockRes();
-  await checkout({ method: 'POST', body: { name: 'Approved Applicant', email: 'approved@example.com', tier: 'journey', invite, termsAccepted: true }, headers: { host: 'localhost:3000' } }, wrongTier);
+  await checkout({ method: 'POST', body: { name: 'Approved Applicant', email: 'approved@example.com', tier: 'journey', invite, renewalAccepted: true, termsAccepted: true }, headers: { host: 'localhost:3000' } }, wrongTier);
   assert.equal(wrongTier.statusCode, 403);
 
   const wrongEmail = mockRes();
-  await checkout({ method: 'POST', body: { name: 'Approved Applicant', email: 'other@example.com', tier: 'field', invite, termsAccepted: true }, headers: { host: 'localhost:3000' } }, wrongEmail);
+  await checkout({ method: 'POST', body: { name: 'Approved Applicant', email: 'other@example.com', tier: 'field', invite, renewalAccepted: true, termsAccepted: true }, headers: { host: 'localhost:3000' } }, wrongEmail);
   assert.equal(wrongEmail.statusCode, 403);
 
   const expiredInvite = createSignedToken({ email: 'approved@example.com', tier: 'field', purpose: 'membership-invite' }, process.env.MEMBERSHIP_INVITE_SECRET, -1);
@@ -145,7 +145,7 @@ test('active cohort checkout closes after 25 unique completed paid memberships',
   };
   const { default: checkout } = await import('../api/create-membership-checkout.js');
   const res = mockRes();
-  await checkout({ method: 'POST', body: { name: 'Test Member', email: 'member@example.com', tier: 'core', termsAccepted: true }, headers: { host: 'localhost:3000' } }, res);
+  await checkout({ method: 'POST', body: { name: 'Test Member', email: 'member@example.com', tier: 'core', renewalAccepted: true, termsAccepted: true }, headers: { host: 'localhost:3000' } }, res);
   assert.equal(res.statusCode, 409);
   assert.equal(res.body.code, 'COHORT_FULL');
   assert.match(res.body.error, /Founding Cohort is full/);
@@ -172,7 +172,7 @@ test('only completed paid memberships count toward active cohort capacity', asyn
   };
   const { default: checkout } = await import('../api/create-membership-checkout.js');
   const res = mockRes();
-  await checkout({ method: 'POST', body: { name: 'Test Member', email: 'member@example.com', tier: 'core', termsAccepted: true }, headers: { host: 'localhost:3000' } }, res);
+  await checkout({ method: 'POST', body: { name: 'Test Member', email: 'member@example.com', tier: 'core', renewalAccepted: true, termsAccepted: true }, headers: { host: 'localhost:3000' } }, res);
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.url, 'https://checkout.stripe.test/session');
 });
@@ -212,7 +212,7 @@ test('duplicate paid purchases by the same email consume one cohort place', asyn
   };
   const { default: checkout } = await import('../api/create-membership-checkout.js');
   const res = mockRes();
-  await checkout({ method: 'POST', body: { name: 'Next Member', email: 'next@example.com', tier: 'core', termsAccepted: true }, headers: { host: 'localhost:3000' } }, res);
+  await checkout({ method: 'POST', body: { name: 'Next Member', email: 'next@example.com', tier: 'core', renewalAccepted: true, termsAccepted: true }, headers: { host: 'localhost:3000' } }, res);
   assert.equal(res.statusCode, 200);
 });
 
@@ -242,7 +242,7 @@ test('a full prior cohort does not consume places after intentional cohort rollo
   };
   const { default: checkout } = await import('../api/create-membership-checkout.js');
   const res = mockRes();
-  await checkout({ method: 'POST', body: { name: 'Second Cohort Member', email: 'next@example.com', tier: 'core', termsAccepted: true }, headers: { host: 'localhost:3000' } }, res);
+  await checkout({ method: 'POST', body: { name: 'Second Cohort Member', email: 'next@example.com', tier: 'core', renewalAccepted: true, termsAccepted: true }, headers: { host: 'localhost:3000' } }, res);
   assert.equal(res.statusCode, 200);
   const body = String(calls.at(-1).options.body);
   assert.match(body, /membershipCohortId.*cohort-02/);
@@ -258,14 +258,14 @@ test('checkout fails closed when Stripe cannot verify cohort capacity', async ()
   };
   const { default: checkout } = await import('../api/create-membership-checkout.js');
   const res = mockRes();
-  await checkout({ method: 'POST', body: { name: 'Test Member', email: 'member@example.com', tier: 'core', termsAccepted: true }, headers: { host: 'localhost:3000' } }, res);
+  await checkout({ method: 'POST', body: { name: 'Test Member', email: 'member@example.com', tier: 'core', renewalAccepted: true, termsAccepted: true }, headers: { host: 'localhost:3000' } }, res);
   assert.equal(res.statusCode, 500);
   assert.equal(checkoutCreated, false);
 });
 
 test('shared membership language matches the approved founding offer', async () => {
   const { EXTRA_COST_EXPLANATION, MEMBERSHIP_TIERS } = await import('../src/data/membership.js');
-  assert.equal(MEMBERSHIP_TIERS.core.forWhom, 'People who want a trusted way to keep up with what matters in health and choose experiences selectively.');
+  assert.match(MEMBERSHIP_TIERS.core.forWhom, /clarity without chasing every health trend/);
   assert.deepEqual(
     Object.values(MEMBERSHIP_TIERS).map(({ monthlyEquivalent, monthlyEquivalentLabel, annualBilling }) => ({ monthlyEquivalent, monthlyEquivalentLabel, annualBilling })),
     [
@@ -279,18 +279,22 @@ test('shared membership language matches the approved founding offer', async () 
   assert.match(EXTRA_COST_EXPLANATION, /^If offered, the larger member gathering is reserved separately and has its own ticket price\./);
 });
 
-test('public pricing offers monthly and annual billing and keeps the cohort capped at 25', async () => {
+test('public pricing emphasizes monthly pricing, moves details behind interaction, and keeps the cohort capped at 25', async () => {
   const [membership, checkout] = await Promise.all([
     readFile(new URL('../src/pages/MembershipPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/MembershipCheckoutPage.jsx', import.meta.url), 'utf8'),
   ]);
-  assert.match(membership, /Choose monthly flexibility or save with annual billing\./);
-  assert.match(membership, /Join Core monthly/);
-  assert.match(membership, /Join Core annually/);
+  assert.match(membership, /See what \{item\.name\} includes/);
+  assert.match(membership, /Choose Core/);
+  assert.doesNotMatch(membership, /item\.annualBilling/);
+  assert.doesNotMatch(membership, /Join Core annually/);
   assert.match(membership, /intentionally sized groups, generally up to 25/);
   assert.doesNotMatch(membership, /Founding (100|150)/i);
   assert.match(checkout, /billingCycle/);
+  assert.match(checkout, /name="renewalAccepted"/);
   assert.match(checkout, /I authorize ROAMSIX to charge \{selectedPlan\.price\} now and \{selectedPlan\.frequency\} until I cancel\./);
+  assert.match(checkout, /Participant Agreement/);
+  assert.match(checkout, /Media Release/);
   assert.match(checkout, /Start my \$\{tier\.name\} membership · \$\{selectedPlan\.label\}/);
 });
 

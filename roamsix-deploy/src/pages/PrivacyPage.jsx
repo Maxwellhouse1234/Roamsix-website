@@ -70,7 +70,7 @@ export default function PrivacyPage() {
       <div className="lp-section">
         <h2 className="lp-section-title">Email Communication</h2>
         <p>
-          By registering for a ROAMSIX event, you consent to receive transactional emails related to your registration, including confirmation emails, intake form reminders, event detail communications, and post-event follow-up. These emails are sent through Resend, a third-party email delivery service.
+          When you request membership, begin secure membership checkout, purchase a membership, or register for a ROAMSIX event, ROAMSIX may send transactional emails needed to complete or administer that request. These may include a secure link to continue an unfinished checkout, purchase and renewal confirmations, payment or cancellation notices, intake reminders, event details, safety information, and service follow-up. These essential messages are sent through Resend, a third-party email delivery service, and do not require consent to optional marketing.
         </p>
         <p>
           You may also receive occasional marketing emails about upcoming ROAMSIX events and offerings. You may unsubscribe from marketing emails at any time by following the unsubscribe link in the email or contacting us directly.

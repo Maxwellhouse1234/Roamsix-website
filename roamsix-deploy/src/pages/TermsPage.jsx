@@ -10,7 +10,10 @@ export default function TermsPage() {
           Membership may be billed monthly or annually. Core is $75 per month or $850 per year. Field is $185 per month or $2,200 per year. Journey is $395 per month or $4,500 per year. Private membership is invitation-based, individually designed, and priced before commitment.
         </p>
         <p>
-          Your first charge is collected when you complete Stripe Checkout. By selecting a tier and billing interval and affirmatively accepting these terms, you authorize ROAMSIX to charge the displayed price now and automatically each month or year, according to your selection, until you cancel. You may cancel online or by emailing info@roamsix.com before the next renewal. Cancellation stops future charges and takes effect at the end of the paid membership period. Fees already charged are nonrefundable except where required by law.
+          Your first charge is collected when you complete Stripe Checkout. By selecting a tier and billing interval and affirmatively accepting the recurring-payment disclosure, you authorize ROAMSIX to charge the displayed price now and automatically each month or year, according to your selection, until you cancel. You may cancel online at <a href="/membership/manage" style={{ color: "#5A8A8A" }}>roamsix.com/membership/manage</a> or by emailing info@roamsix.com before the next renewal. Cancellation stops future charges and takes effect at the end of the paid membership period. Fees already charged are nonrefundable except where required by law.
+        </p>
+        <p>
+          ROAMSIX will send renewal reminders, annual notices, and fee-change notices when required by applicable law. A change to the price or renewal terms will not be charged without the notice and affirmative consent required by law. Your enrollment acknowledgment and confirmation email are capable of being retained for your records.
         </p>
         <p>
           Membership provides the access described for the selected option across eligible ROAMSIX conversations, gatherings, movement and outdoor experiences, and confirmed partner experiences. Capacity, booking windows, guest-pass eligibility, and event-specific rules apply. Partner benefits are offered only after their terms are signed and will be identified separately.
@@ -20,6 +23,26 @@ export default function TermsPage() {
         </p>
         <p>
           If offered, the larger member gathering is reserved separately and has its own ticket price. It proceeds only after its cash costs are covered. The year-end Journey is purchased separately by every traveler and proceeds only after required deposits and minimum participation are secured. Some partner-hosted or premium experiences may have their own price, which will be stated before booking. The calendar develops throughout the year and does not guarantee a ROAMSIX-produced event every week. Membership is personal and may not be resold.
+        </p>
+      </div>
+
+      <div className="lp-section">
+        <h2 className="lp-section-title">Membership Programming and Changes</h2>
+        <p>
+          ROAMSIX is a developing membership and its calendar, dates, locations, experts, partners, formats, booking windows, and specific benefits may evolve. Availability is subject to capacity, safety, operational feasibility, expert availability, and the terms announced for each experience. Descriptions of planned programming are not a guarantee that every listed person, place, or format will be offered.
+        </p>
+        <p>
+          ROAMSIX may make reasonable changes that preserve the overall purpose and value of the selected membership. Material changes affecting an active paid membership will be communicated directly. Changes to future renewal pricing or renewal terms will be handled according to applicable notice and consent requirements.
+        </p>
+      </div>
+
+      <div className="lp-section">
+        <h2 className="lp-section-title">Agreements Required for Events</h2>
+        <p>
+          Purchasing a membership does not by itself complete the ROAMSIX Assumption of Risk and Participant Agreement or the Media Release. Before participating in an event, each attendee may be required to review and accept the event-specific participant agreement, provide relevant safety or dietary information, and make the applicable media choice. A guest using a member pass must complete the same required agreements.
+        </p>
+        <p>
+          Current versions are available at <a href="/waiver" style={{ color: "#5A8A8A" }}>roamsix.com/waiver</a> and <a href="/media-release" style={{ color: "#5A8A8A" }}>roamsix.com/media-release</a>. Event-specific terms presented during registration control if they differ from a general website version.
         </p>
       </div>
 

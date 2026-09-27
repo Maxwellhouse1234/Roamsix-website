@@ -11,8 +11,8 @@ export const MEMBERSHIP_TIERS = {
     monthlyBilling: '$75 billed monthly',
     annualBilling: '$850 billed annually',
     annualSavings: 'Save $50 with annual billing',
-    forWhom: 'People who want a trusted way to keep up with what matters in health and choose experiences selectively.',
-    summary: 'The essential ROAMSIX layer for clearer guidance, member access, and practical ways to act on what you learn.',
+    forWhom: 'People who want clarity without chasing every health trend. You want credible guidance, a better sense of what matters for you, and practical ways to use what you learn.',
+    summary: 'A trusted starting point for understanding your health more clearly and choosing the experiences that can move you forward.',
     features: [
       { title: 'Vetted guidance', copy: 'Member access to the developing calendar of doctors, practitioners, specialists, and educators.' },
       { title: 'Learning you can use', copy: 'Practical notes, selected clips, recaps, and the local discovery guide.' },
@@ -28,8 +28,8 @@ export const MEMBERSHIP_TIERS = {
     monthlyBilling: '$185 billed monthly',
     annualBilling: '$2,200 billed annually',
     annualSavings: 'Save $20 with annual billing',
-    forWhom: 'People who want deeper access to experts and smaller-format learning throughout the year.',
-    summary: 'Core access plus four small-group expert sessions and earlier access to limited-capacity experiences.',
+    forWhom: 'People who want to go deeper, ask better questions, and learn in smaller settings where expert perspective becomes more personal and useful.',
+    summary: 'More direct access, more room for your questions, and perspectives that can change how you understand your health and potential.',
     features: [
       { title: 'Everything in Core', copy: 'All Core learning, calendar access, and member experiences.' },
       { title: 'Closer expert access', copy: 'Four smaller-group expert conversations or Q&A sessions each membership year.' },
@@ -45,8 +45,8 @@ export const MEMBERSHIP_TIERS = {
     monthlyBilling: '$395 billed monthly',
     annualBilling: '$4,500 billed annually',
     annualSavings: 'Save $240 with annual billing',
-    forWhom: 'People who want the fullest ROAMSIX experience and first access to the most immersive opportunities.',
-    summary: 'Field access plus first consideration for limited-capacity experiences, relevant expert introductions, and Journey planning.',
+    forWhom: 'People who want the fullest ROAMSIX experience, with rare access, unforgettable settings, and immersive moments designed to shift perspective.',
+    summary: 'The deepest level of access for experiences that renew possibility, create lasting clarity, and stay with you long after they end.',
     features: [
       { title: 'Everything in Field', copy: 'All Core and Field learning, access, and booking benefits.' },
       { title: 'First access', copy: 'Priority consideration for the most limited-capacity ROAMSIX experiences.' },

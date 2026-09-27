@@ -63,7 +63,10 @@ export default function MembershipRequestForm({ tier, mode = 'request' }) {
     <label>Email<input type="email" name="email" value={form.email} onChange={change} autoComplete="email" required /></label>
     <label>Phone <span className="optional">Optional</span><input type="tel" name="mobile" value={form.mobile} onChange={change} autoComplete="tel" /></label>
     {!isCohortWaitlist ? <label>Preferred billing<select name="billingCycle" value={form.billingCycle} onChange={change}><option value="monthly">Monthly</option><option value="annual">Annual</option></select></label> : null}
-    <label>What would make this membership useful to you?<textarea name="reason" value={form.reason} onChange={change} rows="4" required /></label>
+    <label>What are you hoping ROAMSIX helps you gain?
+      <span className="form-guidance">Choose one or two ideas that feel most relevant: clearer guidance, better questions for experts, practical next steps, more immersive experiences, or a new perspective on what is possible for you.</span>
+      <textarea name="reason" value={form.reason} onChange={change} rows="4" placeholder="For example: I want to make sense of conflicting advice and know what deserves my attention now." required />
+    </label>
     <label className="check"><input type="checkbox" name="privacyAccepted" checked={form.privacyAccepted} onChange={change} required /><span>I agree to the <Link to="/privacy">Privacy Policy</Link> and want ROAMSIX to contact me about this request and relevant membership updates.</span></label>
     {error ? <p className="form-error" role="alert">{error}</p> : null}
     <button className="button" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Sending…' : isCohortWaitlist ? 'Join the next-cohort interest list' : isCoreEnrollment ? 'Continue Core enrollment' : `Send my ${tier} request`}</button>

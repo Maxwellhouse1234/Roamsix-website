@@ -1,8 +1,9 @@
 import { verifySignedToken } from "../lib/member-auth.js";
 import { activeMembershipCohort, cohortMatches } from "../lib/membership-cohort.js";
+import { sendMembershipCheckoutStartedEmail } from "../lib/membership-emails.js";
 import { randomBytes } from "node:crypto";
 
-const LEGAL_VERSION = "2026-09-26-v11";
+const LEGAL_VERSION = "2026-09-27-v12";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const TIERS = {
@@ -123,11 +124,13 @@ export default async function handler(req, res) {
 
   const name = String(req.body?.name || "").trim().slice(0, 200);
   const email = String(req.body?.email || "").trim().toLowerCase().slice(0, 320);
+  const renewalAccepted = req.body?.renewalAccepted === true;
   const termsAccepted = req.body?.termsAccepted === true;
   const emailConsent = req.body?.emailConsent === true;
   const acceptedAt = String(req.body?.acceptedAt || new Date().toISOString()).slice(0, 100);
 
   if (!name || !EMAIL_RE.test(email)) return res.status(400).json({ error: "Please provide your name and a valid email address." });
+  if (!renewalAccepted) return res.status(400).json({ error: "Please authorize the selected recurring membership charge." });
   if (!termsAccepted) return res.status(400).json({ error: "Please review and accept the membership terms." });
   if (tierKey !== "core") {
     if (!process.env.MEMBERSHIP_INVITE_SECRET) {
@@ -169,7 +172,7 @@ export default async function handler(req, res) {
       membershipCohortId: cohort.id, membershipCohortLabel: cohort.label,
       billingCycle, billingAmount: plan.amount, billingFrequency: plan.frequency,
       customerName: name, emailConsent: emailConsent ? "true" : "false",
-      acceptedLegalVersion: LEGAL_VERSION, acceptedAt, agreedToTerms: "true", automaticRenewalConsent: "true",
+      acceptedLegalVersion: LEGAL_VERSION, acceptedAt, agreedToTerms: "true", automaticRenewalConsent: renewalAccepted ? "true" : "false",
       enrollmentAuthorization: tierKey === "core" ? "public" : "approved-invitation",
     };
     Object.entries(metadata).forEach(([key, value]) => {
@@ -177,6 +180,21 @@ export default async function handler(req, res) {
       params.set(`subscription_data[metadata][${key}]`, value);
     });
     const data = await stripeRequest("checkout/sessions", secret, params);
+    if (data.id && data.url) {
+      try {
+        await sendMembershipCheckoutStartedEmail({
+          sessionId: data.id,
+          customerName: name,
+          email,
+          tier: tier.name,
+          amount: plan.amount,
+          billingFrequency: plan.frequency,
+          checkoutUrl: data.url,
+        });
+      } catch (emailError) {
+        console.error("Membership checkout continuation email failed:", emailError.message);
+      }
+    }
     return res.status(200).json({ url: data.url });
   } catch (error) {
     console.error("Membership checkout failed:", error.message);
