@@ -2,7 +2,7 @@ const baseId = process.env.ROAMSIX_CRM_BASE_ID || "appdIBqCMPWJxODG2";
 const token = process.env.AIRTABLE_TOKEN;
 
 if (!token) {
-  console.error("AIRTABLE_TOKEN is required to provision email operations tables.");
+  console.error("AIRTABLE_TOKEN is required to provision operations tables.");
   process.exitCode = 1;
 } else {
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
@@ -65,6 +65,61 @@ if (!token) {
         { name: "Stripe Subscription ID", type: "singleLineText" },
         { name: "Status", type: "singleLineText" },
         { name: "Joined At", type: "dateTime", options: dateTimeOptions },
+      ],
+    },
+    {
+      name: "Member Benefits",
+      fields: [
+        { name: "Benefit", type: "singleLineText" },
+        { name: "Partner", type: "singleLineText" },
+        { name: "Status", type: "singleLineText" },
+        { name: "Member Visible", type: "checkbox", options: { icon: "check", color: "greenBright" } },
+        { name: "Publicly Listed", type: "checkbox", options: { icon: "check", color: "blueBright" } },
+        { name: "Eligible Tiers", type: "singleLineText" },
+        { name: "Category", type: "singleLineText" },
+        { name: "Exact Offer", type: "multilineText" },
+        { name: "Public Summary", type: "multilineText" },
+        { name: "Retail Value", type: "number", options: { precision: 2 } },
+        { name: "Retail Value Label", type: "singleLineText" },
+        { name: "ROAMSIX Cost", type: "number", options: { precision: 2 } },
+        { name: "Redemptions Per Member", type: "number", options: { precision: 0 } },
+        { name: "Annual Inventory", type: "number", options: { precision: 0 } },
+        { name: "Redemption Method", type: "singleLineText" },
+        { name: "Redemption URL", type: "url" },
+        { name: "Redemption Instructions", type: "multilineText" },
+        { name: "Booking Rules", type: "multilineText" },
+        { name: "Blackout Rules", type: "multilineText" },
+        { name: "Starts At", type: "dateTime", options: dateTimeOptions },
+        { name: "Expires At", type: "dateTime", options: dateTimeOptions },
+        { name: "Partner Logo URL", type: "url" },
+        { name: "Benefit URL", type: "url" },
+        { name: "Third Party Disclaimer", type: "multilineText" },
+        { name: "Liability / Insurance", type: "multilineText" },
+        { name: "Member Data Handling", type: "multilineText" },
+        { name: "Fulfillment Owner", type: "singleLineText" },
+        { name: "Contract Starts", type: "dateTime", options: dateTimeOptions },
+        { name: "Contract Ends", type: "dateTime", options: dateTimeOptions },
+        { name: "Approved Website Language", type: "multilineText" },
+        { name: "Replacement Plan", type: "multilineText" },
+        { name: "Sort Order", type: "number", options: { precision: 0 } },
+        { name: "Last Reviewed", type: "dateTime", options: dateTimeOptions },
+        { name: "Internal Notes", type: "multilineText" },
+      ],
+    },
+    {
+      name: "Member Benefit Redemptions",
+      fields: [
+        { name: "Redemption ID", type: "singleLineText" },
+        { name: "Benefit ID", type: "singleLineText" },
+        { name: "Benefit Snapshot", type: "singleLineText" },
+        { name: "Member Email", type: "email" },
+        { name: "Tier Snapshot", type: "singleLineText" },
+        { name: "Quantity", type: "number", options: { precision: 0 } },
+        { name: "Status", type: "singleLineText" },
+        { name: "Requested At", type: "dateTime", options: dateTimeOptions },
+        { name: "Fulfilled At", type: "dateTime", options: dateTimeOptions },
+        { name: "Partner Reference", type: "singleLineText" },
+        { name: "Notes", type: "multilineText" },
       ],
     },
   ];

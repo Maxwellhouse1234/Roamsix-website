@@ -7,6 +7,7 @@ const CONTRIBUTIONS = [
   { title: 'Join the faculty for a retreat', format: 'Two days or more · Multi-expert', detail: 'Contribute your expertise alongside specialists from other fields.' },
   { title: 'Develop an original experience around my work', format: 'Custom format · Co-developed', detail: 'Build a conversation, learning day, retreat, or journey around your research or practice.' },
   { title: 'Contribute a place, craft, ingredient, or method', format: 'Integrated contribution · Flexible', detail: 'Bring a setting, ingredient, process, or activity that makes the subject tangible.' },
+  { title: 'Offer a member benefit or partner experience', format: 'Ongoing or limited allocation · Contracted', detail: 'Extend a confirmed trial, assessment, product, workspace, studio, workshop, private experience, preferred rate, or sponsored experience to ROAMSIX members.' },
 ];
 const EXPERT_TYPES = [...CONTRIBUTIONS.map(({ title }) => title), 'I am open to the right format'];
 
@@ -31,7 +32,7 @@ export default function CollaboratePage() {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, inquiryType: `Expert collaboration · ${form.inquiryType}`, source: 'Expert Collaboration Page' }),
+        body: JSON.stringify({ ...form, inquiryType: `Collaboration · ${form.inquiryType}`, source: 'Collaboration Page' }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || 'Your inquiry could not be sent.');
@@ -76,7 +77,7 @@ export default function CollaboratePage() {
               <label>Email<input type="email" name="email" value={form.email} onChange={change} autoComplete="email" required /></label>
               <label>Organization or field <span className="optional">Optional</span><input name="company" value={form.company} onChange={change} /></label>
               <label>How would you like to contribute?<select name="inquiryType" value={form.inquiryType} onChange={change}>{EXPERT_TYPES.map((type) => <option key={type}>{type}</option>)}</select></label>
-              <label>Tell us about your work and the question you want people to explore<textarea name="message" value={form.message} onChange={change} rows="6" required /></label>
+              <label>Tell us about your work, offering, or the question you want people to explore<textarea name="message" value={form.message} onChange={change} rows="6" required /></label>
               {error ? <p className="form-error" role="alert">{error}</p> : null}
               <button className="button button-accent" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Sending…' : 'Introduce your work'}</button>
               <p className="form-note">We review every inquiry personally and choose collaborators for the quality, integrity, and relevance of their work. A considered introduction is more useful than a formal pitch deck.</p>

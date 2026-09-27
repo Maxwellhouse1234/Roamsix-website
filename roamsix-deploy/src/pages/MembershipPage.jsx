@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SiteLayout from '../components/SiteLayout';
+import { PublicMembershipBenefits } from '../components/MemberBenefits';
 import MembershipRequestForm from '../components/MembershipRequestForm';
 import { EXTRA_COST_EXPLANATION, GUEST_PASS_DEFINITION, MEMBERSHIP_TIERS } from '../data/membership';
 
@@ -40,6 +41,8 @@ export default function MembershipPage() {
       <article className="private-tier"><p className="eyebrow">By invitation</p><h3>Private</h3><strong>Designed individually</strong><p className="tier-audience"><strong>Best for:</strong> Individuals or families seeking a more personal level of access and planning.</p><p>Private membership is tailored around the access, experiences, and support that make sense for the member. Details and pricing are discussed privately before any commitment.</p><a className="text-link" href="mailto:info@roamsix.com?subject=ROAMSIX%20Private%20membership">Ask about Private membership <span aria-hidden="true">→</span></a></article>
       </div>
     </div></section>
+
+    <PublicMembershipBenefits />
 
     <section className="section ink-section" id="request-membership"><div className="container membership-checkout-layout"><div className="membership-offer"><p className="eyebrow">Field and Journey</p><h2>Begin with a brief conversation.</h2><p>Tell us where you want more clarity, access, or depth. We will review your request personally and help you decide whether Field or Journey is the right fit.</p><p>Submitting this form does not take payment or create a membership.</p><div className="button-row"><button className={`button ${requestedTier === 'Field' ? 'button-accent' : 'button-secondary'}`} type="button" onClick={() => setRequestedTier('Field')}>Field</button><button className={`button ${requestedTier === 'Journey' ? 'button-accent' : 'button-secondary'}`} type="button" onClick={() => setRequestedTier('Journey')}>Journey</button></div></div><MembershipRequestForm key={requestedTier} tier={requestedTier} /></div></section>
 

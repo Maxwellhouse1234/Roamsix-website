@@ -16,6 +16,7 @@ process.env.RESEND_API_KEY = 'resend_mock';
 process.env.ACTIVE_MEMBERSHIP_COHORT_ID = 'founding';
 process.env.ACTIVE_MEMBERSHIP_COHORT_LABEL = 'Founding Cohort';
 process.env.MEMBERSHIP_COHORT_CAPACITY = '25';
+process.env.ROAMSIX_CRM_MEMBER_BENEFITS_TABLE_ID = 'tblBenefits';
 
 function response(body, status = 200) {
   return { ok: status >= 200 && status < 300, status, json: async () => body, text: async () => JSON.stringify(body) };
@@ -357,6 +358,7 @@ test('dashboard returns Stripe status and the existing Airtable member profile',
     if (value.includes('/customers?')) return response({ data: [{ id: 'cus_1' }] });
     if (value.includes('/subscriptions?')) return response({ data: [{ status: 'active', metadata: { membershipTier: 'Journey', membershipCohortId: 'founding', membershipCohortLabel: 'Founding Cohort' }, current_period_end: 1800000000, items: { data: [{ price: { id: 'price_journey' } }] } }] });
     if (value.includes('tblV06NCECV5m4lYf?')) return response({ records: [{ id: 'rec_member', fields: { 'Full Name': 'Test Member', Email: 'member@example.com', 'Topic Interests': ['Sleep & Recovery'] } }] });
+    if (value.includes('tblBenefits?')) return response({ records: [{ id: 'rec_benefit', fields: { Benefit: 'Private studio introduction', Partner: 'Example Studio', Status: 'Confirmed', 'Member Visible': true, 'Eligible Tiers': 'Journey', 'Exact Offer': 'One confirmed introductory session', 'Retail Value Label': '$125 stated partner value', 'Redemption Instructions': 'Use the secure partner link.', 'Redemption URL': 'https://partner.example/redeem', 'ROAMSIX Cost': 25 } }] });
     throw new Error(`Unexpected URL ${value}`);
   };
   const { createSignedToken, sessionCookie } = await import('../lib/member-auth.js');
@@ -369,6 +371,62 @@ test('dashboard returns Stripe status and the existing Airtable member profile',
   assert.equal(res.body.membership.cohortId, 'founding');
   assert.equal(res.body.membership.cohortLabel, 'Founding Cohort');
   assert.equal(res.body.profile.fullName, 'Test Member');
+  assert.equal(res.body.benefits.length, 1);
+  assert.equal(res.body.benefits[0].title, 'Private studio introduction');
+  assert.equal(res.body.benefits[0]['ROAMSIX Cost'], undefined);
+});
+
+test('member-benefit publishing gates exclude hypothetical, inactive, and wrong-tier offers', async () => {
+  const { visibleBenefitFromRecord } = await import('../lib/member-benefits.js');
+  const now = new Date('2027-06-01T12:00:00.000Z');
+  const fields = {
+    Benefit: 'Confirmed assessment',
+    Partner: 'Example Partner',
+    Status: 'Confirmed',
+    'Member Visible': true,
+    'Publicly Listed': true,
+    'Eligible Tiers': 'Field, Journey',
+    'Exact Offer': 'One assessment',
+    'Retail Value': 200,
+    'Retail Value Label': '$200 stated partner value',
+    'Approved Website Language': 'A confirmed assessment with clearly stated terms.',
+    'Partner Logo URL': 'https://partner.example/logo.png',
+    'Redemption URL': 'https://partner.example/redeem',
+    'ROAMSIX Cost': 75,
+    'Member Data Handling': 'Internal only',
+    'Starts At': '2027-01-01T00:00:00.000Z',
+    'Expires At': '2027-12-31T23:59:59.000Z',
+  };
+  const fieldBenefit = visibleBenefitFromRecord({ id: 'rec_confirmed', fields }, { tier: 'Field', now });
+  assert.equal(fieldBenefit.title, 'Confirmed assessment');
+  assert.equal(fieldBenefit.redemptionUrl, 'https://partner.example/redeem');
+  assert.equal(fieldBenefit['ROAMSIX Cost'], undefined);
+  assert.equal(fieldBenefit['Member Data Handling'], undefined);
+  assert.equal(visibleBenefitFromRecord({ id: 'rec_core', fields }, { tier: 'Core', now }), null);
+  assert.equal(visibleBenefitFromRecord({ id: 'rec_draft', fields: { ...fields, Status: 'Negotiating' } }, { tier: 'Field', now }), null);
+  assert.equal(visibleBenefitFromRecord({ id: 'rec_future', fields: { ...fields, 'Starts At': '2028-01-01T00:00:00.000Z' } }, { tier: 'Field', now }), null);
+  assert.equal(visibleBenefitFromRecord({ id: 'rec_hidden', fields: { ...fields, 'Publicly Listed': false } }, { audience: 'public', now }), null);
+  const publicBenefit = visibleBenefitFromRecord({ id: 'rec_public', fields: { ...fields, 'Redemption URL': 'http://unsafe.example/redeem' } }, { audience: 'public', now });
+  assert.equal(publicBenefit.redemptionUrl, undefined);
+  assert.equal(publicBenefit['ROAMSIX Cost'], undefined);
+});
+
+test('public member-benefit endpoint returns confirmed public fields only', async () => {
+  global.fetch = async (url) => {
+    if (String(url).includes('tblBenefits?')) return response({ records: [
+      { id: 'rec_public', fields: { Benefit: 'Partner trial', Status: 'Confirmed', 'Publicly Listed': true, 'Eligible Tiers': 'Core, Field, Journey', 'Exact Offer': 'A confirmed introductory trial', 'Approved Website Language': 'Try a confirmed partner experience with clearly stated terms.', 'ROAMSIX Cost': 10 } },
+      { id: 'rec_draft', fields: { Benefit: 'Possible gift box', Status: 'Negotiating', 'Publicly Listed': true, 'Eligible Tiers': 'Journey' } },
+    ] });
+    throw new Error(`Unexpected URL ${url}`);
+  };
+  const { default: benefitsApi } = await import('../api/member-benefits.js');
+  const res = mockRes();
+  await benefitsApi({ method: 'GET' }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.benefits.length, 1);
+  assert.equal(res.body.benefits[0].title, 'Partner trial');
+  assert.equal(res.body.benefits[0]['ROAMSIX Cost'], undefined);
+  assert.match(res.headers['Cache-Control'], /s-maxage=300/);
 });
 
 test('member booking request requires a signed session and writes to existing CRM', async () => {

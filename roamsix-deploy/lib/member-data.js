@@ -1,4 +1,5 @@
 import { airtable, findOne, formulaValue } from "./airtable-api.js";
+import { memberBenefitsForTier } from "./member-benefits.js";
 import { cohortFromMetadata } from "./membership-cohort.js";
 
 const CONTACTS_TABLE_ID = process.env.ROAMSIX_CRM_CONTACTS_TABLE_ID || "tblV06NCECV5m4lYf";
@@ -75,10 +76,19 @@ export async function getMemberContact(email) {
 
 export async function memberDashboard(email) {
   const [membership, contact] = await Promise.all([membershipForEmail(email), getMemberContact(email)]);
+  let benefits = [];
+  if (membership.eligible) {
+    try {
+      benefits = await memberBenefitsForTier(membership.tier);
+    } catch (error) {
+      console.error("Member benefits lookup failed:", error.message);
+    }
+  }
   const fields = contact?.fields || {};
   const stored = profileFromNotes(fields.Notes);
   return {
     membership,
+    benefits,
     profile: {
       fullName: fields["Full Name"] || "",
       email,
