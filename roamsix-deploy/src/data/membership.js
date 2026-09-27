@@ -29,7 +29,7 @@ export const MEMBERSHIP_TIERS = {
     monthlyBilling: '$185 billed monthly',
     annualBilling: '$2,200 billed annually',
     annualSavings: 'Save $20 with annual billing',
-    forWhom: 'You want everything in Core, plus guaranteed smaller-group expert sessions, earlier booking, and more opportunities to bring your own questions into the room.',
+    forWhom: 'You want everything in Core, plus four smaller-group expert sessions, earlier booking, and more opportunities to bring your own questions into the room.',
     summary: 'Move from listening to participating, with direct opportunities to ask questions and more reliable access to limited-capacity experiences.',
     signatureBenefit: 'Everything in Core · 4 smaller expert sessions · Priority booking · 8 guest passes',
     features: [
