@@ -5,7 +5,7 @@ import { trackEvent } from '../lib/analytics';
 export default function MembershipRequestForm({ tier, mode = 'request' }) {
   const isCohortWaitlist = mode === 'cohort-waitlist';
   const isCoreEnrollment = tier === 'Core' && !isCohortWaitlist;
-  const [form, setForm] = useState({ fullName: '', email: '', mobile: '', reason: '', privacyAccepted: false });
+  const [form, setForm] = useState({ fullName: '', email: '', mobile: '', reason: '', billingCycle: 'monthly', privacyAccepted: false });
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
 
@@ -33,8 +33,8 @@ export default function MembershipRequestForm({ tier, mode = 'request' }) {
           mobile: form.mobile,
           role: 'Prospective member',
           organization: '',
-          professionalCategory: isCohortWaitlist ? 'Next membership cohort' : `${tier} membership`,
-          challenge: form.reason,
+          professionalCategory: isCohortWaitlist ? 'Next membership cohort' : `${tier} membership · ${form.billingCycle} billing`,
+          challenge: `${form.reason}\n\nBilling preference: ${form.billingCycle}`,
           paymentSource: 'self',
           referralSource: '',
           source: 'membership-request',
@@ -62,6 +62,7 @@ export default function MembershipRequestForm({ tier, mode = 'request' }) {
     <label>Full name<input name="fullName" value={form.fullName} onChange={change} autoComplete="name" required /></label>
     <label>Email<input type="email" name="email" value={form.email} onChange={change} autoComplete="email" required /></label>
     <label>Phone <span className="optional">Optional</span><input type="tel" name="mobile" value={form.mobile} onChange={change} autoComplete="tel" /></label>
+    {!isCohortWaitlist ? <label>Preferred billing<select name="billingCycle" value={form.billingCycle} onChange={change}><option value="monthly">Monthly</option><option value="annual">Annual</option></select></label> : null}
     <label>What would make this membership useful to you?<textarea name="reason" value={form.reason} onChange={change} rows="4" required /></label>
     <label className="check"><input type="checkbox" name="privacyAccepted" checked={form.privacyAccepted} onChange={change} required /><span>I agree to the <Link to="/privacy">Privacy Policy</Link> and want ROAMSIX to contact me about this request and relevant membership updates.</span></label>
     {error ? <p className="form-error" role="alert">{error}</p> : null}

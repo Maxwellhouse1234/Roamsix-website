@@ -2,9 +2,12 @@ import { sendTransactionalEmail } from "./transactional-email.js";
 import { cohortFromMetadata } from "./membership-cohort.js";
 
 const TIER_BY_PRICE = () => ({
-  [process.env.STRIPE_MEMBERSHIP_CORE_PRICE_ID]: { name: "Core", amount: "$850" },
-  [process.env.STRIPE_MEMBERSHIP_FIELD_PRICE_ID]: { name: "Field", amount: "$2,200" },
-  [process.env.STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID]: { name: "Journey", amount: "$4,500" },
+  [process.env.STRIPE_MEMBERSHIP_CORE_MONTHLY_PRICE_ID]: { name: "Core", amount: "$75", cycle: "monthly", frequency: "monthly" },
+  [process.env.STRIPE_MEMBERSHIP_CORE_PRICE_ID]: { name: "Core", amount: "$850", cycle: "annual", frequency: "annually" },
+  [process.env.STRIPE_MEMBERSHIP_FIELD_MONTHLY_PRICE_ID]: { name: "Field", amount: "$185", cycle: "monthly", frequency: "monthly" },
+  [process.env.STRIPE_MEMBERSHIP_FIELD_PRICE_ID]: { name: "Field", amount: "$2,200", cycle: "annual", frequency: "annually" },
+  [process.env.STRIPE_MEMBERSHIP_JOURNEY_MONTHLY_PRICE_ID]: { name: "Journey", amount: "$395", cycle: "monthly", frequency: "monthly" },
+  [process.env.STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID]: { name: "Journey", amount: "$4,500", cycle: "annual", frequency: "annually" },
 });
 
 function escapeHtml(value) {
@@ -24,8 +27,11 @@ function assertMembershipEmailConfig({ lifecycle = false } = {}) {
     "RESEND_API_KEY",
     "AIRTABLE_TOKEN",
     "STRIPE_MEMBERSHIP_CORE_PRICE_ID",
+    "STRIPE_MEMBERSHIP_CORE_MONTHLY_PRICE_ID",
     "STRIPE_MEMBERSHIP_FIELD_PRICE_ID",
+    "STRIPE_MEMBERSHIP_FIELD_MONTHLY_PRICE_ID",
     "STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID",
+    "STRIPE_MEMBERSHIP_JOURNEY_MONTHLY_PRICE_ID",
   ];
   if (lifecycle) required.push("STRIPE_SECRET_KEY", "STRIPE_CUSTOMER_PORTAL_URL");
   const missing = required.filter((name) => !process.env[name]);
@@ -49,7 +55,13 @@ function membershipPlan(subscription) {
   const plan = TIER_BY_PRICE()[priceId];
   if (plan) return { ...plan, priceId };
   const metadataTier = subscription?.metadata?.membershipTier;
-  if (["Core", "Field", "Journey"].includes(metadataTier)) return { name: metadataTier, amount: subscription.metadata?.billingAmount || "the current annual rate", priceId };
+  if (["Core", "Field", "Journey"].includes(metadataTier)) return {
+    name: metadataTier,
+    amount: subscription.metadata?.billingAmount || "the current rate",
+    cycle: subscription.metadata?.billingCycle || "annual",
+    frequency: subscription.metadata?.billingFrequency || "annually",
+    priceId,
+  };
   return null;
 }
 
@@ -81,12 +93,14 @@ export async function sendMembershipPurchaseEmails({ eventId, session, sessionId
   if (!eventId || !sessionId || !email) throw new Error("Membership confirmation requires Stripe event, session, and customer email");
   const tier = session.metadata?.membershipTier || "Core";
   const amount = session.metadata?.billingAmount || "$850";
+  const billingCycle = session.metadata?.billingCycle || "annual";
+  const billingFrequency = session.metadata?.billingFrequency || "annually";
   const cohort = cohortFromMetadata(session.metadata);
   const firstName = escapeHtml(String(customerName || "").split(" ")[0] || "there");
   const portal = portalUrl(origin);
   const cohortLine = cohort.id ? `<p>You are joining the <strong>${escapeHtml(cohort.label)}</strong>. Your cohort organizes enrollment and helps ROAMSIX manage access as programming grows.</p>` : "";
-  const memberHtml = shell("Membership Confirmed", `<p style="color:#FAFAF9;font-size:19px">${firstName},</p><p>Your ROAMSIX ${escapeHtml(tier)} membership is confirmed.</p>${cohortLine}<p>Your annual charge of ${escapeHtml(amount)} was collected securely by Stripe and renews annually until you cancel.</p><p>You may manage renewal and payment details through <a href="${portal}" style="color:#B8562F">online billing management</a> or by emailing info@roamsix.com.</p><p>If offered, the larger member gathering is reserved separately and has its own ticket price. It proceeds only after its cash costs are covered. The year-end Journey is purchased separately by every traveler. Some partner-hosted or premium experiences may also have their own price, stated before booking.</p>`);
-  const internalHtml = `<p><strong>New Annual ${escapeHtml(tier)} Membership</strong></p><p>${escapeHtml(customerName)} · ${escapeHtml(email)}</p><p>${escapeHtml(amount)} annually</p><p>Cohort: ${escapeHtml(cohort.label || "Unassigned")} (${escapeHtml(cohort.id || "missing")})</p><p>Stripe event: ${escapeHtml(eventId)}</p><p>Stripe session: ${escapeHtml(sessionId)}</p>`;
+  const memberHtml = shell("Membership Confirmed", `<p style="color:#FAFAF9;font-size:19px">${firstName},</p><p>Your ROAMSIX ${escapeHtml(tier)} membership is confirmed.</p>${cohortLine}<p>Your ${escapeHtml(billingCycle)} charge of ${escapeHtml(amount)} was collected securely by Stripe and renews ${escapeHtml(billingFrequency)} until you cancel.</p><p>You may manage renewal and payment details through <a href="${portal}" style="color:#B8562F">online billing management</a> or by emailing info@roamsix.com.</p><p>If offered, the larger member gathering is reserved separately and has its own ticket price. It proceeds only after its cash costs are covered. The year-end Journey is purchased separately by every traveler. Some partner-hosted or premium experiences may also have their own price, stated before booking.</p>`);
+  const internalHtml = `<p><strong>New ${escapeHtml(billingCycle)} ${escapeHtml(tier)} Membership</strong></p><p>${escapeHtml(customerName)} · ${escapeHtml(email)}</p><p>${escapeHtml(amount)} billed ${escapeHtml(billingFrequency)}</p><p>Cohort: ${escapeHtml(cohort.label || "Unassigned")} (${escapeHtml(cohort.id || "missing")})</p><p>Stripe event: ${escapeHtml(eventId)}</p><p>Stripe session: ${escapeHtml(sessionId)}</p>`;
   const common = { stripeEventId: eventId, stripeSessionId: sessionId };
   return Promise.all([
     sendTransactionalEmail({ ...common, key: `stripe:${eventId}:${sessionId}:membership-confirmation:${email}`, purpose: "membership-confirmation", to: email, subject: "Your ROAMSIX Membership is confirmed", html: memberHtml }),
@@ -120,7 +134,7 @@ export async function handleMembershipLifecycleEvent(event, origin = "https://ww
         to: email,
         stripeEventId: event.id,
         subject: "Your ROAMSIX membership has renewed",
-        html: shell("Membership Renewed", `<p>Your annual ROAMSIX ${escapeHtml(plan.name)} membership renewal was successful.</p><p>The amount paid was ${escapeHtml(object.amount_paid ? `$${(object.amount_paid / 100).toFixed(2)}` : plan.amount)}.</p><p>You can review billing details through <a href="${portal}" style="color:#B8562F">secure billing management</a>.</p>`),
+        html: shell("Membership Renewed", `<p>Your ${escapeHtml(plan.cycle)} ROAMSIX ${escapeHtml(plan.name)} membership renewal was successful.</p><p>The amount paid was ${escapeHtml(object.amount_paid ? `$${(object.amount_paid / 100).toFixed(2)}` : plan.amount)}.</p><p>You can review billing details through <a href="${portal}" style="color:#B8562F">secure billing management</a>.</p>`),
       });
       return { handled: true, purpose: "membership-renewal-paid" };
     }

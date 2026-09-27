@@ -2,13 +2,22 @@ import { verifySignedToken } from "../lib/member-auth.js";
 import { activeMembershipCohort, cohortMatches } from "../lib/membership-cohort.js";
 import { randomBytes } from "node:crypto";
 
-const LEGAL_VERSION = "2026-09-24-v10";
+const LEGAL_VERSION = "2026-09-26-v11";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const TIERS = {
-  core: { name: "Core", amount: "$850", priceEnv: "STRIPE_MEMBERSHIP_CORE_PRICE_ID" },
-  field: { name: "Field", amount: "$2,200", priceEnv: "STRIPE_MEMBERSHIP_FIELD_PRICE_ID" },
-  journey: { name: "Journey", amount: "$4,500", priceEnv: "STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID" },
+  core: { name: "Core", plans: {
+    monthly: { amount: "$75", priceEnv: "STRIPE_MEMBERSHIP_CORE_MONTHLY_PRICE_ID", frequency: "monthly" },
+    annual: { amount: "$850", priceEnv: "STRIPE_MEMBERSHIP_CORE_PRICE_ID", frequency: "annually" },
+  } },
+  field: { name: "Field", plans: {
+    monthly: { amount: "$185", priceEnv: "STRIPE_MEMBERSHIP_FIELD_MONTHLY_PRICE_ID", frequency: "monthly" },
+    annual: { amount: "$2,200", priceEnv: "STRIPE_MEMBERSHIP_FIELD_PRICE_ID", frequency: "annually" },
+  } },
+  journey: { name: "Journey", plans: {
+    monthly: { amount: "$395", priceEnv: "STRIPE_MEMBERSHIP_JOURNEY_MONTHLY_PRICE_ID", frequency: "monthly" },
+    annual: { amount: "$4,500", priceEnv: "STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID", frequency: "annually" },
+  } },
 };
 
 async function stripeRequest(path, secret, params) {
@@ -94,10 +103,13 @@ export default async function handler(req, res) {
   const input = req.method === "GET" ? req.query : req.body;
   const tierKey = String(input?.tier || "core").toLowerCase();
   const tier = TIERS[tierKey];
+  const billingCycle = String(input?.billingCycle || "monthly").toLowerCase();
+  const plan = tier?.plans?.[billingCycle];
   const invitationToken = String(input?.invite || "");
   const cohort = activeMembershipCohort();
 
   if (!tier) return res.status(400).json({ error: "Please select Core, Field, or Journey." });
+  if (!plan) return res.status(400).json({ error: "Please select monthly or annual billing." });
   if (req.method === "GET") {
     res.setHeader("Cache-Control", "no-store");
     if (tierKey === "core") return res.status(200).json({ authorized: true, tier: tierKey });
@@ -127,9 +139,8 @@ export default async function handler(req, res) {
   }
 
   const secret = process.env.STRIPE_SECRET_KEY;
-  const priceId = process.env[tier.priceEnv];
-  const priceIds = Object.values(TIERS).map((item) => process.env[item.priceEnv]).filter(Boolean);
-  if (!secret || !priceId || priceIds.length !== 3) return res.status(503).json({ error: "Membership checkout is not configured yet." });
+  const priceId = process.env[plan.priceEnv];
+  if (!secret || !priceId) return res.status(503).json({ error: `Membership ${billingCycle} checkout is not configured yet.` });
 
   try {
     if (await paidMembershipCount(secret, cohort.id) >= cohort.capacity) {
@@ -149,14 +160,14 @@ export default async function handler(req, res) {
     params.set("customer_email", email);
     params.set("payment_method_collection", "always");
     params.set("success_url", `${origin}/membership/success?session_id={CHECKOUT_SESSION_ID}`);
-    params.set("cancel_url", tierKey === "core" ? `${origin}/membership/checkout/core` : `${origin}/membership#request-membership`);
+    params.set("cancel_url", tierKey === "core" ? `${origin}/membership/checkout/core?billing=${billingCycle}` : `${origin}/membership#request-membership`);
     params.set("line_items[0][price]", priceId);
     params.set("line_items[0][quantity]", "1");
     params.set("allow_promotion_codes", "false");
     const metadata = {
       purchaseType: "membership", membershipTier: tier.name,
       membershipCohortId: cohort.id, membershipCohortLabel: cohort.label,
-      billingCycle: "annual", billingAmount: tier.amount, billingFrequency: "annually",
+      billingCycle, billingAmount: plan.amount, billingFrequency: plan.frequency,
       customerName: name, emailConsent: emailConsent ? "true" : "false",
       acceptedLegalVersion: LEGAL_VERSION, acceptedAt, agreedToTerms: "true", automaticRenewalConsent: "true",
       enrollmentAuthorization: tierKey === "core" ? "public" : "approved-invitation",

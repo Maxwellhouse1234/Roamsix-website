@@ -10,6 +10,8 @@ export default function MembershipCheckoutPage() {
   const [searchParams] = useSearchParams();
   const tier = MEMBERSHIP_TIERS[tierKey];
   const invite = searchParams.get('invite') || '';
+  const requestedBilling = searchParams.get('billing') === 'annual' ? 'annual' : 'monthly';
+  const [billingCycle, setBillingCycle] = useState(requestedBilling);
   const [form, setForm] = useState({ name: '', email: '', termsAccepted: false, emailConsent: false });
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
@@ -54,7 +56,7 @@ export default function MembershipCheckoutPage() {
     try {
       const response = await fetch('/api/create-membership-checkout', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, tier: tierKey, invite, acceptedAt: new Date().toISOString() }),
+        body: JSON.stringify({ ...form, tier: tierKey, invite, billingCycle, acceptedAt: new Date().toISOString() }),
       });
       const data = await response.json().catch(() => ({}));
       if (response.status === 409 && data.code === 'COHORT_FULL') {
@@ -63,7 +65,7 @@ export default function MembershipCheckoutPage() {
         return;
       }
       if (!response.ok || !data.url) throw new Error(data.error || 'Checkout could not be started.');
-      trackEvent('membership_checkout_start', { membership_year: 'annual', membership_tier: tier.name });
+      trackEvent('membership_checkout_start', { membership_billing: billingCycle, membership_tier: tier.name });
       window.location.href = data.url;
     } catch (checkoutError) {
       setStatus('error');
@@ -87,10 +89,19 @@ export default function MembershipCheckoutPage() {
     </div></section>
   </SiteLayout>;
 
+  const selectedPlan = billingCycle === 'monthly'
+    ? { price: tier.monthlyEquivalent, label: `${tier.monthlyEquivalent} per month`, frequency: 'monthly' }
+    : { price: tier.price, label: `${tier.price} per year`, frequency: 'annually' };
+
   return <SiteLayout theme="dark">
     <section className="section ink-section"><div className="container membership-checkout-layout">
-      <div className="membership-offer"><p className="eyebrow">{tier.name} annual membership</p><h1>{tier.price} annually.</h1>
-        <p>Complete your membership through secure Stripe checkout. Your annual charge is collected now and renews annually until you cancel.</p>
+      <div className="membership-offer"><p className="eyebrow">{tier.name} membership</p><h1>{selectedPlan.label}.</h1>
+        <p>Complete your membership through secure Stripe checkout. Your {selectedPlan.frequency === 'monthly' ? 'monthly' : 'annual'} charge is collected now and renews {selectedPlan.frequency} until you cancel.</p>
+        <div className="membership-billing-choice" role="group" aria-label="Billing frequency">
+          <button className={`button ${billingCycle === 'monthly' ? 'button-accent' : 'button-secondary'}`} type="button" onClick={() => setBillingCycle('monthly')}>{tier.monthlyEquivalent} monthly</button>
+          <button className={`button ${billingCycle === 'annual' ? 'button-accent' : 'button-secondary'}`} type="button" onClick={() => setBillingCycle('annual')}>{tier.price} annually</button>
+        </div>
+        <p className="form-note">{tier.annualSavings}. You can review or cancel either option through secure billing management.</p>
         {tierKey !== 'core' ? <p>This checkout is for applicants who have been invited to complete {tier.name} membership.</p> : null}
         <Link className="text-link light" to="/membership">Review membership details <span aria-hidden="true">→</span></Link>
       </div>
@@ -98,10 +109,10 @@ export default function MembershipCheckoutPage() {
         <p className="eyebrow">Continue with {tier.name}</p>
         <label>Full name<input name="name" value={form.name} onChange={change} autoComplete="name" required /></label>
         <label>{tierKey === 'core' ? 'Email' : 'Approved email'}<input type="email" name="email" value={form.email} onChange={change} autoComplete="email" readOnly={tierKey !== 'core'} required /></label>
-        <label className="check"><input type="checkbox" name="termsAccepted" checked={form.termsAccepted} onChange={change} required /><span>I authorize ROAMSIX to charge {tier.price} now and annually until I cancel. I understand that, if offered, the larger member gathering has its own ticket price and proceeds only after its cash costs are covered; the year-end Journey and some partner-hosted or premium experiences are also separately purchased. I agree to the <Link to="/terms">Membership Terms</Link> and <Link to="/privacy">Privacy Policy</Link>.</span></label>
+        <label className="check"><input type="checkbox" name="termsAccepted" checked={form.termsAccepted} onChange={change} required /><span>I authorize ROAMSIX to charge {selectedPlan.price} now and {selectedPlan.frequency} until I cancel. I understand that, if offered, the larger member gathering has its own ticket price and proceeds only after its cash costs are covered; the year-end Journey and some partner-hosted or premium experiences are also separately purchased. I agree to the <Link to="/terms">Membership Terms</Link> and <Link to="/privacy">Privacy Policy</Link>.</span></label>
         <label className="check"><input type="checkbox" name="emailConsent" checked={form.emailConsent} onChange={change} /><span>Send me optional ROAMSIX news and invitations. Essential membership messages are sent regardless of this choice.</span></label>
         {error ? <p className="form-error" role="alert">{error}</p> : null}
-        <button className="button" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Opening secure payment…' : `Start my ${tier.name} membership · ${tier.price}`}</button>
+        <button className="button" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Opening secure payment…' : `Start my ${tier.name} membership · ${selectedPlan.label}`}</button>
         <p className="form-note">After checkout, you can add nonclinical interests and preferences in the secure member area. Do not submit diagnoses, treatment information, or medical records.</p>
       </form>
     </div></section>

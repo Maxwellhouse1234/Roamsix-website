@@ -5,12 +5,12 @@ export default function TermsPage() {
     <LegalPage title="Terms of Service" lastUpdated="September 26, 2026">
 
       <div className="lp-section">
-        <h2 className="lp-section-title">Annual Membership</h2>
+        <h2 className="lp-section-title">Recurring Membership</h2>
         <p>
-          Annual membership options are Core at $850 per year, Field at $2,200 per year, and Journey at $4,500 per year. Private membership is invitation-based, individually designed, and priced before commitment.
+          Membership may be billed monthly or annually. Core is $75 per month or $850 per year. Field is $185 per month or $2,200 per year. Journey is $395 per month or $4,500 per year. Private membership is invitation-based, individually designed, and priced before commitment.
         </p>
         <p>
-          Your first annual charge is collected when you complete Stripe Checkout. By selecting a tier and affirmatively accepting these terms, you authorize ROAMSIX to charge the displayed annual price now and automatically each year until you cancel. You may cancel online or by emailing info@roamsix.com before the next renewal. Cancellation stops future charges and takes effect at the end of the paid membership period. Fees already charged are nonrefundable except where required by law.
+          Your first charge is collected when you complete Stripe Checkout. By selecting a tier and billing interval and affirmatively accepting these terms, you authorize ROAMSIX to charge the displayed price now and automatically each month or year, according to your selection, until you cancel. You may cancel online or by emailing info@roamsix.com before the next renewal. Cancellation stops future charges and takes effect at the end of the paid membership period. Fees already charged are nonrefundable except where required by law.
         </p>
         <p>
           Membership provides the access described for the selected option across eligible ROAMSIX conversations, gatherings, movement and outdoor experiences, and confirmed partner experiences. Capacity, booking windows, guest-pass eligibility, and event-specific rules apply. Partner benefits are offered only after their terms are signed and will be identified separately.

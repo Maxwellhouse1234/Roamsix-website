@@ -6,8 +6,11 @@ process.env.MEMBER_AUTH_SECRET = 'test-secret-that-is-long-enough-for-signed-ses
 process.env.MEMBERSHIP_INVITE_SECRET = 'different-test-secret-for-approved-membership-invites';
 process.env.STRIPE_SECRET_KEY = 'sk_test_mock';
 process.env.STRIPE_MEMBERSHIP_CORE_PRICE_ID = 'price_core';
+process.env.STRIPE_MEMBERSHIP_CORE_MONTHLY_PRICE_ID = 'price_core_monthly';
 process.env.STRIPE_MEMBERSHIP_FIELD_PRICE_ID = 'price_field';
+process.env.STRIPE_MEMBERSHIP_FIELD_MONTHLY_PRICE_ID = 'price_field_monthly';
 process.env.STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID = 'price_journey';
+process.env.STRIPE_MEMBERSHIP_JOURNEY_MONTHLY_PRICE_ID = 'price_journey_monthly';
 process.env.AIRTABLE_TOKEN = 'airtable_mock';
 process.env.RESEND_API_KEY = 'resend_mock';
 process.env.ACTIVE_MEMBERSHIP_COHORT_ID = 'founding';
@@ -36,7 +39,7 @@ test('signed member tokens reject tampering and expired purpose mismatches', asy
   assert.equal(verifySignedToken(token, process.env.MEMBER_AUTH_SECRET, 'session'), null);
 });
 
-test('Core checkout creates an immediate annual Stripe subscription session', async () => {
+test('Core checkout creates monthly or annual Stripe subscription sessions', async () => {
   const calls = [];
   global.fetch = async (url, options = {}) => {
     calls.push({ url, options });
@@ -44,18 +47,25 @@ test('Core checkout creates an immediate annual Stripe subscription session', as
     return response({ url: 'https://checkout.stripe.test/session' });
   };
   const { default: checkout } = await import('../api/create-membership-checkout.js');
-  const req = { method: 'POST', body: { name: 'Test Member', email: 'member@example.com', tier: 'core', termsAccepted: true, emailConsent: false }, headers: { host: 'localhost:3000' } };
+  const req = { method: 'POST', body: { name: 'Test Member', email: 'member@example.com', tier: 'core', billingCycle: 'monthly', termsAccepted: true, emailConsent: false }, headers: { host: 'localhost:3000' } };
   const res = mockRes();
   await checkout(req, res);
   assert.equal(res.statusCode, 200);
   const checkoutBody = String(calls[1].options.body);
   assert.match(checkoutBody, /mode=subscription/);
-  assert.match(checkoutBody, /price_core/);
+  assert.match(checkoutBody, /price_core_monthly/);
+  assert.match(checkoutBody, /billingCycle.*monthly/);
   assert.match(checkoutBody, /membershipTier.*Core/);
   assert.match(checkoutBody, /membershipCohortId.*founding/);
   assert.match(checkoutBody, /membershipCohortLabel.*Founding\+Cohort/);
   assert.match(checkoutBody, /purchaseType.*membership/);
   assert.doesNotMatch(checkoutBody, /membershipYear/);
+
+  const annualRes = mockRes();
+  await checkout({ ...req, body: { ...req.body, billingCycle: 'annual' } }, annualRes);
+  assert.equal(annualRes.statusCode, 200);
+  assert.match(String(calls.at(-1).options.body), /price_core/);
+  assert.match(String(calls.at(-1).options.body), /billingCycle.*annual/);
 });
 
 test('direct Field and Journey checkout requests are rejected without an approved invitation', async () => {
@@ -96,7 +106,7 @@ test('approved invitation authorizes only its email and Field tier', async () =>
   await checkout({ method: 'POST', body: { name: 'Approved Applicant', email: 'approved@example.com', tier: 'field', invite, termsAccepted: true }, headers: { host: 'localhost:3000' } }, approved);
   assert.equal(approved.statusCode, 200);
   assert.equal(approved.body.url, 'https://checkout.stripe.test/field-session');
-  assert.match(String(calls.at(-1).options.body), /price_field/);
+  assert.match(String(calls.at(-1).options.body), /price_field_monthly/);
   assert.match(String(calls.at(-1).options.body), /approved-invitation/);
 
   const wrongTier = mockRes();
@@ -257,11 +267,11 @@ test('shared membership language matches the approved founding offer', async () 
   const { EXTRA_COST_EXPLANATION, MEMBERSHIP_TIERS } = await import('../src/data/membership.js');
   assert.equal(MEMBERSHIP_TIERS.core.forWhom, 'People who want a trusted way to keep up with what matters in health and choose experiences selectively.');
   assert.deepEqual(
-    Object.values(MEMBERSHIP_TIERS).map(({ monthlyEquivalent, annualBilling }) => ({ monthlyEquivalent, annualBilling })),
+    Object.values(MEMBERSHIP_TIERS).map(({ monthlyEquivalent, monthlyEquivalentLabel, annualBilling }) => ({ monthlyEquivalent, monthlyEquivalentLabel, annualBilling })),
     [
-      { monthlyEquivalent: '$75', annualBilling: '$850 billed annually · available now' },
-      { monthlyEquivalent: '$185', annualBilling: '$2,200 billed annually' },
-      { monthlyEquivalent: '$395', annualBilling: '$4,500 billed annually' },
+      { monthlyEquivalent: '$75', monthlyEquivalentLabel: 'per month', annualBilling: '$850 billed annually' },
+      { monthlyEquivalent: '$185', monthlyEquivalentLabel: 'per month', annualBilling: '$2,200 billed annually' },
+      { monthlyEquivalent: '$395', monthlyEquivalentLabel: 'per month', annualBilling: '$4,500 billed annually' },
     ],
   );
   assert.ok(MEMBERSHIP_TIERS.core.features.some((feature) => feature.title === 'Vetted guidance'));
@@ -269,16 +279,19 @@ test('shared membership language matches the approved founding offer', async () 
   assert.match(EXTRA_COST_EXPLANATION, /^If offered, the larger member gathering is reserved separately and has its own ticket price\./);
 });
 
-test('public pricing is transparent about annual billing and keeps the cohort capped at 25', async () => {
+test('public pricing offers monthly and annual billing and keeps the cohort capped at 25', async () => {
   const [membership, checkout] = await Promise.all([
     readFile(new URL('../src/pages/MembershipPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/MembershipCheckoutPage.jsx', import.meta.url), 'utf8'),
   ]);
-  assert.match(membership, /Annual enrollment is the available billing option today\./);
+  assert.match(membership, /Choose monthly flexibility or save with annual billing\./);
+  assert.match(membership, /Join Core monthly/);
+  assert.match(membership, /Join Core annually/);
   assert.match(membership, /intentionally sized groups, generally up to 25/);
   assert.doesNotMatch(membership, /Founding (100|150)/i);
-  assert.match(checkout, /I authorize ROAMSIX to charge \{tier\.price\} now and annually until I cancel\./);
-  assert.match(checkout, /Start my \$\{tier\.name\} membership · \$\{tier\.price\}/);
+  assert.match(checkout, /billingCycle/);
+  assert.match(checkout, /I authorize ROAMSIX to charge \{selectedPlan\.price\} now and \{selectedPlan\.frequency\} until I cancel\./);
+  assert.match(checkout, /Start my \$\{tier\.name\} membership · \$\{selectedPlan\.label\}/);
 });
 
 test('Dr. Sal public and member-facing references use the confirmed October 24, 2026 event identity', async () => {

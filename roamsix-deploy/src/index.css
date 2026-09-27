@@ -325,7 +325,7 @@ p { margin: 0 0 1.25em; }
 .membership-offer h2 { max-width: 560px; }
 .membership-checkout-form { padding: clamp(28px, 4vw, 50px); background: var(--white); color: var(--ink); }
 .membership-checkout-form label { display: block; margin-bottom: 20px; font-size: .84rem; font-weight: 700; }
-.membership-checkout-form input:not([type='checkbox']), .membership-checkout-form textarea { width: 100%; margin-top: 8px; padding: 13px 14px; border: 1px solid var(--stone); background: var(--warm-white); color: var(--ink); font: inherit; }
+.membership-checkout-form input:not([type='checkbox']), .membership-checkout-form textarea, .membership-checkout-form select { width: 100%; margin-top: 8px; padding: 13px 14px; border: 1px solid var(--stone); background: var(--warm-white); color: var(--ink); font: inherit; }
 .membership-checkout-form textarea { resize: vertical; }
 .membership-checkout-form .check { display: grid; grid-template-columns: 20px 1fr; gap: 10px; align-items: start; font-weight: 500; }
 .membership-checkout-form .check input { width: 18px; height: 18px; margin: 4px 0 0; }
@@ -544,6 +544,7 @@ p { margin: 0 0 1.25em; }
 }
 
 @media (max-width: 560px) {
+  .membership-billing-actions, .membership-billing-choice { grid-template-columns: 1fr; }
   body { font-size: 16px; }
   .hero { min-height: 88vh; }
   .hero-content { padding-top: 150px; }
@@ -680,6 +681,10 @@ p { margin: 0 0 1.25em; }
 .membership-tier-price strong { display: inline; font: 600 clamp(2.8rem, 5vw, 4.6rem)/1 'Space Grotesk'; letter-spacing: -.06em; }
 .membership-tier-price span { margin-left: 8px; color: var(--deep-gray); font-size: .82rem; font-weight: 700; }
 .membership-tier-price p { margin: 10px 0 0; color: var(--ink); font-size: .95rem; font-weight: 700; }
+.membership-tier-price small { display: block; margin-top: 5px; color: var(--rust); font-size: .82rem; font-weight: 700; }
+.membership-billing-actions, .membership-billing-choice { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: auto; }
+.membership-billing-choice { margin: 26px 0 12px; }
+.membership-billing-actions .button, .membership-billing-choice .button { width: 100%; margin-top: 0; padding-inline: 16px; text-align: center; }
 .membership-tier-grid ul { padding-left: 20px; margin: 8px 0 32px; color: var(--deep-gray); }
 .tier-feature-list { display: grid; gap: 14px; list-style: none; padding-left: 0 !important; }
 .tier-feature-list li { position: relative; padding-left: 20px; }
