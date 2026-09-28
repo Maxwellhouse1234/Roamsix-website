@@ -3,11 +3,11 @@ import { captureCrmActivity } from "../lib/crm.js";
 // api/contact.js
 // Dual-purpose handler:
 //
-//   1. INTAKE SUBMISSION — if req.body contains a session_id field:
+//   1. INTAKE SUBMISSION: if req.body contains a session_id field:
 //      Finds the Airtable Attendees record by Stripe session ID and
 //      updates it with participant intake form data.
 //
-//   2. CONTACT FORM — otherwise:
+//   2. CONTACT FORM: otherwise:
 //      Sends branded notification email to max@roamsix.com + jackie@roamsix.com,
 //      sends branded confirmation email to prospect, and writes lead to
 //      Airtable Inquiries table (creates table on first run if missing).
@@ -54,7 +54,7 @@ export default async function handler(req, res) {
         from:     "ROAMSIX Inquiries <info@roamsix.com>",
         to:       ["max@roamsix.com", "jackie@roamsix.com"],
         reply_to: email.trim(),
-        subject:  `New Inquiry — ${inquiryType || "General"} | ${name}`,
+        subject:  `New Inquiry: ${inquiryType || "General"} | ${name}`,
         html:     notifyHTML({ name, email: email.trim(), company, inquiryType, message, source, timestamp }),
       }),
     });
@@ -68,7 +68,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         from:    "ROAMSIX <info@roamsix.com>",
         to:      [email.trim()],
-        subject: "We received your inquiry — ROAMSIX",
+        subject: "We received your inquiry | ROAMSIX",
         html:    confirmHTML(firstName.trim() || name),
       }),
     });
@@ -87,7 +87,7 @@ export default async function handler(req, res) {
         headers: HEADERS,
       });
       if (testRes.status === 404) {
-        // Table doesn't exist — create it
+        // Table doesn't exist: create it
         await fetch(`https://api.airtable.com/v0/meta/bases/${BASE_ID}/tables`, {
           method: "POST",
           headers: HEADERS,

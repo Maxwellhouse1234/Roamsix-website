@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import BookCallButton from '../components/BookCallButton';
 
 /*
-  ROAMSIX — PriorityAccessPage.jsx
+  ROAMSIX: PriorityAccessPage.jsx
   Route: /priority-access
   Form endpoint: POST /api/priority-access (do not modify)
 */

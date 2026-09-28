@@ -123,7 +123,7 @@ export default function SponsorshipDeck() {
         { icon: <Monitor className="w-8 h-8 text-white" />, label: 'Controlled Environments',      text: 'Physical and environmental conditions where clarity surfaces through movement, challenge, and recovery.' },
         { icon: <Users   className="w-8 h-8 text-white" />, label: 'High-Performers in Transition',text: 'Founders, executives, and athletes navigating high-consequence growth phases.' },
         { icon: <Zap     className="w-8 h-8 text-white" />, label: 'Active Re-evaluation',         text: 'Participants are actively replacing systems, habits, and vendors. Your brand enters that conversation.' },
-        { icon: <TrendingUp className="w-8 h-8 text-white" />, label: 'Multi-Touch Ecosystem',     text: 'Proving Grounds events, monthly retreats, the Redirection Point podcast, and digital — all connected.' },
+        { icon: <TrendingUp className="w-8 h-8 text-white" />, label: 'Multi-Touch Ecosystem',     text: 'Proving Grounds events, monthly retreats, the Redirection Point podcast, and digital: all connected.' },
       ],
     },
     {
@@ -185,7 +185,7 @@ export default function SponsorshipDeck() {
         { label: 'Estimated customers (25%)',         value: '~14' },
         { label: 'Revenue per event ($500 LTV)',      value: '$7,000', highlight: true },
       ],
-      outcome: '~$28,000 in participant value over 4 events per year. Enterprise conversion excluded — one corporate adoption can exceed the full annual investment.',
+      outcome: '~$28,000 in participant value over 4 events per year. Enterprise conversion excluded: one corporate adoption can exceed the full annual investment.',
     },
     {
       id: 'structure', type: 'pricing',
@@ -193,10 +193,10 @@ export default function SponsorshipDeck() {
       subtitle: 'Anchor pricing based on integration depth.',
       tiers: [
         { level: '01', name: 'Founding Partner',  price: '$50,000 / yr+', highlight: true, desc: 'Exclusive category ownership and full ecosystem activation.' },
-        { level: '02', name: 'Premier Sponsor',   price: '$20,000 / yr+', desc: 'Multi-channel presence — events plus podcast or digital.' },
+        { level: '02', name: 'Premier Sponsor',   price: '$20,000 / yr+', desc: 'Multi-channel presence: events plus podcast or digital.' },
         { level: '03', name: 'Event Sponsor',     price: '$5,000 – $10K', desc: 'Single on-site activation at Proving Grounds.' },
         { level: '04', name: 'Podcast Sponsor',   price: '$1,000 – $5K',  desc: 'Host-read narrative integration in Redirection Point.' },
-        { level: '05', name: 'Community Partner', price: 'By inquiry',    desc: 'On-site wellness integration — massage, IV, chiropractic, nutrition.' },
+        { level: '05', name: 'Community Partner', price: 'By inquiry',    desc: 'On-site wellness integration: massage, IV, chiropractic, nutrition.' },
       ],
     },
     {
@@ -542,7 +542,7 @@ export default function SponsorshipDeck() {
   // ── Main deck ──────────────────────────────────────────────────────────────
   return (
     <div className="flex flex-col h-screen bg-[#0a0a0a] text-white overflow-hidden">
-      {/* Progress bar — desktop only */}
+      {/* Progress bar: desktop only */}
       {!isMobile && (
         <div className="w-full h-1 bg-white/10">
           <div className="h-full bg-white transition-all duration-500"

@@ -3,22 +3,13 @@ import { activeMembershipCohort, cohortMatches } from "../lib/membership-cohort.
 import { sendMembershipCheckoutStartedEmail } from "../lib/membership-emails.js";
 import { randomBytes } from "node:crypto";
 
-const LEGAL_VERSION = "2026-09-27-v12";
+const LEGAL_VERSION = "2026-09-28-v13-annual";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const TIERS = {
-  core: { name: "Core", plans: {
-    monthly: { amount: "$75", priceEnv: "STRIPE_MEMBERSHIP_CORE_MONTHLY_PRICE_ID", frequency: "monthly" },
-    annual: { amount: "$850", priceEnv: "STRIPE_MEMBERSHIP_CORE_PRICE_ID", frequency: "annually" },
-  } },
-  field: { name: "Field", plans: {
-    monthly: { amount: "$185", priceEnv: "STRIPE_MEMBERSHIP_FIELD_MONTHLY_PRICE_ID", frequency: "monthly" },
-    annual: { amount: "$2,200", priceEnv: "STRIPE_MEMBERSHIP_FIELD_PRICE_ID", frequency: "annually" },
-  } },
-  journey: { name: "Journey", plans: {
-    monthly: { amount: "$395", priceEnv: "STRIPE_MEMBERSHIP_JOURNEY_MONTHLY_PRICE_ID", frequency: "monthly" },
-    annual: { amount: "$4,500", priceEnv: "STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID", frequency: "annually" },
-  } },
+  core: { name: "Core", plan: { amount: "$850", priceEnv: "STRIPE_MEMBERSHIP_CORE_PRICE_ID", frequency: "annually" } },
+  field: { name: "Field", plan: { amount: "$2,200", priceEnv: "STRIPE_MEMBERSHIP_FIELD_PRICE_ID", frequency: "annually" } },
+  journey: { name: "Journey", plan: { amount: "$4,500", priceEnv: "STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID", frequency: "annually" } },
 };
 
 async function stripeRequest(path, secret, params) {
@@ -104,13 +95,13 @@ export default async function handler(req, res) {
   const input = req.method === "GET" ? req.query : req.body;
   const tierKey = String(input?.tier || "core").toLowerCase();
   const tier = TIERS[tierKey];
-  const billingCycle = String(input?.billingCycle || "monthly").toLowerCase();
-  const plan = tier?.plans?.[billingCycle];
+  const billingCycle = String(input?.billingCycle || "annual").toLowerCase();
+  const plan = tier?.plan;
   const invitationToken = String(input?.invite || "");
   const cohort = activeMembershipCohort();
 
   if (!tier) return res.status(400).json({ error: "Please select Core, Field, or Journey." });
-  if (!plan) return res.status(400).json({ error: "Please select monthly or annual billing." });
+  if (billingCycle !== "annual") return res.status(400).json({ error: "Annual billing is the only available option." });
   if (req.method === "GET") {
     res.setHeader("Cache-Control", "no-store");
     if (tierKey === "core") return res.status(200).json({ authorized: true, tier: tierKey });
@@ -163,7 +154,7 @@ export default async function handler(req, res) {
     params.set("customer_email", email);
     params.set("payment_method_collection", "always");
     params.set("success_url", `${origin}/membership/success?session_id={CHECKOUT_SESSION_ID}`);
-    params.set("cancel_url", tierKey === "core" ? `${origin}/membership/checkout/core?billing=${billingCycle}` : `${origin}/membership#request-membership`);
+    params.set("cancel_url", tierKey === "core" ? `${origin}/membership/checkout/core` : `${origin}/membership#request-membership`);
     params.set("line_items[0][price]", priceId);
     params.set("line_items[0][quantity]", "1");
     params.set("allow_promotion_codes", "false");

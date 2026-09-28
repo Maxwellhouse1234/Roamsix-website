@@ -40,7 +40,7 @@ test('signed member tokens reject tampering and expired purpose mismatches', asy
   assert.equal(verifySignedToken(token, process.env.MEMBER_AUTH_SECRET, 'session'), null);
 });
 
-test('Core checkout creates monthly or annual Stripe subscription sessions', async () => {
+test('Core checkout creates annual Stripe subscription sessions and rejects monthly billing', async () => {
   const calls = [];
   global.fetch = async (url, options = {}) => {
     calls.push({ url, options });
@@ -48,25 +48,26 @@ test('Core checkout creates monthly or annual Stripe subscription sessions', asy
     return response({ url: 'https://checkout.stripe.test/session' });
   };
   const { default: checkout } = await import('../api/create-membership-checkout.js');
-  const req = { method: 'POST', body: { name: 'Test Member', email: 'member@example.com', tier: 'core', billingCycle: 'monthly', renewalAccepted: true, termsAccepted: true, emailConsent: false }, headers: { host: 'localhost:3000' } };
+  const monthlyRes = mockRes();
+  await checkout({ method: 'POST', body: { name: 'Test Member', email: 'member@example.com', tier: 'core', billingCycle: 'monthly', renewalAccepted: true, termsAccepted: true }, headers: { host: 'localhost:3000' } }, monthlyRes);
+  assert.equal(monthlyRes.statusCode, 400);
+  assert.match(monthlyRes.body.error, /Annual billing is the only available option/);
+  assert.equal(calls.length, 0);
+
+  const req = { method: 'POST', body: { name: 'Test Member', email: 'member@example.com', tier: 'core', billingCycle: 'annual', renewalAccepted: true, termsAccepted: true, emailConsent: false }, headers: { host: 'localhost:3000' } };
   const res = mockRes();
   await checkout(req, res);
   assert.equal(res.statusCode, 200);
-  const checkoutBody = String(calls[1].options.body);
+  const checkoutBody = String(calls.at(-1).options.body);
   assert.match(checkoutBody, /mode=subscription/);
-  assert.match(checkoutBody, /price_core_monthly/);
-  assert.match(checkoutBody, /billingCycle.*monthly/);
+  assert.match(checkoutBody, /price_core/);
+  assert.match(checkoutBody, /billingCycle.*annual/);
   assert.match(checkoutBody, /membershipTier.*Core/);
   assert.match(checkoutBody, /membershipCohortId.*founding/);
   assert.match(checkoutBody, /membershipCohortLabel.*Founding\+Cohort/);
   assert.match(checkoutBody, /purchaseType.*membership/);
   assert.doesNotMatch(checkoutBody, /membershipYear/);
 
-  const annualRes = mockRes();
-  await checkout({ ...req, body: { ...req.body, billingCycle: 'annual' } }, annualRes);
-  assert.equal(annualRes.statusCode, 200);
-  assert.match(String(calls.at(-1).options.body), /price_core/);
-  assert.match(String(calls.at(-1).options.body), /billingCycle.*annual/);
 });
 
 test('direct Field and Journey checkout requests are rejected without an approved invitation', async () => {
@@ -107,7 +108,7 @@ test('approved invitation authorizes only its email and Field tier', async () =>
   await checkout({ method: 'POST', body: { name: 'Approved Applicant', email: 'approved@example.com', tier: 'field', invite, renewalAccepted: true, termsAccepted: true }, headers: { host: 'localhost:3000' } }, approved);
   assert.equal(approved.statusCode, 200);
   assert.equal(approved.body.url, 'https://checkout.stripe.test/field-session');
-  assert.match(String(calls.at(-1).options.body), /price_field_monthly/);
+  assert.match(String(calls.at(-1).options.body), /price_field/);
   assert.match(String(calls.at(-1).options.body), /approved-invitation/);
 
   const wrongTier = mockRes();
@@ -266,40 +267,35 @@ test('checkout fails closed when Stripe cannot verify cohort capacity', async ()
 
 test('shared membership language matches the approved founding offer', async () => {
   const { EXTRA_COST_EXPLANATION, MEMBERSHIP_TIERS } = await import('../src/data/membership.js');
-  assert.match(MEMBERSHIP_TIERS.core.forWhom, /one trusted place to make sense of health information/);
+  assert.equal(MEMBERSHIP_TIERS.core.forWhom, 'For the person who is tired of evaluating every health claim alone.');
   assert.deepEqual(
-    Object.values(MEMBERSHIP_TIERS).map(({ monthlyEquivalent, monthlyEquivalentLabel, annualBilling }) => ({ monthlyEquivalent, monthlyEquivalentLabel, annualBilling })),
+    Object.values(MEMBERSHIP_TIERS).map(({ price, priceLabel }) => ({ price, priceLabel })),
     [
-      { monthlyEquivalent: '$75', monthlyEquivalentLabel: 'per month', annualBilling: '$850 billed annually' },
-      { monthlyEquivalent: '$185', monthlyEquivalentLabel: 'per month', annualBilling: '$2,200 billed annually' },
-      { monthlyEquivalent: '$395', monthlyEquivalentLabel: 'per month', annualBilling: '$4,500 billed annually' },
+      { price: '$850', priceLabel: '$850 for the first year' },
+      { price: '$2,200', priceLabel: '$2,200 for the first year' },
+      { price: '$4,500', priceLabel: '$4,500 for the first year' },
     ],
   );
-  assert.match(MEMBERSHIP_TIERS.core.signatureBenefit, /36 planned ROAMSIX experiences/);
-  assert.ok(MEMBERSHIP_TIERS.core.features.some((feature) => feature.title === 'Keep learning when you cannot attend'));
-  assert.match(MEMBERSHIP_TIERS.field.signatureBenefit, /4 smaller expert sessions/);
-  assert.ok(MEMBERSHIP_TIERS.field.features.some((feature) => feature.title === 'Earlier access to limited rooms'));
-  assert.match(MEMBERSHIP_TIERS.journey.signatureBenefit, /Personalized briefings/);
+  assert.ok(MEMBERSHIP_TIERS.core.features.includes('36 gatherings in 2027: 18 fireside conversations, 18 movement and nature mornings'));
+  assert.ok(MEMBERSHIP_TIERS.field.features.includes('4 small-group sessions with specialists, capped for real conversation'));
+  assert.ok(MEMBERSHIP_TIERS.journey.features.includes('Two specialist introductions per year'));
   assert.match(EXTRA_COST_EXPLANATION, /^If offered, the larger member gathering is reserved separately and has its own ticket price\./);
 });
 
-test('public pricing emphasizes monthly pricing, moves details behind interaction, and keeps the cohort capped at 25', async () => {
+test('public pricing is annual-only and uses the approved founding language', async () => {
   const [membership, checkout] = await Promise.all([
     readFile(new URL('../src/pages/MembershipPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/MembershipCheckoutPage.jsx', import.meta.url), 'utf8'),
   ]);
-  assert.match(membership, /See what \{item\.name\} includes/);
-  assert.match(membership, /Choose Core/);
-  assert.doesNotMatch(membership, /item\.annualBilling/);
-  assert.doesNotMatch(membership, /Join Core annually/);
-  assert.match(membership, /intentionally sized groups, generally up to 25/);
-  assert.doesNotMatch(membership, /Founding (100|150)/i);
-  assert.match(checkout, /billingCycle/);
+  assert.match(membership, /36 gatherings in 2027\. Expert conversations, movement mornings, and vetted specialists across Southern California\./);
+  assert.match(membership, /Join Core · \$850\/year/);
+  assert.match(membership, /The rate you join at is the rate you keep\./);
+  assert.doesNotMatch(membership, /per month|monthly|quarterly/i);
+  assert.doesNotMatch(checkout, /membership-billing-choice/);
   assert.match(checkout, /name="renewalAccepted"/);
-  assert.match(checkout, /I authorize ROAMSIX to charge \{selectedPlan\.price\} now and \{selectedPlan\.frequency\} until I cancel\./);
-  assert.match(checkout, /Participant Agreement/);
-  assert.match(checkout, /Media Release/);
-  assert.match(checkout, /Start my \$\{tier\.name\} membership · \$\{selectedPlan\.label\}/);
+  assert.match(checkout, /I authorize ROAMSIX to charge \$850 today and \$850 each year on this date until I cancel\./);
+  assert.match(checkout, /I accept the/);
+  assert.match(checkout, /Start my Core membership · \$850/);
 });
 
 test('Dr. Sal public and member-facing references use the confirmed October 24, 2026 event identity', async () => {

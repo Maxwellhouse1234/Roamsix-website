@@ -129,7 +129,7 @@ export async function recordMemberAction(email, { action, eventName, message }) 
   const allowed = action === "booking" ? "Booking Request" : "Topic Request";
   const now = new Date().toISOString();
   const fields = {
-    Engagement: `${email} — ${allowed}`,
+    Engagement: `${email} | ${allowed}`,
     "Contact Email": email,
     "Event Name": clean(eventName || "Member request", 300),
     "Engagement Type": action === "booking" ? "Registered" : "Interested",

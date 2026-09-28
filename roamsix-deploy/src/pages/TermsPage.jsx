@@ -7,10 +7,10 @@ export default function TermsPage() {
       <div className="lp-section">
         <h2 className="lp-section-title">Recurring Membership</h2>
         <p>
-          Membership may be billed monthly or annually. Core is $75 per month or $850 per year. Field is $185 per month or $2,200 per year. Journey is $395 per month or $4,500 per year. Private membership is invitation-based, individually designed, and priced before commitment.
+          Published membership enrollment is billed annually. Core is $850 for the first year. Field is $2,200 for the first year. Journey is $4,500 for the first year. Private membership is invitation-based, individually designed, and priced before commitment.
         </p>
         <p>
-          Your first charge is collected when you complete Stripe Checkout. By selecting a tier and billing interval and affirmatively accepting the recurring-payment disclosure, you authorize ROAMSIX to charge the displayed price now and automatically each month or year, according to your selection, until you cancel. You may cancel online at <a href="/membership/manage" style={{ color: "#5A8A8A" }}>roamsix.com/membership/manage</a> or by emailing info@roamsix.com before the next renewal. Cancellation stops future charges and takes effect at the end of the paid membership period. Fees already charged are nonrefundable except where required by law.
+          Your first charge is collected when you complete Stripe Checkout. By selecting a tier and affirmatively accepting the recurring-payment disclosure, you authorize ROAMSIX to charge the displayed price now and automatically each year on that date until you cancel. You may cancel online at <a href="/membership/manage" style={{ color: "#5A8A8A" }}>roamsix.com/membership/manage</a> or by emailing info@roamsix.com before the next renewal. Cancellation stops future charges and takes effect at the end of the paid membership period. Fees already charged are nonrefundable except where required by law.
         </p>
         <p>
           ROAMSIX will send renewal reminders, annual notices, and fee-change notices when required by applicable law. A change to the price or renewal terms will not be charged without the notice and affirmative consent required by law. Your enrollment acknowledgment and confirmation email are capable of being retained for your records.

@@ -34,7 +34,7 @@ export default async function handler(req, res) {
         from:     "ROAMSIX Proving Grounds <info@roamsix.com>",
         to:       ["max@roamsix.com", "jackie@roamsix.com"],
         reply_to: email.trim(),
-        subject:  `Proving Grounds Interest — ${name.trim()} | ${role || "Role not specified"}`,
+        subject:  `Proving Grounds Interest: ${name.trim()} | ${role || "Role not specified"}`,
         html:     pgNotifyHTML({ name: name.trim(), email: email.trim(), role, source, timestamp }),
       }),
     });
@@ -48,7 +48,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         from:    "ROAMSIX Proving Grounds <info@roamsix.com>",
         to:      [email.trim()],
-        subject: "You're on the Proving Grounds list — ROAMSIX",
+        subject: "You're on the Proving Grounds list | ROAMSIX",
         html:    pgConfirmHTML(name.trim().split(" ")[0]),
       }),
     });
@@ -86,7 +86,7 @@ export default async function handler(req, res) {
     },
     engagement: {
       engagementType: "Waitlisted", status: "Active", topic: "Proving Grounds",
-      eventName: "ROAMSIX Proving Grounds — May 2026", source: "Website",
+      eventName: "ROAMSIX Proving Grounds: May 2026", source: "Website",
       uniqueKey: `pg-interest:${email.trim().toLowerCase()}:${new Date().toISOString()}`,
       details: role || "Role not specified",
     },
@@ -110,7 +110,7 @@ function pgNotifyHTML({ name, email, role, source, timestamp }) {
             <table width="100%" cellpadding="0" cellspacing="0"><tr>
               <td>
                 <div style="font-family:Arial,sans-serif;font-size:22px;font-weight:700;letter-spacing:5px;color:#E8DFD0;text-transform:uppercase;">ROAMSIX</div>
-                <div style="font-size:11px;letter-spacing:3px;color:#B59558;text-transform:uppercase;margin-top:4px;">Proving Grounds — New Interest</div>
+                <div style="font-size:11px;letter-spacing:3px;color:#B59558;text-transform:uppercase;margin-top:4px;">Proving Grounds: New Interest</div>
               </td>
               <td align="right"><div style="font-size:11px;color:rgba(232,223,208,0.4);">${timestamp} PT</div></td>
             </tr></table>

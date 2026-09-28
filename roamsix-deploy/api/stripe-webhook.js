@@ -189,11 +189,11 @@ async function writeAttendeesRecord(token, fields) {
 // ── MAIN HANDLER ─────────────────────────────────────────────────────────────
 
 export default async function handler(req, res) {
-  // Synchronous method check — no async work yet
+  // Synchronous method check: no async work yet
   if (req.method !== "POST") return res.status(405).end();
 
   try {
-    // ── STEP 1: Read raw body (fast — just buffering the stream) ─────────────
+    // STEP 1: Read raw body (fast, just buffering the stream)
     const rawBody    = await readRawBody(req);
     const rawBodyStr = rawBody.length > 0 ? rawBody.toString("utf8") : "";
 
@@ -393,7 +393,7 @@ export default async function handler(req, res) {
 
     await workPromise;
 
-    // ── ACK STRIPE — all required work completed ──────────────────────────────
+    // ACK STRIPE: all required work completed
     return res.status(200).json({ received: true });
 
   } catch (err) {

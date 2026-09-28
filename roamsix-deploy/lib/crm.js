@@ -207,7 +207,7 @@ export async function createCrmEngagement(input) {
   const eventName = clean(input.eventName, 300);
   const event = eventName ? await findOne(EVENTS_TABLE_ID, `{Event Name}='${formulaValue(eventName)}'`) : null;
   const fields = {
-    Engagement: clean(input.label || `${email} — ${eventName || input.engagementType}`, 500),
+    Engagement: clean(input.label || `${email} | ${eventName || input.engagementType}`, 500),
     "Contact Email": email,
     "Event Name": eventName,
     "Engagement Type": input.engagementType || "Interested",

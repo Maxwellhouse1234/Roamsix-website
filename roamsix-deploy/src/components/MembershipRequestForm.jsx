@@ -2,10 +2,17 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { trackEvent } from '../lib/analytics';
 
+const SEGMENTATION_OPTIONS = [
+  "Everyone's health in this house runs through me",
+  "I've read the research and I still don't know who to believe",
+  "I'm making health decisions for my kids and my parents too",
+  "I optimize everything else in my life except my own health",
+  "I don't trust anything with a supplement attached to it",
+];
+
 export default function MembershipRequestForm({ tier, mode = 'request' }) {
   const isCohortWaitlist = mode === 'cohort-waitlist';
-  const isCoreEnrollment = tier === 'Core' && !isCohortWaitlist;
-  const [form, setForm] = useState({ fullName: '', email: '', mobile: '', reason: '', billingCycle: 'monthly', privacyAccepted: false });
+  const [form, setForm] = useState({ fullName: '', email: '', mobile: '', selections: [], other: '', specific: '', privacyAccepted: false });
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
 
@@ -14,11 +21,24 @@ export default function MembershipRequestForm({ tier, mode = 'request' }) {
     setForm((current) => ({ ...current, [name]: type === 'checkbox' ? checked : value }));
   }
 
+  function toggleSelection(event) {
+    const { value, checked } = event.target;
+    setForm((current) => ({
+      ...current,
+      selections: checked ? [...current.selections, value] : current.selections.filter((selection) => selection !== value),
+    }));
+  }
+
   async function submit(event) {
     event.preventDefault();
     const names = form.fullName.trim().split(/\s+/);
     const firstName = names.shift() || '';
     const lastName = names.join(' ') || 'Not provided';
+    const responses = [
+      ...form.selections,
+      form.other ? `Something else: ${form.other}` : '',
+      form.specific ? `Working through: ${form.specific}` : '',
+    ].filter(Boolean);
     setStatus('loading');
     setError('');
     try {
@@ -33,8 +53,8 @@ export default function MembershipRequestForm({ tier, mode = 'request' }) {
           mobile: form.mobile,
           role: 'Prospective member',
           organization: '',
-          professionalCategory: isCohortWaitlist ? 'Next membership cohort' : `${tier} membership · ${form.billingCycle} billing`,
-          challenge: `${form.reason}\n\nBilling preference: ${form.billingCycle}`,
+          professionalCategory: isCohortWaitlist ? 'Next membership cohort' : `${tier} membership`,
+          challenge: responses.length ? responses.join('\n') : 'No segmentation response provided.',
           paymentSource: 'self',
           referralSource: '',
           source: 'membership-request',
@@ -55,21 +75,18 @@ export default function MembershipRequestForm({ tier, mode = 'request' }) {
     }
   }
 
-  if (status === 'success') return <div className="form-success" role="status"><p className="eyebrow">{isCoreEnrollment ? 'Enrollment started' : 'Interest received'}</p><h3>{isCohortWaitlist ? 'We will contact you when the next membership cohort opens.' : isCoreEnrollment ? 'We will send your secure Core enrollment step.' : `We will follow up about ${tier} membership.`}</h3><p>No payment was taken here. We will contact you with the appropriate secure next step.</p></div>;
+  if (status === 'success') return <div className="form-success" role="status"><p className="eyebrow">Interest received</p><h3>{isCohortWaitlist ? 'We will contact you when the next membership cohort opens.' : `We will follow up about ${tier} membership.`}</h3><p>No payment was taken here. We will contact you with the appropriate secure next step.</p></div>;
 
   return <form className="membership-checkout-form" onSubmit={submit}>
-    <p className="eyebrow">{isCohortWaitlist ? 'Next membership cohort' : isCoreEnrollment ? 'Core enrollment' : `Request ${tier} membership`}</p>
+    <p className="eyebrow">{isCohortWaitlist ? 'Next membership cohort' : `Apply for ${tier}`}</p>
     <label>Full name<input name="fullName" value={form.fullName} onChange={change} autoComplete="name" required /></label>
     <label>Email<input type="email" name="email" value={form.email} onChange={change} autoComplete="email" required /></label>
     <label>Phone <span className="optional">Optional</span><input type="tel" name="mobile" value={form.mobile} onChange={change} autoComplete="tel" /></label>
-    {!isCohortWaitlist ? <label>Preferred billing<select name="billingCycle" value={form.billingCycle} onChange={change}><option value="monthly">Monthly</option><option value="annual">Annual</option></select></label> : null}
-    <label>What are you hoping ROAMSIX helps you gain?
-      <span className="form-guidance">Choose one or two ideas that feel most relevant: clearer guidance, better questions for experts, practical next steps, more immersive experiences, or a new perspective on what is possible for you.</span>
-      <textarea name="reason" value={form.reason} onChange={change} rows="4" placeholder="For example: I want to make sense of conflicting advice and know what deserves my attention now." required />
-    </label>
+    {!isCohortWaitlist ? <fieldset className="membership-segmentation"><legend>Which of these sound like you? <span className="optional">(select any)</span></legend>{SEGMENTATION_OPTIONS.map((option) => <label className="check" key={option}><input type="checkbox" value={option} checked={form.selections.includes(option)} onChange={toggleSelection} /><span>{option}</span></label>)}<label>Something else <span className="optional">(one line, optional)</span><input name="other" value={form.other} onChange={change} /></label></fieldset> : null}
+    {!isCohortWaitlist ? <label>Anything specific you are working through right now? <span className="optional">(optional)</span><textarea name="specific" value={form.specific} onChange={change} rows="4" /></label> : null}
     <label className="check"><input type="checkbox" name="privacyAccepted" checked={form.privacyAccepted} onChange={change} required /><span>I agree to the <Link to="/privacy">Privacy Policy</Link> and want ROAMSIX to contact me about this request and relevant membership updates.</span></label>
     {error ? <p className="form-error" role="alert">{error}</p> : null}
-    <button className="button" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Sending…' : isCohortWaitlist ? 'Join the next-cohort interest list' : isCoreEnrollment ? 'Continue Core enrollment' : `Send my ${tier} request`}</button>
-    <p className="form-note">{isCoreEnrollment ? 'No payment is taken here. Membership begins after you review the terms and complete secure checkout.' : 'This is an expression of interest, not a membership or reservation. No payment is taken here.'}</p>
+    <button className="button" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Sending…' : isCohortWaitlist ? 'Join the next-cohort interest list' : `Send my ${tier} request`}</button>
+    <p className="form-note">{isCohortWaitlist ? 'This is an expression of interest, not a membership or reservation. No payment is taken here.' : 'This does not take payment. We reply within two business days.'}</p>
   </form>;
 }

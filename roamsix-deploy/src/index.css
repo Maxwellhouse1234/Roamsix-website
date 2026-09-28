@@ -269,6 +269,8 @@ p { margin: 0 0 1.25em; }
 .capstone-cta::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 6px; background: var(--rust); }
 .capstone-cta .button { white-space: nowrap; }
 .membership-home-cta { background: linear-gradient(120deg, #18181a 0%, #241a16 100%); }
+.button-column { display: grid; gap: 16px; justify-items: stretch; }
+.button-column .text-link { text-align: center; }
 .membership-hero { min-height: 88vh; display: flex; align-items: flex-end; padding: 160px 0 64px; background: linear-gradient(120deg, rgba(10,10,10,.94), rgba(27,21,18,.72)), url('/images/homepage/roamsix-hero-community-v2.jpg') center/cover; color: var(--white); }
 .membership-hero-copy { max-width: 1240px; }
 .membership-hero h1 { max-width: 1040px; font-size: clamp(3rem, 5.8vw, 5.8rem); }
@@ -312,6 +314,10 @@ p { margin: 0 0 1.25em; }
 .membership-value-footer .button { flex: 0 0 auto; }
 .membership-value-intro, .membership-audience-layout, .organization-promise { display: grid; grid-template-columns: minmax(180px, .34fr) 1fr; gap: 7vw; align-items: start; }
 .membership-value-intro h2, .membership-audience-layout h2, .organization-promise h2 { max-width: 880px; }
+.founding-offer { margin: clamp(48px, 7vw, 88px) 0 0; padding: clamp(30px, 5vw, 56px); background: var(--ink); color: var(--white); border-left: 4px solid var(--rust); }
+.founding-offer h2 { max-width: 900px; }
+.founding-offer p:not(.eyebrow) { max-width: 860px; color: #c8c8c5; }
+.founding-offer .text-link { color: var(--white); }
 .membership-audience-section { border-top: 1px solid var(--stone); }
 .membership-audience-section > .container > h2 { max-width: 850px; }
 .membership-audience-grid { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 54px; border-top: 1px solid var(--stone); }
@@ -544,7 +550,7 @@ p { margin: 0 0 1.25em; }
 }
 
 @media (max-width: 560px) {
-  .membership-billing-actions, .membership-billing-choice { grid-template-columns: 1fr; }
+  .membership-billing-actions { grid-template-columns: 1fr; }
   body { font-size: 16px; }
   .hero { min-height: 88vh; }
   .hero-content { padding-top: 150px; }
@@ -682,9 +688,8 @@ p { margin: 0 0 1.25em; }
 .membership-tier-price span { margin-left: 8px; color: var(--deep-gray); font-size: .82rem; font-weight: 700; }
 .membership-tier-price p { margin: 10px 0 0; color: var(--ink); font-size: .95rem; font-weight: 700; }
 .membership-tier-price small { display: block; margin-top: 5px; color: var(--rust); font-size: .82rem; font-weight: 700; }
-.membership-billing-actions, .membership-billing-choice { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: auto; }
-.membership-billing-choice { margin: 26px 0 12px; }
-.membership-billing-actions .button, .membership-billing-choice .button { width: 100%; margin-top: 0; padding-inline: 16px; text-align: center; }
+.membership-billing-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: auto; }
+.membership-billing-actions .button { width: 100%; margin-top: 0; padding-inline: 16px; text-align: center; }
 .membership-tier-grid ul { padding-left: 20px; margin: 8px 0 32px; color: var(--deep-gray); }
 .tier-feature-list { display: grid; gap: 14px; list-style: none; padding-left: 0 !important; }
 .tier-feature-list li { position: relative; padding-left: 20px; }
@@ -693,6 +698,7 @@ p { margin: 0 0 1.25em; }
 .tier-feature-list strong { margin-bottom: 2px; color: var(--ink); }
 .tier-feature-list span { font-size: .9rem; line-height: 1.5; }
 .membership-tier-grid .tier-audience { color: var(--ink); font-weight: 700; }
+.membership-tier-grid .tier-note { margin: 18px 0 0; color: var(--deep-gray); font-size: .84rem; line-height: 1.55; }
 .membership-tier-grid .tier-outcome { color: var(--deep-gray); }
 .membership-tier-grid .tier-signature-benefit { margin: 22px 0; padding: 16px 0; border-top: 1px solid var(--stone); border-bottom: 1px solid var(--stone); color: var(--rust); font: 600 .78rem/1.7 'Space Grotesk', sans-serif; letter-spacing: .04em; text-transform: uppercase; }
 .membership-tier-details { margin: 18px 0 28px; border-top: 1px solid var(--stone); border-bottom: 1px solid var(--stone); }
@@ -723,6 +729,8 @@ p { margin: 0 0 1.25em; }
 .membership-agreement-summary ul { margin: 0; padding-left: 18px; color: var(--deep-gray); font-size: .86rem; }
 .membership-agreement-summary li + li { margin-top: 7px; }
 .form-guidance { display: block; margin: 7px 0 10px; color: var(--deep-gray); font-size: .78rem; font-weight: 500; line-height: 1.55; }
+.membership-segmentation { min-width: 0; margin: 0 0 20px; padding: 0; border: 0; }
+.membership-segmentation legend { margin-bottom: 14px; font-size: .84rem; font-weight: 700; }
 .program-count-band { background: var(--ink); color: var(--white); padding: 34px 0; }
 .program-count-band .container { display: grid; grid-template-columns: repeat(4, 1fr); }
 .program-count-band div { padding: 10px 28px; border-left: 1px solid #404042; }

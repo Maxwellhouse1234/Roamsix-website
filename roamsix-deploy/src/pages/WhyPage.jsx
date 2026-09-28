@@ -238,7 +238,7 @@ export default function WhyPage() {
 
           <div className="wy-closing">
             <p className="wy-closing-line">Your world is wider. Stay curious. Stay awake.</p>
-            <div className="wy-closing-attr">— ROAMSIX</div>
+            <div className="wy-closing-attr">ROAMSIX</div>
           </div>
 
         </div>

@@ -11,7 +11,7 @@ export async function recordMembershipPurchase({ session, email, name, tier, coh
   if (!sessionId || !email || !cohortId) throw new Error("Membership record requires a Stripe session, email, and cohort ID");
   const existing = await findOne(encodeURIComponent(MEMBERSHIP_TABLE), `{Stripe Session ID}='${formulaValue(sessionId)}'`);
   const fields = {
-    Membership: `${clean(email, 320).toLowerCase()} — ${clean(cohortLabel || cohortId, 200)}`,
+    Membership: `${clean(email, 320).toLowerCase()} | ${clean(cohortLabel || cohortId, 200)}`,
     "Member Email": clean(email, 320).toLowerCase(),
     "Member Name": clean(name, 200),
     Tier: clean(tier, 50),
