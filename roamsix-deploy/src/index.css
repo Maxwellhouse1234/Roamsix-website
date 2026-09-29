@@ -60,7 +60,7 @@ p { margin: 0 0 1.25em; }
 .hero-content { position: relative; z-index: 1; padding-top: 210px; padding-bottom: clamp(70px, 10vw, 140px); }
 .hero h1 { max-width: 880px; }
 .home-hero .hero-content { padding-top: 160px; padding-bottom: 64px; }
-.home-hero h1 { max-width: 1040px; font-size: clamp(3rem, 5.8vw, 5.8rem); }
+.home-hero h1 { max-width: 1160px; font-size: clamp(3rem, 5vw, 5rem); }
 .hero-copy, .page-lead, .lead { font-size: clamp(1.1rem, 1.8vw, 1.45rem); line-height: 1.6; max-width: 780px; }
 .hero-copy { color: rgba(255,255,255,.84); }
 .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; margin-bottom: 24px; }
