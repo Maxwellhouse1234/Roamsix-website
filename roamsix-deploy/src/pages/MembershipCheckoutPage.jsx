@@ -9,7 +9,8 @@ export default function MembershipCheckoutPage() {
   const { tier: tierKey } = useParams();
   const tier = MEMBERSHIP_TIERS[tierKey];
   const invite = new URLSearchParams(window.location.search).get('invite') || '';
-  const [form, setForm] = useState({ name: '', email: '', renewalAccepted: false, termsAccepted: false, emailConsent: false });
+  const source = new URLSearchParams(window.location.search).get('source') || 'direct';
+  const [form, setForm] = useState({ name: '', email: '', phone: '', renewalAccepted: false, termsAccepted: false, waiverAccepted: false, mediaReleaseAccepted: false, emailConsent: false });
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
   const [invitation, setInvitation] = useState(tierKey === 'core' ? 'approved' : 'checking');
@@ -53,7 +54,7 @@ export default function MembershipCheckoutPage() {
     try {
       const response = await fetch('/api/create-membership-checkout', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, tier: tierKey, invite, billingCycle: 'annual', acceptedAt: new Date().toISOString() }),
+        body: JSON.stringify({ ...form, tier: tierKey, invite, source, billingCycle: 'annual', acceptedAt: new Date().toISOString() }),
       });
       const data = await response.json().catch(() => ({}));
       if (response.status === 409 && data.code === 'COHORT_FULL') {
@@ -102,8 +103,11 @@ export default function MembershipCheckoutPage() {
         <p className="eyebrow">Continue with {tier.name}</p>
         <label>Full name<input name="name" value={form.name} onChange={change} autoComplete="name" required /></label>
         <label>{tierKey === 'core' ? 'Email' : 'Approved email'}<input type="email" name="email" value={form.email} onChange={change} autoComplete="email" readOnly={tierKey !== 'core'} required /></label>
+        <label>Phone<input type="tel" name="phone" value={form.phone} onChange={change} autoComplete="tel" required /></label>
         <label className="check"><input type="checkbox" name="renewalAccepted" checked={form.renewalAccepted} onChange={change} required /><span>{tierKey === 'core' ? 'I authorize ROAMSIX to charge $850 today and $850 each year on this date until I cancel.' : `I authorize ROAMSIX to charge ${selectedPlan.price} today and ${selectedPlan.price} each year on this date until I cancel.`}<br />I can cancel any time online in my member area or by email. I will receive a reminder before each renewal.</span></label>
         <label className="check"><input type="checkbox" name="termsAccepted" checked={form.termsAccepted} onChange={change} required /><span>I accept the <Link to="/terms" target="_blank">Membership Terms</Link> and <Link to="/privacy" target="_blank">Privacy Policy</Link>.</span></label>
+        <label className="check"><input type="checkbox" name="waiverAccepted" checked={form.waiverAccepted} onChange={change} required /><span>I have read and accept the <Link to="/waiver" target="_blank">Assumption of Risk and Participant Agreement</Link>.</span></label>
+        <label className="check"><input type="checkbox" name="mediaReleaseAccepted" checked={form.mediaReleaseAccepted} onChange={change} required /><span>I have read and accept the <Link to="/media-release" target="_blank">Media Release</Link>.</span></label>
         <label className="check"><input type="checkbox" name="emailConsent" checked={form.emailConsent} onChange={change} /><span><strong>Optional:</strong> send me ROAMSIX news and invitations. Essential membership messages are sent either way.</span></label>
         {error ? <p className="form-error" role="alert">{error}</p> : null}
         <button className="button" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Opening secure payment…' : tierKey === 'core' ? 'Start my Core membership · $850' : `Start my ${tier.name} membership · ${tier.price}`}</button>

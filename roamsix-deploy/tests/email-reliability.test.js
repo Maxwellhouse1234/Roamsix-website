@@ -247,7 +247,7 @@ test('human-approved membership invitation is recorded and repeat sends are idem
   const checkoutResponse = mockRes();
   await checkout({
     method: 'POST',
-    body: { name: 'Approved Person', email: 'approved@example.com', tier: 'field', invite: approval.fields['Invitation Token'], renewalAccepted: true, termsAccepted: true },
+    body: { name: 'Approved Person', email: 'approved@example.com', phone: '555-010-2026', tier: 'field', invite: approval.fields['Invitation Token'], renewalAccepted: true, termsAccepted: true, waiverAccepted: true, mediaReleaseAccepted: true, source: 'verification-test' },
     headers: { host: 'www.roamsix.test', 'x-forwarded-proto': 'https' },
   }, checkoutResponse);
   assert.equal(checkoutResponse.statusCode, 200);

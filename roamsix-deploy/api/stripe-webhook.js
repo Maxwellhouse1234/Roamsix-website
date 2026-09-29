@@ -493,19 +493,23 @@ async function handleMembershipPurchase({ eventId, session, sessionId, customerN
   const billingAmount = session.metadata?.billingAmount || "$850";
   const billingFrequency = session.metadata?.billingFrequency || "annually";
   const emailPermission = session.metadata?.emailConsent === "true" ? "Opted In" : "Transactional Only";
+  const phone = session.metadata?.phone || "";
+  const source = session.metadata?.source || "direct";
+  const legalSummary = `Terms: ${session.metadata?.agreedToTerms === "true" ? "Yes" : "No"}; Waiver: ${session.metadata?.waiverAccepted === "true" ? "Yes" : "No"}; Media Release: ${session.metadata?.mediaReleaseAccepted === "true" ? "Yes" : "No"}; Renewal: ${session.metadata?.automaticRenewalConsent === "true" ? "Yes" : "No"}; Version: ${session.metadata?.acceptedLegalVersion || "missing"}; Accepted: ${session.metadata?.acceptedAt || "missing"}`;
   const crmResult = await captureCrmActivity({
     contact: {
       fullName: customerName,
       email,
+      mobile: phone,
       lifecycleStage: "Customer",
       relationships: ["Member", "Priority Access"],
       topics: ["2027 Themes and Calendar"],
-      sources: ["Website", "Stripe"],
+      sources: ["Website", "Stripe", source],
       emailPermission,
       occurredAt: registeredAt,
       consentUpdatedAt: registeredAt,
       consentSource: "Annual Membership checkout",
-      notes: `${membershipTier} Membership purchased with ${billingCycle} billing. Cohort: ${cohort.label} (${cohort.id}).`,
+      notes: `${membershipTier} Membership purchased with ${billingCycle} billing. Cohort: ${cohort.label} (${cohort.id}). Source: ${source}. ${legalSummary}`,
     },
     engagement: {
       engagementType: "Registered",
@@ -513,11 +517,11 @@ async function handleMembershipPurchase({ eventId, session, sessionId, customerN
       topic: "General",
       eventName: "ROAMSIX Membership",
       occurredAt: registeredAt,
-      source: "Stripe",
+      source,
       amountPaid,
       stripeSessionId: sessionId,
       uniqueKey: `stripe:${sessionId}`,
-      details: `${membershipTier} membership; cohort ${cohort.label} (${cohort.id}); ${billingAmount} billed ${billingFrequency}; renews automatically until canceled`,
+      details: `${membershipTier} membership; cohort ${cohort.label} (${cohort.id}); ${billingAmount} billed ${billingFrequency}; renews automatically until canceled; phone ${phone}; source ${source}; ${legalSummary}`,
     },
   });
   if (!crmResult?.contact || !crmResult?.engagement) throw new Error("Membership CRM capture failed");

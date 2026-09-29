@@ -117,14 +117,20 @@ export default async function handler(req, res) {
 
   const name = String(req.body?.name || "").trim().slice(0, 200);
   const email = String(req.body?.email || "").trim().toLowerCase().slice(0, 320);
+  const phone = String(req.body?.phone || "").trim().slice(0, 100);
+  const source = String(req.body?.source || "direct").trim().slice(0, 200);
   const renewalAccepted = req.body?.renewalAccepted === true;
   const termsAccepted = req.body?.termsAccepted === true;
+  const waiverAccepted = req.body?.waiverAccepted === true;
+  const mediaReleaseAccepted = req.body?.mediaReleaseAccepted === true;
   const emailConsent = req.body?.emailConsent === true;
   const acceptedAt = String(req.body?.acceptedAt || new Date().toISOString()).slice(0, 100);
 
-  if (!name || !EMAIL_RE.test(email)) return res.status(400).json({ error: "Please provide your name and a valid email address." });
+  if (!name || !EMAIL_RE.test(email) || !phone) return res.status(400).json({ error: "Please provide your name, email address, and phone number." });
   if (!renewalAccepted) return res.status(400).json({ error: "Please authorize the selected recurring membership charge." });
   if (!termsAccepted) return res.status(400).json({ error: "Please review and accept the membership terms." });
+  if (!waiverAccepted) return res.status(400).json({ error: "Please review and accept the participant agreement." });
+  if (!mediaReleaseAccepted) return res.status(400).json({ error: "Please review and accept the media release." });
   if (tierKey !== "core") {
     if (!process.env.MEMBERSHIP_INVITE_SECRET) {
       return res.status(503).json({ error: "Invitation checkout is not configured yet." });
@@ -182,8 +188,9 @@ export default async function handler(req, res) {
       purchaseType: "membership", membershipTier: tier.name,
       membershipCohortId: cohort.id, membershipCohortLabel: cohort.label,
       billingCycle, billingAmount: plan.amount, billingFrequency: plan.frequency,
-      customerName: name, emailConsent: emailConsent ? "true" : "false",
+      customerName: name, phone, source, emailConsent: emailConsent ? "true" : "false",
       acceptedLegalVersion: LEGAL_VERSION, acceptedAt, agreedToTerms: "true", automaticRenewalConsent: renewalAccepted ? "true" : "false",
+      waiverAccepted: "true", mediaReleaseAccepted: "true",
       enrollmentAuthorization: tierKey === "core" ? "public" : "approved-invitation",
       eventCreditAmount: String(eventCredit.amount || 0),
       eventCreditEngagementIds: eventCredit.engagementIds.join(",").slice(0, 500),
