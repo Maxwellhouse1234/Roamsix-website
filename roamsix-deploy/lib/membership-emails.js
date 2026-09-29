@@ -84,22 +84,15 @@ function requiredEmail(email) {
 
 export async function sendMembershipCheckoutStartedEmail({ sessionId, customerName, email, tier, amount, billingFrequency, checkoutUrl }) {
   if (!sessionId || !email || !checkoutUrl) throw new Error("Membership checkout email requires a Stripe session, customer email, and checkout URL");
-  const firstName = escapeHtml(String(customerName || "").split(" ")[0] || "there");
-  const safeTier = escapeHtml(tier || "Core");
-  const safeAmount = escapeHtml(amount || "the selected price");
-  const safeFrequency = escapeHtml(billingFrequency || "at the selected interval");
   const safeCheckoutUrl = escapeHtml(checkoutUrl);
-  const html = shell("Your Membership Is Ready", `
-    <p style="color:#FAFAF9;font-size:19px">${firstName},</p>
-    <p>Thank you for taking the first step toward ROAMSIX ${safeTier} membership.</p>
-    <p>You are not simply signing up for more information. You are choosing a clearer way to understand what matters, learn from carefully selected experts, and experience ideas in ways that can change what you notice and what you do next.</p>
+  const html = shell("Complete Your Membership", `
+    <p>You started a ROAMSIX Core membership and did not finish.</p>
+    <p>Core is $850 for founding members, held at that rate for as long as your membership stays active. It becomes $1,100 in 2027. Founding membership closes December 31.</p>
+    <p>That covers 36 gatherings in 2027 across gut health, sleep and recovery, focus and resilience, and strength and longevity. Experts we choose ourselves, in rooms of 25 to 40 people.</p>
     <img src="https://www.roamsix.com/images/homepage/roamsix-outdoor-panel-bw-v1.jpg" width="524" alt="An intimate ROAMSIX outdoor conversation" style="display:block;width:100%;max-width:524px;height:auto;margin:28px 0 22px;border:0" />
-    <p>Your selected membership is <strong>${safeTier}</strong> at <strong>${safeAmount} ${safeFrequency}</strong>. Your membership does not begin and you will not be charged unless you finish secure Stripe checkout.</p>
-    <p style="margin:28px 0"><a href="${safeCheckoutUrl}" style="display:inline-block;background:#B8562F;color:#FAFAF9;text-decoration:none;font-weight:700;padding:14px 22px">Complete my membership</a></p>
-    <p>Inside ROAMSIX, clarity comes from seeing the fuller picture. Credible science, practitioner perspective, practical learning, and memorable experiences are brought together so you can move forward with more confidence.</p>
-    <img src="https://www.roamsix.com/images/homepage/roamsix-journey-mediterranean-v2.jpg" width="524" alt="A ROAMSIX-style immersive journey along the Mediterranean" style="display:block;width:100%;max-width:524px;height:auto;margin:22px 0;border:0" />
-    <p>We are excited about what you may discover, the perspectives you may carry forward, and the experiences still ahead.</p>
-    <p style="font-size:13px;color:#B9B7B3">This secure checkout link is temporary. If it expires, return to <a href="https://www.roamsix.com/membership" style="color:#B8562F">roamsix.com/membership</a> to begin again. This is an essential enrollment email, not a marketing subscription.</p>
+    <p style="margin:28px 0"><a href="${safeCheckoutUrl}" style="display:inline-block;background:#B8562F;color:#FAFAF9;text-decoration:none;font-weight:700;padding:14px 22px">Complete my membership · $850</a></p>
+    <p>You have not been charged. This link is temporary. If it expires, start again at <a href="https://www.roamsix.com/membership" style="color:#B8562F">roamsix.com/membership</a>.</p>
+    <p style="font-size:13px;color:#B9B7B3">This is an essential enrollment email, not a marketing subscription.</p>
   `);
   return sendTransactionalEmail({
     key: `stripe:${sessionId}:membership-checkout-started:${email}`,

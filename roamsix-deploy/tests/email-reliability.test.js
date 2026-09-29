@@ -140,9 +140,13 @@ test('unfinished membership checkout sends a branded continuation email once', a
   assert.equal(store.resendCalls.length, 1);
   assert.equal(store.resendCalls[0].body.to[0], 'seeker@example.com');
   assert.match(store.resendCalls[0].body.subject, /ready when you are/i);
-  assert.match(store.resendCalls[0].body.html, /Complete my membership/);
+  assert.match(store.resendCalls[0].body.html, /You started a ROAMSIX Core membership and did not finish\./);
+  assert.match(store.resendCalls[0].body.html, /Core is \$850 for founding members/);
+  assert.match(store.resendCalls[0].body.html, /36 gatherings in 2027/);
+  assert.match(store.resendCalls[0].body.html, /Complete my membership · \$850/);
+  assert.match(store.resendCalls[0].body.html, /You have not been charged\./);
   assert.match(store.resendCalls[0].body.html, /roamsix-outdoor-panel-bw-v1\.jpg/);
-  assert.match(store.resendCalls[0].body.html, /roamsix-journey-mediterranean-v2\.jpg/);
+  assert.doesNotMatch(store.resendCalls[0].body.html, /roamsix-journey-mediterranean-v2\.jpg/);
 });
 
 test('Stripe membership webhook returns a retryable failure when a required email fails', async () => {
