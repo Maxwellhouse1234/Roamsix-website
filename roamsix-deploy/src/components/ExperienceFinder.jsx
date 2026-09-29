@@ -35,6 +35,7 @@ const RESULTS = {
 export default function ExperienceFinder({ compact = false }) {
   const [step, setStep] = useState('audience');
   const [answers, setAnswers] = useState({ audience: '', priority: '', topic: '' });
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
@@ -44,6 +45,11 @@ export default function ExperienceFinder({ compact = false }) {
   const prompt = step === 'audience' ? 'Which description is closest to where you are now?' : step === 'priority' ? 'What would be most valuable right now?' : 'Which subject are you most interested in exploring?';
 
   function choose(option) {
+    if (step === 'audience' && !name.trim()) {
+      setError('Please enter your name to continue.');
+      return;
+    }
+    setError('');
     const key = step;
     const next = { ...answers, [key]: option.value };
     setAnswers(next);
@@ -56,9 +62,11 @@ export default function ExperienceFinder({ compact = false }) {
     event.preventDefault(); setStatus('loading'); setError('');
     try {
       const response = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+        fullName: name.trim(),
         email,
         inquiryType: answers.audience === 'team' ? 'Organization inquiry' : 'Experience recommendation',
         source: 'Experience Finder',
+        experienceFinderAnswers: answers,
         message: `Audience: ${answers.audience}. Priority: ${answers.priority}. Topic: ${answers.topic}. Recommendation: ${result.title}.`,
       }) });
       const data = await response.json().catch(() => ({}));
@@ -67,12 +75,12 @@ export default function ExperienceFinder({ compact = false }) {
     } catch (submissionError) { setStatus('error'); setError(`${submissionError.message} Please try again or email info@roamsix.com.`); }
   }
 
-  function restart() { setStep('audience'); setAnswers({ audience: '', priority: '', topic: '' }); setEmail(''); setStatus('idle'); setError(''); }
+  function restart() { setStep('audience'); setAnswers({ audience: '', priority: '', topic: '' }); setName(''); setEmail(''); setStatus('idle'); setError(''); }
 
   return <div className={`experience-finder ${compact ? 'compact' : ''}`}>
     {!result ? <>
       <div className="finder-progress" aria-label={`Step ${stepNumber} of 3`}><span>Step {stepNumber} of 3</span><div aria-hidden="true"><i style={{ width: `${stepNumber / 3 * 100}%` }} /></div></div>
-      <fieldset><legend>{prompt}</legend><div className="finder-options">{options.map((option) => <button key={option.value} type="button" onClick={() => choose(option)}>{option.label}<span aria-hidden="true">→</span></button>)}</div></fieldset>
+      <fieldset><legend>{prompt}</legend>{step === 'audience' ? <label className="finder-name">Your name<input type="text" value={name} onChange={(event) => { setName(event.target.value); setError(''); }} autoComplete="name" required /></label> : null}<div className="finder-options">{options.map((option) => <button key={option.value} type="button" onClick={() => choose(option)}>{option.label}<span aria-hidden="true">→</span></button>)}</div>{error ? <p className="form-error" role="alert">{error}</p> : null}</fieldset>
     </> : <div className="finder-result" role="status">
       <p className="eyebrow">{result.eyebrow}</p><h3>{result.title}</h3><p>{result.copy}</p>
       {answers.topic ? <p className="finder-match"><strong>You told us:</strong> {AUDIENCES.find((item) => item.value === answers.audience)?.label}<br /><strong>Your priority:</strong> {PRIORITIES.find((item) => item.value === answers.priority)?.label}<br /><strong>Your subject:</strong> {TOPICS.find((item) => item.value === answers.topic)?.label}</p> : null}

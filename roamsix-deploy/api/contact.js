@@ -27,11 +27,13 @@ export default async function handler(req, res) {
   const {
     firstName   = "",
     lastName    = "",
+    fullName    = "",
     email       = "",
     company     = "",
     inquiryType = "",
     message     = "",
     source      = "Homepage Contact Form",
+    experienceFinderAnswers = null,
   } = req.body || {};
 
   // Validation
@@ -41,8 +43,12 @@ export default async function handler(req, res) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
     return res.status(400).json({ error: "Please enter a valid email address." });
   }
+  if (source === "Experience Finder" && !fullName.trim() && !firstName.trim() && !lastName.trim()) {
+    return res.status(400).json({ error: "Name is required for an experience recommendation." });
+  }
 
-  const name      = [firstName.trim(), lastName.trim()].filter(Boolean).join(" ") || "Not provided";
+  const name      = fullName.trim() || [firstName.trim(), lastName.trim()].filter(Boolean).join(" ") || "Not provided";
+  const givenName = name === "Not provided" ? "" : name.split(/\s+/)[0];
   const timestamp = new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" });
 
   // ── 1. NOTIFY MAX + JACKIE ─────────────────────────────────────
@@ -68,8 +74,10 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         from:    "ROAMSIX <info@roamsix.com>",
         to:      [email.trim()],
-        subject: "We received your inquiry | ROAMSIX",
-        html:    confirmHTML(firstName.trim() || name),
+        subject: source === "Experience Finder" ? "Your ROAMSIX recommendation" : "We received your inquiry | ROAMSIX",
+        html:    source === "Experience Finder"
+          ? experienceFinderConfirmHTML(givenName, experienceFinderRecommendation(experienceFinderAnswers))
+          : confirmHTML(firstName.trim() || givenName),
       }),
     });
   } catch (err) { console.error("Confirmation email error:", err); }
@@ -142,6 +150,7 @@ export default async function handler(req, res) {
   await captureCrmActivity({
     contact: {
       firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim(), organization: company.trim(),
+      fullName: name === "Not provided" ? "" : name,
       lifecycleStage: relationships.includes("Speaker") ? "Speaker" : relationships.includes("Collaborator") ? "Collaborator" : "New Lead",
       relationships, topics, sources: ["Website", "Contact Form"], emailPermission: "Unknown",
       notes: `${inquiryType || "General"}: ${message.trim()}`,
@@ -257,6 +266,7 @@ async function handleIntake(req, res) {
 // ── EMAIL TEMPLATES ────────────────────────────────────────────────
 
 function notifyHTML({ name, email, company, inquiryType, message, source, timestamp }) {
+  const replyName = name && name !== "Not provided" ? name.split(/\s+/)[0] : "this lead";
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
@@ -309,7 +319,7 @@ function notifyHTML({ name, email, company, inquiryType, message, source, timest
         <tr>
           <td style="padding:32px 40px;">
             <a href="mailto:${email}" style="display:inline-block;background:#4A7575;color:#E8DFD0;padding:13px 28px;text-decoration:none;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:600;">
-              Reply to ${name.split(" ")[0]}
+              Reply to ${replyName}
             </a>
           </td>
         </tr>
@@ -323,6 +333,53 @@ function notifyHTML({ name, email, company, inquiryType, message, source, timest
           </td>
         </tr>
 
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+function experienceFinderRecommendation(answers) {
+  const audience = String(answers?.audience || "");
+  const priority = String(answers?.priority || "");
+  const topic = String(answers?.topic || "");
+  if (audience === "team") return "Organizations";
+  if (audience === "practitioner") return "Collaborate";
+  if (audience === "transition" || priority === "baseline") {
+    const quarters = {
+      gut: "Gut health quarter, plus Field",
+      recovery: "Sleep and recovery quarter, plus Field",
+      focus: "Focus and resilience quarter, plus Field",
+      longevity: "Strength and longevity quarter, plus Field",
+      whole: "The relevant quarter, plus Field",
+    };
+    return quarters[topic] || "The relevant quarter, plus Field";
+  }
+  return "Core membership, founding rate, closes December 31";
+}
+
+function experienceFinderConfirmHTML(firstName, recommendation) {
+  const greeting = firstName ? `${firstName},` : "Hello,";
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#0A0A0A;font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0A0A0A;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#18181A;max-width:600px;width:100%;">
+        <tr><td style="padding:36px 40px 28px;border-bottom:2px solid #B8562F;"><div style="font-size:22px;font-weight:700;letter-spacing:5px;color:#FAFAF9;text-transform:uppercase;">ROAMSIX</div></td></tr>
+        <tr><td style="padding:40px;">
+          <p style="color:#FAFAF9;font-size:18px;margin:0 0 24px;line-height:1.5;">${greeting}</p>
+          <p style="color:#E5E3E0;font-size:16px;line-height:1.75;margin:0 0 20px;">Thanks for telling us where you are.</p>
+          <p style="color:#E5E3E0;font-size:16px;line-height:1.75;margin:0 0 12px;">Based on what you selected, here is where we would start you:</p>
+          <p style="color:#FAFAF9;font-size:20px;line-height:1.5;margin:0 0 28px;"><strong>${recommendation}</strong></p>
+          <p style="color:#E5E3E0;font-size:16px;line-height:1.75;margin:0 0 20px;">ROAMSIX is a membership built around live gatherings in Southern California. In 2027 we run 36 of them across four connected subjects: gut health, sleep and recovery, focus and resilience, strength and longevity.</p>
+          <p style="color:#E5E3E0;font-size:16px;line-height:1.75;margin:0 0 32px;">The next one is October 24 in San Diego with Dr. Sulaiman Bharwani on the gut-brain connection.</p>
+          <a href="https://www.roamsix.com/membership" style="display:inline-block;background:#B8562F;color:#FAFAF9;padding:14px 24px;text-decoration:none;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin:0 10px 10px 0;">See membership</a>
+          <a href="https://www.roamsix.com/experiences" style="display:inline-block;border:1px solid #E5E3E0;color:#FAFAF9;padding:13px 24px;text-decoration:none;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:10px;">See the October 24 event</a>
+        </td></tr>
+        <tr><td style="padding:20px 40px 32px;border-top:1px solid rgba(250,250,249,0.08);"><div style="font-size:11px;color:rgba(250,250,249,0.4);">ROAMSIX · info@roamsix.com · roamsix.com</div></td></tr>
       </table>
     </td></tr>
   </table>

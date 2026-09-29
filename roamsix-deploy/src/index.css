@@ -143,6 +143,8 @@ p { margin: 0 0 1.25em; }
 .finder-progress > div { flex: 1; height: 2px; background: var(--fog); }
 .finder-progress i { display: block; height: 100%; background: var(--rust); transition: width .25s ease; }
 .experience-finder legend { max-width: 720px; margin: 0 0 34px; font: 600 clamp(2rem, 4vw, 3.6rem)/1.08 'Space Grotesk'; letter-spacing: -.035em; }
+.finder-name { display: block; max-width: 520px; margin: -12px 0 28px; font-size: .82rem; font-weight: 700; }
+.finder-name input { display: block; width: 100%; min-height: 52px; margin-top: 8px; padding: 12px 14px; border: 1px solid var(--stone); background: var(--warm-white); }
 .finder-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .finder-options button { min-height: 86px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 18px 20px; border: 1px solid var(--stone); background: var(--warm-white); color: var(--ink); text-align: left; cursor: pointer; transition: background .2s, color .2s, border-color .2s; }
 .finder-options button:hover { background: var(--ink); border-color: var(--ink); color: var(--white); }
