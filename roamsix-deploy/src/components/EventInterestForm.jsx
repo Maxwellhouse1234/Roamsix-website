@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { trackEvent } from '../lib/analytics';
 
@@ -6,6 +6,17 @@ export default function EventInterestForm({ eventId, eventName }) {
   const [form, setForm] = useState({ name: '', email: '', consent: false });
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
+  const [memberEmail, setMemberEmail] = useState(false);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch('/api/member-context', { signal: controller.signal }).then((response) => response.json()).then((data) => {
+      if (!data.activeMember) return;
+      setForm((current) => ({ ...current, name: data.profile?.fullName || '', email: data.profile?.email || '' }));
+      setMemberEmail(true);
+    }).catch(() => {});
+    return () => controller.abort();
+  }, []);
 
   function update(event) {
     const { name, value, checked, type } = event.target;
@@ -60,8 +71,9 @@ export default function EventInterestForm({ eventId, eventName }) {
     <p className="event-interest-selection"><span>Your event interest</span><strong>{eventName}</strong></p>
     <div className="form-grid two">
       <label>Name<input name="name" value={form.name} onChange={update} autoComplete="name" required /></label>
-      <label>Email<input type="email" name="email" value={form.email} onChange={update} autoComplete="email" required /></label>
+      <label>Email<input type="email" name="email" value={form.email} onChange={update} autoComplete="email" readOnly={memberEmail} required /></label>
     </div>
+    {memberEmail ? <p className="form-note">Using the email connected to your signed-in membership.</p> : null}
     <label className="check"><input type="checkbox" name="consent" checked={form.consent} onChange={update} required /><span>I agree to the <Link to="/privacy">Privacy Policy</Link> and want updates about this event.</span></label>
     {error ? <p className="form-error" role="alert">{error}</p> : null}
     <button className="button button-accent" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Saving…' : 'Tell me when registration opens'}</button>

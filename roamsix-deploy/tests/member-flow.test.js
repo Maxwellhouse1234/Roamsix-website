@@ -422,8 +422,64 @@ test('Dr. Sal public and member-facing references use the confirmed October 24, 
   assert.match(experiences, /dr-sulaiman-bharwani-editorial-v1\.jpg/);
   assert.match(fieldwork, /roamsix-journey-mediterranean-v2\.jpg/);
   assert.match(dashboard, /OCTOBER 24, 2026 · SAN DIEGO COUNTY · 25 SEATS/);
-  assert.match(dashboard, /Hold my seat · \$50/);
+  assert.match(dashboard, /Reserve my included seat/);
+  assert.match(dashboard, /Included with membership/);
+  assert.doesNotMatch(dashboard, /Hold my seat · \$50/);
   assert.doesNotMatch(dashboard, /registration is not open|interest list/i);
+});
+
+test('active members receive an included Dr. Sal seat with legal acceptance recorded', async () => {
+  const writes = [];
+  global.fetch = async (url, options = {}) => {
+    const value = String(url);
+    if (value.includes('Event%20Registrations?')) return response({ records: [] });
+    if (value.endsWith('/Event%20Registrations')) {
+      const body = JSON.parse(options.body);
+      writes.push({ type: 'registration', body });
+      return response({ id: 'rec_member_event', fields: body.fields });
+    }
+    if (value.includes('/tbltON9TJyq9GqBW4?')) return response({ records: [] });
+    if (value.endsWith('/tbltON9TJyq9GqBW4')) {
+      const body = JSON.parse(options.body);
+      writes.push({ type: 'attendee', body });
+      return response({ id: 'rec_member_attendee', fields: body.fields });
+    }
+    throw new Error(`Unexpected URL ${value}`);
+  };
+  const { registerMemberForDrSal } = await import('../lib/dr-sal-event.js');
+  const result = await registerMemberForDrSal({
+    name: 'Test Member', email: 'member@example.com', phone: '555-0100', tier: 'Core',
+    source: 'member-area', acceptedAt: '2026-09-29T23:00:00.000Z', legalVersion: '2026-09-29-dr-sal-v1',
+  });
+  assert.equal(result.created, true);
+  assert.equal(writes.length, 2);
+  assert.equal(writes[0].body.fields['Amount Paid'], 0);
+  assert.equal(writes[0].body.fields.Status, 'Confirmed');
+  assert.match(writes[0].body.fields.Notes, /Included with Core membership/);
+  assert.match(writes[0].body.fields.Notes, /Terms: Yes; Waiver: Yes; Media Release: Yes/);
+  assert.equal(writes[1].body.fields['Payment Status'], 'Included with active membership');
+  assert.equal(writes[1].body.fields['Legal Version'], '2026-09-29-dr-sal-v1');
+});
+
+test('member forms reuse signed-in identity while preserving explicit update consent', async () => {
+  const [topicForm, eventForm, registrationPage, contextApi, memberRegistrationApi] = await Promise.all([
+    readFile(new URL('../src/components/TopicInterestForm.jsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/components/EventInterestForm.jsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/pages/DrSalRegistrationPage.jsx', import.meta.url), 'utf8'),
+    readFile(new URL('../api/member-context.js', import.meta.url), 'utf8'),
+    readFile(new URL('../api/member-event-registration.js', import.meta.url), 'utf8'),
+  ]);
+  for (const source of [topicForm, eventForm, registrationPage]) assert.match(source, /\/api\/member-context/);
+  assert.match(topicForm, /readOnly=\{memberEmail\}/);
+  assert.match(eventForm, /readOnly=\{memberEmail\}/);
+  assert.match(topicForm, /privacyAccepted/);
+  assert.match(eventForm, /name="consent"/);
+  assert.match(registrationPage, /\/api\/member-event-registration/);
+  assert.match(registrationPage, /Reserve my included seat/);
+  assert.match(contextApi, /activeMember: true/);
+  assert.match(memberRegistrationApi, /membershipForEmail/);
+  assert.match(memberRegistrationApi, /waiverAccepted/);
+  assert.match(memberRegistrationApi, /mediaReleaseAccepted/);
 });
 
 test('Round 2 copy separates the homepage thesis from the membership offer', async () => {

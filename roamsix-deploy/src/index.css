@@ -783,6 +783,11 @@ p { margin: 0 0 1.25em; }
 .member-section-nav { position: sticky; top: 0; z-index: 80; padding: 12px 0; background: var(--white); border-bottom: 1px solid var(--stone); overflow-x: auto; }
 .member-section-nav .container { display: flex; gap: 24px; }
 .member-section-nav a { white-space: nowrap; font-size: .74rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; text-decoration: none; }
+.member-start-section { padding: 36px 0; background: var(--fog); border-bottom: 1px solid var(--stone); }
+.member-start-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.member-start-grid a { display: grid; gap: 8px; min-height: 150px; padding: 24px; background: var(--white); border: 1px solid var(--stone); text-decoration: none; }
+.member-start-grid a:hover { border-color: var(--rust); }
+.member-start-grid span { color: var(--deep-gray); font-size: .88rem; line-height: 1.5; }
 .member-section-head, .member-two-column { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(40px, 8vw, 100px); align-items: start; }
 .member-section-head > p { color: var(--deep-gray); max-width: 520px; }
 .membership-network-section { border-top: 1px solid var(--stone); }
@@ -812,7 +817,7 @@ p { margin: 0 0 1.25em; }
 .topic-request-form { display: grid; gap: 18px; }
 
 @media (max-width: 900px) {
-  .membership-tier-grid, .program-count-band .container, .organization-offer-grid, .experience-status-grid, .member-section-head, .member-two-column, .member-calendar { grid-template-columns: 1fr; }
+  .membership-tier-grid, .program-count-band .container, .organization-offer-grid, .experience-status-grid, .member-section-head, .member-two-column, .member-calendar, .member-start-grid { grid-template-columns: 1fr; }
   .program-count-band div, .program-count-band div:first-child { padding: 18px 0; border-left: 0; border-bottom: 1px solid #404042; }
   .organization-offer-grid article, .organization-offer-grid article:nth-child(even) { grid-template-columns: 54px 1fr; padding: 28px 0; border-left: 0; }
   .organization-offer-grid article p { grid-column: 2; }

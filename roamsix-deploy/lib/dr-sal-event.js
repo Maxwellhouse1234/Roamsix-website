@@ -1,5 +1,8 @@
+import { createHash } from "node:crypto";
+
 const EVENT_BASE_ID = process.env.ROAMSIX_EVENT_BASE_ID || "app2b2mTCtAIMmo79";
 const REGISTRATIONS_TABLE = process.env.ROAMSIX_EVENT_REGISTRATIONS_TABLE_ID || "Event Registrations";
+const ATTENDEES_TABLE = process.env.ROAMSIX_EVENT_ATTENDEES_TABLE_ID || "tbltON9TJyq9GqBW4";
 
 export const DR_SAL_EVENT = Object.freeze({
   id: "dr-sal-gut-brain-2026",
@@ -109,6 +112,95 @@ export async function saveDrSalCheckoutHold({ sessionId, name, email, seat, sour
       typecast: true,
     }),
   });
+}
+
+async function confirmedRegistrationForEmail(email) {
+  const normalizedEmail = clean(email, 320).toLowerCase();
+  const query = new URLSearchParams({
+    filterByFormula: `AND({Event}='${formulaValue(DR_SAL_EVENT.id)}',{Email}='${formulaValue(normalizedEmail)}',{Status}='Confirmed')`,
+    maxRecords: "1",
+  });
+  const data = await airtable(`${encodeURIComponent(REGISTRATIONS_TABLE)}?${query}`);
+  return data.records?.[0] || null;
+}
+
+export async function memberDrSalRegistrationStatus(email) {
+  const registration = await confirmedRegistrationForEmail(email);
+  return { registered: Boolean(registration), recordId: registration?.id || null };
+}
+
+async function ensureMemberAttendee({ sessionId, name, email, phone, source, acceptedAt, legalVersion }) {
+  const query = new URLSearchParams({
+    filterByFormula: `{Stripe Session ID}='${formulaValue(sessionId)}'`,
+    maxRecords: "1",
+  });
+  const found = await airtable(`${encodeURIComponent(ATTENDEES_TABLE)}?${query}`);
+  if (found.records?.[0]) return found.records[0];
+  return airtable(encodeURIComponent(ATTENDEES_TABLE), {
+    method: "POST",
+    body: JSON.stringify({
+      fields: {
+        "Full Name": clean(name, 200) || "Not provided",
+        Email: clean(email, 320).toLowerCase(),
+        Phone: clean(phone, 50),
+        "Event Name": DR_SAL_EVENT.name,
+        "Event Date": "October 24, 2026",
+        Package: "Member included seat",
+        "Amount Paid": 0,
+        "Stripe Session ID": sessionId,
+        "Payment Status": "Included with active membership",
+        "Legal Accepted": "Terms: Yes; Waiver: Yes; Media Release: Yes",
+        "Legal Version": clean(legalVersion, 100),
+        "Accepted At": clean(acceptedAt, 100),
+        "Intake Completed": "No",
+        "How Did You Hear About ROAMSIX": clean(source, 200) || "Member Portal",
+      },
+      typecast: true,
+    }),
+  });
+}
+
+export async function registerMemberForDrSal({ name, email, phone, tier, source, acceptedAt, legalVersion }) {
+  const normalizedEmail = clean(email, 320).toLowerCase();
+  const existing = await confirmedRegistrationForEmail(normalizedEmail);
+  if (existing) {
+    const sessionId = existing.fields?.["Stripe Session ID"] || "";
+    await ensureMemberAttendee({ sessionId, name, email: normalizedEmail, phone, source, acceptedAt, legalVersion });
+    return { created: false, record: existing, sessionId };
+  }
+
+  const availability = await drSalAvailability();
+  if (availability.soldOut || !availability.nextSeat) {
+    const error = new Error("This event is sold out.");
+    error.code = "SOLD_OUT";
+    throw error;
+  }
+
+  const memberReference = createHash("sha256").update(`${DR_SAL_EVENT.id}:${normalizedEmail}`).digest("hex").slice(0, 24);
+  const sessionId = `member_${memberReference}`;
+  const legalSummary = `Terms: Yes; Waiver: Yes; Media Release: Yes; Version: ${clean(legalVersion, 100)}; Accepted: ${clean(acceptedAt, 100)}`;
+  const record = await airtable(encodeURIComponent(REGISTRATIONS_TABLE), {
+    method: "POST",
+    body: JSON.stringify({
+      fields: {
+        Name: clean(name, 200) || "Not provided",
+        Email: normalizedEmail,
+        Event: DR_SAL_EVENT.id,
+        Package: "member-included-seat",
+        "Amount Paid": 0,
+        Quantity: 1,
+        "Stripe Session ID": sessionId,
+        Status: "Confirmed",
+        "Registered At": new Date().toISOString(),
+        Notes: `Seat allocation: ${availability.nextSeat}\nIncluded with ${clean(tier, 50)} membership\nSource: ${clean(source, 200) || "Member Portal"}\n${legalSummary}`,
+      },
+      typecast: true,
+    }),
+  });
+
+  await ensureMemberAttendee({ sessionId, name, email: normalizedEmail, phone, source, acceptedAt, legalVersion });
+
+  return { created: true, record, sessionId, seat: availability.nextSeat };
 }
 
 export async function confirmDrSalRegistration({ sessionId, name, email, amountPaid, registeredAt, source }) {

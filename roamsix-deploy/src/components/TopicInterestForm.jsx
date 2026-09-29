@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { trackEvent } from '../lib/analytics';
 
 export default function TopicInterestForm({ interest }) {
@@ -7,6 +7,18 @@ export default function TopicInterestForm({ interest }) {
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
+  const [memberEmail, setMemberEmail] = useState(false);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch('/api/member-context', { signal: controller.signal }).then((response) => response.json()).then((data) => {
+      if (!data.activeMember) return;
+      setFullName(data.profile?.fullName || '');
+      setEmail(data.profile?.email || '');
+      setMemberEmail(true);
+    }).catch(() => {});
+    return () => controller.abort();
+  }, []);
 
   async function submit(event) {
     event.preventDefault();
@@ -47,9 +59,10 @@ export default function TopicInterestForm({ interest }) {
       <h3>{interest.label}</h3>
       <div className="form-grid two">
         <label>Name<input value={fullName} onChange={(event) => setFullName(event.target.value)} autoComplete="name" required /></label>
-        <label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required /></label>
+        <label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" readOnly={memberEmail} required /></label>
       </div>
-      <label className="check"><input type="checkbox" checked={privacyAccepted} onChange={(event) => setPrivacyAccepted(event.target.checked)} required /> I agree to the <a href="/privacy">Privacy Policy</a> and want ROAMSIX updates about this part of the program.</label>
+      {memberEmail ? <p className="form-note">Using the email connected to your signed-in membership.</p> : null}
+      <label className="check"><input type="checkbox" checked={privacyAccepted} onChange={(event) => setPrivacyAccepted(event.target.checked)} required /><span>I agree to the <a href="/privacy">Privacy Policy</a> and want ROAMSIX updates about this part of the program.</span></label>
       {error ? <p className="form-error" role="alert">{error}</p> : null}
       <button className="button" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Sending…' : 'Send me 2027 updates'}</button>
       <p className="form-note">This does not reserve a place or require payment.</p>
