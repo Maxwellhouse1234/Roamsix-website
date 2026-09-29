@@ -328,8 +328,10 @@ test('Round 2 copy separates the homepage thesis from the membership offer', asy
     readFile(new URL('../src/pages/FieldworkPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/HowItWorksPage.jsx', import.meta.url), 'utf8'),
   ]);
-  assert.match(home, /Southern California · 36 gatherings in 2027/);
-  assert.match(home, /Your gut, your sleep, your focus, and your strength are one system\. Almost nobody teaches them that way\./);
+  assert.match(home, /An experiential health discovery membership/);
+  assert.match(home, /Health is too important to understand in fragments\./);
+  assert.match(home, /Every month brings a new rule, a new supplement, and a new reason to worry\./);
+  assert.match(home, /Across 36 gatherings in Southern California, ROAMSIX gives you a year with experts worth listening to/);
   assert.match(home, /<h2>What we are not<\/h2>/);
   assert.match(home, /Not a clinic\./);
   assert.match(home, /The gut-brain connection: food, stress, and everyday performance/);
