@@ -319,6 +319,17 @@ test('Dr. Sal public and member-facing references use the confirmed October 24, 
   assert.match(dashboard, /Dr\. Sal · October 24, 2026 · San Diego/);
 });
 
+test('homepage uses the approved 2027 gathering story and places the questionnaire last', async () => {
+  const home = await readFile(new URL('../src/pages/HomePage.jsx', import.meta.url), 'utf8');
+  assert.match(home, /Southern California · 36 gatherings in 2027/);
+  assert.match(home, /ROAMSIX is a membership built around live gatherings\. In 2027 we run 36 of them: fireside conversations with vetted specialists, and movement mornings outdoors\. Four subjects, one quarter each\./);
+  assert.match(home, /<h2>Why ROAMSIX<\/h2>/);
+  assert.doesNotMatch(home, /one coherent path/);
+  assert.ok(home.indexOf('Why ROAMSIX') < home.indexOf('October 24, 2026'));
+  assert.ok(home.indexOf('October 24, 2026') < home.indexOf('Your path into ROAMSIX'));
+  assert.ok(home.indexOf('For organizations') < home.indexOf('Find the right way in'));
+});
+
 test('active member receives a generic magic-link response and the email is sent', async () => {
   let sentEmail = false;
   global.fetch = async (url) => {
