@@ -22,7 +22,7 @@ export const MEMBERSHIP_TIERS = {
     name: 'Field',
     price: '$2,200',
     priceLabel: '$2,200 for the first year',
-    forWhom: 'For the person with a specific question who wants time with the specialist.',
+    forWhom: 'For the person with specific questions who wants time with the experts.',
     includes: 'Everything in Core, plus:',
     features: [
       '4 small-group sessions with specialists, capped for real conversation',
@@ -36,7 +36,7 @@ export const MEMBERSHIP_TIERS = {
     name: 'Journey',
     price: '$4,500',
     priceLabel: '$4,500 for the first year',
-    forWhom: 'For the person who wants ROAMSIX working on their situation between gatherings.',
+    forWhom: 'For the person who wants the experts working on their questions, not only answering them in a room.',
     includes: 'Everything in Field, plus:',
     features: [
       'First access to every gathering before it opens more widely',
