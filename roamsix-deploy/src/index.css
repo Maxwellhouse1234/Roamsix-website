@@ -337,6 +337,8 @@ p { margin: 0 0 1.25em; }
 .membership-checkout-form textarea { resize: vertical; }
 .membership-checkout-form .check { display: grid; grid-template-columns: 20px 1fr; gap: 10px; align-items: start; font-weight: 500; }
 .membership-checkout-form .check input { width: 18px; height: 18px; margin: 4px 0 0; }
+.membership-checkout-form .check a { color: #0759b8; font-weight: 700; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+.membership-checkout-form .check a:hover { color: #003d80; text-decoration-thickness: 2px; }
 .membership-checkout-form .button { width: 100%; }
 .membership-success { min-height: 72vh; }
 .program-section { padding: clamp(70px, 9vw, 120px) 0; background: var(--warm-white); }

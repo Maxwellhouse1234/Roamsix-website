@@ -390,6 +390,19 @@ test('public pricing is annual-only and uses the approved founding language', as
   assert.match(checkout, /Start my Core membership · \$850/);
 });
 
+test('search metadata and checkout legal links reflect the approved membership identity', async () => {
+  const [index, styles] = await Promise.all([
+    readFile(new URL('../index.html', import.meta.url), 'utf8'),
+    readFile(new URL('../src/index.css', import.meta.url), 'utf8'),
+  ]);
+  assert.match(index, /ROAMSIX \| An experiential health discovery membership/);
+  assert.match(index, /Across 36 gatherings in Southern California, ROAMSIX gives you a year with experts worth listening to/);
+  assert.match(index, /roamsix-social-card-v3\.png/);
+  assert.match(index, /"serviceType": "Experiential health discovery membership"/);
+  assert.doesNotMatch(index, /Membership for Health, Performance &amp; a Fully Lived Life/);
+  assert.match(styles, /\.membership-checkout-form \.check a \{ color: #0759b8; font-weight: 700; text-decoration: underline;/);
+});
+
 test('Dr. Sal public and member-facing references use the confirmed October 24, 2026 event identity', async () => {
   const [home, experiences, dashboard, fieldwork] = await Promise.all([
     readFile(new URL('../src/pages/HomePage.jsx', import.meta.url), 'utf8'),
