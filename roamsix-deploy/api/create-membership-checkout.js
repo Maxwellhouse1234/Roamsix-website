@@ -182,7 +182,7 @@ export default async function handler(req, res) {
       const coupon = await stripeRequest("coupons", secret, couponParams, `roamsix-event-credit-${digest}`);
       params.set("discounts[0][coupon]", coupon.id);
     } else {
-      params.set("allow_promotion_codes", "false");
+      params.set("allow_promotion_codes", tierKey === "core" ? "true" : "false");
     }
     const metadata = {
       purchaseType: "membership", membershipTier: tier.name,

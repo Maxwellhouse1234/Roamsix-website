@@ -103,6 +103,7 @@ test('Core checkout creates annual Stripe subscription sessions and rejects mont
   assert.match(checkoutBody, /source.*verification-test/);
   assert.match(checkoutBody, /waiverAccepted.*true/);
   assert.match(checkoutBody, /mediaReleaseAccepted.*true/);
+  assert.match(checkoutBody, /allow_promotion_codes=true/);
   assert.doesNotMatch(checkoutBody, /membershipYear/);
 
 });
