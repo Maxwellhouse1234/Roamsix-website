@@ -16,6 +16,10 @@ export const DR_SAL_EVENT = Object.freeze({
 
 const HOLD_MINUTES = 61;
 
+export function shouldShowSeatCounter(sold) {
+  return Number(sold || 0) >= 15;
+}
+
 function clean(value, max = 500) {
   return String(value || "").trim().slice(0, max);
 }
@@ -82,7 +86,7 @@ export async function drSalAvailability() {
     remaining: Math.max(0, DR_SAL_EVENT.capacity - occupied),
     nextSeat,
     soldOut: occupied >= DR_SAL_EVENT.capacity,
-    showCounter: sold >= 15,
+    showCounter: shouldShowSeatCounter(sold),
   };
 }
 

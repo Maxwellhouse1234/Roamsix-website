@@ -39,6 +39,32 @@ function membershipCheckoutBody(overrides = {}) {
   };
 }
 
+test('event seat counter stays hidden until the fifteenth confirmed seat', async () => {
+  const { shouldShowSeatCounter } = await import('../lib/dr-sal-event.js');
+  assert.equal(shouldShowSeatCounter(14), false);
+  assert.equal(shouldShowSeatCounter(15), true);
+  assert.equal(shouldShowSeatCounter(25), true);
+});
+
+test('event credit requires an exact end time, lasts 48 hours, and never exceeds $100 lifetime', async () => {
+  const { eventCreditAmount, eventCreditWindow } = await import('../lib/event-credit.js');
+  const before = new Date('2026-10-24T22:00:00-07:00');
+  const during = new Date('2026-10-25T12:00:00-07:00');
+  const after = new Date('2026-10-27T22:00:01-07:00');
+  assert.equal(eventCreditWindow('', during).configured, false);
+  assert.equal(eventCreditWindow('2026-10-24T23:00:00-07:00', before).active, false);
+  assert.equal(eventCreditWindow('2026-10-24T23:00:00-07:00', during).active, true);
+  assert.equal(eventCreditWindow('2026-10-24T23:00:00-07:00', after).active, false);
+  const registrations = [
+    { fields: { 'Amount Paid': 50 } },
+    { fields: { 'Amount Paid': 75 } },
+    { fields: { 'Amount Paid': 50 } },
+  ];
+  assert.equal(eventCreditAmount({ registrations, memberships: [] }), 100);
+  assert.equal(eventCreditAmount({ registrations, memberships: [{ fields: { 'Event Credit Applied': 75 } }] }), 25);
+  assert.equal(eventCreditAmount({ registrations, memberships: [{ fields: { 'Event Credit Applied': 100 } }] }), 0);
+});
+
 test('signed member tokens reject tampering and expired purpose mismatches', async () => {
   const { createSignedToken, verifySignedToken } = await import('../lib/member-auth.js');
   const token = createSignedToken({ email: 'member@example.com', purpose: 'login' }, process.env.MEMBER_AUTH_SECRET, 60);

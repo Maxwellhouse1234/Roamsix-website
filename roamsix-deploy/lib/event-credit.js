@@ -10,12 +10,29 @@ function number(value) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-export async function eligibleEventCredit(email, now = new Date()) {
-  const eventEndsAt = process.env.DR_SAL_EVENT_END_AT;
+export function eventCreditWindow(eventEndsAt, now = new Date()) {
   const startsAt = eventEndsAt ? new Date(eventEndsAt) : null;
   const endsAt = startsAt && Number.isFinite(startsAt.getTime()) ? new Date(startsAt.getTime() + 48 * 60 * 60 * 1000) : null;
-  if (!startsAt || !endsAt || now < startsAt || now > endsAt) {
-    return { amount: 0, engagementIds: [], configured: Boolean(startsAt && endsAt), startsAt: eventEndsAt || "", endsAt: endsAt?.toISOString() || "" };
+  return {
+    active: Boolean(startsAt && endsAt && now >= startsAt && now <= endsAt),
+    configured: Boolean(startsAt && endsAt),
+    startsAt,
+    endsAt,
+  };
+}
+
+export function eventCreditAmount({ registrations = [], memberships = [] }) {
+  const previouslyApplied = memberships.reduce((sum, record) => sum + number(record.fields?.["Event Credit Applied"]), 0);
+  const remainingCap = Math.max(0, LIFETIME_CAP - previouslyApplied);
+  const available = registrations.reduce((sum, record) => sum + Math.min(50, number(record.fields?.["Amount Paid"])), 0);
+  return Math.min(remainingCap, available);
+}
+
+export async function eligibleEventCredit(email, now = new Date()) {
+  const eventEndsAt = process.env.DR_SAL_EVENT_END_AT;
+  const window = eventCreditWindow(eventEndsAt, now);
+  if (!window.active) {
+    return { amount: 0, engagementIds: [], configured: window.configured, startsAt: eventEndsAt || "", endsAt: window.endsAt?.toISOString() || "" };
   }
   const normalizedEmail = String(email || "").trim().toLowerCase();
   const eventFormula = `AND({Contact Email}='${formulaValue(normalizedEmail)}',{Event Name}='${formulaValue(DR_SAL_EVENT.name)}',{Engagement Type}='Registered',{Status}='Confirmed')`;
@@ -24,15 +41,12 @@ export async function eligibleEventCredit(email, now = new Date()) {
     listAll(ENGAGEMENTS_TABLE, { filterByFormula: eventFormula }),
     listAll(encodeURIComponent(MEMBERSHIP_TABLE), { filterByFormula: membershipFormula }),
   ]);
-  const previouslyApplied = memberships.reduce((sum, record) => sum + number(record.fields?.["Event Credit Applied"]), 0);
-  const remainingCap = Math.max(0, LIFETIME_CAP - previouslyApplied);
-  const available = registrations.reduce((sum, record) => sum + Math.min(50, number(record.fields?.["Amount Paid"])), 0);
   return {
-    amount: Math.min(remainingCap, available),
+    amount: eventCreditAmount({ registrations, memberships }),
     engagementIds: registrations.map((record) => record.id),
     configured: true,
-    startsAt: startsAt.toISOString(),
-    endsAt: endsAt.toISOString(),
+    startsAt: window.startsAt.toISOString(),
+    endsAt: window.endsAt.toISOString(),
   };
 }
 
