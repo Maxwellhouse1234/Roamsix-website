@@ -249,6 +249,9 @@ export default async function handler(req, res) {
     params.set("metadata[memberCreditAmount]", "50");
     params.set("metadata[memberCreditWindow]", "48 hours after the event");
     params.set("metadata[memberCreditLifetimeCap]", "100");
+    params.set("payment_intent_data[metadata][eventId]", DR_SAL_EVENT.id);
+    params.set("payment_intent_data[metadata][eventName]", DR_SAL_EVENT.name);
+    params.set("payment_intent_data[metadata][customerEmail]", customerEmail.trim().toLowerCase());
   }
   const discountAmount = appliedPromotion?.amountOff
     ? appliedPromotion.amountOff / 100

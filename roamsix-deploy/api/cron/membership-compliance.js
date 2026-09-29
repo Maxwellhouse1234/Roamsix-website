@@ -39,7 +39,13 @@ async function sendReminder(subscription, plan) {
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
   if (!process.env.CRON_SECRET || req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) return res.status(401).json({ error: 'Unauthorized' });
-  const required = ['STRIPE_SECRET_KEY', 'RESEND_API_KEY', 'AIRTABLE_TOKEN', 'STRIPE_CUSTOMER_PORTAL_URL', 'STRIPE_MEMBERSHIP_CORE_PRICE_ID', 'STRIPE_MEMBERSHIP_FIELD_PRICE_ID', 'STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID'];
+  if (req.query?.test === '1' && process.env.VERCEL_ENV !== 'production') {
+    const to = String(req.query?.to || '').trim().toLowerCase();
+    if (!/^[^\s@]+@roamsix\.com$/.test(to)) return res.status(400).json({ error: 'A ROAMSIX test recipient is required' });
+    const sent = await sendReminder({ id: `verification_${Date.now()}`, customer: { email: to } }, PLANS[process.env.STRIPE_MEMBERSHIP_CORE_PRICE_ID] || { amount: '$850', frequency: 'annually', tier: 'Core' });
+    return res.status(200).json({ test: true, sent: sent ? 1 : 0 });
+  }
+  const required = ['STRIPE_SECRET_KEY', 'RESEND_API_KEY', 'AIRTABLE_TOKEN', 'STRIPE_MEMBERSHIP_CORE_PRICE_ID'];
   if (required.some((name) => !process.env[name])) return res.status(503).json({ error: 'Membership email automation is not configured' });
   try {
     const retries = await retryFailedTransactionalEmails(25);

@@ -11,9 +11,9 @@ import { captureCrmActivity, recordReferralConversion } from "../lib/crm.js";
 import { claimDinnerWaitlist } from "../lib/dinner-operations.js";
 import { handleMembershipLifecycleEvent, sendMembershipPurchaseEmails } from "../lib/membership-emails.js";
 import { cohortFromMetadata } from "../lib/membership-cohort.js";
-import { recordMembershipPurchase } from "../lib/membership-records.js";
+import { markMembershipRefunded, recordMembershipPurchase } from "../lib/membership-records.js";
 import { sendTransactionalEmail } from "../lib/transactional-email.js";
-import { DR_SAL_EVENT, confirmDrSalRegistration } from "../lib/dr-sal-event.js";
+import { DR_SAL_EVENT, confirmDrSalRegistration, refundDrSalRegistration } from "../lib/dr-sal-event.js";
 import { markEventCreditApplied } from "../lib/event-credit.js";
 
 const MEMBERSHIP_LIFECYCLE_EVENTS = new Set([
@@ -22,6 +22,65 @@ const MEMBERSHIP_LIFECYCLE_EVENTS = new Set([
   "customer.subscription.updated",
   "customer.subscription.deleted",
 ]);
+
+async function stripeApi(path, options = {}) {
+  if (!process.env.STRIPE_SECRET_KEY) throw new Error("STRIPE_SECRET_KEY is not configured");
+  const response = await fetch(`https://api.stripe.com/v1/${path}`, {
+    ...options,
+    headers: { Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`, ...(options.headers || {}) },
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data?.error?.message || `Stripe ${response.status}`);
+  return data;
+}
+
+async function markAttendeesRefunded(sessionId, refundedAt) {
+  if (!process.env.AIRTABLE_TOKEN || !sessionId) return;
+  const headers = { Authorization: `Bearer ${process.env.AIRTABLE_TOKEN}`, "Content-Type": "application/json" };
+  const formula = encodeURIComponent(`{Stripe Session ID}='${String(sessionId).replace(/'/g, "\\'")}'`);
+  const response = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/tbltON9TJyq9GqBW4?filterByFormula=${formula}`, { headers });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(`Attendee refund lookup failed (${response.status})`);
+  for (const record of data.records || []) {
+    const patch = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/tbltON9TJyq9GqBW4/${record.id}`, {
+      method: "PATCH", headers,
+      body: JSON.stringify({ fields: { "Payment Status": "Refunded" }, typecast: true }),
+    });
+    if (!patch.ok) throw new Error(`Attendee refund update failed (${patch.status})`);
+  }
+}
+
+async function handleFullRefund(charge) {
+  if (!charge?.id || Number(charge.amount_refunded || 0) < Number(charge.amount || 0)) {
+    return { handled: false, reason: "partial-refund" };
+  }
+  const refundedAt = new Date().toISOString();
+  if (charge.metadata?.eventId === DR_SAL_EVENT.id && charge.payment_intent) {
+    const sessions = await stripeApi(`checkout/sessions?payment_intent=${encodeURIComponent(charge.payment_intent)}&limit=1`);
+    const checkout = sessions.data?.[0];
+    if (!checkout?.id) throw new Error("Refunded event charge has no Checkout Session");
+    await Promise.all([
+      refundDrSalRegistration({ sessionId: checkout.id, refundedAt }),
+      markAttendeesRefunded(checkout.id, refundedAt),
+    ]);
+    return { handled: true, purpose: "event-refund-reconciled", sessionId: checkout.id };
+  }
+  if (charge.invoice) {
+    const invoice = await stripeApi(`invoices/${encodeURIComponent(charge.invoice)}`);
+    const subscriptionId = invoice.subscription || invoice.parent?.subscription_details?.subscription || "";
+    if (!subscriptionId) return { handled: false, reason: "non-subscription-charge" };
+    const subscription = await stripeApi(`subscriptions/${encodeURIComponent(subscriptionId)}`);
+    if (!["Core", "Field", "Journey"].includes(subscription.metadata?.membershipTier)) {
+      return { handled: false, reason: "non-membership-subscription" };
+    }
+    if (subscription.status !== "canceled") {
+      await stripeApi(`subscriptions/${encodeURIComponent(subscriptionId)}`, { method: "DELETE" });
+    }
+    await markMembershipRefunded({ subscriptionId, refundedAt });
+    return { handled: true, purpose: "membership-refund-reconciled", subscriptionId };
+  }
+  return { handled: false, reason: "unrecognized-refund" };
+}
 
 function readRawBody(req) {
   return new Promise((resolve, reject) => {
@@ -218,7 +277,7 @@ export default async function handler(req, res) {
     }
 
     const checkoutEvent = ["checkout.session.completed", "checkout.session.async_payment_succeeded"].includes(event?.type);
-    if (!event || (!checkoutEvent && !MEMBERSHIP_LIFECYCLE_EVENTS.has(event.type))) {
+    if (!event || (!checkoutEvent && !MEMBERSHIP_LIFECYCLE_EVENTS.has(event.type) && event.type !== "charge.refunded")) {
       return res.status(200).json({ received: true });
     }
 
@@ -262,6 +321,11 @@ export default async function handler(req, res) {
     const host   = req.headers["x-forwarded-host"] || req.headers.host || "roamsix.com";
     const proto  = req.headers["x-forwarded-proto"] || "https";
     const origin = `${proto}://${host}`;
+
+    if (event.type === "charge.refunded") {
+      const result = await handleFullRefund(session);
+      return res.status(200).json({ received: true, ...result });
+    }
 
     if (MEMBERSHIP_LIFECYCLE_EVENTS.has(event.type)) {
       const result = await handleMembershipLifecycleEvent(event, origin);

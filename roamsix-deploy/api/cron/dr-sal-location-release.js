@@ -29,6 +29,19 @@ export default async function handler(req, res) {
   if (!process.env.CRON_SECRET || req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
     return res.status(401).json({ error: "Unauthorized" });
   }
+  if (req.query?.test === "1" && process.env.VERCEL_ENV !== "production") {
+    const to = String(req.query?.to || "").trim().toLowerCase();
+    if (!/^[^\s@]+@roamsix\.com$/.test(to)) return res.status(400).json({ error: "A ROAMSIX test recipient is required" });
+    const sent = await sendTransactionalEmail({
+      key: `dr-sal-location-verification:${Date.now()}:${to}`,
+      purpose: "dr-sal-location-release-verification",
+      to,
+      from: "ROAMSIX Events <info@roamsix.com>",
+      subject: "October 24 ROAMSIX event details",
+      html: locationEmail({ name: "Max", address: "TEST ONLY: exact address pending", time: "TEST ONLY: start and end time pending", parking: "TEST ONLY: parking instructions pending" }),
+    });
+    return res.status(200).json({ test: true, sent: true, messageId: sent.id || "" });
+  }
   const today = localDate();
   if (today < "2026-10-07" || today > "2026-10-24") return res.status(200).json({ skipped: true, today });
 

@@ -20,14 +20,8 @@ function portalUrl(origin = "https://www.roamsix.com") {
 }
 
 function assertMembershipEmailConfig({ lifecycle = false } = {}) {
-  const required = [
-    "RESEND_API_KEY",
-    "AIRTABLE_TOKEN",
-    "STRIPE_MEMBERSHIP_CORE_PRICE_ID",
-    "STRIPE_MEMBERSHIP_FIELD_PRICE_ID",
-    "STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID",
-  ];
-  if (lifecycle) required.push("STRIPE_SECRET_KEY", "STRIPE_CUSTOMER_PORTAL_URL");
+  const required = ["RESEND_API_KEY", "AIRTABLE_TOKEN"];
+  if (lifecycle) required.push("STRIPE_SECRET_KEY");
   const missing = required.filter((name) => !process.env[name]);
   if (missing.length) throw new Error(`Membership email configuration missing: ${missing.join(", ")}`);
 }

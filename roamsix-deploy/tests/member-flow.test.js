@@ -424,6 +424,9 @@ test('active member receives a generic magic-link response and the email is sent
     const value = String(url);
     if (value.includes('/customers?')) return response({ data: [{ id: 'cus_1' }] });
     if (value.includes('/subscriptions?')) return response({ data: [{ status: 'active', metadata: { membershipTier: 'Field' }, items: { data: [{ price: { id: 'price_field' } }] } }] });
+    if (value.includes('Transactional%20Emails?')) return response({ records: [] });
+    if (value.endsWith('/Transactional%20Emails')) return response({ id: 'rec_magic', fields: {} });
+    if (value.includes('/Transactional%20Emails/rec_magic')) return response({ id: 'rec_magic', fields: {} });
     if (value.includes('api.resend.com')) { sentEmail = true; return response({ id: 'email_1' }); }
     throw new Error(`Unexpected URL ${value}`);
   };

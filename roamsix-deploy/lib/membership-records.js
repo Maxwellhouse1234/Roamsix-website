@@ -37,3 +37,15 @@ export async function recordMembershipPurchase({ session, email, name, tier, coh
     body: JSON.stringify({ fields, typecast: true }),
   });
 }
+
+export async function markMembershipRefunded({ subscriptionId, refundedAt = new Date().toISOString() }) {
+  const cleanId = clean(subscriptionId);
+  if (!cleanId) return { updated: false };
+  const existing = await findOne(encodeURIComponent(MEMBERSHIP_TABLE), `{Stripe Subscription ID}='${formulaValue(cleanId)}'`);
+  if (!existing) return { updated: false };
+  await airtable(`${encodeURIComponent(MEMBERSHIP_TABLE)}/${existing.id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ fields: { Status: "Refunded" }, typecast: true }),
+  });
+  return { updated: true, recordId: existing.id };
+}

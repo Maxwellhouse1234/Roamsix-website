@@ -11,10 +11,11 @@ function number(value) {
 }
 
 export async function eligibleEventCredit(email, now = new Date()) {
-  const startsAt = process.env.DR_SAL_EVENT_CREDIT_START;
-  const endsAt = process.env.DR_SAL_EVENT_CREDIT_DEADLINE;
-  if (!startsAt || !endsAt || now < new Date(startsAt) || now > new Date(endsAt)) {
-    return { amount: 0, engagementIds: [], configured: Boolean(startsAt && endsAt) };
+  const eventEndsAt = process.env.DR_SAL_EVENT_END_AT;
+  const startsAt = eventEndsAt ? new Date(eventEndsAt) : null;
+  const endsAt = startsAt && Number.isFinite(startsAt.getTime()) ? new Date(startsAt.getTime() + 48 * 60 * 60 * 1000) : null;
+  if (!startsAt || !endsAt || now < startsAt || now > endsAt) {
+    return { amount: 0, engagementIds: [], configured: Boolean(startsAt && endsAt), startsAt: eventEndsAt || "", endsAt: endsAt?.toISOString() || "" };
   }
   const normalizedEmail = String(email || "").trim().toLowerCase();
   const eventFormula = `AND({Contact Email}='${formulaValue(normalizedEmail)}',{Event Name}='${formulaValue(DR_SAL_EVENT.name)}',{Engagement Type}='Registered',{Status}='Confirmed')`;
@@ -30,6 +31,8 @@ export async function eligibleEventCredit(email, now = new Date()) {
     amount: Math.min(remainingCap, available),
     engagementIds: registrations.map((record) => record.id),
     configured: true,
+    startsAt: startsAt.toISOString(),
+    endsAt: endsAt.toISOString(),
   };
 }
 

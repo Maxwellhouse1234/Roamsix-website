@@ -132,6 +132,29 @@ export async function confirmDrSalRegistration({ sessionId, name, email, amountP
   });
 }
 
+export async function refundDrSalRegistration({ sessionId, refundedAt = new Date().toISOString() }) {
+  const query = new URLSearchParams({
+    filterByFormula: `{Stripe Session ID}='${formulaValue(sessionId)}'`,
+    maxRecords: "1",
+  });
+  const data = await airtable(`${encodeURIComponent(REGISTRATIONS_TABLE)}?${query}`);
+  const existing = data.records?.[0];
+  if (!existing) return { updated: false };
+  const notes = String(existing.fields?.Notes || "");
+  await airtable(`${encodeURIComponent(REGISTRATIONS_TABLE)}/${existing.id}`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      fields: {
+        Status: "Refunded",
+        "Amount Paid": 0,
+        Notes: `${notes}${notes ? "\n" : ""}Refunded through Stripe: ${refundedAt}`,
+      },
+      typecast: true,
+    }),
+  });
+  return { updated: true, recordId: existing.id };
+}
+
 export async function listConfirmedDrSalRegistrations() {
   const formula = `AND({Event}='${formulaValue(DR_SAL_EVENT.id)}',{Status}='Confirmed')`;
   const query = new URLSearchParams({ filterByFormula: formula, pageSize: "100" });

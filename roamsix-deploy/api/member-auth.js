@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { clearSessionCookie, createSignedToken, sameOrigin, sessionCookie, verifySignedToken } from "../lib/member-auth.js";
 import { membershipForEmail } from "../lib/member-data.js";
+import { sendTransactionalEmail } from "../lib/transactional-email.js";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const attempts = new Map();
@@ -14,18 +15,13 @@ function rateLimited(key) {
 }
 
 async function sendMagicLink(email, url) {
-  if (!process.env.RESEND_API_KEY) throw new Error("RESEND_API_KEY is not configured");
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: "ROAMSIX <info@roamsix.com>",
-      to: [email],
-      subject: "Your secure ROAMSIX member sign-in link",
-      html: `<p>Use the secure link below to open your ROAMSIX member area.</p><p><a href="${url}">Sign in to ROAMSIX</a></p><p>This link expires in 15 minutes. If you did not request it, you can ignore this email.</p>`,
-    }),
+  return sendTransactionalEmail({
+    key: `member-login:${email}:${Date.now()}`,
+    purpose: "member-magic-link",
+    to: email,
+    subject: "Your secure ROAMSIX member sign-in link",
+    html: `<p>Use the secure link below to open your ROAMSIX member area.</p><p><a href="${url}">Sign in to ROAMSIX</a></p><p>This link expires in 15 minutes. If you did not request it, you can ignore this email.</p>`,
   });
-  if (!response.ok) throw new Error(`Resend login email failed (${response.status})`);
 }
 
 export default async function handler(req, res) {
