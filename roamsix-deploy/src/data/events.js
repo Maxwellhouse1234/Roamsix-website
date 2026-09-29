@@ -1,6 +1,15 @@
 // HIGH OUTPUT event data
 export const events = [
   {
+    id: "dr-sal-gut-brain-2026",
+    title: "The gut-brain connection: food, stress, and everyday performance",
+    date: "2026-10-24T18:00:00-07:00",
+    location: "San Diego County",
+    locationDetail: "Exact location released October 7",
+    status: "open",
+    packages: [{ id: "general-admission", name: "General admission", price: 5000 }],
+  },
+  {
     id: "high-output-long-game",
     title: "HIGH OUTPUT: THE LONG GAME",
     subtitle: "Father's Day Weekend",

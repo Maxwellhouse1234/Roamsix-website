@@ -25,7 +25,7 @@ export const MEMBERSHIP_TIERS = {
     forWhom: 'For the person with specific questions who wants time with the experts.',
     includes: 'Everything in Core, plus:',
     features: [
-      '4 small-group sessions with specialists, capped for real conversation',
+      '4 small-group sessions with experts, capped for real conversation',
       'Earlier booking on every limited-capacity gathering',
       '4 guest passes',
     ],
@@ -41,7 +41,7 @@ export const MEMBERSHIP_TIERS = {
     features: [
       'First access to every gathering before it opens more widely',
       'Personal briefings on the subjects you are working through',
-      'Two specialist introductions per year',
+      'Two expert introductions per year',
       'First opportunity to join the year-end Journey before it opens to other members. Purchased separately.',
       '6 guest passes',
     ],

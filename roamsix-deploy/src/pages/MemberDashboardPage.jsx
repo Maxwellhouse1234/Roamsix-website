@@ -40,10 +40,6 @@ export default function MemberDashboardPage() {
     event.preventDefault(); setMessage('Saving…');
     try { const result = await api('PATCH', profile); setData(result); setProfile(result.profile); setMessage('Preferences saved.'); } catch (error) { setMessage(error.message); }
   }
-  async function requestBooking() {
-    setMessage('Sending request…');
-    try { await api('POST', { action: 'booking', eventName: 'Dr. Sal · October 24, 2026 · San Diego', message: 'Member requests first notice when registration opens.' }); setMessage('Your interest is recorded. This is not a reservation.'); } catch (error) { setMessage(error.message); }
-  }
   async function requestTopic(event) {
     event.preventDefault(); setMessage('Sending request…');
     try { await api('POST', { action: 'topic', eventName: '2027 member topic request', message: topicRequest }); setTopicRequest(''); setMessage('Topic request received.'); } catch (error) { setMessage(error.message); }
@@ -58,7 +54,7 @@ export default function MemberDashboardPage() {
     <nav className="member-section-nav" aria-label="Member area sections"><div className="container">{['calendar', 'profile', 'passes', 'benefits', 'library', 'requests', 'billing'].map((item) => <a key={item} href={`#${item}`}>{item}</a>)}</div></nav>
     {message ? <div className="container"><p className="member-notice" role="status">{message}</p></div> : null}
     <section className="section light-section" id="calendar"><div className="container member-section-head"><div><p className="eyebrow">Calendar and booking</p><h2>What is ahead.</h2></div><p>We will show booking links here as each experience is ready.</p></div><div className="container member-calendar">
-      <article><span className="status-chip development">Registration not open</span><p className="eyebrow">October 24, 2026 · San Diego · Venue to be announced</p><h3>The gut-brain connection</h3><p>Food, stress, and the habits that support everyday performance with Dr. Sulaiman Bharwani.</p><button className="button button-accent" type="button" onClick={requestBooking}>Notify me when registration opens</button><p className="form-note">Joining the interest list does not reserve a place.</p></article>
+      <article><p className="eyebrow">OCTOBER 24, 2026 · SAN DIEGO COUNTY · 25 SEATS</p><h3>The gut-brain connection: food, stress, and everyday performance</h3><p><Link to="/experiences#dr-sal">Dr. Sulaiman Bharwani</Link>, pediatric gastroenterologist and founder of GutRewired, on how food, stress, and sleep interact, and which gut-health advice holds up.</p><p>$50 holds your seat. The exact location is released October 7. Full refund if the location does not work for you. Your ticket applies toward founding membership if you join within 48 hours of the event.</p><Link className="button button-accent" to="/events/dr-sal-gut-brain-2026?source=member-area">Hold my seat · $50</Link></article>
       <article><span className="status-chip planned">Coming in 2027</span><h3>New perspectives across health and performance</h3><p>Dates and registration links will appear here as each experience is confirmed.</p><Link className="text-link" to="/events">Show me the four themes <span aria-hidden="true">→</span></Link></article>
     </div></section>
     <section className="section fog-section" id="profile"><div className="container member-section-head"><div><p className="eyebrow">Profile and preferences</p><h2>Help us make the calendar more useful.</h2></div><p>Share nonclinical preferences only. Do not submit diagnoses, treatment information, test results, or medical records.</p></div><form className="container member-profile-form" onSubmit={saveProfile}>

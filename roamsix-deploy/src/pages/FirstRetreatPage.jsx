@@ -59,7 +59,7 @@ export default function FirstRetreatPage() {
 
       <section className="section light-section">
         <div className="container audience-grid">
-          <div><p className="eyebrow">Who it is for</p><h2>For people who want to understand how the microbiome connects to everyday life.</h2><p>{retreatOffer.audience}</p><p>You do not need to be a microbiome specialist. An open mind and a willingness to learn across disciplines matter more.</p><a className="button button-secondary" href="#interest">Get retreat updates</a></div>
+          <div><p className="eyebrow">Who it is for</p><h2>For people who want to understand how the microbiome connects to everyday life.</h2><p>{retreatOffer.audience}</p><p>You do not need to be a microbiome expert. An open mind and a willingness to learn across disciplines matter more.</p><a className="button button-secondary" href="#interest">Get retreat updates</a></div>
           <div className="quiet-panel"><h3>What this will not be</h3><ul className="check-list negative"><li>A day of passive lectures</li><li>Medical diagnosis or individual treatment</li><li>A shortcut to a credential</li><li>A promise that one protocol works for everyone</li></ul></div>
         </div>
       </section>

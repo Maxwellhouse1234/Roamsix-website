@@ -13,6 +13,8 @@ import { handleMembershipLifecycleEvent, sendMembershipPurchaseEmails } from "..
 import { cohortFromMetadata } from "../lib/membership-cohort.js";
 import { recordMembershipPurchase } from "../lib/membership-records.js";
 import { sendTransactionalEmail } from "../lib/transactional-email.js";
+import { DR_SAL_EVENT, confirmDrSalRegistration } from "../lib/dr-sal-event.js";
+import { markEventCreditApplied } from "../lib/event-credit.js";
 
 const MEMBERSHIP_LIFECYCLE_EVENTS = new Set([
   "invoice.paid",
@@ -241,6 +243,9 @@ export default async function handler(req, res) {
     const legalVersion          = session.metadata?.acceptedLegalVersion || "";
     const acceptedAt            = session.metadata?.acceptedAt || "";
     const agreedToTerms         = session.metadata?.agreedToTerms === "true";
+    const waiverAccepted        = session.metadata?.waiverAccepted === "true";
+    const mediaReleaseAccepted  = session.metadata?.mediaReleaseAccepted === "true";
+    const registrationSource    = session.metadata?.source || "Website";
     const ageConfirmed          = session.metadata?.ageConfirmed  || "No";
     const smsConsent            = session.metadata?.smsConsent    || "No";
     const discountCode          = session.metadata?.discountCode || "";
@@ -283,7 +288,16 @@ export default async function handler(req, res) {
     const workPromise = (async () => {
 
       // ── WRITE TO EVENT REGISTRATIONS (legacy record) ───────────────────────
-      if (process.env.AIRTABLE_TOKEN) {
+      if (process.env.AIRTABLE_TOKEN && eventId === DR_SAL_EVENT.id) {
+        await confirmDrSalRegistration({
+          sessionId,
+          name: customerName,
+          email,
+          amountPaid,
+          registeredAt,
+          source: registrationSource,
+        });
+      } else if (process.env.AIRTABLE_TOKEN) {
         await writeAirtableRecord(process.env.AIRTABLE_TOKEN, {
           "Name":              customerName || "Not provided",
           "Email":             email,
@@ -310,7 +324,9 @@ export default async function handler(req, res) {
           "Amount Paid":             amountPaid,
           "Stripe Session ID":       sessionId,
           "Payment Status":          "Paid",
-          "Legal Accepted":          agreedToTerms ? "Yes" : "No",
+          "Legal Accepted":          eventId === DR_SAL_EVENT.id
+            ? `Terms: ${agreedToTerms ? "Yes" : "No"}; Waiver: ${waiverAccepted ? "Yes" : "No"}; Media Release: ${mediaReleaseAccepted ? "Yes" : "No"}`
+            : agreedToTerms ? "Yes" : "No",
           "Legal Version":           legalVersion,
           "Accepted At":             acceptedAt,
           "Age Confirmed":           (ageConfirmed === "true" || ageConfirmed === true) ? "Yes" : "No",
@@ -319,6 +335,7 @@ export default async function handler(req, res) {
           "Emergency Contact Phone": emergencyContactPhone,
           "Medical or Dietary Notes": medicalNotes,
           "Intake Completed":        "No",
+          "How Did You Hear About ROAMSIX": registrationSource,
         });
       }
 
@@ -350,18 +367,18 @@ export default async function handler(req, res) {
       const crmResult = await captureCrmActivity({
         contact: {
           fullName: customerName, email, mobile: phone,
-          lifecycleStage: "Customer", relationships: ["Dinner Guest", "Event Attendee"],
-          topics: ["Farm-to-Table Dinners"], sources: ["Website", "Stripe", "Event Registration"],
+          lifecycleStage: "Customer", relationships: eventId === DR_SAL_EVENT.id ? ["Event Attendee"] : ["Dinner Guest", "Event Attendee"],
+          topics: eventId === DR_SAL_EVENT.id ? ["Microbiome & Gut Health"] : ["Farm-to-Table Dinners"], sources: ["Website", "Stripe", "Event Registration", registrationSource],
           emailPermission: "Transactional Only", smsPermission: smsConsent === "Yes" ? "Opted In" : "Unknown",
           occurredAt: registeredAt, notes: guestNames.length ? `Additional guests: ${guestNames.join(", ")}` : "",
         },
         engagement: {
-          engagementType: "Registered", status: "Confirmed", topic: "Farm-to-Table Dinners",
+          engagementType: "Registered", status: "Confirmed", topic: eventId === DR_SAL_EVENT.id ? "Microbiome & Gut Health" : "Farm-to-Table Dinners",
           eventName, occurredAt: registeredAt, source: "Stripe", amountPaid,
           stripeSessionId: sessionId, uniqueKey: `stripe:${sessionId}`,
           discountCode, discountType, stripePromotionId, discountAmount,
           referrerCode, referrerContactId,
-          details: `${packageId}${isBundle ? " (Two Tickets)" : ""}; quantity ${isBundle ? 2 : quantity}${referrerName ? `; referred by ${referrerName}` : ""}`,
+          details: `${packageId}${isBundle ? " (Two Tickets)" : ""}; quantity ${isBundle ? 2 : quantity}${referrerName ? `; referred by ${referrerName}` : ""}; registration source ${registrationSource}${eventId === DR_SAL_EVENT.id ? "; waiver accepted; media release accepted; $50 founding membership credit eligible within 48 hours after the event; $100 lifetime credit cap" : ""}`,
         },
       });
 
@@ -380,7 +397,7 @@ export default async function handler(req, res) {
         name: customerName, guestNames, email, eventId, eventName, packageId, isBundle,
         amountPaid, quantity, sessionId, timestamp, phone,
         emergencyContactName, emergencyContactPhone, medicalNotes: [medicalNotes && `Purchaser: ${medicalNotes}`, guestMedicalNotes && `Second guest: ${guestMedicalNotes}`].filter(Boolean).join("\n"),
-        legalVersion, agreedToTerms,
+        legalVersion, agreedToTerms, waiverAccepted, mediaReleaseAccepted,
       }));
       const common = { stripeEventId: event.id, stripeSessionId: sessionId };
       await Promise.all([
@@ -451,6 +468,12 @@ async function handleMembershipPurchase({ eventId, session, sessionId, customerN
     joinedAt: registeredAt,
   });
 
+  const eventCreditAmount = Number(session.metadata?.eventCreditAmount || 0);
+  const eventCreditEngagementIds = String(session.metadata?.eventCreditEngagementIds || "").split(",").map((value) => value.trim()).filter(Boolean);
+  if (eventCreditAmount > 0 && eventCreditEngagementIds.length) {
+    await markEventCreditApplied({ engagementIds: eventCreditEngagementIds, membershipSessionId: sessionId, amount: eventCreditAmount });
+  }
+
   await sendMembershipPurchaseEmails({ eventId, session, sessionId, customerName, email, origin });
 }
 
@@ -495,10 +518,47 @@ function currentEmailPalette(html) {
     .replaceAll("Warner Springs, CA", "251 Little Falls Drive, Wilmington, DE 19808");
 }
 
+function drSalConfirmHTML({ name, eventName, amountPaid }) {
+  const firstName = (name || "").split(" ")[0] || "there";
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#0C1220;font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0C1220;padding:32px 16px;"><tr><td align="center">
+    <table width="600" cellpadding="0" cellspacing="0" style="background:#141C2A;max-width:600px;width:100%;">
+      <tr><td style="padding:36px 40px 28px;border-bottom:2px solid #B59558;">
+        <div style="font-size:22px;font-weight:700;letter-spacing:5px;color:#E8DFD0;text-transform:uppercase;">ROAMSIX</div>
+        <div style="font-size:11px;letter-spacing:3px;color:#B59558;text-transform:uppercase;margin-top:4px;">Registration Confirmed</div>
+      </td></tr>
+      <tr><td style="padding:36px 40px 12px;">
+        <p style="color:#E8DFD0;font-size:18px;margin:0 0 20px;line-height:1.5;">${firstName},</p>
+        <p style="color:#C8C0B4;font-size:16px;line-height:1.75;margin:0 0 24px;">Your seat is held for ${eventName || DR_SAL_EVENT.name}.</p>
+        <div style="background:rgba(74,117,117,0.08);border:1px solid rgba(74,117,117,0.2);border-left:3px solid #4A7575;padding:24px;margin-bottom:28px;">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            ${row("Date", "October 24, 2026")}
+            ${row("Location", "San Diego County")}
+            ${row("Paid", "$" + Number(amountPaid || 0).toFixed(2))}
+          </table>
+        </div>
+        ${section("Location release", "The exact location is released October 7. We will email the address, time, and parking instructions to this address.")}
+        ${section("Refund window", "A full refund is available through October 10 if the location does not work for you. Reply to this email to request it. Refunds are returned through Stripe to the original payment method.")}
+        ${section("Founding membership credit", "$50 applies toward founding membership if you join within 48 hours of the event. Event credits are capped at $100 over the lifetime of each member record.")}
+      </td></tr>
+      <tr><td style="padding:0 40px 36px;">
+        <p style="color:#C8C0B4;font-size:15px;line-height:1.75;margin:0;">Questions? Reply to this email or contact <a href="mailto:info@roamsix.com" style="color:#4A7575;text-decoration:none;">info@roamsix.com</a>.</p>
+      </td></tr>
+    </table>
+  </td></tr></table>
+</body>
+</html>`;
+}
+
 function customerConfirmHTML({ name, guestNames = [], eventId, eventName, packageId, isBundle, amountPaid, quantity, sessionId, origin }) {
   const firstName = (name || "").split(" ")[0] || "there";
   const displayEvent = eventName || fmtEventId(eventId);
   const intakeUrl = `${origin}/event-intake?session_id=${sessionId}`;
+
+  if (eventId === DR_SAL_EVENT.id) return drSalConfirmHTML({ name, eventName: displayEvent, amountPaid });
 
   return `<!DOCTYPE html>
 <html>
@@ -607,7 +667,7 @@ function customerConfirmHTML({ name, guestNames = [], eventId, eventName, packag
 </html>`;
 }
 
-function teamNotifyHTML({ name, guestNames = [], email, eventId, eventName, packageId, isBundle, amountPaid, quantity, sessionId, timestamp, phone, emergencyContactName, emergencyContactPhone, medicalNotes, legalVersion, agreedToTerms }) {
+function teamNotifyHTML({ name, guestNames = [], email, eventId, eventName, packageId, isBundle, amountPaid, quantity, sessionId, timestamp, phone, emergencyContactName, emergencyContactPhone, medicalNotes, legalVersion, agreedToTerms, waiverAccepted, mediaReleaseAccepted }) {
   const displayEvent = eventName || fmtEventId(eventId);
   return `<!DOCTYPE html>
 <html>
@@ -641,6 +701,8 @@ function teamNotifyHTML({ name, guestNames = [], email, eventId, eventName, pack
               ${row("Emergency Contact",      emergencyContactName ? `${emergencyContactName} - ${emergencyContactPhone}` : "Not provided")}
               ${row("Medical / Dietary",      medicalNotes || "None disclosed")}
               ${row("Legal Accepted",         agreedToTerms ? "Yes" : "No")}
+              ${eventId === DR_SAL_EVENT.id ? row("Waiver Accepted", waiverAccepted ? "Yes" : "No") : ""}
+              ${eventId === DR_SAL_EVENT.id ? row("Media Release Accepted", mediaReleaseAccepted ? "Yes" : "No") : ""}
               ${row("Legal Version",          legalVersion || "N/A")}
               ${row("Session ID",             sessionId)}
             </table>

@@ -20,6 +20,8 @@ import CollaboratePage from './pages/CollaboratePage';
 import MembershipManagePage from './pages/MembershipManagePage';
 import MemberLoginPage from './pages/MemberLoginPage';
 import MemberDashboardPage from './pages/MemberDashboardPage';
+import DrSalRegistrationPage from './pages/DrSalRegistrationPage';
+import EventSuccessPage from './pages/EventSuccessPage';
 
 export const router = createBrowserRouter([
   { path: '/', element: <HomePage /> },
@@ -45,6 +47,8 @@ export const router = createBrowserRouter([
   { path: '/events/q2', element: <FieldworkQuarterPage quarterSlug="q2" /> },
   { path: '/events/q3', element: <FieldworkQuarterPage quarterSlug="q3" /> },
   { path: '/events/q4', element: <FieldworkQuarterPage quarterSlug="q4" /> },
+  { path: '/events/dr-sal-gut-brain-2026', element: <DrSalRegistrationPage /> },
+  { path: '/events/dr-sal-gut-brain-2026/success', element: <EventSuccessPage /> },
   { path: '/dinner', element: <Navigate to="/experiences" replace /> },
   { path: '/dinner/invite', element: <Navigate to="/experiences" replace /> },
   { path: '/events/olive-grove-dinner', element: <Navigate to="/experiences" replace /> },

@@ -5,8 +5,16 @@
 
 import { FOUNDER_REFERRALS } from "../lib/founder-referrals.js";
 import { dinnerAvailability } from "../lib/dinner-operations.js";
+import { DR_SAL_EVENT, drSalAvailability, saveDrSalCheckoutHold } from "../lib/dr-sal-event.js";
 
 const PACKAGE_DATA = {
+  "dr-sal-gut-brain-2026": {
+    "general-admission": {
+      name: "The gut-brain connection: food, stress, and everyday performance",
+      price: 5000,
+      priceEnv: "STRIPE_DR_SAL_PRICE_ID",
+    },
+  },
   "olive-grove-dinner": {
     "olive-grove-dinner": {
       name: "OLIVE GROVE DINNER",
@@ -91,8 +99,11 @@ export default async function handler(req, res) {
     acceptedLegalVersion  = "",
     acceptedAt            = "",
     agreedToTerms         = "",
+    waiverAccepted        = "",
+    mediaReleaseAccepted  = "",
     ageConfirmed          = "",
     discountCode          = "",
+    source                = "Website",
   } = req.body || {};
 
   if (!customerEmail.trim() || !customerName.trim()) {
@@ -120,6 +131,13 @@ export default async function handler(req, res) {
   }
   if (agreedToTerms !== "true" && agreedToTerms !== true) {
     return res.status(400).json({ error: "Please accept the event terms before continuing." });
+  }
+  const isDrSalEvent = eventId === DR_SAL_EVENT.id;
+  if (isDrSalEvent && waiverAccepted !== "true" && waiverAccepted !== true) {
+    return res.status(400).json({ error: "Please accept the Assumption of Risk and Participant Agreement before continuing." });
+  }
+  if (isDrSalEvent && mediaReleaseAccepted !== "true" && mediaReleaseAccepted !== true) {
+    return res.status(400).json({ error: "Please accept the Media Release before continuing." });
   }
 
   const useBundle    = Boolean(isBundle) && Boolean(pkg.bundlePrice);
@@ -151,7 +169,7 @@ export default async function handler(req, res) {
   if (useBundle && cleanedGuestNames.length < 1) {
     return res.status(400).json({ error: "Please provide the name of the second guest." });
   }
-  const stripePriceId = useBundle ? (pkg.bundleStripePriceId || "") : (pkg.stripePriceId || "");
+  const stripePriceId = useBundle ? (pkg.bundleStripePriceId || "") : (pkg.priceEnv ? process.env[pkg.priceEnv] : pkg.stripePriceId || "");
   const unitAmount   = useBundle ? pkg.bundlePrice : pkg.price;
   const qty          = useBundle ? 1 : Math.max(1, parseInt(quantity, 10) || 1);
   const attendeeCount = useBundle ? 2 : qty;
@@ -165,6 +183,24 @@ export default async function handler(req, res) {
       }
     } catch (error) {
       console.error("Capacity check failed:", error.message);
+      return res.status(503).json({ error: "We couldn’t confirm the remaining seats. Please try again shortly." });
+    }
+  }
+  let drSalSeat = 0;
+  let drSalHoldEpoch = 0;
+  let drSalExpiresAt = 0;
+  if (isDrSalEvent) {
+    if (!stripePriceId) return res.status(503).json({ error: "Event payment is not configured yet." });
+    try {
+      const availability = await drSalAvailability();
+      if (availability.soldOut || !availability.nextSeat) {
+        return res.status(409).json({ error: "This event is sold out." });
+      }
+      drSalSeat = availability.nextSeat;
+      drSalHoldEpoch = Math.floor(Date.now() / (30 * 60 * 1000));
+      drSalExpiresAt = (drSalHoldEpoch + 2) * 30 * 60;
+    } catch (error) {
+      console.error("Dr. Sal capacity check failed:", error.message);
       return res.status(503).json({ error: "We couldn’t confirm the remaining seats. Please try again shortly." });
     }
   }
@@ -202,7 +238,18 @@ export default async function handler(req, res) {
   params.set("metadata[acceptedLegalVersion]", acceptedLegalVersion.toString().slice(0, 100));
   params.set("metadata[acceptedAt]", acceptedAt.toString().slice(0, 100));
   params.set("metadata[agreedToTerms]", agreedToTerms.toString().slice(0, 10));
+  params.set("metadata[waiverAccepted]", waiverAccepted.toString().slice(0, 10));
+  params.set("metadata[mediaReleaseAccepted]", mediaReleaseAccepted.toString().slice(0, 10));
   params.set("metadata[ageConfirmed]", ageConfirmed.toString().slice(0, 10));
+  params.set("metadata[source]", source.toString().slice(0, 200));
+  if (isDrSalEvent) {
+    params.set("expires_at", String(drSalExpiresAt));
+    params.set("metadata[seatNumber]", String(drSalSeat));
+    params.set("metadata[refundDeadline]", DR_SAL_EVENT.refundDeadline);
+    params.set("metadata[memberCreditAmount]", "50");
+    params.set("metadata[memberCreditWindow]", "48 hours after the event");
+    params.set("metadata[memberCreditLifetimeCap]", "100");
+  }
   const discountAmount = appliedPromotion?.amountOff
     ? appliedPromotion.amountOff / 100
     : appliedPromotion?.percentOff
@@ -233,6 +280,7 @@ export default async function handler(req, res) {
       headers: {
         "Authorization": `Bearer ${STRIPE_SECRET_KEY}`,
         "Content-Type": "application/x-www-form-urlencoded",
+        ...(isDrSalEvent ? { "Idempotency-Key": `${DR_SAL_EVENT.id}-seat-${drSalSeat}-${drSalHoldEpoch}` } : {}),
       },
       body: params.toString(),
     });
@@ -242,6 +290,25 @@ export default async function handler(req, res) {
     if (!stripeRes.ok) {
       console.error("Stripe error:", data);
       return res.status(400).json({ error: data.error?.message || "Failed to create checkout session." });
+    }
+
+    if (isDrSalEvent) {
+      try {
+        await saveDrSalCheckoutHold({
+          sessionId: data.id,
+          name: customerName,
+          email: customerEmail,
+          seat: drSalSeat,
+          source,
+        });
+      } catch (holdError) {
+        console.error("Dr. Sal seat hold failed:", holdError.message);
+        await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(data.id)}/expire`, {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${STRIPE_SECRET_KEY}` },
+        }).catch(() => {});
+        return res.status(503).json({ error: "We couldn’t hold the seat. Please try again shortly." });
+      }
     }
 
     return res.status(200).json({ url: data.url });

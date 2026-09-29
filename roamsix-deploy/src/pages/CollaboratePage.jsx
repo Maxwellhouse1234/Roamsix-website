@@ -4,7 +4,7 @@ import { trackEvent } from '../lib/analytics';
 
 const CONTRIBUTIONS = [
   { title: 'Lead a fireside conversation or learning session', format: '60 to 90 minutes · In person', detail: 'A focused conversation or practical session built around one meaningful subject.' },
-  { title: 'Join the faculty for a retreat', format: 'Two days or more · Multi-expert', detail: 'Contribute your expertise alongside specialists from other fields.' },
+  { title: 'Join the faculty for a retreat', format: 'Two days or more · Multi-expert', detail: 'Contribute your expertise alongside experts from other fields.' },
   { title: 'Develop an original experience around my work', format: 'Custom format · Co-developed', detail: 'Build a conversation, learning day, retreat, or journey around your research or practice.' },
   { title: 'Contribute a place, craft, ingredient, or method', format: 'Integrated contribution · Flexible', detail: 'Bring a setting, ingredient, process, or activity that makes the subject tangible.' },
   { title: 'Offer a member benefit or partner experience', format: 'Ongoing or limited allocation · Contracted', detail: 'Extend a confirmed trial, assessment, product, workspace, studio, workshop, private experience, preferred rate, or sponsored experience to ROAMSIX members.' },

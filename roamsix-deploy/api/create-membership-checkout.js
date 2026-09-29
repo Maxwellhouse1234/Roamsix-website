@@ -1,7 +1,8 @@
 import { verifySignedToken } from "../lib/member-auth.js";
 import { activeMembershipCohort, cohortMatches } from "../lib/membership-cohort.js";
 import { sendMembershipCheckoutStartedEmail } from "../lib/membership-emails.js";
-import { randomBytes } from "node:crypto";
+import { eligibleEventCredit } from "../lib/event-credit.js";
+import { createHash, randomBytes } from "node:crypto";
 
 const LEGAL_VERSION = "2026-09-28-v13-annual";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -12,13 +13,14 @@ const TIERS = {
   journey: { name: "Journey", plan: { amount: "$4,500", priceEnv: "STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID", frequency: "annually" } },
 };
 
-async function stripeRequest(path, secret, params) {
+async function stripeRequest(path, secret, params, idempotencyKey = "") {
   const response = await fetch(`https://api.stripe.com/v1/${path}`, {
     method: params ? "POST" : "GET",
     headers: {
       Authorization: `Bearer ${secret}`,
       "Stripe-Version": "2026-08-26.dahlia",
       ...(params ? { "Content-Type": "application/x-www-form-urlencoded" } : {}),
+      ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
     },
     ...(params ? { body: params } : {}),
   });
@@ -157,7 +159,25 @@ export default async function handler(req, res) {
     params.set("cancel_url", tierKey === "core" ? `${origin}/membership/checkout/core` : `${origin}/membership#request-membership`);
     params.set("line_items[0][price]", priceId);
     params.set("line_items[0][quantity]", "1");
-    params.set("allow_promotion_codes", "false");
+    let eventCredit = { amount: 0, engagementIds: [], configured: false };
+    try {
+      eventCredit = await eligibleEventCredit(email);
+    } catch (creditError) {
+      console.error("Membership event credit lookup failed:", creditError.message);
+    }
+    if (eventCredit.amount > 0) {
+      const couponParams = new URLSearchParams();
+      couponParams.set("duration", "once");
+      couponParams.set("currency", "usd");
+      couponParams.set("amount_off", String(Math.round(eventCredit.amount * 100)));
+      couponParams.set("name", "ROAMSIX event ticket credit");
+      couponParams.set("metadata[source]", "Eligible event tickets");
+      const digest = createHash("sha256").update(`${email}:${eventCredit.amount}:${eventCredit.engagementIds.join(",")}`).digest("hex").slice(0, 24);
+      const coupon = await stripeRequest("coupons", secret, couponParams, `roamsix-event-credit-${digest}`);
+      params.set("discounts[0][coupon]", coupon.id);
+    } else {
+      params.set("allow_promotion_codes", "false");
+    }
     const metadata = {
       purchaseType: "membership", membershipTier: tier.name,
       membershipCohortId: cohort.id, membershipCohortLabel: cohort.label,
@@ -165,6 +185,9 @@ export default async function handler(req, res) {
       customerName: name, emailConsent: emailConsent ? "true" : "false",
       acceptedLegalVersion: LEGAL_VERSION, acceptedAt, agreedToTerms: "true", automaticRenewalConsent: renewalAccepted ? "true" : "false",
       enrollmentAuthorization: tierKey === "core" ? "public" : "approved-invitation",
+      eventCreditAmount: String(eventCredit.amount || 0),
+      eventCreditEngagementIds: eventCredit.engagementIds.join(",").slice(0, 500),
+      eventCreditPolicy: "$50 within 48 hours after an eligible event, $100 lifetime cap",
     };
     Object.entries(metadata).forEach(([key, value]) => {
       params.set(`metadata[${key}]`, value);

@@ -20,6 +20,9 @@ export async function recordMembershipPurchase({ session, email, name, tier, coh
     "Stripe Session ID": sessionId,
     "Stripe Customer ID": clean(session.customer),
     "Stripe Subscription ID": clean(session.subscription),
+    "Event Credit Applied": Number(session.metadata?.eventCreditAmount || 0),
+    "Event Credit Source": clean(session.metadata?.eventCreditAmount && Number(session.metadata.eventCreditAmount) > 0 ? "Eligible ROAMSIX event ticket" : "", 200),
+    "Event Credit Engagement IDs": clean(session.metadata?.eventCreditEngagementIds, 2000),
     Status: "Paid",
     "Joined At": joinedAt || new Date().toISOString(),
   };

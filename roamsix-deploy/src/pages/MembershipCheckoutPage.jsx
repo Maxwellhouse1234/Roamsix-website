@@ -107,7 +107,7 @@ export default function MembershipCheckoutPage() {
         <label className="check"><input type="checkbox" name="emailConsent" checked={form.emailConsent} onChange={change} /><span><strong>Optional:</strong> send me ROAMSIX news and invitations. Essential membership messages are sent either way.</span></label>
         {error ? <p className="form-error" role="alert">{error}</p> : null}
         <button className="button" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Opening secure payment…' : tierKey === 'core' ? 'Start my Core membership · $850' : `Start my ${tier.name} membership · ${tier.price}`}</button>
-        <p className="form-note">Some experiences are purchased separately: the year-end Journey, premium partner experiences, and the mid-year gathering. Programming, specialists, dates, and locations may change.</p>
+        <p className="form-note">Some experiences are purchased separately: the year-end Journey, premium partner experiences, and the mid-year gathering. Programming, experts, dates, and locations may change.</p>
       </form>
     </div></section>
   </SiteLayout>;

@@ -14,6 +14,10 @@
     {
       "path": "/api/cron/membership-compliance",
       "schedule": "30 0 * * *"
+    },
+    {
+      "path": "/api/cron/dr-sal-location-release",
+      "schedule": "5 16 * * *"
     }
   ],
   "rewrites": [

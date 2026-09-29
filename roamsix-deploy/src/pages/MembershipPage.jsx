@@ -10,7 +10,7 @@ function FoundingOffer() {
     <p className="eyebrow">Founding membership · Closes December 31</p>
     <h2>The rate you join at is the rate you keep.</h2>
     <p>ROAMSIX opens in 2027 with 36 gatherings across four subjects. Founding members join before that year begins and hold their rate for as long as their membership stays active.</p>
-    <p>The four subjects are set. Nothing else is. Founding members help choose the specialists, the venues, and the questions we put to them.</p>
+    <p>The four subjects are set. Nothing else is. Founding members help choose the experts, the venues, and the questions we put to them.</p>
     <p>Core is $850 for founding members. It becomes $1,100 in 2027.</p>
     <div className="button-row"><Link className="button button-accent" to="/membership/checkout/core">Join Core · $850/year</Link><a className="text-link" href="#request-membership">Talk it through first</a></div>
   </div>;
@@ -27,14 +27,14 @@ export default function MembershipPage() {
   return <SiteLayout theme="dark">
     <section className="membership-hero"><div className="container membership-hero-copy">
       <h1>Membership</h1>
-      <p className="page-lead"><strong>36 gatherings in 2027. Expert conversations, movement mornings, and vetted specialists across Southern California.</strong></p>
+      <p className="page-lead"><strong>36 gatherings in 2027. Expert conversations, movement mornings, and vetted experts across Southern California.</strong></p>
       <div className="button-row"><Link className="button button-accent" to="/membership/checkout/core">Join Core · $850/year</Link><Link className="text-link light" to="/events">See the 2027 program</Link></div>
     </div></section>
 
     <section className="section light-section membership-pricing-section" id="pricing"><div className="container">
       <div className="membership-value-intro"><h2>Why this exists</h2><div>
         <p className="lead">Health information is not scarce. Usable health information is. Most people managing their own health are evaluating every claim alone, with no way to tell a real finding from a marketing cycle.</p>
-        <p><strong>We do the filtering.</strong> We choose every specialist and brief them ourselves. No one pays to appear.</p>
+        <p><strong>We do the filtering.</strong> We choose every expert and brief them ourselves. No one pays to appear.</p>
         <p><strong>Each subject gets a full quarter.</strong> Gut health, sleep and recovery, focus and resilience, strength and longevity. Three months each, not one talk and a newsletter.</p>
         <p><strong>Rooms cap at 25 to 40 people.</strong> You get to ask.</p>
       </div></div>

@@ -91,6 +91,7 @@ export default function EventSuccessPage() {
   const sessionId = searchParams.get("session_id") || "";
 
   const pkg = event ? event.packages.find((p) => p.id === pkgId) : null;
+  const isDrSalEvent = eventId === 'dr-sal-gut-brain-2026';
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -160,11 +161,11 @@ export default function EventSuccessPage() {
           <ul className="es-next-list">
             <li>
               <span className="es-next-num">01</span>
-              Check your email for a confirmation from ROAMSIX with details, directions, and what to bring.
+              {isDrSalEvent ? 'Check your email for confirmation that your seat is held. The exact location is released October 7.' : 'Check your email for a confirmation from ROAMSIX with details, directions, and what to bring.'}
             </li>
             <li>
               <span className="es-next-num">02</span>
-              Complete your Participant Intake Form so we can prepare for any food allergies, dietary needs, and emergency contact information.
+              {isDrSalEvent ? 'Watch for a second email on October 7 with the address, time, and parking instructions.' : 'Complete your Participant Intake Form so we can prepare for any food allergies, dietary needs, and emergency contact information.'}
             </li>
             <li>
               <span className="es-next-num">03</span>
@@ -174,7 +175,7 @@ export default function EventSuccessPage() {
         </div>
 
         <div className="es-actions">
-          {sessionId && (
+          {sessionId && !isDrSalEvent && (
             <Link to={`/event-intake?session_id=${sessionId}`} className="es-btn es-btn-gold">
               Complete Intake Form
             </Link>
