@@ -2,11 +2,8 @@ import { sendTransactionalEmail } from "./transactional-email.js";
 import { cohortFromMetadata } from "./membership-cohort.js";
 
 const TIER_BY_PRICE = () => ({
-  [process.env.STRIPE_MEMBERSHIP_CORE_MONTHLY_PRICE_ID]: { name: "Core", amount: "$75", cycle: "monthly", frequency: "monthly" },
   [process.env.STRIPE_MEMBERSHIP_CORE_PRICE_ID]: { name: "Core", amount: "$850", cycle: "annual", frequency: "annually" },
-  [process.env.STRIPE_MEMBERSHIP_FIELD_MONTHLY_PRICE_ID]: { name: "Field", amount: "$185", cycle: "monthly", frequency: "monthly" },
   [process.env.STRIPE_MEMBERSHIP_FIELD_PRICE_ID]: { name: "Field", amount: "$2,200", cycle: "annual", frequency: "annually" },
-  [process.env.STRIPE_MEMBERSHIP_JOURNEY_MONTHLY_PRICE_ID]: { name: "Journey", amount: "$395", cycle: "monthly", frequency: "monthly" },
   [process.env.STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID]: { name: "Journey", amount: "$4,500", cycle: "annual", frequency: "annually" },
 });
 
@@ -27,11 +24,8 @@ function assertMembershipEmailConfig({ lifecycle = false } = {}) {
     "RESEND_API_KEY",
     "AIRTABLE_TOKEN",
     "STRIPE_MEMBERSHIP_CORE_PRICE_ID",
-    "STRIPE_MEMBERSHIP_CORE_MONTHLY_PRICE_ID",
     "STRIPE_MEMBERSHIP_FIELD_PRICE_ID",
-    "STRIPE_MEMBERSHIP_FIELD_MONTHLY_PRICE_ID",
     "STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID",
-    "STRIPE_MEMBERSHIP_JOURNEY_MONTHLY_PRICE_ID",
   ];
   if (lifecycle) required.push("STRIPE_SECRET_KEY", "STRIPE_CUSTOMER_PORTAL_URL");
   const missing = required.filter((name) => !process.env[name]);

@@ -4,7 +4,7 @@
 
 The V10 founding membership checkout and member area require these Vercel environment variables:
 
-- `STRIPE_MEMBERSHIP_CORE_PRICE_ID` (annual recurring price; resolve the model's $900 amount against the website's current $850 amount before creating the live Price)
+- `STRIPE_MEMBERSHIP_CORE_PRICE_ID` (annual recurring founding price: $850; the standard price for new Core members becomes $1,100 in 2027)
 - `STRIPE_MEMBERSHIP_FIELD_PRICE_ID` (annual recurring price: $2,200)
 - `STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID` (annual recurring price: $4,500)
 - `STRIPE_MEMBERSHIP_PRIVATE_PRICE_ID` (optional; Private remains invitation-based)
@@ -22,7 +22,7 @@ The V10 founding membership checkout and member area require these Vercel enviro
 - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `AIRTABLE_TOKEN`, and `RESEND_API_KEY`
 - `VITE_HOLLY_PUBLIC_PROFILE_APPROVED=true` (Holly Beck's approved profile and title are cleared for publication)
 
-Create one annual recurring Stripe Price for each tier after the Core annual amount is reconciled. Core is publicly purchasable. Field and Journey require a signed, expiring invitation tied to the approved email, tier, and active cohort. Run `npm run email:provision` once to create or update the Airtable operations tables, then use `npm run membership:approve -- <approval-id> <field|journey> <approved-email> <approved-by> [name] [hours]` after human approval. The member area verifies membership against Stripe, stores nonclinical member preferences in the existing Airtable CRM, and uses Resend for 15-minute magic sign-in links. The daily compliance cron sends annual renewal-term reminders and retries failed transactional messages. Membership is organized in small cohorts of up to 25; duplicate paid Checkout sessions for the same email or Stripe customer count once. When the configured operating guideline is reached, enrollment moves to an interest-list state until ROAMSIX intentionally activates the next cohort. See `MEMBERSHIP_COHORT_OPERATIONS.md`, `MEMBER_BENEFIT_OPERATIONS.md`, and `EMAIL_OPERATIONS.md`.
+Create one annual recurring Stripe Price for each tier. Core is publicly purchasable at the $850 founding rate. Field and Journey require a signed, expiring invitation tied to the approved email, tier, and active cohort. Run `npm run email:provision` once to create or update the Airtable operations tables, then use `npm run membership:approve -- <approval-id> <field|journey> <approved-email> <approved-by> [name] [hours]` after human approval. The member area verifies membership against Stripe, stores nonclinical member preferences in the existing Airtable CRM, and uses Resend for 15-minute magic sign-in links. The daily compliance cron sends annual renewal-term reminders and retries failed transactional messages. Membership is organized in small cohorts of up to 25; duplicate paid Checkout sessions for the same email or Stripe customer count once. When the configured operating guideline is reached, enrollment moves to an interest-list state until ROAMSIX intentionally activates the next cohort. See `MEMBERSHIP_COHORT_OPERATIONS.md`, `MEMBER_BENEFIT_OPERATIONS.md`, and `EMAIL_OPERATIONS.md`.
 
 ## 🚀 Deploy to Vercel (Easiest - 5 Minutes)
 

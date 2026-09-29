@@ -1,11 +1,8 @@
 import { retryFailedTransactionalEmails, sendTransactionalEmail } from '../../lib/transactional-email.js';
 
 const PLANS = {
-  [process.env.STRIPE_MEMBERSHIP_CORE_MONTHLY_PRICE_ID]: { amount: '$75', frequency: 'monthly', tier: 'Core' },
   [process.env.STRIPE_MEMBERSHIP_CORE_PRICE_ID]: { amount: '$850', frequency: 'annually', tier: 'Core' },
-  [process.env.STRIPE_MEMBERSHIP_FIELD_MONTHLY_PRICE_ID]: { amount: '$185', frequency: 'monthly', tier: 'Field' },
   [process.env.STRIPE_MEMBERSHIP_FIELD_PRICE_ID]: { amount: '$2,200', frequency: 'annually', tier: 'Field' },
-  [process.env.STRIPE_MEMBERSHIP_JOURNEY_MONTHLY_PRICE_ID]: { amount: '$395', frequency: 'monthly', tier: 'Journey' },
   [process.env.STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID]: { amount: '$4,500', frequency: 'annually', tier: 'Journey' },
 };
 
@@ -42,7 +39,7 @@ async function sendReminder(subscription, plan) {
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
   if (!process.env.CRON_SECRET || req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) return res.status(401).json({ error: 'Unauthorized' });
-  const required = ['STRIPE_SECRET_KEY', 'RESEND_API_KEY', 'AIRTABLE_TOKEN', 'STRIPE_CUSTOMER_PORTAL_URL', 'STRIPE_MEMBERSHIP_CORE_PRICE_ID', 'STRIPE_MEMBERSHIP_CORE_MONTHLY_PRICE_ID', 'STRIPE_MEMBERSHIP_FIELD_PRICE_ID', 'STRIPE_MEMBERSHIP_FIELD_MONTHLY_PRICE_ID', 'STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID', 'STRIPE_MEMBERSHIP_JOURNEY_MONTHLY_PRICE_ID'];
+  const required = ['STRIPE_SECRET_KEY', 'RESEND_API_KEY', 'AIRTABLE_TOKEN', 'STRIPE_CUSTOMER_PORTAL_URL', 'STRIPE_MEMBERSHIP_CORE_PRICE_ID', 'STRIPE_MEMBERSHIP_FIELD_PRICE_ID', 'STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID'];
   if (required.some((name) => !process.env[name])) return res.status(503).json({ error: 'Membership email automation is not configured' });
   try {
     const retries = await retryFailedTransactionalEmails(25);

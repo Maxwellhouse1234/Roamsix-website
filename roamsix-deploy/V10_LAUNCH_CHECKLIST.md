@@ -4,8 +4,8 @@ The website and minimum member area use the existing Vercel, Stripe, Airtable, a
 
 ## Max must complete before live checkout
 
-1. Resolve the Core annual-price mismatch before creating or confirming live annual Prices: the financial model says $900, while the website and Membership Terms say $850. Record the approved source of truth, then create or confirm:
-   - Core — approved annual amount after reconciliation
+1. Use the approved annual pricing source of truth:
+   - Core — $850 founding rate, held while membership stays active; $1,100 standard rate for new members in 2027
    - Field — $2,200
    - Journey — $4,500
 2. Add their IDs to Vercel as `STRIPE_MEMBERSHIP_CORE_PRICE_ID`, `STRIPE_MEMBERSHIP_FIELD_PRICE_ID`, and `STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID`.

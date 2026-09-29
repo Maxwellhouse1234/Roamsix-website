@@ -9,11 +9,8 @@ process.env.RESEND_WEBHOOK_SECRET = `whsec_${Buffer.from('resend-webhook-test-se
 process.env.STRIPE_SECRET_KEY = 'stripe_email_test';
 process.env.STRIPE_WEBHOOK_SECRET = 'stripe-webhook-test-secret';
 process.env.STRIPE_MEMBERSHIP_CORE_PRICE_ID = 'price_core';
-process.env.STRIPE_MEMBERSHIP_CORE_MONTHLY_PRICE_ID = 'price_core_monthly';
 process.env.STRIPE_MEMBERSHIP_FIELD_PRICE_ID = 'price_field';
-process.env.STRIPE_MEMBERSHIP_FIELD_MONTHLY_PRICE_ID = 'price_field_monthly';
 process.env.STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID = 'price_journey';
-process.env.STRIPE_MEMBERSHIP_JOURNEY_MONTHLY_PRICE_ID = 'price_journey_monthly';
 process.env.STRIPE_CUSTOMER_PORTAL_URL = 'https://billing.example.test';
 process.env.MEMBERSHIP_INVITE_SECRET = 'membership-invite-test-secret-long-enough';
 process.env.MEMBERSHIP_APPROVAL_SECRET = 'membership-approval-test-secret-long-enough';
@@ -120,14 +117,14 @@ test('membership purchase messages send once to the member, Max, and Jackie', as
   const { sendMembershipPurchaseEmails } = await import('../lib/membership-emails.js');
   const input = {
     eventId: 'evt_checkout', sessionId: 'cs_member', customerName: 'Test Member', email: 'member@example.com', origin: 'https://www.roamsix.test',
-    session: { metadata: { membershipTier: 'Core', membershipCohortId: 'founding', membershipCohortLabel: 'Founding Cohort', billingAmount: '$75', billingCycle: 'monthly', billingFrequency: 'monthly', emailConsent: 'false' } },
+    session: { metadata: { membershipTier: 'Core', membershipCohortId: 'founding', membershipCohortLabel: 'Founding Cohort', billingAmount: '$850', billingCycle: 'annual', billingFrequency: 'annually', emailConsent: 'false' } },
   };
   await sendMembershipPurchaseEmails(input);
   await sendMembershipPurchaseEmails(input);
   assert.equal(store.resendCalls.length, 3);
   assert.deepEqual(store.resendCalls.map((call) => call.body.to[0]).sort(), ['jackie@roamsix.com', 'max@roamsix.com', 'member@example.com']);
   assert.equal(new Set(store.resendCalls.map((call) => call.headers['Idempotency-Key'])).size, 3);
-  assert.match(store.resendCalls.find((call) => call.body.to[0] === 'member@example.com').body.html, /monthly charge of \$75/);
+  assert.match(store.resendCalls.find((call) => call.body.to[0] === 'member@example.com').body.html, /annual charge of \$850/);
 });
 
 test('unfinished membership checkout sends a branded continuation email once', async () => {
@@ -136,7 +133,7 @@ test('unfinished membership checkout sends a branded continuation email once', a
   const { sendMembershipCheckoutStartedEmail } = await import('../lib/membership-emails.js');
   const input = {
     sessionId: 'cs_checkout_started', customerName: 'Clarity Seeker', email: 'seeker@example.com',
-    tier: 'Core', amount: '$75', billingFrequency: 'monthly', checkoutUrl: 'https://checkout.stripe.test/continue',
+    tier: 'Core', amount: '$850', billingFrequency: 'annually', checkoutUrl: 'https://checkout.stripe.test/continue',
   };
   await sendMembershipCheckoutStartedEmail(input);
   await sendMembershipCheckoutStartedEmail(input);

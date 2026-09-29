@@ -11,7 +11,7 @@ function FoundingOffer() {
     <h2>The rate you join at is the rate you keep.</h2>
     <p>ROAMSIX opens in 2027 with 36 gatherings across four subjects. Founding members join before that year begins and hold their rate for as long as their membership stays active.</p>
     <p>The four subjects are set. Nothing else is. Founding members help choose the specialists, the venues, and the questions we put to them.</p>
-    <p>Core is $850 for founding members. It becomes $900 in 2027.</p>
+    <p>Core is $850 for founding members. It becomes $1,100 in 2027.</p>
     <div className="button-row"><Link className="button button-accent" to="/membership/checkout/core">Join Core · $850/year</Link><a className="text-link" href="#request-membership">Talk it through first</a></div>
   </div>;
 }

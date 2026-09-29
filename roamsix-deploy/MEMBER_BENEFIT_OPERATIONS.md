@@ -43,4 +43,4 @@ The current member area can present instructions and send a member to an approve
 
 ## Pricing reconciliation required
 
-The operating model supplied for this work states Core at $900 annually, while the current website and membership terms state $850 annually. Do not create or confirm a live annual Core Stripe price until Max resolves the source-of-truth price. This architecture update does not change pricing.
+Core is $850 annually for founding members. The founding rate is held while membership stays active. The standard Core rate for new members becomes $1,100 in 2027.

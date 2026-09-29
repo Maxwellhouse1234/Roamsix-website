@@ -15,7 +15,7 @@ export const MEMBERSHIP_TIERS = {
       '2 guest passes',
       'Member booking priority',
     ],
-    note: 'Billed annually. Founding rate held for as long as your membership stays active. Standard rate in 2027 is $900.',
+    note: 'Billed annually. Founding rate held for as long as your membership stays active. Standard rate in 2027 is $1,100.',
     cta: 'Join Core · $850/year',
   },
   field: {
