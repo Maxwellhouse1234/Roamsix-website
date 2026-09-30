@@ -773,6 +773,17 @@ p { margin: 0 0 1.25em; }
 .member-login-card { max-width: 720px; padding: clamp(30px, 6vw, 70px); background: var(--white); border: 1px solid var(--stone); }
 .member-login-card h1 { font-size: clamp(2.5rem, 6vw, 5rem); }
 .member-login-card form { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: end; margin: 34px 0 20px; }
+.member-auth-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, .72fr); gap: clamp(38px, 8vw, 110px); align-items: start; }
+.member-auth-intro { padding-top: 30px; }
+.member-auth-intro h1 { font-size: clamp(3rem, 6vw, 6rem); }
+.member-clerk-panel { display: grid; justify-items: center; gap: 22px; }
+.clerk-root-box, .clerk-card-box { width: 100%; }
+.member-auth-status, .member-login-options { width: 100%; padding: 28px; border: 1px solid var(--stone); background: var(--white); }
+.member-login-options summary { cursor: pointer; font-weight: 700; }
+.member-login-fallback { padding-top: 24px; }
+.member-login-fallback form { display: grid; gap: 14px; margin: 24px 0 18px; }
+.member-login-fallback input { width: 100%; margin-top: 8px; padding: 13px 14px; border: 1px solid var(--stone); background: var(--warm-white); }
+.text-button.dark { color: var(--ink); }
 .member-login-card label, .member-profile-form label, .topic-request-form label { font-size: .84rem; font-weight: 700; }
 .member-login-card input, .member-profile-form input, .member-profile-form textarea, .member-profile-form select, .topic-request-form textarea { width: 100%; margin-top: 8px; padding: 13px 14px; border: 1px solid var(--stone); background: var(--warm-white); }
 .member-notice { margin: 20px auto; padding: 14px 18px; background: #f3eadf; border-left: 3px solid var(--rust); }
@@ -817,7 +828,7 @@ p { margin: 0 0 1.25em; }
 .topic-request-form { display: grid; gap: 18px; }
 
 @media (max-width: 900px) {
-  .membership-tier-grid, .program-count-band .container, .organization-offer-grid, .experience-status-grid, .member-section-head, .member-two-column, .member-calendar, .member-start-grid { grid-template-columns: 1fr; }
+  .membership-tier-grid, .program-count-band .container, .organization-offer-grid, .experience-status-grid, .member-section-head, .member-two-column, .member-calendar, .member-start-grid, .member-auth-layout { grid-template-columns: 1fr; }
   .program-count-band div, .program-count-band div:first-child { padding: 18px 0; border-left: 0; border-bottom: 1px solid #404042; }
   .organization-offer-grid article, .organization-offer-grid article:nth-child(even) { grid-template-columns: 54px 1fr; padding: 28px 0; border-left: 0; }
   .organization-offer-grid article p { grid-column: 2; }

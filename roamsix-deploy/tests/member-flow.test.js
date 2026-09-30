@@ -559,6 +559,32 @@ test('valid magic link becomes a secure member session', async () => {
   assert.match(res.headers['Set-Cookie'], /SameSite=Lax/);
 });
 
+test('Clerk sign-in bridges only through the server and keeps the magic-link fallback', async () => {
+  const [main, login, sessionApi] = await Promise.all([
+    readFile(new URL('../src/main.jsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/pages/MemberLoginPage.jsx', import.meta.url), 'utf8'),
+    readFile(new URL('../api/clerk-session.js', import.meta.url), 'utf8'),
+  ]);
+  assert.match(main, /VITE_CLERK_PUBLISHABLE_KEY/);
+  assert.match(main, /ClerkProvider/);
+  assert.match(login, /Continue with your verified email and password/);
+  assert.match(login, /\/api\/clerk-session/);
+  assert.match(login, /Prefer the original email link/);
+  assert.match(sessionApi, /CLERK_SECRET_KEY/);
+  assert.match(sessionApi, /verifyToken/);
+  assert.match(sessionApi, /membershipForEmail/);
+  assert.match(sessionApi, /primary.*verification.*status/s);
+  assert.doesNotMatch(main, /CLERK_SECRET_KEY/);
+
+  const priorSecret = process.env.CLERK_SECRET_KEY;
+  delete process.env.CLERK_SECRET_KEY;
+  const { default: clerkSession } = await import('../api/clerk-session.js');
+  const res = mockRes();
+  await clerkSession({ method: 'POST', headers: { host: 'roamsix.test', origin: 'https://roamsix.test', authorization: 'Bearer token' } }, res);
+  assert.equal(res.statusCode, 503);
+  if (priorSecret) process.env.CLERK_SECRET_KEY = priorSecret;
+});
+
 test('dashboard returns Stripe status and the existing Airtable member profile', async () => {
   global.fetch = async (url) => {
     const value = String(url);
