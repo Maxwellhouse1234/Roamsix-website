@@ -8,6 +8,8 @@ Every current public lead or checkout form sends `formStartedAt`, an empty `webs
 - `TURNSTILE_SECRET_KEY`: matching server-side secret. Production requests fail closed if it is absent.
 - `KV_REST_API_URL` and `KV_REST_API_TOKEN` (or the equivalent `UPSTASH_REDIS_REST_*` names): shared Redis REST storage for rate limits. Without it, a per-instance in-memory fallback is used.
 
+Rate-limit keys are automatically separated by Vercel environment so Preview testing cannot consume Production limits. `FORM_RATE_LIMIT_NAMESPACE` may be set only when an additional explicit namespace is needed outside the standard `production`, `preview`, and `development` environments.
+
 `FORM_SECURITY_ALLOW_NO_TURNSTILE=true` is only an emergency rollback switch. Do not set it in normal production operation.
 
 ## Decisions and recovery

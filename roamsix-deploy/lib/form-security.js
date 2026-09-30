@@ -42,6 +42,14 @@ function clientIp(req) {
 
 function hash(value) { return createHash('sha256').update(value).digest('hex').slice(0, 24); }
 
+function rateLimitNamespace() {
+  const environment = text(
+    process.env.FORM_RATE_LIMIT_NAMESPACE || process.env.VERCEL_ENV || process.env.NODE_ENV || 'development',
+    64,
+  ).toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+  return environment || 'development';
+}
+
 function consumeMemory(key, limit, windowMs, now) {
   const bucket = memoryBuckets.get(key);
   if (!bucket || bucket.resetAt <= now) {
@@ -178,8 +186,9 @@ export async function protectPublicSubmission(req, options = {}) {
   const fingerprint = hash(`${ip}|${email}|${endpoint}`);
   const context = { endpoint, fingerprint, ipHash: hash(ip), emailHash: email ? hash(email) : '', at: new Date(now).toISOString() };
 
-  const ipRate = ip === 'unknown' ? { allowed: true } : await consumeRateLimit(`form:ip:${endpoint}:${hash(ip)}`, options.ipLimit || 12, options.windowSeconds || 600, now);
-  const repeatRate = ip === 'unknown' ? { allowed: true } : await consumeRateLimit(`form:repeat:${endpoint}:${fingerprint}`, options.repeatLimit || 3, options.repeatWindowSeconds || 3600, now);
+  const namespace = rateLimitNamespace();
+  const ipRate = ip === 'unknown' ? { allowed: true } : await consumeRateLimit(`form:${namespace}:ip:${endpoint}:${hash(ip)}`, options.ipLimit || 12, options.windowSeconds || 600, now);
+  const repeatRate = ip === 'unknown' ? { allowed: true } : await consumeRateLimit(`form:${namespace}:repeat:${endpoint}:${fingerprint}`, options.repeatLimit || 3, options.repeatWindowSeconds || 3600, now);
   if (!ipRate.allowed || !repeatRate.allowed) {
     logDecision('rejected', { ...context, reason: !ipRate.allowed ? 'ip_rate_limit' : 'repeated_submission', payload: data });
     return { ok: false, status: 429, error: 'Too many submissions. Please wait and try again.', data };

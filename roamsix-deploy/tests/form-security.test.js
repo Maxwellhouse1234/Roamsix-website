@@ -63,6 +63,45 @@ test('throttles repeated submissions by IP and email fingerprint', async () => {
   assert.equal(blocked.status, 429);
 });
 
+test('isolates durable rate limits between Preview and Production', async () => {
+  const previousFetch = global.fetch;
+  const previousUrl = process.env.KV_REST_API_URL;
+  const previousToken = process.env.KV_REST_API_TOKEN;
+  const previousVercelEnvironment = process.env.VERCEL_ENV;
+  const observedKeys = [];
+  process.env.KV_REST_API_URL = 'https://rate-store.example.test';
+  process.env.KV_REST_API_TOKEN = 'test-token';
+  global.fetch = async (_url, requestOptions) => {
+    const commands = JSON.parse(requestOptions.body);
+    observedKeys.push(commands[0][1]);
+    return { ok: true, json: async () => [{ result: 1 }, { result: 1 }] };
+  };
+  try {
+    process.env.VERCEL_ENV = 'preview';
+    const preview = await protectPublicSubmission(request(legitimate()), { endpoint: 'namespace' });
+    assert.equal(preview.ok, true);
+
+    process.env.VERCEL_ENV = 'production';
+    const production = await protectPublicSubmission(request(legitimate()), { endpoint: 'namespace' });
+    assert.equal(production.ok, true);
+
+    assert.ok(observedKeys.some((key) => key.startsWith('form:preview:')));
+    assert.ok(observedKeys.some((key) => key.startsWith('form:production:')));
+    assert.notEqual(
+      observedKeys.find((key) => key.startsWith('form:preview:')),
+      observedKeys.find((key) => key.startsWith('form:production:')),
+    );
+  } finally {
+    global.fetch = previousFetch;
+    if (previousUrl === undefined) delete process.env.KV_REST_API_URL;
+    else process.env.KV_REST_API_URL = previousUrl;
+    if (previousToken === undefined) delete process.env.KV_REST_API_TOKEN;
+    else process.env.KV_REST_API_TOKEN = previousToken;
+    if (previousVercelEnvironment === undefined) delete process.env.VERCEL_ENV;
+    else process.env.VERCEL_ENV = previousVercelEnvironment;
+  }
+});
+
 test('requires successful server-side Turnstile verification when configured', async () => {
   process.env.TURNSTILE_SECRET_KEY = 'secret';
   const previousFetch = global.fetch;
