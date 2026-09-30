@@ -1,4 +1,5 @@
 import { captureCrmActivity } from "../lib/crm.js";
+import { enforcePublicSubmission } from "../lib/form-security.js";
 
 // api/priority-access.js
 // Handles Priority Access sign-up submissions.
@@ -27,6 +28,7 @@ function makeDiscountCode(firstName) {
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ success: false, error: "Method not allowed" });
+  if (!(await enforcePublicSubmission(req, res, { endpoint: 'priority-access', ipLimit: 8, repeatLimit: 2 }))) return;
 
   const {
     firstName = "",

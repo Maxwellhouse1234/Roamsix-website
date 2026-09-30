@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { trackEvent } from '../lib/analytics';
+import FormProtection, { useFormProtection } from './FormProtection';
 
 const AUDIENCES = [
   { value: 'healthy-aging', label: 'I want to stay healthy, capable, and engaged as I age' },
@@ -39,6 +40,7 @@ export default function ExperienceFinder({ compact = false }) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
+  const protection = useFormProtection();
   const result = answers.topic ? RESULTS[answers.audience === 'team' ? 'team' : answers.topic] : null;
   const stepNumber = useMemo(() => step === 'audience' ? 1 : step === 'priority' ? 2 : 3, [step]);
   const options = step === 'audience' ? AUDIENCES : step === 'priority' ? PRIORITIES : TOPICS;
@@ -68,6 +70,7 @@ export default function ExperienceFinder({ compact = false }) {
         source: 'Experience Finder',
         experienceFinderAnswers: answers,
         message: `Audience: ${answers.audience}. Priority: ${answers.priority}. Topic: ${answers.topic}. Recommendation: ${result.title}.`,
+        ...protection.fields,
       }) });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || 'Your request could not be sent.');
@@ -84,7 +87,7 @@ export default function ExperienceFinder({ compact = false }) {
     </> : <div className="finder-result" role="status">
       <p className="eyebrow">{result.eyebrow}</p><h3>{result.title}</h3><p>{result.copy}</p>
       {answers.topic ? <p className="finder-match"><strong>You told us:</strong> {AUDIENCES.find((item) => item.value === answers.audience)?.label}<br /><strong>Your priority:</strong> {PRIORITIES.find((item) => item.value === answers.priority)?.label}<br /><strong>Your subject:</strong> {TOPICS.find((item) => item.value === answers.topic)?.label}</p> : null}
-      {status === 'success' ? <div className="finder-success"><strong>Your recommendation is on its way.</strong><p>We will send the most relevant ROAMSIX next step to your inbox.</p></div> : <form className="finder-email" onSubmit={requestMatches}><label>Where should we send your recommendation?<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" placeholder="you@example.com" required /></label>{error ? <p className="form-error" role="alert">{error}</p> : null}<button className="button button-accent" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Preparing…' : 'Get my personalized recommendation'}</button></form>}
+      {status === 'success' ? <div className="finder-success"><strong>Your recommendation is on its way.</strong><p>We will send the most relevant ROAMSIX next step to your inbox.</p></div> : <form className="finder-email" onSubmit={requestMatches}><label>Where should we send your recommendation?<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" maxLength="320" placeholder="you@example.com" required /></label><FormProtection onToken={protection.setTurnstileToken} onHoneypot={protection.setHoneypot} />{error ? <p className="form-error" role="alert">{error}</p> : null}<button className="button button-accent" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Preparing…' : 'Get my personalized recommendation'}</button></form>}
       <div className="finder-result-actions"><Link className="text-link" to={result.href}>{result.action} <span aria-hidden="true">→</span></Link><button className="text-link finder-restart" type="button" onClick={restart}>Start again</button></div>
     </div>}
   </div>;

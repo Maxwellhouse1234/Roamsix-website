@@ -1,3 +1,5 @@
+import { retiredPublicRoute } from '../lib/retired-public-route.js';
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -10,6 +12,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
+  return retiredPublicRoute(res);
 
   const {
     coachName,

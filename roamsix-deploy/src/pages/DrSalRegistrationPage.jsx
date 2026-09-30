@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SiteLayout from '../components/SiteLayout';
+import FormProtection, { useFormProtection } from '../components/FormProtection';
 
 const EVENT_ID = 'dr-sal-gut-brain-2026';
 const LEGAL_VERSION = '2026-09-29-dr-sal-v1';
@@ -11,6 +12,7 @@ export default function DrSalRegistrationPage() {
   const [member, setMember] = useState(null);
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
+  const protection = useFormProtection();
   const source = new URLSearchParams(window.location.search).get('source') || 'direct';
 
   useEffect(() => {
@@ -64,6 +66,7 @@ export default function DrSalRegistrationPage() {
           waiverAccepted: form.waiverAccepted,
           mediaReleaseAccepted: form.mediaReleaseAccepted,
           source,
+          ...protection.fields,
         }),
       });
       const data = await response.json().catch(() => ({}));
@@ -103,6 +106,7 @@ export default function DrSalRegistrationPage() {
         <label className="check"><input type="checkbox" name="termsAccepted" checked={form.termsAccepted} onChange={change} required /><span>I accept the <Link to="/terms" target="_blank">Terms</Link> and <Link to="/privacy" target="_blank">Privacy Policy</Link>.</span></label>
         <label className="check"><input type="checkbox" name="waiverAccepted" checked={form.waiverAccepted} onChange={change} required /><span>I have read and accept the <Link to="/waiver" target="_blank">Assumption of Risk and Participant Agreement</Link>.</span></label>
         <label className="check"><input type="checkbox" name="mediaReleaseAccepted" checked={form.mediaReleaseAccepted} onChange={change} required /><span>I have read and accept the <Link to="/media-release" target="_blank">Media Release</Link>.</span></label>
+        {!member?.activeMember ? <FormProtection onToken={protection.setTurnstileToken} onHoneypot={protection.setHoneypot} /> : null}
         {error ? <p className="form-error" role="alert">{error}</p> : null}
         <button className="button" type="submit" disabled={!ready || soldOut || status === 'loading'}>{soldOut ? 'Sold out' : status === 'loading' ? (member?.activeMember ? 'Reserving your seat…' : 'Opening secure payment…') : (member?.activeMember ? 'Reserve my included seat' : 'Hold my seat · $50')}</button>
         <p className="form-note">{member?.activeMember ? 'Included with your active membership. You will not be charged.' : 'Payment is completed securely through Stripe.'}</p>

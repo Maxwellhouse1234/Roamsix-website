@@ -1,5 +1,6 @@
 import { captureCrmActivity } from '../lib/crm.js';
 import { sendTransactionalEmail } from '../lib/transactional-email.js';
+import { enforcePublicSubmission } from '../lib/form-security.js';
 
 const BASE_ID = 'app2b2mTCtAIMmo79';
 const LEGACY_INTEREST_TABLE_ID = 'tblZto5jr9k7C4fE3';
@@ -38,6 +39,7 @@ function crmTopics(data) {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed.' });
+  if (!(await enforcePublicSubmission(req, res, { endpoint: 'retreat-interest', ipLimit: 10, repeatLimit: 3 }))) return;
 
   const input = req.body || {};
   const data = {

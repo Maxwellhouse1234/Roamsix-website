@@ -1,5 +1,6 @@
 import { captureCrmActivity } from "../lib/crm.js";
 import { getFounderReferral } from "../lib/founder-referrals.js";
+import { enforcePublicSubmission } from '../lib/form-security.js';
 
 const EVENT_NAME = "An Evening in the Olive Groves";
 const EVENT_DATE = "September 19, 2026";
@@ -51,6 +52,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ referrerName: firstName(referral.referrerName), code });
   }
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (!(await enforcePublicSubmission(req, res, { endpoint: 'founder-friend-invite', ipLimit: 6, repeatLimit: 2 }))) return;
 
   const friendFirstName = clean(req.body?.friendFirstName, 100);
   const friendEmail = clean(req.body?.friendEmail, 320).toLowerCase();

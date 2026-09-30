@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { trackEvent } from '../lib/analytics';
+import FormProtection, { useFormProtection } from './FormProtection';
 
 export default function EventInterestForm({ eventId, eventName }) {
   const [form, setForm] = useState({ name: '', email: '', consent: false });
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
   const [memberEmail, setMemberEmail] = useState(false);
+  const protection = useFormProtection();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -51,6 +53,7 @@ export default function EventInterestForm({ eventId, eventName }) {
           emailConsent: true,
           smsConsent: false,
           privacyAccepted: form.consent,
+          ...protection.fields,
         }),
       });
       const data = await response.json().catch(() => ({}));
@@ -75,6 +78,7 @@ export default function EventInterestForm({ eventId, eventName }) {
     </div>
     {memberEmail ? <p className="form-note">Using the email connected to your signed-in membership.</p> : null}
     <label className="check"><input type="checkbox" name="consent" checked={form.consent} onChange={update} required /><span>I agree to the <Link to="/privacy">Privacy Policy</Link> and want updates about this event.</span></label>
+    <FormProtection onToken={protection.setTurnstileToken} onHoneypot={protection.setHoneypot} />
     {error ? <p className="form-error" role="alert">{error}</p> : null}
     <button className="button button-accent" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Saving…' : 'Tell me when registration opens'}</button>
     <p className="form-note">No payment is required. This does not reserve a place.</p>

@@ -1,9 +1,11 @@
 import { dinnerAvailability, joinDinnerWaitlist } from "../lib/dinner-operations.js";
+import { enforcePublicSubmission } from '../lib/form-security.js';
 
 function clean(value, max = 320) { return String(value || "").trim().slice(0, max); }
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (!(await enforcePublicSubmission(req, res, { endpoint: 'dinner-waitlist', ipLimit: 8, repeatLimit: 2 }))) return;
   const firstName = clean(req.body?.firstName, 100);
   const lastName = clean(req.body?.lastName, 100);
   const email = clean(req.body?.email, 320).toLowerCase();

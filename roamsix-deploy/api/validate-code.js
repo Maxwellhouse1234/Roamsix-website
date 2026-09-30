@@ -3,6 +3,7 @@ export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
+  return retiredPublicRoute(res);
 
   // Accept either CODE or code (frontend mismatch protection)
   const CODE = (req.body?.CODE ?? req.body?.code ?? "").toString().trim();
@@ -55,3 +56,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Internal server error" });
   }
 }
+import { retiredPublicRoute } from '../lib/retired-public-route.js';

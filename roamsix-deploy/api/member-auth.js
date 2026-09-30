@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import { clearSessionCookie, createSignedToken, sameOrigin, sessionCookie, verifySignedToken } from "../lib/member-auth.js";
 import { membershipForEmail } from "../lib/member-data.js";
 import { sendTransactionalEmail } from "../lib/transactional-email.js";
+import { enforcePublicSubmission } from "../lib/form-security.js";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const attempts = new Map();
@@ -40,6 +41,7 @@ export default async function handler(req, res) {
 
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed." });
   if (!sameOrigin(req)) return res.status(403).json({ error: "Request origin was not accepted." });
+  if (!(await enforcePublicSubmission(req, res, { endpoint: 'member-login', ipLimit: 8, repeatLimit: 3 }))) return;
   const email = String(req.body?.email || "").trim().toLowerCase().slice(0, 320);
   if (!EMAIL_RE.test(email)) return res.status(400).json({ error: "Enter a valid email address." });
   const address = String(req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "unknown").split(",")[0];

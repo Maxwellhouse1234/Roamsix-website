@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import BookCallButton from '../components/BookCallButton';
+import FormProtection, { useFormProtection } from '../components/FormProtection';
 
 /*
   ROAMSIX: PriorityAccessPage.jsx
@@ -195,6 +196,7 @@ export default function PriorityAccessPage() {
   const [err, setErr] = useState("");
   const [referralCode, setReferralCode] = useState("");
   const [copied, setCopied] = useState(false);
+  const protection = useFormProtection();
 
   useEffect(() => {
     document.body.classList.toggle("pa-no-scroll", menuOpen);
@@ -246,6 +248,7 @@ export default function PriorityAccessPage() {
           smsConsent: form.smsConsent,
           termsAccepted: form.termsAccepted,
           referredBy: referredBy.trim(),
+          ...protection.fields,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -439,6 +442,7 @@ export default function PriorityAccessPage() {
                 </label>
               </div>
 
+              <FormProtection onToken={protection.setTurnstileToken} onHoneypot={protection.setHoneypot} />
               {err && <p className="pa-form-err">{err}</p>}
 
               <button className="pa-btn pa-btn-gold pa-submit-btn" onClick={submit} disabled={status === "loading" || !canSubmit}>

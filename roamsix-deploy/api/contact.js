@@ -1,4 +1,5 @@
 import { captureCrmActivity } from "../lib/crm.js";
+import { enforcePublicSubmission } from "../lib/form-security.js";
 
 // api/contact.js
 // Dual-purpose handler:
@@ -17,6 +18,7 @@ const ATTENDEES_TABLE  = "Attendees";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (!(await enforcePublicSubmission(req, res, { endpoint: req.body?.session_id ? 'event-intake' : 'contact', ipLimit: 10, repeatLimit: 3 }))) return;
 
   // ── ROUTE: INTAKE FORM SUBMISSION ────────────────────────────────
   if (req.body && req.body.session_id !== undefined) {
@@ -266,7 +268,13 @@ async function handleIntake(req, res) {
 // ── EMAIL TEMPLATES ────────────────────────────────────────────────
 
 function notifyHTML({ name, email, company, inquiryType, message, source, timestamp }) {
-  const replyName = name && name !== "Not provided" ? name.split(/\s+/)[0] : "this lead";
+  const safeName = escapeHtml(name);
+  const safeEmail = escapeHtml(email);
+  const safeCompany = escapeHtml(company);
+  const safeInquiryType = escapeHtml(inquiryType || "General");
+  const safeMessage = escapeHtml(message).replace(/\n/g, "<br>");
+  const safeSource = escapeHtml(source);
+  const replyName = name && name !== "Not provided" ? escapeHtml(name.split(/\s+/)[0]) : "this lead";
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
@@ -296,11 +304,11 @@ function notifyHTML({ name, email, company, inquiryType, message, source, timest
         <tr>
           <td style="padding:32px 40px 0;">
             <table width="100%" cellpadding="0" cellspacing="0">
-              ${row("Name",    name)}
-              ${row("Email",   `<a href="mailto:${email}" style="color:#4A7575;text-decoration:none;">${email}</a>`)}
-              ${company ? row("Company", company) : ""}
-              ${row("Inquiry", inquiryType || "General")}
-              ${row("Source",  source)}
+              ${row("Name",    safeName)}
+              ${row("Email",   `<a href="mailto:${safeEmail}" style="color:#4A7575;text-decoration:none;">${safeEmail}</a>`)}
+              ${company ? row("Company", safeCompany) : ""}
+              ${row("Inquiry", safeInquiryType)}
+              ${row("Source",  safeSource)}
             </table>
           </td>
         </tr>
@@ -310,7 +318,7 @@ function notifyHTML({ name, email, company, inquiryType, message, source, timest
           <td style="padding:28px 40px 0;">
             <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#B59558;margin-bottom:12px;">Message</div>
             <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(232,223,208,0.1);padding:20px;color:#E8DFD0;font-size:15px;line-height:1.7;border-left:3px solid #4A7575;">
-              ${message.replace(/\n/g, "<br>")}
+              ${safeMessage}
             </div>
           </td>
         </tr>
@@ -318,7 +326,7 @@ function notifyHTML({ name, email, company, inquiryType, message, source, timest
         <!-- CTA -->
         <tr>
           <td style="padding:32px 40px;">
-            <a href="mailto:${email}" style="display:inline-block;background:#4A7575;color:#E8DFD0;padding:13px 28px;text-decoration:none;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:600;">
+            <a href="mailto:${safeEmail}" style="display:inline-block;background:#4A7575;color:#E8DFD0;padding:13px 28px;text-decoration:none;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:600;">
               Reply to ${replyName}
             </a>
           </td>
@@ -360,7 +368,7 @@ function experienceFinderRecommendation(answers) {
 }
 
 function experienceFinderConfirmHTML(firstName, recommendation) {
-  const greeting = firstName ? `${firstName},` : "Hello,";
+  const greeting = firstName ? `${escapeHtml(firstName)},` : "Hello,";
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
@@ -373,7 +381,7 @@ function experienceFinderConfirmHTML(firstName, recommendation) {
           <p style="color:#FAFAF9;font-size:18px;margin:0 0 24px;line-height:1.5;">${greeting}</p>
           <p style="color:#E5E3E0;font-size:16px;line-height:1.75;margin:0 0 20px;">Thanks for telling us where you are.</p>
           <p style="color:#E5E3E0;font-size:16px;line-height:1.75;margin:0 0 12px;">Based on what you selected, here is where we would start you:</p>
-          <p style="color:#FAFAF9;font-size:20px;line-height:1.5;margin:0 0 28px;"><strong>${recommendation}</strong></p>
+          <p style="color:#FAFAF9;font-size:20px;line-height:1.5;margin:0 0 28px;"><strong>${escapeHtml(recommendation)}</strong></p>
           <p style="color:#E5E3E0;font-size:16px;line-height:1.75;margin:0 0 20px;">ROAMSIX is a membership built around live gatherings in Southern California. In 2027 we run 36 of them across four connected subjects: gut health, sleep and recovery, focus and resilience, strength and longevity.</p>
           <p style="color:#E5E3E0;font-size:16px;line-height:1.75;margin:0 0 32px;">The next one is October 24 in San Diego with Dr. Sulaiman Bharwani on the gut-brain connection.</p>
           <a href="https://www.roamsix.com/membership" style="display:inline-block;background:#B8562F;color:#FAFAF9;padding:14px 24px;text-decoration:none;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin:0 10px 10px 0;">See membership</a>
@@ -396,6 +404,12 @@ function row(label, value) {
   </tr>`;
 }
 
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>'"]/g, (character) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
+  })[character]);
+}
+
 function confirmHTML(firstName) {
   return `<!DOCTYPE html>
 <html>
@@ -416,7 +430,7 @@ function confirmHTML(firstName) {
         <!-- Body -->
         <tr>
           <td style="padding:40px 40px 0;">
-            <p style="color:#E8DFD0;font-size:18px;margin:0 0 24px;line-height:1.5;">${firstName ? firstName + "," : "Hello,"}</p>
+            <p style="color:#E8DFD0;font-size:18px;margin:0 0 24px;line-height:1.5;">${firstName ? escapeHtml(firstName) + "," : "Hello,"}</p>
             <p style="color:#C8C0B4;font-size:16px;line-height:1.75;margin:0 0 20px;">
               We received your inquiry and will review it personally. You can expect a response within 48 hours.
             </p>

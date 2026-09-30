@@ -850,3 +850,5 @@ p { margin: 0 0 1.25em; }
   .framework-list h3 { margin: 18px 0 12px; }
   .framework-list article p { grid-column: auto; }
 }
+.form-honeypot { position: absolute !important; left: -10000px !important; width: 1px !important; height: 1px !important; overflow: hidden !important; }
+.form-turnstile { min-height: 65px; margin: 16px 0; }

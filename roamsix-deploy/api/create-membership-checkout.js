@@ -3,6 +3,7 @@ import { activeMembershipCohort, cohortMatches } from "../lib/membership-cohort.
 import { sendMembershipCheckoutStartedEmail } from "../lib/membership-emails.js";
 import { eligibleEventCredit } from "../lib/event-credit.js";
 import { createHash, randomBytes } from "node:crypto";
+import { enforcePublicSubmission } from '../lib/form-security.js';
 
 const LEGAL_VERSION = "2026-09-28-v13-annual";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -114,6 +115,8 @@ export default async function handler(req, res) {
     if (!invitation) return res.status(403).json({ authorized: false, error: "This membership invitation is invalid or has expired." });
     return res.status(200).json({ authorized: true, email: invitation.email, tier: invitation.tier, expiresAt: invitation.exp });
   }
+
+  if (!(await enforcePublicSubmission(req, res, { endpoint: 'membership-checkout', ipLimit: 8, repeatLimit: 3 }))) return;
 
   const name = String(req.body?.name || "").trim().slice(0, 200);
   const email = String(req.body?.email || "").trim().toLowerCase().slice(0, 320);

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
+import FormProtection, { useFormProtection } from '../components/FormProtection';
 
 /*
   ROAMSIX, CorporatePage.jsx
@@ -210,6 +211,7 @@ export default function CorporatePage() {
   const [contact,   setContact]   = useState({ first: "", last: "", email: "", company: "", teamSize: "", format: "", message: "", stayInLoop: false });
   const [ctStatus,  setCtStatus]  = useState("idle");
   const [ctErr,     setCtErr]     = useState("");
+  const protection = useFormProtection();
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -241,7 +243,7 @@ export default function CorporatePage() {
         : contact.message.trim();
       const res = await fetch("/api/contact", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName: contact.first.trim(), lastName: contact.last.trim(), email: contact.email.trim(), company: contact.company.trim(), inquiryType: "Corporate Experience", message: fullMessage, source: "Corporate Page Contact Form" }),
+        body: JSON.stringify({ firstName: contact.first.trim(), lastName: contact.last.trim(), email: contact.email.trim(), company: contact.company.trim(), inquiryType: "Corporate Experience", message: fullMessage, source: "Corporate Page Contact Form", ...protection.fields }),
       });
       if (res.ok) { setCtStatus("success"); }
       else { const d = await res.json().catch(() => ({})); setCtErr(d.error || "Submission failed. Please email info@roamsix.com directly."); setCtStatus("idle"); }
@@ -443,6 +445,7 @@ export default function CorporatePage() {
                   <input type="checkbox" className="cp-checkbox" checked={contact.stayInLoop} onChange={e => setContact(c => ({ ...c, stayInLoop: e.target.checked }))}/>
                   <span className="cp-checkbox-label">Stay in the Loop</span>
                 </label>
+                <FormProtection onToken={protection.setTurnstileToken} onHoneypot={protection.setHoneypot} />
                 {ctErr && <p className="cp-form-err">{ctErr}</p>}
                 <button className="cp-btn cp-btn-gold" style={{ width: "100%", textAlign: "center", marginTop: "8px" }} onClick={submitContact} disabled={ctStatus === "loading"}>
                   {ctStatus === "loading" ? "Sending..." : "Request a Conversation"}

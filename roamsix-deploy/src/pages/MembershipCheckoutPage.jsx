@@ -4,6 +4,7 @@ import SiteLayout from '../components/SiteLayout';
 import { MEMBERSHIP_TIERS } from '../data/membership';
 import { trackEvent } from '../lib/analytics';
 import MembershipRequestForm from '../components/MembershipRequestForm';
+import FormProtection, { useFormProtection } from '../components/FormProtection';
 
 export default function MembershipCheckoutPage() {
   const { tier: tierKey } = useParams();
@@ -15,6 +16,7 @@ export default function MembershipCheckoutPage() {
   const [error, setError] = useState('');
   const [invitation, setInvitation] = useState(tierKey === 'core' ? 'approved' : 'checking');
   const [cohortFull, setCohortFull] = useState(null);
+  const protection = useFormProtection();
 
   useEffect(() => {
     if (tierKey === 'core') {
@@ -54,7 +56,7 @@ export default function MembershipCheckoutPage() {
     try {
       const response = await fetch('/api/create-membership-checkout', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, tier: tierKey, invite, source, billingCycle: 'annual', acceptedAt: new Date().toISOString() }),
+        body: JSON.stringify({ ...form, tier: tierKey, invite, source, billingCycle: 'annual', acceptedAt: new Date().toISOString(), ...protection.fields }),
       });
       const data = await response.json().catch(() => ({}));
       if (response.status === 409 && data.code === 'COHORT_FULL') {
@@ -109,6 +111,7 @@ export default function MembershipCheckoutPage() {
         <label className="check"><input type="checkbox" name="waiverAccepted" checked={form.waiverAccepted} onChange={change} required /><span>I have read and accept the <Link to="/waiver" target="_blank">Assumption of Risk and Participant Agreement</Link>.</span></label>
         <label className="check"><input type="checkbox" name="mediaReleaseAccepted" checked={form.mediaReleaseAccepted} onChange={change} required /><span>I have read and accept the <Link to="/media-release" target="_blank">Media Release</Link>.</span></label>
         <label className="check"><input type="checkbox" name="emailConsent" checked={form.emailConsent} onChange={change} /><span><strong>Optional:</strong> send me ROAMSIX news and invitations. Essential membership messages are sent either way.</span></label>
+        <FormProtection onToken={protection.setTurnstileToken} onHoneypot={protection.setHoneypot} />
         {error ? <p className="form-error" role="alert">{error}</p> : null}
         <button className="button" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Opening secure payment…' : tierKey === 'core' ? 'Start my Core membership · $850' : `Start my ${tier.name} membership · ${tier.price}`}</button>
         <p className="form-note">Some experiences are purchased separately: the year-end Journey, premium partner experiences, and the mid-year gathering. Programming, experts, dates, and locations may change.</p>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import FormProtection, { useFormProtection } from "../components/FormProtection";
 
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:ital,wght@0,300;0,400;0,500;1,400&display=swap');
@@ -110,6 +111,7 @@ export default function EventIntakePage() {
   });
   const [submitStatus, setSubmitStatus] = useState("idle"); // idle | loading | success | error
   const [err, setErr] = useState("");
+  const protection = useFormProtection();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -142,7 +144,7 @@ export default function EventIntakePage() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: sessionId, ...form }),
+        body: JSON.stringify({ session_id: sessionId, ...form, ...protection.fields }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -301,6 +303,7 @@ export default function EventIntakePage() {
             </label>
           </div>
 
+          <FormProtection onToken={protection.setTurnstileToken} onHoneypot={protection.setHoneypot} />
           {err && <div className="ei-err">{err}</div>}
 
           <button

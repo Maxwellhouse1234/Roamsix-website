@@ -247,7 +247,7 @@ test('human-approved membership invitation is recorded and repeat sends are idem
   const checkoutResponse = mockRes();
   await checkout({
     method: 'POST',
-    body: { name: 'Approved Person', email: 'approved@example.com', phone: '555-010-2026', tier: 'field', invite: approval.fields['Invitation Token'], renewalAccepted: true, termsAccepted: true, waiverAccepted: true, mediaReleaseAccepted: true, source: 'verification-test' },
+    body: { name: 'Approved Person', email: 'approved@example.com', phone: '555-010-2026', tier: 'field', invite: approval.fields['Invitation Token'], renewalAccepted: true, termsAccepted: true, waiverAccepted: true, mediaReleaseAccepted: true, source: 'verification-test', formStartedAt: Date.now() - 3000, turnstileToken: 'test-token', website: '' },
     headers: { host: 'www.roamsix.test', 'x-forwarded-proto': 'https' },
   }, checkoutResponse);
   assert.equal(checkoutResponse.statusCode, 200);
@@ -265,7 +265,7 @@ test('Field request acknowledgment is transactional even without marketing conse
       retreatSlug: 'field-membership-request', firstName: 'Request', lastName: 'Applicant', email: 'request@example.com', mobile: '',
       role: 'Founder', organization: 'Example', professionalCategory: 'Field', challenge: 'I want ongoing access.', paymentSource: 'self',
       referralSource: '', source: 'membership-request', campaign: 'field-membership-request', landingPage: '/membership',
-      emailConsent: false, smsConsent: false, privacyAccepted: true,
+      emailConsent: false, smsConsent: false, privacyAccepted: true, formStartedAt: Date.now() - 3000, turnstileToken: 'test-token', website: '',
     },
     headers: {},
   }, res);

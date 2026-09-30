@@ -6,6 +6,7 @@
 import { FOUNDER_REFERRALS } from "../lib/founder-referrals.js";
 import { dinnerAvailability } from "../lib/dinner-operations.js";
 import { DR_SAL_EVENT, drSalAvailability, saveDrSalCheckoutHold } from "../lib/dr-sal-event.js";
+import { enforcePublicSubmission } from '../lib/form-security.js';
 
 const PACKAGE_DATA = {
   "dr-sal-gut-brain-2026": {
@@ -80,6 +81,7 @@ const OLIVE_GROVE_PROMOTIONS = {
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (!(await enforcePublicSubmission(req, res, { endpoint: 'event-checkout', ipLimit: 8, repeatLimit: 3 }))) return;
 
   const {
     eventId               = "",

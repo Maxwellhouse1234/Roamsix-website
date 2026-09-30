@@ -13,6 +13,8 @@ function mockRes() {
   };
 }
 
+const securityFields = () => ({ formStartedAt: Date.now() - 3000, turnstileToken: 'test-token', website: '' });
+
 test('Experience Finder requires a name and sends the promised recommendation email', async () => {
   const calls = [];
   global.fetch = async (url, options = {}) => {
@@ -27,6 +29,7 @@ test('Experience Finder requires a name and sends the promised recommendation em
   await contact({ method: 'POST', body: {
     email: 'member@example.com', source: 'Experience Finder', message: 'answers',
     experienceFinderAnswers: { audience: 'healthy-aging', priority: 'clarity', topic: 'gut' },
+    ...securityFields(),
   } }, missingName);
   assert.equal(missingName.statusCode, 400);
   assert.match(missingName.body.error, /Name is required/);
@@ -45,6 +48,7 @@ test('Experience Finder requires a name and sends the promised recommendation em
     await contact({ method: 'POST', body: {
       fullName: 'Jamie Rivera', email: 'member@example.com', inquiryType: 'Experience recommendation',
       source: 'Experience Finder', message: 'structured answers', experienceFinderAnswers,
+      ...securityFields(),
     } }, res);
     assert.equal(res.statusCode, 200);
     const emailCalls = calls.slice(before).filter((call) => call.url === 'https://api.resend.com/emails');
@@ -70,7 +74,7 @@ test('internal notification uses a human fallback when a generic inquiry has no 
   delete process.env.PROVING_GROUNDS_BASE_ID;
   const { default: contact } = await import('../api/contact.js');
   const res = mockRes();
-  await contact({ method: 'POST', body: { email: 'lead@example.com', message: 'Hello' } }, res);
+  await contact({ method: 'POST', body: { email: 'lead@example.com', message: 'Hello', ...securityFields() } }, res);
   assert.equal(res.statusCode, 200);
   const internal = JSON.parse(calls[0].options.body);
   assert.match(internal.html, /Reply to this lead/);

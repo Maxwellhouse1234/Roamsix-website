@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import FormProtection, { useFormProtection } from '../components/FormProtection';
 import SiteLayout from '../components/SiteLayout';
 
 export default function FounderFriendInvitePage() {
@@ -8,6 +9,7 @@ export default function FounderFriendInvitePage() {
   const [form, setForm] = useState({ friendFirstName: '', friendEmail: '', website: '' });
   const [confirmed, setConfirmed] = useState(false);
   const [status, setStatus] = useState('idle');
+  const protection = useFormProtection();
   const [message, setMessage] = useState('');
   const purchaseUrl = `https://www.roamsix.com/dinner?code=${encodeURIComponent(code)}#tickets`;
 
@@ -26,7 +28,7 @@ export default function FounderFriendInvitePage() {
     try {
       const response = await fetch('/api/founder-friend-invite', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, ...form, confirmed }),
+        body: JSON.stringify({ code, ...form, confirmed, ...protection.fields }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || 'The invitation could not be sent.');
@@ -46,7 +48,7 @@ export default function FounderFriendInvitePage() {
       {valid === false ? <div className="form-success"><h2>This invitation link needs attention.</h2><p>Please return to your Founder-Guest email or contact info@roamsix.com.</p></div> :
       status === 'success' ? <div className="form-success"><p className="eyebrow">Invitation sent</p><h2>{message}</h2><p>We introduced ROAMSIX in your name and included your personal Founder-Friend code.</p><button className="button" type="button" onClick={shareLink}>Share by text instead</button></div> :
       <form className="dinner-checkout-form" onSubmit={submit}>
-        <p className="eyebrow">Who came to mind?</p><label>Their first name<input name="friendFirstName" value={form.friendFirstName} onChange={update} required /></label><label>Their email<input type="email" name="friendEmail" value={form.friendEmail} onChange={update} required /></label><input className="invite-honeypot" name="website" value={form.website} onChange={update} tabIndex="-1" autoComplete="off" aria-hidden="true" />
+        <p className="eyebrow">Who came to mind?</p><label>Their first name<input name="friendFirstName" value={form.friendFirstName} onChange={update} maxLength="100" required /></label><label>Their email<input type="email" name="friendEmail" value={form.friendEmail} onChange={update} maxLength="320" required /></label><FormProtection onToken={protection.setTurnstileToken} onHoneypot={protection.setHoneypot} />
         <label className="check"><input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} /><span>I confirm that this person knows me and I am asking ROAMSIX to send them one invitation.</span></label>
         {message && <p className="form-error" role="alert">{message}</p>}<button className="button" type="submit" disabled={!valid || !confirmed || status === 'loading'}>{status === 'loading' ? 'Sending your invitation…' : 'Send their personal invitation'}</button><button className="text-link invite-share-link" type="button" onClick={shareLink}>Or copy a message to text yourself →</button>
       </form>}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { trackEvent } from '../lib/analytics';
+import FormProtection, { useFormProtection } from './FormProtection';
 
 export default function TopicInterestForm({ interest }) {
   const [fullName, setFullName] = useState('');
@@ -8,6 +9,7 @@ export default function TopicInterestForm({ interest }) {
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
   const [memberEmail, setMemberEmail] = useState(false);
+  const protection = useFormProtection();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -38,7 +40,7 @@ export default function TopicInterestForm({ interest }) {
           paymentSource: 'unsure', referralSource: '',
           source: 'fieldwork-calendar', campaign: interest.id,
           landingPage: window.location.pathname, emailConsent: true,
-          smsConsent: false, privacyAccepted,
+          smsConsent: false, privacyAccepted, ...protection.fields,
         }),
       });
       const data = await response.json().catch(() => ({}));
@@ -63,6 +65,7 @@ export default function TopicInterestForm({ interest }) {
       </div>
       {memberEmail ? <p className="form-note">Using the email connected to your signed-in membership.</p> : null}
       <label className="check"><input type="checkbox" checked={privacyAccepted} onChange={(event) => setPrivacyAccepted(event.target.checked)} required /><span>I agree to the <a href="/privacy">Privacy Policy</a> and want ROAMSIX updates about this part of the program.</span></label>
+      <FormProtection onToken={protection.setTurnstileToken} onHoneypot={protection.setHoneypot} />
       {error ? <p className="form-error" role="alert">{error}</p> : null}
       <button className="button" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Sending…' : 'Send me 2027 updates'}</button>
       <p className="form-note">This does not reserve a place or require payment.</p>

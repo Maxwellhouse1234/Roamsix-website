@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { trackEvent } from '../lib/analytics';
+import FormProtection, { useFormProtection } from './FormProtection';
 
 const SEGMENTATION_OPTIONS = [
   "Everyone's health in this house runs through me",
@@ -15,6 +16,7 @@ export default function MembershipRequestForm({ tier, mode = 'request' }) {
   const [form, setForm] = useState({ fullName: '', email: '', mobile: '', selections: [], other: '', specific: '', privacyAccepted: false });
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
+  const protection = useFormProtection();
 
   function change(event) {
     const { name, value, type, checked } = event.target;
@@ -63,6 +65,7 @@ export default function MembershipRequestForm({ tier, mode = 'request' }) {
           emailConsent: true,
           smsConsent: false,
           privacyAccepted: form.privacyAccepted,
+          ...protection.fields,
         }),
       });
       const data = await response.json().catch(() => ({}));
@@ -79,12 +82,13 @@ export default function MembershipRequestForm({ tier, mode = 'request' }) {
 
   return <form className="membership-checkout-form" onSubmit={submit}>
     <p className="eyebrow">{isCohortWaitlist ? 'Next membership cohort' : `Apply for ${tier}`}</p>
-    <label>Full name<input name="fullName" value={form.fullName} onChange={change} autoComplete="name" required /></label>
-    <label>Email<input type="email" name="email" value={form.email} onChange={change} autoComplete="email" required /></label>
-    <label>Phone <span className="optional">Optional</span><input type="tel" name="mobile" value={form.mobile} onChange={change} autoComplete="tel" /></label>
+    <label>Full name<input name="fullName" value={form.fullName} onChange={change} autoComplete="name" maxLength="100" required /></label>
+    <label>Email<input type="email" name="email" value={form.email} onChange={change} autoComplete="email" maxLength="320" required /></label>
+    <label>Phone <span className="optional">Optional</span><input type="tel" name="mobile" value={form.mobile} onChange={change} autoComplete="tel" maxLength="30" /></label>
     {!isCohortWaitlist ? <fieldset className="membership-segmentation"><legend>Which of these sound like you? <span className="optional">(select any)</span></legend>{SEGMENTATION_OPTIONS.map((option) => <label className="check" key={option}><input type="checkbox" value={option} checked={form.selections.includes(option)} onChange={toggleSelection} /><span>{option}</span></label>)}<label>Something else <span className="optional">(one line, optional)</span><input name="other" value={form.other} onChange={change} /></label></fieldset> : null}
-    {!isCohortWaitlist ? <label>Anything specific you are working through right now? <span className="optional">(optional)</span><textarea name="specific" value={form.specific} onChange={change} rows="4" /></label> : null}
+    {!isCohortWaitlist ? <label>Anything specific you are working through right now? <span className="optional">(optional)</span><textarea name="specific" value={form.specific} onChange={change} rows="4" maxLength="2000" /></label> : null}
     <label className="check"><input type="checkbox" name="privacyAccepted" checked={form.privacyAccepted} onChange={change} required /><span>I agree to the <Link to="/privacy">Privacy Policy</Link> and want ROAMSIX to contact me about this request and relevant membership updates.</span></label>
+    <FormProtection onToken={protection.setTurnstileToken} onHoneypot={protection.setHoneypot} />
     {error ? <p className="form-error" role="alert">{error}</p> : null}
     <button className="button" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Sending…' : isCohortWaitlist ? 'Join the next-cohort interest list' : `Send my ${tier} request`}</button>
     <p className="form-note">{isCohortWaitlist ? 'This is an expression of interest, not a membership or reservation. No payment is taken here.' : 'This does not take payment. We reply within two business days.'}</p>

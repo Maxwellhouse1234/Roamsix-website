@@ -36,6 +36,7 @@ function membershipCheckoutBody(overrides = {}) {
     billingCycle: 'annual', renewalAccepted: true, termsAccepted: true,
     waiverAccepted: true, mediaReleaseAccepted: true, source: 'verification-test',
     emailConsent: false, ...overrides,
+    formStartedAt: Date.now() - 3000, turnstileToken: 'test-token', website: '',
   };
 }
 
@@ -316,6 +317,7 @@ test('Dr. Sal checkout requires separate legal acceptance and creates one tracke
   const baseBody = {
     eventId: 'dr-sal-gut-brain-2026', packageId: 'general-admission', customerName: 'Test Guest', customerEmail: 'guest@example.com', phone: '555-555-5555',
     agreedToTerms: true, waiverAccepted: true, mediaReleaseAccepted: true, acceptedLegalVersion: '2026-09-29-dr-sal-v1', acceptedAt: new Date().toISOString(), source: 'homepage',
+    formStartedAt: Date.now() - 3000, turnstileToken: 'test-token', website: '',
   };
 
   const missingWaiver = mockRes();
@@ -350,7 +352,7 @@ test('Dr. Sal checkout stops before Stripe when all 25 seats are occupied', asyn
   const res = mockRes();
   await checkout({
     method: 'POST',
-    body: { eventId: 'dr-sal-gut-brain-2026', packageId: 'general-admission', customerName: 'Late Guest', customerEmail: 'late@example.com', agreedToTerms: true, waiverAccepted: true, mediaReleaseAccepted: true },
+    body: { eventId: 'dr-sal-gut-brain-2026', packageId: 'general-admission', customerName: 'Late Guest', customerEmail: 'late@example.com', agreedToTerms: true, waiverAccepted: true, mediaReleaseAccepted: true, formStartedAt: Date.now() - 3000, turnstileToken: 'test-token', website: '' },
     headers: { host: 'roamsix.test', 'x-forwarded-proto': 'https' },
   }, res);
   assert.equal(res.statusCode, 409);
@@ -540,7 +542,7 @@ test('active member receives a generic magic-link response and the email is sent
     throw new Error(`Unexpected URL ${value}`);
   };
   const { default: auth } = await import('../api/member-auth.js');
-  const req = { method: 'POST', body: { email: 'member@example.com' }, headers: { host: 'roamsix.test', origin: 'https://roamsix.test', 'x-forwarded-proto': 'https' }, socket: { remoteAddress: '127.0.0.1' } };
+  const req = { method: 'POST', body: { email: 'member@example.com', formStartedAt: Date.now() - 3000, turnstileToken: 'test-token', website: '' }, headers: { host: 'roamsix.test', origin: 'https://roamsix.test', 'x-forwarded-proto': 'https' }, socket: { remoteAddress: '127.0.0.1' } };
   const res = mockRes();
   await auth(req, res);
   assert.equal(res.statusCode, 200);

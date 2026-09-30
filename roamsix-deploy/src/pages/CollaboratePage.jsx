@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import SiteLayout from '../components/SiteLayout';
 import { trackEvent } from '../lib/analytics';
+import FormProtection, { useFormProtection } from '../components/FormProtection';
 
 const CONTRIBUTIONS = [
   { title: 'Lead a fireside conversation or learning session', format: '60 to 90 minutes · In person', detail: 'A focused conversation or practical session built around one meaningful subject.' },
@@ -16,6 +17,7 @@ export default function CollaboratePage() {
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
   const formRef = useRef(null);
+  const protection = useFormProtection();
 
   const change = (event) => setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
 
@@ -32,7 +34,7 @@ export default function CollaboratePage() {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, inquiryType: `Collaboration · ${form.inquiryType}`, source: 'Collaboration Page' }),
+        body: JSON.stringify({ ...form, inquiryType: `Collaboration · ${form.inquiryType}`, source: 'Collaboration Page', ...protection.fields }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || 'Your inquiry could not be sent.');
@@ -71,13 +73,14 @@ export default function CollaboratePage() {
             <form ref={formRef} id="collaboration-form" className="interest-form" onSubmit={submit}>
               <p className="eyebrow">Start the conversation</p>
               <div className="form-grid two">
-                <label>First name<input name="firstName" value={form.firstName} onChange={change} autoComplete="given-name" /></label>
-                <label>Last name<input name="lastName" value={form.lastName} onChange={change} autoComplete="family-name" /></label>
+                <label>First name<input name="firstName" value={form.firstName} onChange={change} autoComplete="given-name" maxLength="100" /></label>
+                <label>Last name<input name="lastName" value={form.lastName} onChange={change} autoComplete="family-name" maxLength="100" /></label>
               </div>
-              <label>Email<input type="email" name="email" value={form.email} onChange={change} autoComplete="email" required /></label>
-              <label>Organization or field <span className="optional">Optional</span><input name="company" value={form.company} onChange={change} /></label>
+              <label>Email<input type="email" name="email" value={form.email} onChange={change} autoComplete="email" maxLength="320" required /></label>
+              <label>Organization or field <span className="optional">Optional</span><input name="company" value={form.company} onChange={change} maxLength="200" /></label>
               <label>How would you like to contribute?<select name="inquiryType" value={form.inquiryType} onChange={change}>{EXPERT_TYPES.map((type) => <option key={type}>{type}</option>)}</select></label>
-              <label>Tell us about your work, offering, or the question you want people to explore<textarea name="message" value={form.message} onChange={change} rows="6" required /></label>
+              <label>Tell us about your work, offering, or the question you want people to explore<textarea name="message" value={form.message} onChange={change} rows="6" maxLength="4000" required /></label>
+              <FormProtection onToken={protection.setTurnstileToken} onHoneypot={protection.setHoneypot} />
               {error ? <p className="form-error" role="alert">{error}</p> : null}
               <button className="button button-accent" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Sending…' : 'Introduce your work'}</button>
               <p className="form-note">We review every inquiry personally and choose collaborators for the quality, integrity, and relevance of their work. A considered introduction is more useful than a formal pitch deck.</p>

@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { trackEvent } from '../lib/analytics';
+import FormProtection, { useFormProtection } from './FormProtection';
 
 const INITIAL = {
   firstName: '', lastName: '', email: '', mobile: '', role: '', organization: '',
@@ -18,6 +19,7 @@ export default function InterestForm({
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
   const started = useRef(false);
+  const protection = useFormProtection();
   const update = (event) => {
     const { name, value, type, checked } = event.target;
     setForm((current) => ({ ...current, [name]: type === 'checkbox' ? checked : value }));
@@ -38,6 +40,7 @@ export default function InterestForm({
           source: params.get('utm_source') || 'direct',
           campaign: params.get('utm_campaign') || '',
           landingPage: window.location.pathname,
+          ...protection.fields,
         }),
       });
       const data = await response.json().catch(() => ({}));
@@ -116,6 +119,7 @@ export default function InterestForm({
         <label className="check"><input type="checkbox" name="smsConsent" checked={form.smsConsent} onChange={update} /> Send me occasional text updates. Message and data rates may apply.</label>
         <label className="check"><input type="checkbox" name="privacyAccepted" checked={form.privacyAccepted} onChange={update} required /> I agree to the <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms</a>.</label>
       </fieldset>
+      <FormProtection onToken={protection.setTurnstileToken} onHoneypot={protection.setHoneypot} />
       {error ? <p className="form-error" role="alert">{error}</p> : null}
       <button className="button" type="submit" disabled={status === 'loading'}>
         {status === 'loading' ? 'Submitting…' : submitLabel}
