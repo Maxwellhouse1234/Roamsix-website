@@ -5,9 +5,9 @@ import ExperienceFinder from '../components/ExperienceFinder';
 export default function HomePage() {
   return <SiteLayout theme="dark">
     <section className="hero home-hero"><div className="hero-image" aria-hidden="true" /><div className="hero-shade" aria-hidden="true" /><div className="hero-content container">
-      <p className="eyebrow">SOUTHERN CALIFORNIA · 2027</p><h1>An experiential health discovery membership.</h1>
-      <p className="hero-copy">Every month brings a new rule, a new supplement, and a new reason to worry. Eventually, even people who care deeply about their health become exhausted by trying to keep up.</p>
-      <p className="hero-copy">Across 36 gatherings in Southern California, ROAMSIX gives you a year with experts worth listening to, the room to question the evidence, and experiences that help you discover what holds up in your own life.</p>
+      <p className="eyebrow">SOUTHERN CALIFORNIA · 2027</p><h1>Figure out what actually works for you.</h1>
+      <p className="hero-copy"><strong>An experiential health discovery membership.</strong> Small-group gatherings where physicians, researchers and practitioners get in the same room with you, so you can ask questions, hear different perspectives and try ideas for yourself.</p>
+      <p className="hero-copy"><strong>36 gatherings. Four subjects. Each one gets a full quarter.</strong></p>
       <div className="button-row"><Link className="button button-accent" to="/membership">Explore membership</Link><Link className="text-link light" to="/experiences">Attend an upcoming event <span aria-hidden="true">→</span></Link></div>
     </div></section>
     <section className="fieldwork-cta membership-home-cta"><div className="container"><div><p className="eyebrow">Founding membership · Closes December 31</p><h2>The rate you join at is the rate you keep.</h2><p>ROAMSIX opens in 2027 with 36 gatherings across four subjects. Founding members join before that year begins and hold their rate for as long as their membership stays active.</p><p>The four subjects are set. The experts, the venues, and the specific questions are not. Founding members help decide those. We would rather build the first year with the people who are in it.</p><p>Core is $850 for founding members. It becomes $1,100 in 2027.</p></div><div className="button-column"><Link className="button" to="/membership/checkout/core">Join Core · $850/year</Link><Link className="text-link light" to="/membership#request-membership">Talk it through first</Link></div></div></section>

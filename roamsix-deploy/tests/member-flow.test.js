@@ -484,7 +484,7 @@ test('member forms reuse signed-in identity while preserving explicit update con
   assert.match(memberRegistrationApi, /mediaReleaseAccepted/);
 });
 
-test('Round 2 copy separates the homepage thesis from the membership offer', async () => {
+test('approved homepage hero preserves the membership offer and page structure', async () => {
   const [home, membership, membershipData, experiences, fieldwork, howItWorks] = await Promise.all([
     readFile(new URL('../src/pages/HomePage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/MembershipPage.jsx', import.meta.url), 'utf8'),
@@ -495,10 +495,10 @@ test('Round 2 copy separates the homepage thesis from the membership offer', asy
   ]);
   assert.match(home, /An experiential health discovery membership/);
   assert.match(home, /SOUTHERN CALIFORNIA · 2027/);
-  assert.match(home, /<h1>An experiential health discovery membership\.<\/h1>/);
+  assert.match(home, /<h1>Figure out what actually works for you\.<\/h1>/);
   assert.doesNotMatch(home, /Health is too important to understand in fragments\./);
-  assert.match(home, /Every month brings a new rule, a new supplement, and a new reason to worry\./);
-  assert.match(home, /Across 36 gatherings in Southern California, ROAMSIX gives you a year with experts worth listening to/);
+  assert.match(home, /Small-group gatherings where physicians, researchers and practitioners get in the same room with you/);
+  assert.match(home, /36 gatherings\. Four subjects\. Each one gets a full quarter\./);
   assert.match(home, /<h2>What we are not<\/h2>/);
   assert.match(home, /Not a clinic\./);
   assert.match(home, /The gut-brain connection: food, stress, and everyday performance/);
@@ -513,8 +513,11 @@ test('Round 2 copy separates the homepage thesis from the membership offer', asy
   assert.match(membership, /The four subjects are set\. Nothing else is\./);
   assert.match(membershipData, /For the person with specific questions who wants time with the experts\./);
   assert.match(membershipData, /For the person who wants the experts working on their questions, not only answering them in a room\./);
-  assert.match(experiences, /ROAMSIX events put carefully selected experts in rooms small enough to ask a question, follow up, and leave knowing what you want to look at next\./);
-  assert.match(experiences, /Most members started with one evening\./);
+  assert.match(experiences, /ROAMSIX events bring carefully selected experts into rooms small enough to ask questions, hear different perspectives, and experience an idea beyond the stage\./);
+  assert.match(experiences, /<h1>Start with one evening\.<\/h1>/);
+  assert.match(experiences, /<h2>Keep going beyond one event\.<\/h2>/);
+  assert.match(experiences, /Membership includes all 36 Core gatherings in 2027, so one evening can become part of a full year of conversations, movement, and hands-on experiences\./);
+  assert.match(experiences, />Compare membership options<\/Link>/);
   assert.match(experiences, /Hold my seat · \$50/);
   assert.doesNotMatch(experiences, /Tell me when registration opens|Registration is not open yet|Joining the interest list does not reserve a place|Confirmed so far/i);
   assert.match(experiences, /id="dr-sal"/);
