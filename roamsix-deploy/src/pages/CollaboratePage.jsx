@@ -4,13 +4,15 @@ import { trackEvent } from '../lib/analytics';
 import FormProtection, { useFormProtection } from '../components/FormProtection';
 
 const CONTRIBUTIONS = [
-  { title: 'Lead a fireside conversation or learning session', format: '60 to 90 minutes · In person', detail: 'A focused conversation or practical session built around one meaningful subject.' },
-  { title: 'Join the faculty for a retreat', format: 'Two days or more · Multi-expert', detail: 'Contribute your expertise alongside experts from other fields.' },
-  { title: 'Develop an original experience around my work', format: 'Custom format · Co-developed', detail: 'Build a conversation, learning day, retreat, or journey around your research or practice.' },
-  { title: 'Contribute a place, craft, ingredient, or method', format: 'Integrated contribution · Flexible', detail: 'Bring a setting, ingredient, process, or activity that makes the subject tangible.' },
-  { title: 'Offer a member benefit or partner experience', format: 'Ongoing or limited allocation · Contracted', detail: 'Extend a confirmed trial, assessment, product, workspace, studio, workshop, private experience, preferred rate, or sponsored experience to ROAMSIX members.' },
+  'Speak or teach as an expert or practitioner',
+  'Co-design a hands-on experience',
+  'Host a ROAMSIX experience at my venue or property',
+  'Contribute a craft, ingredient, method, or product',
+  'Explore a community or nonprofit collaboration',
+  'Offer a member benefit or partner experience',
+  'Explore sponsorship or underwriting',
 ];
-const EXPERT_TYPES = [...CONTRIBUTIONS.map(({ title }) => title), 'I am open to the right format'];
+const EXPERT_TYPES = [...CONTRIBUTIONS, 'I am open to the right format'];
 
 export default function CollaboratePage() {
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', company: '', inquiryType: EXPERT_TYPES[0], message: '' });
@@ -60,17 +62,20 @@ export default function CollaboratePage() {
         <div className="container collaborate-layout">
           <div>
             <p className="eyebrow">What we build together</p>
-            <h2>Your work deserves a format that lets people feel its relevance.</h2>
-            <p className="lead">You bring the research, practice, place, or craft. ROAMSIX shapes the environment, pace, and participation around it so people can understand the idea, reflect on its meaning, and consider how it fits their lives.</p>
+            <h2>Bring what you know. We’ll help shape how people experience it.</h2>
+            <p className="lead">ROAMSIX works with physicians, researchers, practitioners, educators, makers, venues, community organizations, and aligned brands.</p>
+            <p>You bring the expertise, practice, place, craft, ingredient, or method. ROAMSIX helps shape the format, environment, and participation around it so people can ask questions, experience the idea, and understand why it matters.</p>
             <ul className="collaborate-list">
-              {CONTRIBUTIONS.map(({ title, format, detail }) => <li key={title}><details><summary>{title}</summary><div className="collaborate-detail"><span>{format}</span><p>{detail}</p><button type="button" onClick={() => chooseContribution(title)}>Choose this format <span aria-hidden="true">→</span></button></div></details></li>)}
+              {CONTRIBUTIONS.map((title) => <li key={title}><button type="button" onClick={() => chooseContribution(title)}>{title}<span aria-hidden="true">→</span></button></li>)}
             </ul>
           </div>
 
-          {status === 'success' ? (
-            <div className="form-success" role="status"><p className="eyebrow">Inquiry received</p><h2>Let’s see what could take shape.</h2><p>Thank you. We’ll review your work and respond personally.</p></div>
-          ) : (
-            <form ref={formRef} id="collaboration-form" className="interest-form" onSubmit={submit}>
+          <div>
+            <p className="lead">The best ROAMSIX collaborations are educational first, participatory where possible, and built around genuine fit rather than exposure or product placement.</p>
+            {status === 'success' ? (
+              <div className="form-success" role="status"><p className="eyebrow">Inquiry received</p><h2>Let’s see what could take shape.</h2><p>Thank you. We’ll review your work and respond personally.</p></div>
+            ) : (
+              <form ref={formRef} id="collaboration-form" className="interest-form" onSubmit={submit}>
               <p className="eyebrow">Start the conversation</p>
               <div className="form-grid two">
                 <label>First name<input name="firstName" value={form.firstName} onChange={change} autoComplete="given-name" maxLength="100" /></label>
@@ -84,8 +89,9 @@ export default function CollaboratePage() {
               {error ? <p className="form-error" role="alert">{error}</p> : null}
               <button className="button button-accent" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Sending…' : 'Introduce your work'}</button>
               <p className="form-note">We review every inquiry personally and choose collaborators for the quality, integrity, and relevance of their work. A considered introduction is more useful than a formal pitch deck.</p>
-            </form>
-          )}
+              </form>
+            )}
+          </div>
         </div>
       </section>
     </SiteLayout>

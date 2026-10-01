@@ -428,6 +428,9 @@ p { margin: 0 0 1.25em; }
 .collaborate-layout { display: grid; grid-template-columns: .9fr 1.1fr; gap: clamp(48px, 8vw, 100px); align-items: start; }
 .collaborate-list { margin: 38px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--stone); }
 .collaborate-list li { border-bottom: 1px solid var(--stone); }
+.collaborate-list > li > button { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 2px 18px 0; border: 0; background: transparent; color: var(--ink); text-align: left; font: inherit; font-weight: 600; cursor: pointer; }
+.collaborate-list > li > button:hover { color: var(--rust); }
+.collaborate-list > li > button span { color: var(--rust); }
 .collaborate-list details { padding: 0; }
 .collaborate-list summary { position: relative; padding: 18px 38px 18px 0; list-style: none; font-weight: 600; cursor: pointer; }
 .collaborate-list summary::-webkit-details-marker { display: none; }

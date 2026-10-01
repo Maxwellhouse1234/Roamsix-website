@@ -381,7 +381,7 @@ test('public pricing is annual-only and uses the approved founding language', as
     readFile(new URL('../src/pages/MembershipPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/MembershipCheckoutPage.jsx', import.meta.url), 'utf8'),
   ]);
-  assert.match(membership, /36 gatherings in 2027\. Expert conversations, movement mornings, and vetted experts across Southern California\./);
+  assert.match(membership, /36 gatherings across four subjects in 2027\. Small-group conversations, movement mornings, and hands-on experiences designed to help you figure out what actually works for you\./);
   assert.match(membership, /Join Core · \$850\/year/);
   assert.match(membership, /The rate you join at is the rate you keep\./);
   assert.doesNotMatch(membership, /per month|monthly|quarterly/i);
@@ -484,14 +484,15 @@ test('member forms reuse signed-in identity while preserving explicit update con
   assert.match(memberRegistrationApi, /mediaReleaseAccepted/);
 });
 
-test('approved homepage hero preserves the membership offer and page structure', async () => {
-  const [home, membership, membershipData, experiences, fieldwork, howItWorks] = await Promise.all([
+test('approved public copy preserves the membership offer and page structure', async () => {
+  const [home, membership, membershipData, experiences, fieldwork, howItWorks, collaborate] = await Promise.all([
     readFile(new URL('../src/pages/HomePage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/MembershipPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/data/membership.js', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/ExperiencesPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/FieldworkPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/HowItWorksPage.jsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/pages/CollaboratePage.jsx', import.meta.url), 'utf8'),
   ]);
   assert.match(home, /An experiential health discovery membership/);
   assert.match(home, /SOUTHERN CALIFORNIA · 2027/);
@@ -508,7 +509,8 @@ test('approved homepage hero preserves the membership offer and page structure',
   assert.ok(home.indexOf('OCTOBER 24, 2026') < home.indexOf('Your path into ROAMSIX'));
   assert.ok(home.indexOf('For organizations') < home.indexOf('Find the right way in'));
 
-  assert.match(membership, /We choose every expert and brief them ourselves\. No one pays to appear\./);
+  assert.match(membership, /36 gatherings across four subjects in 2027\. Small-group conversations, movement mornings, and hands-on experiences designed to help you figure out what actually works for you\./);
+  assert.match(membership, /<strong>We choose every expert carefully\.<\/strong>/);
   assert.match(membership, /Each subject gets a full quarter\./);
   assert.match(membership, /The four subjects are set\. Nothing else is\./);
   assert.match(membershipData, /For the person with specific questions who wants time with the experts\./);
@@ -530,6 +532,14 @@ test('approved homepage hero preserves the membership offer and page structure',
   assert.match(howItWorks, /Hear nuanced perspectives that help separate useful evidence from noise and oversimplification\./);
   assert.match(howItWorks, />See membership<\/Link>/);
   assert.match(howItWorks, />See the next event<\/Link>/);
+  assert.match(howItWorks, /03 · Connected Perspectives/);
+  assert.ok(howItWorks.indexOf('04 · Hands-On Experience') < howItWorks.indexOf('05 · Practical Application'));
+  assert.match(collaborate, /<h1>Some ideas lose something when they stay on a stage\.<\/h1>/);
+  assert.match(collaborate, /Bring what you know\. We’ll help shape how people experience it\./);
+  assert.match(collaborate, /ROAMSIX works with physicians, researchers, practitioners, educators, makers, venues, community organizations, and aligned brands\./);
+  assert.match(collaborate, /The best ROAMSIX collaborations are educational first, participatory where possible, and built around genuine fit rather than exposure or product placement\./);
+  assert.match(collaborate, /Explore sponsorship or underwriting/);
+  assert.match(collaborate, /We review every inquiry personally and choose collaborators for the quality, integrity, and relevance of their work\. A considered introduction is more useful than a formal pitch deck\./);
 });
 
 test('active member receives a generic magic-link response and the email is sent', async () => {
