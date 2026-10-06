@@ -401,6 +401,7 @@ test('search metadata and checkout legal links reflect the approved membership i
   assert.match(index, /Across 36 gatherings in Southern California, ROAMSIX gives you a year with experts worth listening to/);
   assert.match(index, /roamsix-social-card-v3\.png/);
   assert.match(index, /"serviceType": "Experiential health discovery membership"/);
+  assert.doesNotMatch(index, /Jackie Slot/);
   assert.doesNotMatch(index, /Membership for Health, Performance &amp; a Fully Lived Life/);
   assert.match(styles, /\.membership-checkout-form \.check a \{ color: #0759b8; font-weight: 700; text-decoration: underline;/);
 });
