@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 
 const MAX_SRC = "/images/max-ouellette.webp";
-const JACKIE_SRC = "/images/jackie.webp";
 
 const NAV = [
   ["Experiences", "/experiences"],
@@ -128,7 +127,6 @@ const css = `
 export default function TeamPage() {
  const [menuOpen, setMenuOpen] = useState(false);
  const [maxErr, setMaxErr] = useState(false);
- const [jackieErr, setJackieErr] = useState(false);
 
  useEffect(() => {
   document.body.classList.toggle("tp-no-scroll", menuOpen);
@@ -203,27 +201,6 @@ export default function TeamPage() {
        <p className="tp-founder-bio">Again and again, he found the same thing waiting for him. The people willing to share a meal, a conversation, or a piece of their world shaped him far more than the places themselves.</p>
        <p className="tp-founder-bio">ROAMSIX grew from that conviction.</p>
        <p className="tp-founder-bio">Every experience is built around a simple idea: when the right people come together in the right environment, perspective expands. And when perspective expands, so does the future people imagine for themselves.</p>
-      </div>
-     </div>
-
-     {/* JACKIE */}
-     <div className="tp-founder tp-founder-right">
-      <div className="tp-founder-photo-wrap">
-       {jackieErr ? (
-        <div className="tp-founder-photo-placeholder">JS</div>
-       ) : (
-        <img className="tp-founder-photo" src={JACKIE_SRC} alt="Jackie Slot" onError={() => setJackieErr(true)}/>
-       )}
-      </div>
-      <div className="tp-founder-body">
-       <div className="tp-founder-name">JACKIE SLOT</div>
-       <div className="tp-founder-perspective">Presence</div>
-       <p className="tp-founder-bio">Jackie Slot is drawn to the moments when people stop performing and start showing up as themselves.</p>
-       <p className="tp-founder-bio">She believes the way someone feels in an environment determines what becomes possible there. When people feel genuinely welcomed, supported, and safe, conversations become more honest, confidence begins to grow, and meaningful connection follows.</p>
-       <p className="tp-founder-bio">That belief shapes every ROAMSIX experience. From the rhythm of the evening to the smallest details of hospitality, her work is guided by one question:</p>
-       <p className="tp-founder-bio">What helps someone feel safe enough to be fully present?</p>
-       <p className="tp-founder-bio">She hopes people leave with more than a memory.</p>
-       <p className="tp-founder-bio">She hopes they leave feeling more like themselves.</p>
       </div>
      </div>
 

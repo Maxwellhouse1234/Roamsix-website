@@ -492,7 +492,7 @@ test('member forms reuse signed-in identity while preserving explicit update con
 });
 
 test('approved public copy preserves the membership offer and page structure', async () => {
-  const [home, membership, membershipData, experiences, fieldwork, howItWorks, collaborate] = await Promise.all([
+  const [home, membership, membershipData, experiences, fieldwork, howItWorks, collaborate, about, team] = await Promise.all([
     readFile(new URL('../src/pages/HomePage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/MembershipPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/data/membership.js', import.meta.url), 'utf8'),
@@ -500,6 +500,8 @@ test('approved public copy preserves the membership offer and page structure', a
     readFile(new URL('../src/pages/FieldworkPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/HowItWorksPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/CollaboratePage.jsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/pages/AboutPage.jsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/pages/TeamPage.jsx', import.meta.url), 'utf8'),
   ]);
   assert.match(home, /An experiential health discovery membership/);
   assert.match(home, /SOUTHERN CALIFORNIA · 2027/);
@@ -515,6 +517,8 @@ test('approved public copy preserves the membership offer and page structure', a
   assert.ok(home.indexOf('What we are not') < home.indexOf('OCTOBER 24, 2026'));
   assert.ok(home.indexOf('OCTOBER 24, 2026') < home.indexOf('Your path into ROAMSIX'));
   assert.ok(home.indexOf('For organizations') < home.indexOf('Find the right way in'));
+  assert.doesNotMatch(about, /Jackie Slot|jackie\.webp/i);
+  assert.doesNotMatch(team, /Jackie Slot|jackie\.webp/i);
 
   assert.match(membership, /36 gatherings across four subjects in 2027\. Small-group conversations, movement mornings, and hands-on experiences designed to help you figure out what actually works for you\./);
   assert.match(membership, /<strong>We choose every expert carefully\.<\/strong>/);
