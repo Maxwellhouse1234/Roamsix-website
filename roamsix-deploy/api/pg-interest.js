@@ -2,7 +2,7 @@ import { captureCrmActivity } from "../lib/crm.js";
 
 // api/pg-interest.js
 // Proving Grounds interest / waitlist form handler
-// - Notifies max@roamsix.com + jackie@roamsix.com
+// - Notifies max@roamsix.com
 // - Sends branded confirmation to prospect
 // - Writes to Airtable Participants table
 
@@ -26,14 +26,14 @@ export default async function handler(req, res) {
 
   const timestamp = new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" });
 
-  // ── 1. NOTIFY MAX + JACKIE ─────────────────────────────────────
+  // ── 1. NOTIFY MAX ──────────────────────────────────────────────
   try {
     await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { "Authorization": `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         from:     "ROAMSIX Proving Grounds <info@roamsix.com>",
-        to:       ["max@roamsix.com", "jackie@roamsix.com"],
+        to:       ["max@roamsix.com"],
         reply_to: email.trim(),
         subject:  `Proving Grounds Interest: ${name.trim()} | ${role || "Role not specified"}`,
         html:     pgNotifyHTML({ name: name.trim(), email: email.trim(), role, source, timestamp }),

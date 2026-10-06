@@ -4,7 +4,7 @@
 //   1. Writes registration to Airtable "Event Registrations" table (legacy recordkeeping)
 //   2. Writes full attendee record to Airtable "Attendees" table (legal + operational records)
 //   3. Sends confirmation email to customer via Resend
-//   4. Sends notification email to max@roamsix.com + jackie@roamsix.com
+//   4. Sends notification email to max@roamsix.com
 
 import { createHmac, timingSafeEqual } from "crypto";
 import { captureCrmActivity, recordReferralConversion } from "../lib/crm.js";
@@ -467,7 +467,6 @@ export default async function handler(req, res) {
       await Promise.all([
         sendTransactionalEmail({ ...common, key: `stripe:${event.id}:${sessionId}:event-registration:${email}`, purpose: "event-registration-confirmation", from: "ROAMSIX Events <info@roamsix.com>", to: email, subject: "Your ROAMSIX Registration is Confirmed", html: customerHtml }),
         sendTransactionalEmail({ ...common, key: `stripe:${event.id}:${sessionId}:event-registration:max@roamsix.com`, purpose: "event-registration-notification", from: "ROAMSIX Events <info@roamsix.com>", to: "max@roamsix.com", replyTo: email, subject: `New Registration: ${customerName || email} - ${packageId}`, html: teamHtml }),
-        sendTransactionalEmail({ ...common, key: `stripe:${event.id}:${sessionId}:event-registration:jackie@roamsix.com`, purpose: "event-registration-notification", from: "ROAMSIX Events <info@roamsix.com>", to: "jackie@roamsix.com", replyTo: email, subject: `New Registration: ${customerName || email} - ${packageId}`, html: teamHtml }),
       ]);
 
     })();

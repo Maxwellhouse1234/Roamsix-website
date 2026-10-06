@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 const CRM_BASE_ID = process.env.ROAMSIX_CRM_BASE_ID || "appdIBqCMPWJxODG2";
 const EMAIL_TABLE = process.env.ROAMSIX_CRM_EMAIL_TABLE_ID || "Transactional Emails";
 const MAX_RETRIES = Math.max(1, Number(process.env.TRANSACTIONAL_EMAIL_MAX_RETRIES || 5));
+const BLOCKED_RECIPIENTS = new Set(['jackie@roamsix.com']);
 
 function clean(value, max = 10000) {
   return String(value || "").trim().slice(0, max);
@@ -78,6 +79,7 @@ export async function sendTransactionalEmail(input) {
   if (!payload.key || !payload.purpose || !payload.to || !payload.subject || !payload.html) {
     throw new Error("Transactional email requires key, purpose, recipient, subject, and HTML");
   }
+  if (BLOCKED_RECIPIENTS.has(payload.to)) return { skipped: true, status: "Suppressed", id: "", recordId: "" };
 
   const existing = await findOne("Email Key", payload.key);
   const existingStatus = existing?.fields?.Status;
@@ -155,6 +157,13 @@ export async function retryFailedTransactionalEmails(limit = 25) {
     try {
       const payload = JSON.parse(record.fields?.Payload || "{}");
       if (payload.retryable === false) continue;
+      if (BLOCKED_RECIPIENTS.has(clean(payload.to, 320).toLowerCase())) {
+        await saveRecord(record.id, {
+          Status: "Suppressed", "Last Error": "Recipient removed from ROAMSIX notifications",
+          "Next Retry At": null, "Needs Attention": false, "Updated At": new Date().toISOString(),
+        });
+        continue;
+      }
       await sendTransactionalEmail(payload);
       sent += 1;
     } catch (error) {

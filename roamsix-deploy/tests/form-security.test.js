@@ -6,7 +6,7 @@ process.env.NODE_ENV = 'test';
 delete process.env.TURNSTILE_SECRET_KEY;
 
 function request(body, ip = '203.0.113.10') {
-  return { body, headers: { 'x-forwarded-for': ip } };
+  return { body, headers: { 'x-forwarded-for': ip, host: 'www.roamsix.com' } };
 }
 
 function legitimate(overrides = {}) {
@@ -52,6 +52,9 @@ test('hard rejects active payload patterns and quarantines ambiguous gibberish',
   const ambiguous = await protectPublicSubmission(request(legitimate({ message: 'bcdfghjklmnpqrst this may be an unusual project code' })), { endpoint: 'ambiguous' });
   assert.equal(ambiguous.quarantined, true);
   assert.equal(ambiguous.status, 202);
+  const highEntropy = await protectPublicSubmission(request(legitimate({ message: 'I am interested in qqzDTSAKyzuHJcVjEigJcGB' })), { endpoint: 'high-entropy' });
+  assert.equal(highEntropy.quarantined, true);
+  assert.equal(highEntropy.status, 202);
 });
 
 test('throttles repeated submissions by IP and email fingerprint', async () => {
@@ -61,6 +64,14 @@ test('throttles repeated submissions by IP and email fingerprint', async () => {
   }
   const blocked = await protectPublicSubmission(request(legitimate()), { endpoint: 'repeat', repeatLimit: 2 });
   assert.equal(blocked.status, 429);
+});
+
+test('throttles coordinated submissions across different public endpoints', async () => {
+  for (const endpoint of ['contact', 'retreat-interest', 'member-login']) {
+    const result = await protectPublicSubmission(request(legitimate()), { endpoint, globalEmailLimit: 2 });
+    if (endpoint === 'member-login') assert.equal(result.status, 429);
+    else assert.equal(result.ok, true);
+  }
 });
 
 test('isolates durable rate limits between Preview and Production', async () => {
@@ -114,6 +125,40 @@ test('requires successful server-side Turnstile verification when configured', a
     global.fetch = previousFetch;
     delete process.env.TURNSTILE_SECRET_KEY;
   }
+});
+
+test('requires Turnstile tokens minted for the expected hostname and action', async () => {
+  process.env.TURNSTILE_SECRET_KEY = 'secret';
+  const previousFetch = global.fetch;
+  try {
+    global.fetch = async () => ({ ok: true, json: async () => ({ success: true, hostname: 'www.roamsix.com', action: 'public_form' }) });
+    const accepted = await protectPublicSubmission(request(legitimate()), { endpoint: 'turnstile-valid' });
+    assert.equal(accepted.ok, true);
+
+    global.fetch = async () => ({ ok: true, json: async () => ({ success: true, hostname: 'www.roamsix.com', action: 'other_action' }) });
+    const wrongAction = await protectPublicSubmission(request(legitimate({ email: 'second@example.com' })), { endpoint: 'turnstile-action' });
+    assert.equal(wrongAction.ok, false);
+
+    global.fetch = async () => ({ ok: true, json: async () => ({ success: true, hostname: 'untrusted.example', action: 'public_form' }) });
+    const wrongHostname = await protectPublicSubmission(request(legitimate({ email: 'third@example.com' })), { endpoint: 'turnstile-hostname' });
+    assert.equal(wrongHostname.ok, false);
+  } finally {
+    global.fetch = previousFetch;
+    delete process.env.TURNSTILE_SECRET_KEY;
+  }
+});
+
+test('rejection logs expose only payload shape, never submitted content', async () => {
+  const previousWarn = console.warn;
+  let output = '';
+  console.warn = (value) => { output += String(value); };
+  try {
+    await protectPublicSubmission(request(legitimate({ website: 'https://spam.invalid', message: 'private submitted text' })), { endpoint: 'private-logging' });
+  } finally {
+    console.warn = previousWarn;
+  }
+  assert.match(output, /payloadSummary/);
+  assert.doesNotMatch(output, /person@example\.com|private submitted text|spam\.invalid/);
 });
 
 test('retired public form endpoints fail closed', async () => {

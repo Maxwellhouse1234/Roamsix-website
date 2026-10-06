@@ -5,8 +5,8 @@
 | Trigger | Event or route | Recipient | Owner | Idempotency source |
 | --- | --- | --- | --- | --- |
 | Initial paid membership | `checkout.session.completed` or `checkout.session.async_payment_succeeded` | Member | ROAMSIX / Resend | Stripe event + Checkout Session + purpose + recipient |
-| New paid member | Same checkout events | Max and Jackie, tracked separately | ROAMSIX / Resend | Stripe event + Checkout Session + purpose + recipient |
-| Paid event registration | Same checkout events for an event purchase | Attendee, Max, and Jackie, tracked separately | ROAMSIX / Resend | Stripe event + Checkout Session + purpose + recipient |
+| New paid member | Same checkout events | Max | ROAMSIX / Resend | Stripe event + Checkout Session + purpose + recipient |
+| Paid event registration | Same checkout events for an event purchase | Attendee and Max, tracked separately | ROAMSIX / Resend | Stripe event + Checkout Session + purpose + recipient |
 | Annual membership renewal | `invoice.paid` with `billing_reason=subscription_cycle` | Member | ROAMSIX / Resend | Stripe event + purpose + recipient |
 | Membership payment failure | `invoice.payment_failed` | Member | ROAMSIX / Resend | Stripe event + purpose + recipient |
 | Cancellation scheduled | `customer.subscription.updated` when `cancel_at_period_end` changes to `true` | Member | ROAMSIX / Resend | Stripe event + purpose + recipient |

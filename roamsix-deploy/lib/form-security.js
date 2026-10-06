@@ -79,7 +79,12 @@ async function consumeRateLimit(key, limit, windowSeconds, now) {
   }
 }
 
-async function verifyTurnstile(token, ip) {
+function requestHostname(req) {
+  return text(req.headers?.['x-forwarded-host'] || req.headers?.host || '', 255)
+    .split(',')[0].trim().toLowerCase().replace(/:\d+$/, '');
+}
+
+async function verifyTurnstile(token, ip, req) {
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) return process.env.NODE_ENV !== 'production' || process.env.FORM_SECURITY_ALLOW_NO_TURNSTILE === 'true';
   if (!token) return false;
@@ -89,7 +94,14 @@ async function verifyTurnstile(token, ip) {
       body: new URLSearchParams({ secret, response: token, remoteip: ip }),
     });
     const result = await response.json();
-    return response.ok && result.success === true;
+    const configuredHostnames = text(process.env.TURNSTILE_ALLOWED_HOSTNAMES, 1000)
+      .split(',').map((hostname) => hostname.trim().toLowerCase()).filter(Boolean);
+    const allowedHostnames = new Set([...configuredHostnames, requestHostname(req)].filter(Boolean));
+    const expectedAction = text(process.env.TURNSTILE_EXPECTED_ACTION || 'public_form', 100);
+    return response.ok
+      && result.success === true
+      && text(result.action, 100) === expectedAction
+      && allowedHostnames.has(text(result.hostname, 255).toLowerCase());
   } catch (error) {
     console.error(JSON.stringify({ event: 'form_security_turnstile_error', message: error.message }));
     return false;
@@ -101,12 +113,12 @@ function spamScore(data) {
   const ignoredKeys = new Set(['turnstileToken', 'invite', 'code', 'session_id', 'acceptedAt', 'formStartedAt']);
   const visit = (value, key = '') => {
     if (ignoredKeys.has(key)) return;
-    if (typeof value === 'string') values.push(value);
+    if (typeof value === 'string') values.push({ key, value });
     else if (Array.isArray(value)) value.forEach((item) => visit(item, key));
     else if (value && typeof value === 'object') Object.entries(value).forEach(([childKey, child]) => visit(child, childKey));
   };
   visit(data);
-  const joined = values.join(' ');
+  const joined = values.map(({ value }) => value).join(' ');
   let score = 0;
   const reasons = [];
   const add = (points, reason) => { score += points; reasons.push(reason); };
@@ -116,6 +128,18 @@ function spamScore(data) {
   if (/([a-z0-9])\1{7,}/i.test(joined)) add(3, 'repeated_characters');
   const alphaWords = joined.match(/[a-z]{8,}/gi) || [];
   if (alphaWords.some((word) => !/[aeiouy]/i.test(word) || /[bcdfghjklmnpqrstvwxz]{7,}/i.test(word))) add(3, 'random_characters');
+  const narrativeFields = new Set(['message', 'challenge', 'specific', 'other', 'customInterest', 'whyAttending', 'goals', 'referralSource', 'company', 'organization']);
+  const highEntropyToken = values
+    .filter(({ key }) => narrativeFields.has(key))
+    .flatMap(({ value }) => value.match(/[a-z]{12,}/gi) || [])
+    .some((word) => {
+      const upper = (word.match(/[A-Z]/g) || []).length;
+      const lower = (word.match(/[a-z]/g) || []).length;
+      const caseChanges = (word.match(/(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[a-z])/g) || []).length;
+      const vowelRatio = (word.match(/[aeiouy]/gi) || []).length / word.length;
+      return (upper >= 3 && lower >= 3 && caseChanges >= 4) || vowelRatio < 0.16;
+    });
+  if (highEntropyToken) add(3, 'high_entropy_text');
   if (joined.length > 120 && joined.replace(/[\p{L}\p{N}\s.,!?@'’()\-]/gu, '').length / joined.length > 0.18) add(3, 'symbol_heavy');
   return { score, reasons, hardReject: reasons.includes('active_payload') };
 }
@@ -157,16 +181,19 @@ function rawValidationErrors(data) {
   return errors;
 }
 
-function redactPayload(value, key = '') {
-  if (new Set(['turnstileToken', 'invite', 'code', 'session_id']).has(key)) return '[redacted]';
-  if (Array.isArray(value)) return value.map((item) => redactPayload(item, key));
-  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([childKey, child]) => [childKey, redactPayload(child, childKey)]));
-  return value;
+function payloadSummary(value) {
+  const object = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  return {
+    fields: Object.keys(object).slice(0, 100),
+    bytes: JSON.stringify(value || {}).length,
+  };
 }
 
 function logDecision(decision, context) {
   const log = decision === 'allow' ? console.info : console.warn;
-  const safeContext = context.payload ? { ...context, payload: redactPayload(context.payload) } : context;
+  const safeContext = context.payload
+    ? { ...context, payload: undefined, payloadSummary: payloadSummary(context.payload) }
+    : context;
   log(JSON.stringify({ event: `form_submission_${decision}`, ...safeContext }));
 }
 
@@ -187,10 +214,13 @@ export async function protectPublicSubmission(req, options = {}) {
   const context = { endpoint, fingerprint, ipHash: hash(ip), emailHash: email ? hash(email) : '', at: new Date(now).toISOString() };
 
   const namespace = rateLimitNamespace();
-  const ipRate = ip === 'unknown' ? { allowed: true } : await consumeRateLimit(`form:${namespace}:ip:${endpoint}:${hash(ip)}`, options.ipLimit || 12, options.windowSeconds || 600, now);
-  const repeatRate = ip === 'unknown' ? { allowed: true } : await consumeRateLimit(`form:${namespace}:repeat:${endpoint}:${fingerprint}`, options.repeatLimit || 3, options.repeatWindowSeconds || 3600, now);
+  const [ipRate, repeatRate] = await Promise.all([
+    ip === 'unknown' ? { allowed: true } : consumeRateLimit(`form:${namespace}:ip:${endpoint}:${hash(ip)}`, options.ipLimit || 12, options.windowSeconds || 600, now),
+    ip === 'unknown' ? { allowed: true } : consumeRateLimit(`form:${namespace}:repeat:${endpoint}:${fingerprint}`, options.repeatLimit || 3, options.repeatWindowSeconds || 3600, now),
+  ]);
   if (!ipRate.allowed || !repeatRate.allowed) {
-    logDecision('rejected', { ...context, reason: !ipRate.allowed ? 'ip_rate_limit' : 'repeated_submission', payload: data });
+    const reason = !ipRate.allowed ? 'ip_rate_limit' : 'repeated_submission';
+    logDecision('rejected', { ...context, reason, payload: data });
     return { ok: false, status: 429, error: 'Too many submissions. Please wait and try again.', data };
   }
 
@@ -204,9 +234,20 @@ export async function protectPublicSubmission(req, options = {}) {
     logDecision('rejected', { ...context, reason: 'submission_timing', elapsed, payload: data });
     return { ok: false, status: 400, error: 'Submission could not be verified.', data };
   }
-  if (!(await verifyTurnstile(text(data.turnstileToken, 2048), ip))) {
+  if (!(await verifyTurnstile(text(data.turnstileToken, 2048), ip, req))) {
     logDecision('rejected', { ...context, reason: 'bot_challenge', payload: data });
     return { ok: false, status: 400, error: 'Please complete the security check and try again.', data };
+  }
+
+  const production = process.env.NODE_ENV === 'production';
+  const [globalIpRate, globalEmailRate] = await Promise.all([
+    ip === 'unknown' ? { allowed: true } : consumeRateLimit(`form:${namespace}:global-ip:${hash(ip)}`, options.globalIpLimit ?? (production ? 8 : 10_000), options.globalWindowSeconds || 600, now),
+    !email ? { allowed: true } : consumeRateLimit(`form:${namespace}:global-email:${hash(email)}`, options.globalEmailLimit ?? (production ? 3 : 10_000), options.globalEmailWindowSeconds || 3600, now),
+  ]);
+  if (!globalIpRate.allowed || !globalEmailRate.allowed) {
+    const reason = !globalIpRate.allowed ? 'global_ip_rate_limit' : 'global_email_rate_limit';
+    logDecision('rejected', { ...context, reason, payload: data });
+    return { ok: false, status: 429, error: 'Too many submissions. Please wait and try again.', data };
   }
 
   const errors = validationErrors(data);

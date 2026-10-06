@@ -111,7 +111,7 @@ test('transactional email failures are persisted, retried, delivered, and idempo
   assert.equal(store.records[0].fields.Status, 'Delivered');
 });
 
-test('membership purchase messages send once to the member, Max, and Jackie', async () => {
+test('membership purchase messages send once to the member and Max', async () => {
   const store = emailStore();
   global.fetch = store.fetchMock;
   const { sendMembershipPurchaseEmails } = await import('../lib/membership-emails.js');
@@ -121,10 +121,23 @@ test('membership purchase messages send once to the member, Max, and Jackie', as
   };
   await sendMembershipPurchaseEmails(input);
   await sendMembershipPurchaseEmails(input);
-  assert.equal(store.resendCalls.length, 3);
-  assert.deepEqual(store.resendCalls.map((call) => call.body.to[0]).sort(), ['jackie@roamsix.com', 'max@roamsix.com', 'member@example.com']);
-  assert.equal(new Set(store.resendCalls.map((call) => call.headers['Idempotency-Key'])).size, 3);
+  assert.equal(store.resendCalls.length, 2);
+  assert.deepEqual(store.resendCalls.map((call) => call.body.to[0]).sort(), ['max@roamsix.com', 'member@example.com']);
+  assert.equal(new Set(store.resendCalls.map((call) => call.headers['Idempotency-Key'])).size, 2);
   assert.match(store.resendCalls.find((call) => call.body.to[0] === 'member@example.com').body.html, /annual charge of \$850/);
+});
+
+test('removed operational recipients are suppressed before any email is queued', async () => {
+  const store = emailStore();
+  global.fetch = store.fetchMock;
+  const { sendTransactionalEmail } = await import('../lib/transactional-email.js');
+  const result = await sendTransactionalEmail({
+    key: 'removed-recipient', purpose: 'internal-notification', to: 'jackie@roamsix.com',
+    subject: 'Internal update', html: '<p>Update</p>',
+  });
+  assert.equal(result.status, 'Suppressed');
+  assert.equal(store.resendCalls.length, 0);
+  assert.equal(store.records.length, 0);
 });
 
 test('unfinished membership checkout sends a branded continuation email once', async () => {

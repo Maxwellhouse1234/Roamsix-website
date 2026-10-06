@@ -9,7 +9,7 @@ import { enforcePublicSubmission } from "../lib/form-security.js";
 //      updates it with participant intake form data.
 //
 //   2. CONTACT FORM: otherwise:
-//      Sends branded notification email to max@roamsix.com + jackie@roamsix.com,
+//      Sends branded notification email to max@roamsix.com,
 //      sends branded confirmation email to prospect, and writes lead to
 //      Airtable Inquiries table (creates table on first run if missing).
 
@@ -53,14 +53,14 @@ export default async function handler(req, res) {
   const givenName = name === "Not provided" ? "" : name.split(/\s+/)[0];
   const timestamp = new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" });
 
-  // ── 1. NOTIFY MAX + JACKIE ─────────────────────────────────────
+  // ── 1. NOTIFY MAX ──────────────────────────────────────────────
   try {
     await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { "Authorization": `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         from:     "ROAMSIX Inquiries <info@roamsix.com>",
-        to:       ["max@roamsix.com", "jackie@roamsix.com"],
+        to:       ["max@roamsix.com"],
         reply_to: email.trim(),
         subject:  `New Inquiry: ${inquiryType || "General"} | ${name}`,
         html:     notifyHTML({ name, email: email.trim(), company, inquiryType, message, source, timestamp }),

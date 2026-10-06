@@ -85,7 +85,6 @@ export default async function handler(req, res) {
     await Promise.all([
       sendTransactionalEmail({ ...common, key: `member-event:${DR_SAL_EVENT.id}:${session.email}:confirmation`, purpose: "member-event-registration-confirmation", from: "ROAMSIX Events <info@roamsix.com>", to: session.email, subject: "Your ROAMSIX member seat is reserved", html: confirmationHtml(name) }),
       sendTransactionalEmail({ ...common, key: `member-event:${DR_SAL_EVENT.id}:${session.email}:max`, purpose: "member-event-registration-notification", from: "ROAMSIX Events <info@roamsix.com>", to: "max@roamsix.com", replyTo: session.email, subject: `Included Member Registration: ${name}`, html: teamHtml({ name, email: session.email, phone, tier: membership.tier, source, acceptedAt: body.acceptedAt, legalVersion: body.acceptedLegalVersion }) }),
-      sendTransactionalEmail({ ...common, key: `member-event:${DR_SAL_EVENT.id}:${session.email}:jackie`, purpose: "member-event-registration-notification", from: "ROAMSIX Events <info@roamsix.com>", to: "jackie@roamsix.com", replyTo: session.email, subject: `Included Member Registration: ${name}`, html: teamHtml({ name, email: session.email, phone, tier: membership.tier, source, acceptedAt: body.acceptedAt, legalVersion: body.acceptedLegalVersion }) }),
     ]);
     return res.status(200).json({ success: true, alreadyRegistered: !registration.created });
   } catch (error) {

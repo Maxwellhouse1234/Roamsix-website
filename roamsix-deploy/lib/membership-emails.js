@@ -115,7 +115,6 @@ export async function sendMembershipPurchaseEmails({ eventId, session, sessionId
   return Promise.all([
     sendTransactionalEmail({ ...common, key: `stripe:${eventId}:${sessionId}:membership-confirmation:${email}`, purpose: "membership-confirmation", to: email, subject: "Your ROAMSIX Membership is confirmed", html: memberHtml }),
     sendTransactionalEmail({ ...common, key: `stripe:${eventId}:${sessionId}:new-member:max@roamsix.com`, purpose: "new-member-notification", to: "max@roamsix.com", replyTo: email, subject: `New Member: ${customerName || email}`, html: internalHtml }),
-    sendTransactionalEmail({ ...common, key: `stripe:${eventId}:${sessionId}:new-member:jackie@roamsix.com`, purpose: "new-member-notification", to: "jackie@roamsix.com", replyTo: email, subject: `New Member: ${customerName || email}`, html: internalHtml }),
   ]);
 }
 
