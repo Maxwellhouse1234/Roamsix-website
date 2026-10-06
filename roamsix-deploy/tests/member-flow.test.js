@@ -421,7 +421,14 @@ test('Dr. Sal public and member-facing references use the confirmed October 24, 
   assert.match(home, /roamsix-outdoor-panel-bw-v1\.jpg/);
   assert.match(experiences, /roamsix-outdoor-panel-bw-v1\.jpg/);
   assert.match(home, /An intimate outdoor panel conversation with an audience\./);
-  assert.match(experiences, /dr-sulaiman-bharwani-editorial-v1\.jpg/);
+  assert.match(experiences, /dr-sulaiman-bharwani-gutrewired-v2\.jpg/);
+  assert.match(experiences, /Founder and CEO, Lifax Longevity and GutRewired/);
+  assert.match(experiences, /board-certified gastroenterologist and board-certified nutritionist/);
+  assert.match(experiences, /more than 30 years of experience/);
+  assert.match(experiences, /nearly 100 peer-reviewed papers and abstracts, cited close to 3,000 times/);
+  assert.match(experiences, /https:\/\/www\.gutrewired\.com/);
+  assert.match(experiences, /https:\/\/www\.instagram\.com\/gutrewired\//);
+  assert.match(experiences, /https:\/\/www\.youtube\.com\/@gutrewired/);
   assert.match(fieldwork, /roamsix-journey-mediterranean-v2\.jpg/);
   assert.match(dashboard, /OCTOBER 24, 2026 · SAN DIEGO COUNTY · 25 SEATS/);
   assert.match(dashboard, /Reserve my included seat/);
