@@ -9,10 +9,12 @@ export const DR_SAL_EVENT = Object.freeze({
   packageId: "general-admission",
   name: "The gut-brain connection: food, stress, and everyday performance",
   date: "2026-10-24",
+  venue: "Essene Retreat Center",
+  address: "29455 Pamoosa Lane, Valley Center, CA 92082",
+  time: "4:00–6:00 PM",
   capacity: 25,
   priceCents: 5000,
   priceEnv: "STRIPE_DR_SAL_PRICE_ID",
-  locationReleaseDate: "October 7, 2026",
   refundDeadline: "2026-10-10T23:59:59-07:00",
   legalVersion: "2026-09-29-dr-sal-v1",
 });

@@ -603,11 +603,13 @@ function drSalConfirmHTML({ name, eventName, amountPaid }) {
         <div style="background:rgba(74,117,117,0.08);border:1px solid rgba(74,117,117,0.2);border-left:3px solid #4A7575;padding:24px;margin-bottom:28px;">
           <table width="100%" cellpadding="0" cellspacing="0">
             ${row("Date", "October 24, 2026")}
-            ${row("Location", "San Diego County")}
+            ${row("Time", DR_SAL_EVENT.time)}
+            ${row("Location", DR_SAL_EVENT.venue)}
+            ${row("Address", DR_SAL_EVENT.address)}
             ${row("Paid", "$" + Number(amountPaid || 0).toFixed(2))}
           </table>
         </div>
-        ${section("Location release", "The exact location is released October 7. We will email the address, time, and parking instructions to this address.")}
+        ${section("Arrival details", "Final arrival and parking instructions will follow by email.")}
         ${section("Refund window", "A full refund is available through October 10 if the location does not work for you. Reply to this email to request it. Refunds are returned through Stripe to the original payment method.")}
         ${section("Founding membership credit", "$50 applies toward founding membership if you join within 48 hours of the event. Event credits are capped at $100 over the lifetime of each member record.")}
       </td></tr>

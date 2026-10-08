@@ -161,11 +161,11 @@ export default function EventSuccessPage() {
           <ul className="es-next-list">
             <li>
               <span className="es-next-num">01</span>
-              {isDrSalEvent ? 'Check your email for confirmation that your seat is held. The exact location is released October 7.' : 'Check your email for a confirmation from ROAMSIX with details, directions, and what to bring.'}
+              {isDrSalEvent ? 'Check your email for confirmation and the Essene Retreat Center address.' : 'Check your email for a confirmation from ROAMSIX with details, directions, and what to bring.'}
             </li>
             <li>
               <span className="es-next-num">02</span>
-              {isDrSalEvent ? 'Watch for a second email on October 7 with the address, time, and parking instructions.' : 'Complete your Participant Intake Form so we can prepare for any food allergies, dietary needs, and emergency contact information.'}
+              {isDrSalEvent ? 'Watch for a follow-up email with final arrival and parking instructions.' : 'Complete your Participant Intake Form so we can prepare for any food allergies, dietary needs, and emergency contact information.'}
             </li>
             <li>
               <span className="es-next-num">03</span>

@@ -431,7 +431,7 @@ test('Dr. Sal public and member-facing references use the confirmed October 24, 
   assert.match(experiences, /https:\/\/www\.instagram\.com\/gutrewired\//);
   assert.match(experiences, /https:\/\/www\.youtube\.com\/@gutrewired/);
   assert.match(fieldwork, /roamsix-journey-mediterranean-v2\.jpg/);
-  assert.match(dashboard, /OCTOBER 24, 2026 · SAN DIEGO COUNTY · 25 SEATS/);
+  assert.match(dashboard, /OCTOBER 24, 2026 · ESSENE RETREAT CENTER · 25 SEATS/);
   assert.match(dashboard, /Reserve my included seat/);
   assert.match(dashboard, /Included with membership/);
   assert.doesNotMatch(dashboard, /Hold my seat · \$50/);
@@ -532,7 +532,10 @@ test('approved public copy preserves the membership offer and page structure', a
   assert.match(experiences, /<h2>Keep going beyond one event\.<\/h2>/);
   assert.match(experiences, /Membership includes all 36 Core gatherings in 2027, so one evening can become part of a full year of conversations, movement, and hands-on experiences\./);
   assert.match(experiences, />Compare membership options<\/Link>/);
-  assert.match(experiences, /Hold my seat · \$50/);
+  assert.match(experiences, /Reserve my seat · \$50/);
+  assert.match(experiences, /29455 Pamoosa Lane, Valley Center, CA 92082/);
+  assert.match(experiences, /4:00 to 6:00 PM/);
+  assert.doesNotMatch(experiences, /exact location is released October 7|Hold my seat/i);
   assert.doesNotMatch(experiences, /Tell me when registration opens|Registration is not open yet|Joining the interest list does not reserve a place|Confirmed so far/i);
   assert.match(experiences, /id="dr-sal"/);
 

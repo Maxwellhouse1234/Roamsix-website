@@ -87,16 +87,16 @@ export default function DrSalRegistrationPage() {
 
   return <SiteLayout theme="dark">
     <section className="page-hero editorial-page-hero"><div className="container narrow">
-      <p className="eyebrow">OCTOBER 24, 2026 · SAN DIEGO COUNTY · 25 SEATS</p>
+      <p className="eyebrow">OCTOBER 24, 2026 · ESSENE RETREAT CENTER · 25 SEATS</p>
       <h1>The gut-brain connection: food, stress, and everyday performance</h1>
       <p className="page-lead"><Link to="/experiences#dr-sal">Dr. Sulaiman Bharwani</Link>, pediatric gastroenterologist and founder of GutRewired, on how food, stress, and sleep interact, and which gut-health advice holds up.</p>
-      {member?.activeMember ? <p><strong>Your seat is included with your active {member.tier} membership.</strong> The exact location is released October 7.</p> : <p>$50 holds your seat. The exact location is released October 7. Full refund if the location does not work for you. Your ticket applies toward founding membership if you join within 48 hours of the event.</p>}
+      {member?.activeMember ? <p><strong>Your seat is included with your active {member.tier} membership.</strong> Join us at Essene Retreat Center, 29455 Pamoosa Lane, Valley Center, CA 92082, from 4:00 to 6:00 PM. Final arrival and parking details will follow by email.</p> : <p>$50 reserves your seat. Join us at Essene Retreat Center, 29455 Pamoosa Lane, Valley Center, CA 92082, from 4:00 to 6:00 PM. A full refund is available through October 10. Final arrival and parking details will follow by email. Your ticket applies toward founding membership if you join within 48 hours of the event.</p>}
       {availability?.showCounter ? <p className="event-seat-counter">{availability.remaining} of 25 seats remain.</p> : null}
     </div></section>
     <section className="section light-section"><div className="container membership-checkout-layout">
       <div className="membership-offer">
         <p className="eyebrow">Registration</p>
-        <h2>{member?.activeMember ? 'Reserve my included member seat' : 'Hold my seat · $50'}</h2>
+        <h2>{member?.activeMember ? 'Reserve my included member seat' : 'Reserve my seat · $50'}</h2>
         <p>{member?.activeMember ? 'Complete the agreements to reserve your included seat. No payment is required.' : 'Complete the agreements before opening secure Stripe payment.'}</p>
       </div>
       <form className="membership-checkout-form" onSubmit={checkout}>
@@ -108,7 +108,7 @@ export default function DrSalRegistrationPage() {
         <label className="check"><input type="checkbox" name="mediaReleaseAccepted" checked={form.mediaReleaseAccepted} onChange={change} required /><span>I have read and accept the <Link to="/media-release" target="_blank">Media Release</Link>.</span></label>
         {!member?.activeMember ? <FormProtection onToken={protection.setTurnstileToken} onHoneypot={protection.setHoneypot} /> : null}
         {error ? <p className="form-error" role="alert">{error}</p> : null}
-        <button className="button" type="submit" disabled={!ready || soldOut || status === 'loading'}>{soldOut ? 'Sold out' : status === 'loading' ? (member?.activeMember ? 'Reserving your seat…' : 'Opening secure payment…') : (member?.activeMember ? 'Reserve my included seat' : 'Hold my seat · $50')}</button>
+        <button className="button" type="submit" disabled={!ready || soldOut || status === 'loading'}>{soldOut ? 'Sold out' : status === 'loading' ? (member?.activeMember ? 'Reserving your seat…' : 'Opening secure payment…') : (member?.activeMember ? 'Reserve my included seat' : 'Reserve my seat · $50')}</button>
         <p className="form-note">{member?.activeMember ? 'Included with your active membership. You will not be charged.' : 'Payment is completed securely through Stripe.'}</p>
       </form>
     </div></section>

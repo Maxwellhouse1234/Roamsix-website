@@ -3,9 +3,9 @@ export const events = [
   {
     id: "dr-sal-gut-brain-2026",
     title: "The gut-brain connection: food, stress, and everyday performance",
-    date: "2026-10-24T18:00:00-07:00",
-    location: "San Diego County",
-    locationDetail: "Exact location released October 7",
+    date: "2026-10-24T16:00:00-07:00",
+    location: "Essene Retreat Center",
+    locationDetail: "29455 Pamoosa Lane, Valley Center, CA 92082 · 4:00–6:00 PM",
     status: "open",
     packages: [{ id: "general-admission", name: "General admission", price: 5000 }],
   },
