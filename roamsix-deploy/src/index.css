@@ -330,6 +330,13 @@ p { margin: 0 0 1.25em; }
 .membership-boundaries, .membership-checkout-layout { display: grid; grid-template-columns: .82fr 1.18fr; gap: clamp(48px, 8vw, 110px); align-items: start; }
 .membership-boundaries > div:last-child { border-top: 2px solid var(--ink); padding-top: 30px; }
 .membership-checkout-layout > div > p:not(.eyebrow) { color: #c8c8c5; max-width: 620px; }
+.event-location-details { margin-top: 34px; padding-top: 28px; border-top: 1px solid rgba(255,255,255,.18); }
+.event-location-details h3 { margin: 8px 0 10px; }
+.event-location-details > p:not(.eyebrow) { color: #c8c8c5; }
+.event-location-links { display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 18px 0; }
+.event-location-links a { color: #fff; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.event-location-map { overflow: hidden; width: 100%; aspect-ratio: 16 / 10; border: 1px solid rgba(255,255,255,.2); background: #dedbd5; }
+.event-location-map iframe { display: block; width: 100%; height: 100%; border: 0; }
 .membership-offer h2 { max-width: 560px; }
 .membership-checkout-form { padding: clamp(28px, 4vw, 50px); background: var(--white); color: var(--ink); }
 .membership-checkout-form label { display: block; margin-bottom: 20px; font-size: .84rem; font-weight: 700; }

@@ -5,6 +5,8 @@ import FormProtection, { useFormProtection } from '../components/FormProtection'
 
 const EVENT_ID = 'dr-sal-gut-brain-2026';
 const LEGAL_VERSION = '2026-09-29-dr-sal-v1';
+const VENUE_ADDRESS = '29455 Pamoosa Lane, Valley Center, CA 92082';
+const MAP_QUERY = encodeURIComponent(`Essene Retreat Center, ${VENUE_ADDRESS}`);
 
 export default function DrSalRegistrationPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', termsAccepted: false, waiverAccepted: false, mediaReleaseAccepted: false });
@@ -98,6 +100,14 @@ export default function DrSalRegistrationPage() {
         <p className="eyebrow">Registration</p>
         <h2>{member?.activeMember ? 'Reserve my included member seat' : 'Reserve my seat · $50'}</h2>
         <p>{member?.activeMember ? 'Complete the agreements to reserve your included seat. No payment is required.' : 'Complete the agreements before opening secure Stripe payment.'}</p>
+        <div className="event-location-details">
+          <p className="eyebrow">Location</p>
+          <h3>Essene Retreat Center</h3>
+          <p>{VENUE_ADDRESS}<br />October 24, 2026 · 4:00–6:00 PM</p>
+          <div className="event-location-links"><a href={`https://www.google.com/maps/search/?api=1&query=${MAP_QUERY}`} target="_blank" rel="noreferrer">Open in Google Maps</a><a href={`https://maps.apple.com/?q=${MAP_QUERY}`} target="_blank" rel="noreferrer">Open in Apple Maps</a></div>
+          <div className="event-location-map"><iframe title="Map of Essene Retreat Center" src={`https://www.google.com/maps?q=${MAP_QUERY}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" /></div>
+          <p className="form-note">Final arrival and parking details will follow by email.</p>
+        </div>
       </div>
       <form className="membership-checkout-form" onSubmit={checkout}>
         <label>Full name<input name="name" value={form.name} onChange={change} autoComplete="name" required /></label>

@@ -486,6 +486,10 @@ test('member forms reuse signed-in identity while preserving explicit update con
   assert.match(eventForm, /name="consent"/);
   assert.match(registrationPage, /\/api\/member-event-registration/);
   assert.match(registrationPage, /Reserve my included seat/);
+  assert.match(registrationPage, /Map of Essene Retreat Center/);
+  assert.match(registrationPage, /Open in Google Maps/);
+  assert.match(registrationPage, /Open in Apple Maps/);
+  assert.match(registrationPage, /29455 Pamoosa Lane, Valley Center, CA 92082/);
   assert.match(contextApi, /activeMember: true/);
   assert.match(memberRegistrationApi, /membershipForEmail/);
   assert.match(memberRegistrationApi, /waiverAccepted/);
