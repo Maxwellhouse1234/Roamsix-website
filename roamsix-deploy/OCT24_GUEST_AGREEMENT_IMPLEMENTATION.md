@@ -91,7 +91,9 @@ Report each category separately:
 - Net collected admission revenue
 - Property share: 20% of net collected admission revenue, excluding separately contracted sponsorship revenue
 
-Payment totals should come from settled Stripe amounts and refunds, not from the displayed ticket price.
+Payment totals should come from settled Stripe amounts and refunds, not from the displayed ticket price. `Net collected revenue` means gross settled admission payments minus discounts and refunds exactly once. The property's 20% share is calculated from that net amount.
+
+Photography preference may appear in the attendee's private confirmation email and the access-controlled staff view. It must not appear on the QR ticket or in any message sent to another attendee.
 
 ## Staff operations
 

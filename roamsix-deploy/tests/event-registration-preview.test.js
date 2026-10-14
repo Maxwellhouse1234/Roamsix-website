@@ -31,6 +31,18 @@ test('pair admission revenue is counted once and refunds reduce the property sha
   assert.equal(report.propertyShare, 15);
 });
 
+test('discounts and partial refunds are each deducted exactly once', () => {
+  const report = calculateEventRevenue([
+    { transactionId: 'txn-pair', admissionType: 'pair-purchaser', transactionAdmissionType: 'pair', grossAmount: 50, discountAmount: 5, refundAmount: 10 },
+    { transactionId: 'txn-pair', admissionType: 'pair-guest', transactionAdmissionType: 'pair', grossAmount: 50, discountAmount: 5, refundAmount: 10 },
+  ]);
+  assert.equal(report.gross, 50);
+  assert.equal(report.discounts, 5);
+  assert.equal(report.refunds, 10);
+  assert.equal(report.netCollected, 35);
+  assert.equal(report.propertyShare, 7);
+});
+
 test('preview keeps photography separate and supports both choices', () => {
   assert.ok(PREVIEW_ATTENDEES.some((record) => record.photoConsent === 'permitted'));
   assert.ok(PREVIEW_ATTENDEES.some((record) => record.photoConsent === 'declined'));
@@ -69,6 +81,7 @@ test('private preview includes separate guest completion, QR, email, check-in an
   assert.match(emails, /included with your active ROAMSIX membership\. You were not charged/);
   assert.match(ticket, /not a standalone admission credential/);
   assert.match(ticket, /current registration, payment or member-included status/);
+  assert.doesNotMatch(ticket, /<dt>Photography<\/dt>/);
   assert.match(eligibility, /Agreement incomplete/);
   assert.match(checkIn, /current registration and agreement record/);
   assert.match(styles, /\.event-agreement \{[^}]*max-height:[^}]*overflow-y: auto/);
@@ -79,6 +92,7 @@ test('private preview includes separate guest completion, QR, email, check-in an
   assert.match(emails, /The gut-brain connection: food, stress, and everyday performance/);
   assert.match(ticket, /The gut-brain connection: food, stress, and everyday performance/);
   assert.match(checkIn, /connection failure/);
+  assert.match(await readFile(new URL('../src/pages/DrSalAttendancePreviewPage.jsx', import.meta.url), 'utf8'), /Net collected revenue after discounts and refunds/);
   assert.match(agreement, /Reciprofy Inc., dba ROAMSIX/);
   assert.doesNotMatch(agreement, /\[Legal entity operating ROAMSIX\]/);
   assert.match(agreement, /\[Confirm exact legal name of property host\]/);
