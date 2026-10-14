@@ -1,7 +1,7 @@
 import { DR_SAL_GUEST_AGREEMENT, DR_SAL_GUEST_AGREEMENT_VERSION } from '../data/drSalGuestAgreement';
 
 export default function DrSalAgreementText() {
-  return <article className="event-agreement" aria-labelledby="agreement-title" tabIndex="0">
+  return <div className="event-agreement-frame"><article className="event-agreement" aria-labelledby="agreement-title" tabIndex="0">
     <div className="event-agreement-heading">
       <div>
         <p className="eyebrow">Version {DR_SAL_GUEST_AGREEMENT_VERSION}</p>
@@ -21,5 +21,5 @@ export default function DrSalAgreementText() {
         {section.bullets ? <ul>{section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul> : null}
       </section>)}
     </div>
-  </article>;
+  </article><p className="event-agreement-scroll-hint">Scroll to review the complete agreement <span aria-hidden="true">↓</span></p></div>;
 }
