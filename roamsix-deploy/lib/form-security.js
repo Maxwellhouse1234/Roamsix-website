@@ -94,6 +94,10 @@ async function verifyTurnstile(token, ip, req) {
       body: new URLSearchParams({ secret, response: token, remoteip: ip }),
     });
     const result = await response.json();
+    const acceptsOfficialTestResponse = process.env.VERCEL_ENV === 'preview'
+      && process.env.TURNSTILE_TEST_MODE === 'true'
+      && result?.metadata?.result_with_testing_key === true;
+    if (response.ok && result.success === true && acceptsOfficialTestResponse) return true;
     const configuredHostnames = text(process.env.TURNSTILE_ALLOWED_HOSTNAMES, 1000)
       .split(',').map((hostname) => hostname.trim().toLowerCase()).filter(Boolean);
     const allowedHostnames = new Set([...configuredHostnames, requestHostname(req)].filter(Boolean));

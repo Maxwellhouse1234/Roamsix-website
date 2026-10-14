@@ -148,6 +148,37 @@ test('requires Turnstile tokens minted for the expected hostname and action', as
   }
 });
 
+test('accepts Cloudflare official testing responses only in explicit preview test mode', async () => {
+  process.env.TURNSTILE_SECRET_KEY = 'official-test-secret';
+  const previousFetch = global.fetch;
+  const previousVercelEnvironment = process.env.VERCEL_ENV;
+  const previousTestMode = process.env.TURNSTILE_TEST_MODE;
+  global.fetch = async () => ({
+    ok: true,
+    json: async () => ({ success: true, hostname: 'example.com', metadata: { result_with_testing_key: true } }),
+  });
+  try {
+    process.env.VERCEL_ENV = 'preview';
+    process.env.TURNSTILE_TEST_MODE = 'true';
+    const preview = await protectPublicSubmission(request(legitimate()), { endpoint: 'turnstile-preview-test' });
+    assert.equal(preview.ok, true);
+
+    process.env.VERCEL_ENV = 'production';
+    const production = await protectPublicSubmission(
+      request(legitimate({ email: 'production@example.com' })),
+      { endpoint: 'turnstile-production-test' },
+    );
+    assert.equal(production.ok, false);
+  } finally {
+    global.fetch = previousFetch;
+    delete process.env.TURNSTILE_SECRET_KEY;
+    if (previousVercelEnvironment === undefined) delete process.env.VERCEL_ENV;
+    else process.env.VERCEL_ENV = previousVercelEnvironment;
+    if (previousTestMode === undefined) delete process.env.TURNSTILE_TEST_MODE;
+    else process.env.TURNSTILE_TEST_MODE = previousTestMode;
+  }
+});
+
 test('rejection logs expose only payload shape, never submitted content', async () => {
   const previousWarn = console.warn;
   let output = '';
