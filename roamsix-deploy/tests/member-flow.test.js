@@ -63,7 +63,31 @@ test('partial event refunds preserve only net collected admission revenue', asyn
   assert.equal(result.netCollected, 40);
   assert.equal(writes[0].Status, 'Partially Refunded');
   assert.equal(writes[0]['Amount Paid'], 40);
+  assert.equal(writes[0]['Refund Amount'], 10);
+  assert.equal(writes[0]['Net Collected'], 40);
+  assert.equal(writes[0]['Property Share'], 8);
   assert.match(writes[0].Notes, /Net collected: \$40\.00/);
+});
+
+test('discounted event refunds use charged revenue and preserve gross reporting', async () => {
+  const writes = [];
+  global.fetch = async (url, options = {}) => {
+    if (String(url).includes('Event%20Registrations?')) return response({ records: [{ id: 'rec_discount_refund', fields: { 'Gross Amount': 50, 'Discount Amount': 25, 'Amount Paid': 25, Notes: 'Discounted payment confirmed' } }] });
+    if (String(url).endsWith('/Event%20Registrations/rec_discount_refund')) {
+      writes.push(JSON.parse(options.body).fields);
+      return response({ id: 'rec_discount_refund' });
+    }
+    throw new Error(`Unexpected URL ${url}`);
+  };
+  const { refundDrSalRegistration } = await import('../lib/dr-sal-event.js');
+  const result = await refundDrSalRegistration({ sessionId: 'cs_discount_refund', grossAmount: 25, refundedAmount: 25, refundedAt: '2026-10-14T00:00:00.000Z' });
+  assert.equal(result.fullyRefunded, true);
+  assert.equal(result.grossAmount, 50);
+  assert.equal(result.discountAmount, 25);
+  assert.equal(result.netCollected, 0);
+  assert.equal(writes[0]['Refund Amount'], 25);
+  assert.equal(writes[0]['Net Collected'], 0);
+  assert.equal(writes[0]['Property Share'], 0);
 });
 
 test('event credit requires an exact end time, lasts 48 hours, and never exceeds $100 lifetime', async () => {
@@ -489,6 +513,12 @@ test('active members receive an included Dr. Sal seat with legal acceptance reco
   assert.match(writes[0].body.fields.Notes, /Terms: Yes; Waiver: Yes; Photography Consent: No/);
   assert.equal(writes[1].body.fields['Payment Status'], 'Included with active membership');
   assert.equal(writes[1].body.fields['Legal Version'], 'ROAMSIX-OCT24-2026-DRAFT-2026-10-13');
+  assert.equal(writes[1].body.fields['Event Terms Accepted'], 'Yes');
+  assert.equal(writes[1].body.fields['Waiver Accepted'], 'Yes');
+  assert.equal(writes[1].body.fields['Photography Consent'], 'Declined');
+  assert.match(writes[1].body.fields['Agreement Text Snapshot'], /Guest Participation Agreement/);
+  assert.match(writes[1].body.fields['Agreement SHA-256'], /^[a-f0-9]{64}$/);
+  assert.equal(writes[1].body.fields['Acceptance Source'], 'member-event-registration');
 });
 
 test('member forms reuse signed-in identity while preserving explicit update consent', async () => {

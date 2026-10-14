@@ -13,7 +13,7 @@ import { handleMembershipLifecycleEvent, sendMembershipPurchaseEmails } from "..
 import { cohortFromMetadata } from "../lib/membership-cohort.js";
 import { markMembershipRefunded, recordMembershipPurchase } from "../lib/membership-records.js";
 import { sendTransactionalEmail } from "../lib/transactional-email.js";
-import { DR_SAL_EVENT, confirmDrSalRegistration, refundDrSalRegistration } from "../lib/dr-sal-event.js";
+import { DR_SAL_EVENT, confirmDrSalRegistration, drSalAgreementHash, drSalAgreementSnapshot, refundDrSalRegistration } from "../lib/dr-sal-event.js";
 import { markEventCreditApplied } from "../lib/event-credit.js";
 
 const MEMBERSHIP_LIFECYCLE_EVENTS = new Set([
@@ -293,6 +293,7 @@ export default async function handler(req, res) {
     const isBundle              = session.metadata?.isBundle === "true";
     const quantity              = parseInt(session.metadata?.quantity || "1", 10);
     const amountPaid            = (session.amount_total || 0) / 100;
+    const grossAmount           = (session.amount_subtotal || session.amount_total || 0) / 100;
     const email                 = session.customer_details?.email || session.customer_email || "";
     const phone                 = session.metadata?.phone || "";
     const emergencyContactName  = session.metadata?.emergencyContactName || "";
@@ -362,6 +363,10 @@ export default async function handler(req, res) {
           name: customerName,
           email,
           amountPaid,
+          grossAmount,
+          discountAmount,
+          promotionCode: discountCode,
+          stripePromotionId,
           registeredAt,
           source: registrationSource,
         });
@@ -382,6 +387,7 @@ export default async function handler(req, res) {
 
       // ── WRITE TO ATTENDEES (full legal + operational record) ───────────────
       if (process.env.AIRTABLE_TOKEN) {
+        const agreementSnapshot = eventId === DR_SAL_EVENT.id ? drSalAgreementSnapshot() : "";
         await writeAttendeesRecord(process.env.AIRTABLE_TOKEN, {
           "Full Name":               customerName || "Not provided",
           "Email":                   email,
@@ -397,6 +403,15 @@ export default async function handler(req, res) {
             : agreedToTerms ? "Yes" : "No",
           "Legal Version":           legalVersion,
           "Accepted At":             acceptedAt,
+          ...(eventId === DR_SAL_EVENT.id ? {
+            "Event Terms Accepted": agreedToTerms ? "Yes" : "No",
+            "Waiver Accepted": waiverAccepted ? "Yes" : "No",
+            "Photography Consent": mediaReleaseAccepted ? "Permitted" : "Declined",
+            "Agreement Text Snapshot": agreementSnapshot,
+            "Agreement SHA-256": drSalAgreementHash(agreementSnapshot),
+            "Acceptance Source": "stripe-checkout-webhook",
+            "Registration Source": registrationSource,
+          } : {}),
           "Age Confirmed":           (ageConfirmed === "true" || ageConfirmed === true) ? "Yes" : "No",
           "SMS Consent":             smsConsent,
           "Emergency Contact Name":  emergencyContactName,

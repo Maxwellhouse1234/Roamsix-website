@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { DR_SAL_GUEST_AGREEMENT } from "../src/data/drSalGuestAgreement.js";
 
 const EVENT_BASE_ID = process.env.ROAMSIX_EVENT_BASE_ID || "app2b2mTCtAIMmo79";
 const REGISTRATIONS_TABLE = process.env.ROAMSIX_EVENT_REGISTRATIONS_TABLE_ID || "Event Registrations";
@@ -20,6 +21,24 @@ export const DR_SAL_EVENT = Object.freeze({
 });
 
 const HOLD_MINUTES = 61;
+
+export function drSalAgreementSnapshot() {
+  const lines = [
+    DR_SAL_GUEST_AGREEMENT.title,
+    DR_SAL_GUEST_AGREEMENT.subtitle,
+    DR_SAL_GUEST_AGREEMENT.status,
+    ...DR_SAL_GUEST_AGREEMENT.metadata.map(([label, value]) => `${label}: ${value}`),
+  ];
+  for (const section of DR_SAL_GUEST_AGREEMENT.sections) {
+    lines.push(section.title, ...section.paragraphs);
+    if (section.bullets) lines.push(...section.bullets.map((bullet) => `- ${bullet}`));
+  }
+  return lines.join("\n\n");
+}
+
+export function drSalAgreementHash(snapshot = drSalAgreementSnapshot()) {
+  return createHash("sha256").update(snapshot, "utf8").digest("hex");
+}
 
 export function shouldShowSeatCounter(sold) {
   return Number(sold || 0) >= 15;
@@ -138,6 +157,7 @@ async function ensureMemberAttendee({ sessionId, name, email, phone, source, acc
   });
   const found = await airtable(`${encodeURIComponent(ATTENDEES_TABLE)}?${query}`);
   if (found.records?.[0]) return found.records[0];
+  const agreementSnapshot = drSalAgreementSnapshot();
   return airtable(encodeURIComponent(ATTENDEES_TABLE), {
     method: "POST",
     body: JSON.stringify({
@@ -154,6 +174,13 @@ async function ensureMemberAttendee({ sessionId, name, email, phone, source, acc
         "Legal Accepted": `Terms: Yes; Waiver: Yes; Photography Consent: ${photoConsent ? "Yes" : "No"}`,
         "Legal Version": clean(legalVersion, 100),
         "Accepted At": clean(acceptedAt, 100),
+        "Event Terms Accepted": "Yes",
+        "Waiver Accepted": "Yes",
+        "Photography Consent": photoConsent ? "Permitted" : "Declined",
+        "Agreement Text Snapshot": agreementSnapshot,
+        "Agreement SHA-256": drSalAgreementHash(agreementSnapshot),
+        "Acceptance Source": "member-event-registration",
+        "Registration Source": clean(source, 200) || "Member Portal",
         "Intake Completed": "No",
         "How Did You Hear About ROAMSIX": clean(source, 200) || "Member Portal",
       },
@@ -205,19 +232,29 @@ export async function registerMemberForDrSal({ name, email, phone, tier, source,
   return { created: true, record, sessionId, seat: availability.nextSeat };
 }
 
-export async function confirmDrSalRegistration({ sessionId, name, email, amountPaid, registeredAt, source }) {
+export async function confirmDrSalRegistration({ sessionId, name, email, amountPaid, grossAmount, discountAmount = 0, promotionCode = "", stripePromotionId = "", registeredAt, source }) {
   const query = new URLSearchParams({
     filterByFormula: `{Stripe Session ID}='${formulaValue(sessionId)}'`,
     maxRecords: "1",
   });
   const data = await airtable(`${encodeURIComponent(REGISTRATIONS_TABLE)}?${query}`);
   const existing = data.records?.[0];
+  const netCollected = Math.max(0, Number(amountPaid || 0));
+  const gross = Math.max(netCollected, Number(grossAmount || 0));
+  const discount = Math.max(0, Number(discountAmount || 0));
   const fields = {
     Name: clean(name, 200) || "Not provided",
     Email: clean(email, 320).toLowerCase(),
     Event: DR_SAL_EVENT.id,
     Package: DR_SAL_EVENT.packageId,
-    "Amount Paid": Number(amountPaid || 0),
+    "Amount Paid": netCollected,
+    "Gross Amount": gross,
+    "Discount Amount": discount,
+    "Refund Amount": 0,
+    "Net Collected": netCollected,
+    "Promotion Code": clean(promotionCode, 100),
+    "Stripe Promotion ID": clean(stripePromotionId, 200),
+    "Property Share": Number((netCollected * 0.2).toFixed(2)),
     Quantity: 1,
     "Stripe Session ID": clean(sessionId, 200),
     Status: "Confirmed",
@@ -239,22 +276,27 @@ export async function refundDrSalRegistration({ sessionId, grossAmount = 0, refu
   const existing = data.records?.[0];
   if (!existing) return { updated: false };
   const notes = String(existing.fields?.Notes || "");
-  const gross = Math.max(0, Number(grossAmount || existing.fields?.["Amount Paid"] || 0));
+  const gross = Math.max(0, Number(existing.fields?.["Gross Amount"] || grossAmount || existing.fields?.["Amount Paid"] || 0));
+  const discount = Math.max(0, Number(existing.fields?.["Discount Amount"] || 0));
+  const charged = Math.max(0, gross - discount);
   const refunded = Math.max(0, Number(refundedAmount || 0));
-  const net = Math.max(0, gross - refunded);
-  const fullyRefunded = gross > 0 && refunded >= gross;
+  const net = Math.max(0, charged - refunded);
+  const fullyRefunded = charged > 0 && refunded >= charged;
   await airtable(`${encodeURIComponent(REGISTRATIONS_TABLE)}/${existing.id}`, {
     method: "PATCH",
     body: JSON.stringify({
       fields: {
         Status: fullyRefunded ? "Refunded" : "Partially Refunded",
         "Amount Paid": net,
-        Notes: `${notes}${notes ? "\n" : ""}Stripe refund: $${refunded.toFixed(2)} of $${gross.toFixed(2)} at ${refundedAt}. Net collected: $${net.toFixed(2)}.`,
+        "Refund Amount": refunded,
+        "Net Collected": net,
+        "Property Share": Number((net * 0.2).toFixed(2)),
+        Notes: `${notes}${notes ? "\n" : ""}Stripe refund: $${refunded.toFixed(2)} of $${charged.toFixed(2)} charged at ${refundedAt}. Net collected: $${net.toFixed(2)}.`,
       },
       typecast: true,
     }),
   });
-  return { updated: true, recordId: existing.id, fullyRefunded, grossAmount: gross, refundedAmount: refunded, netCollected: net };
+  return { updated: true, recordId: existing.id, fullyRefunded, grossAmount: gross, discountAmount: discount, refundedAmount: refunded, netCollected: net };
 }
 
 export async function listConfirmedDrSalRegistrations() {
