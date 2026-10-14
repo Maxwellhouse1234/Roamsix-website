@@ -377,10 +377,19 @@ test('Dr. Sal checkout requires separate legal acceptance and creates one tracke
   assert.match(String(stripeCall.options.body), /price_dr_sal/);
   assert.match(String(stripeCall.options.body), /waiverAccepted.*true/);
   assert.match(String(stripeCall.options.body), /mediaReleaseAccepted.*false/);
-  assert.match(String(stripeCall.options.body), /allow_promotion_codes=true/);
+  assert.doesNotMatch(String(stripeCall.options.body), /allow_promotion_codes/);
   const holdCall = calls.find((call) => call.url.endsWith('/Event%20Registrations') && call.options.method === 'POST');
   assert.equal(JSON.parse(holdCall.options.body).fields.Status, 'Pending');
   assert.match(JSON.parse(holdCall.options.body).fields.Notes, /Seat allocation: 1/);
+
+  process.env.STRIPE_DR_SAL_PROMOTION_ID = 'promo_friends';
+  const discounted = mockRes();
+  await checkout({ method: 'POST', body: { ...baseBody, discountCode: 'ROAMSIXFRIENDS50' }, headers: { host: 'roamsix.test', 'x-forwarded-proto': 'https' } }, discounted);
+  assert.equal(discounted.statusCode, 200);
+  const discountedStripeCall = calls.filter((call) => call.url === 'https://api.stripe.com/v1/checkout/sessions').at(-1);
+  assert.match(String(discountedStripeCall.options.body), /discounts%5B0%5D%5Bpromotion_code%5D=promo_friends/);
+  assert.match(String(discountedStripeCall.options.body), /metadata%5BdiscountAmount%5D=25.00/);
+  delete process.env.STRIPE_DR_SAL_PROMOTION_ID;
 });
 
 test('Dr. Sal checkout stops before Stripe when all 25 seats are occupied', async () => {

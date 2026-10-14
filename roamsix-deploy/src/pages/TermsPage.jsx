@@ -62,6 +62,9 @@ export default function TermsPage() {
       <div className="lp-section">
         <h2 className="lp-section-title">Refund and Cancellation Policy</h2>
         <p>
+          <strong>October 24, 2026 event:</strong> Full refunds are available for cancellations requested by October 21, 2026, at 5:00 PM Pacific. After this deadline, tickets are nonrefundable but may be transferred to another adult before the event, provided the replacement attendee completes the required participation agreement. If ROAMSIX cancels the event, purchasers receive a full refund. To request a refund or transfer, contact ROAMSIX using the contact information provided in the confirmation email. Transfers require staff assistance.
+        </p>
+        <p>
           Unless an event page states otherwise, ticket sales are final. When an event offers a guest substitution or credit, the applicable deadline and conditions will be stated on that event's listing or confirmation.
         </p>
         <p>

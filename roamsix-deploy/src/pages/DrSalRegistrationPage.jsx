@@ -10,7 +10,7 @@ const VENUE_ADDRESS = '29455 Pamoosa Lane, Valley Center, CA 92082';
 const MAP_QUERY = encodeURIComponent(`Essene Retreat Center, ${VENUE_ADDRESS}`);
 
 export default function DrSalRegistrationPage() {
-  const [form, setForm] = useState({ name: '', email: '', phone: '', termsAccepted: false, waiverAccepted: false, mediaReleaseAccepted: false });
+  const [form, setForm] = useState({ name: '', email: '', phone: '', discountCode: '', termsAccepted: false, waiverAccepted: false, mediaReleaseAccepted: false });
   const [availability, setAvailability] = useState(null);
   const [member, setMember] = useState(null);
   const [status, setStatus] = useState('idle');
@@ -60,6 +60,7 @@ export default function DrSalRegistrationPage() {
           customerName: form.name,
           customerEmail: form.email,
           phone: form.phone,
+          discountCode: form.discountCode,
           quantity: 1,
           eventName: 'The gut-brain connection: food, stress, and everyday performance',
           eventDate: 'October 24, 2026',
@@ -93,7 +94,7 @@ export default function DrSalRegistrationPage() {
       <p className="eyebrow">OCTOBER 24, 2026 · ESSENE RETREAT CENTER · 25 SEATS</p>
       <h1>The gut-brain connection: food, stress, and everyday performance</h1>
       <p className="page-lead"><Link to="/experiences#dr-sal">Dr. Sulaiman Bharwani</Link>, pediatric gastroenterologist and founder of GutRewired, on how food, stress, and sleep interact, and which gut-health advice holds up.</p>
-      {member?.activeMember ? <p><strong>Your seat is included with your active {member.tier} membership.</strong> Join us at Essene Retreat Center, 29455 Pamoosa Lane, Valley Center, CA 92082, from 4:00 to 6:00 PM. Final arrival and parking details will follow by email.</p> : <p>$50 reserves your seat. Join us at Essene Retreat Center, 29455 Pamoosa Lane, Valley Center, CA 92082, from 4:00 to 6:00 PM. A full refund is available through October 10. Final arrival and parking details will follow by email. Your ticket applies toward founding membership if you join within 48 hours of the event.</p>}
+      {member?.activeMember ? <p><strong>Your seat is included with your active {member.tier} membership.</strong> Join us at Prayers for Peace Park / Essene Retreat Center, 29455 Pamoosa Lane, Valley Center, CA 92082, from 4:00 to 6:00 PM. Final arrival and parking details will follow by email.</p> : <p>$50 reserves your seat. Join us at Prayers for Peace Park / Essene Retreat Center, 29455 Pamoosa Lane, Valley Center, CA 92082, from 4:00 to 6:00 PM. Full refunds are available for cancellations requested by October 21, 2026, at 5:00 PM Pacific. After that deadline, tickets are nonrefundable but may be transferred to another adult with staff assistance before the event, provided the replacement attendee completes the required participation agreement. Your ticket applies toward founding membership if you join within 48 hours of the event.</p>}
       {availability?.showCounter ? <p className="event-seat-counter">{availability.remaining} of 25 seats remain.</p> : null}
     </div></section>
     <section className="section light-section"><div className="container membership-checkout-layout">
@@ -114,6 +115,7 @@ export default function DrSalRegistrationPage() {
         <label>Full name<input name="name" value={form.name} onChange={change} autoComplete="name" required /></label>
         <label>Email<input type="email" name="email" value={form.email} onChange={change} autoComplete="email" readOnly={member?.activeMember} required /></label>
         <label>Phone<input type="tel" name="phone" value={form.phone} onChange={change} autoComplete="tel" required /></label>
+        {!member?.activeMember ? <label>Private admission code <span className="optional-label">Optional</span><input name="discountCode" value={form.discountCode} onChange={change} autoComplete="off" /></label> : null}
         <p className="eyebrow">Read the complete event agreement</p>
         <DrSalAgreementText />
         <div className="event-consent-panel">
@@ -128,6 +130,7 @@ export default function DrSalRegistrationPage() {
           <p className="form-note">Optional and unchecked by default. Your choice is recorded separately from the participation agreement.</p>
         </div>
         <label className="check"><input type="checkbox" name="termsAccepted" checked={form.termsAccepted} onChange={change} required /><span>I accept the <Link to="/terms" target="_blank">Event Registration Terms</Link>.</span></label>
+        <p className="form-note"><strong>Cancellation and Refund Policy:</strong> Full refunds are available for cancellations requested by October 21, 2026, at 5:00 PM Pacific. After this deadline, tickets are nonrefundable but may be transferred to another adult before the event, provided the replacement attendee completes the required participation agreement. If ROAMSIX cancels the event, purchasers receive a full refund. To request a refund or transfer, contact ROAMSIX using the contact information in your confirmation email. Transfers are completed with staff assistance.</p>
         <p className="form-note"><strong>Privacy notice:</strong> ROAMSIX uses the contact, registration, agreement and consent information collected here to administer this event, confirm admission and communicate essential event details. Review the <Link to="/privacy" target="_blank">Privacy Policy</Link>.</p>
         {!member?.activeMember ? <FormProtection onToken={protection.setTurnstileToken} onHoneypot={protection.setHoneypot} /> : null}
         {error ? <p className="form-error" role="alert">{error}</p> : null}

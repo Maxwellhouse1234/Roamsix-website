@@ -13,7 +13,7 @@ import { handleMembershipLifecycleEvent, sendMembershipPurchaseEmails } from "..
 import { cohortFromMetadata } from "../lib/membership-cohort.js";
 import { markMembershipRefunded, recordMembershipPurchase } from "../lib/membership-records.js";
 import { sendTransactionalEmail } from "../lib/transactional-email.js";
-import { DR_SAL_EVENT, confirmDrSalRegistration, drSalAgreementHash, drSalAgreementSnapshot, refundDrSalRegistration } from "../lib/dr-sal-event.js";
+import { DR_SAL_EVENT, confirmDrSalRegistration, drSalAgreementHash, drSalAgreementHtml, drSalAgreementSnapshot, refundDrSalRegistration } from "../lib/dr-sal-event.js";
 import { markEventCreditApplied } from "../lib/event-credit.js";
 
 const MEMBERSHIP_LIFECYCLE_EVENTS = new Set([
@@ -44,7 +44,12 @@ async function markAttendeesRefunded(sessionId, { grossAmount, refundedAmount, f
   for (const record of data.records || []) {
     const patch = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/tbltON9TJyq9GqBW4/${record.id}`, {
       method: "PATCH", headers,
-      body: JSON.stringify({ fields: { "Payment Status": fullyRefunded ? "Refunded" : "Partially Refunded", "Amount Paid": Math.max(0, grossAmount - refundedAmount) }, typecast: true }),
+      body: JSON.stringify({ fields: {
+        "Payment Status": fullyRefunded ? "Refunded" : "Partially Refunded",
+        "Amount Paid": Math.max(0, grossAmount - refundedAmount),
+        "Registration Status": fullyRefunded ? "Canceled - refunded" : "Confirmed - partial refund",
+        "Check-In Eligibility": fullyRefunded ? "Not eligible" : "Ready",
+      }, typecast: true }),
     });
     if (!patch.ok) throw new Error(`Attendee refund update failed (${patch.status})`);
   }
@@ -231,22 +236,24 @@ async function ensureAttendeesTable(token) {
 }
 
 async function writeAttendeesRecord(token, fields) {
-  try {
-    const res = await fetch(
-      `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/tbltON9TJyq9GqBW4`,
-      {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ fields }),
-      }
-    );
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      console.error("Attendees write error:", err);
-    }
-  } catch (err) {
-    console.error("Attendees write exception:", err);
+  const headers = { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" };
+  let recordId = "";
+  if (fields["Event Name"] === DR_SAL_EVENT.name && fields["Stripe Session ID"]) {
+    const safeSession = String(fields["Stripe Session ID"]).replace(/'/g, "\\'");
+    const query = new URLSearchParams({ filterByFormula: `{Stripe Session ID}='${safeSession}'`, maxRecords: "1" });
+    const lookup = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/tbltON9TJyq9GqBW4?${query}`, { headers });
+    const found = await lookup.json().catch(() => ({}));
+    if (!lookup.ok) throw new Error(`Attendee idempotency lookup failed (${lookup.status})`);
+    recordId = found.records?.[0]?.id || "";
   }
+  const res = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/tbltON9TJyq9GqBW4${recordId ? `/${recordId}` : ""}`, {
+    method: recordId ? "PATCH" : "POST",
+    headers,
+    body: JSON.stringify({ fields, typecast: true }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`Attendees write failed (${res.status}): ${JSON.stringify(data).slice(0, 300)}`);
+  return data;
 }
 
 // ── MAIN HANDLER ─────────────────────────────────────────────────────────────
@@ -411,6 +418,8 @@ export default async function handler(req, res) {
             "Agreement SHA-256": drSalAgreementHash(agreementSnapshot),
             "Acceptance Source": "stripe-checkout-webhook",
             "Registration Source": registrationSource,
+            "Registration Status": "Confirmed",
+            "Check-In Eligibility": "Ready",
           } : {}),
           "Age Confirmed":           (ageConfirmed === "true" || ageConfirmed === true) ? "Yes" : "No",
           "SMS Consent":             smsConsent,
@@ -606,6 +615,7 @@ function currentEmailPalette(html) {
 
 function drSalConfirmHTML({ name, eventName, amountPaid }) {
   const firstName = (name || "").split(" ")[0] || "there";
+  const agreementSnapshot = drSalAgreementSnapshot();
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
@@ -629,8 +639,9 @@ function drSalConfirmHTML({ name, eventName, amountPaid }) {
           </table>
         </div>
         ${section("Arrival details", "Final arrival and parking instructions will follow by email.")}
-        ${section("Refund window", "A full refund is available through October 10 if the location does not work for you. Reply to this email to request it. Refunds are returned through Stripe to the original payment method.")}
+        ${section("Cancellation, refunds and transfers", `${DR_SAL_EVENT.refundPolicy} Staff assistance is required for transfers. The replacement attendee will receive a separate link and must accept the current event agreement before admission.`)}
         ${section("Founding membership credit", "$50 applies toward founding membership if you join within 48 hours of the event. Event credits are capped at $100 over the lifetime of each member record.")}
+        ${drSalAgreementHtml(agreementSnapshot)}
       </td></tr>
       <tr><td style="padding:0 40px 36px;">
         <p style="color:#C8C0B4;font-size:15px;line-height:1.75;margin:0;">Questions? Reply to this email or contact <a href="mailto:info@roamsix.com" style="color:#4A7575;text-decoration:none;">info@roamsix.com</a>.</p>

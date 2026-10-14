@@ -26,6 +26,8 @@ import DrSalAttendancePreviewPage from './pages/DrSalAttendancePreviewPage';
 import DrSalEmailPreviewPage from './pages/DrSalEmailPreviewPage';
 import DrSalTicketPreviewPage from './pages/DrSalTicketPreviewPage';
 import DrSalCheckInPreviewPage from './pages/DrSalCheckInPreviewPage';
+import DrSalStaffRosterPage from './pages/DrSalStaffRosterPage';
+import DrSalTransferPage from './pages/DrSalTransferPage';
 import EventSuccessPage from './pages/EventSuccessPage';
 
 export const router = createBrowserRouter([
@@ -58,6 +60,8 @@ export const router = createBrowserRouter([
   { path: '/events/dr-sal-gut-brain-2026/email-preview', element: <DrSalEmailPreviewPage /> },
   { path: '/events/dr-sal-gut-brain-2026/ticket-preview', element: <DrSalTicketPreviewPage /> },
   { path: '/events/dr-sal-gut-brain-2026/check-in-preview', element: <DrSalCheckInPreviewPage /> },
+  { path: '/events/dr-sal-gut-brain-2026/staff-roster', element: <DrSalStaffRosterPage /> },
+  { path: '/events/dr-sal-gut-brain-2026/transfer', element: <DrSalTransferPage /> },
   { path: '/events/dr-sal-gut-brain-2026/success', element: <EventSuccessPage /> },
   { path: '/dinner', element: <Navigate to="/experiences" replace /> },
   { path: '/dinner/invite', element: <Navigate to="/experiences" replace /> },

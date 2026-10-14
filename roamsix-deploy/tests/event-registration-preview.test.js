@@ -96,3 +96,28 @@ test('private preview includes individual registration, QR, email, check-in and 
   assert.doesNotMatch(agreement, /\[Legal entity operating ROAMSIX\]/);
   assert.match(agreement, /\[Confirm exact legal name of property host\]/);
 });
+
+test('October 24 launch path stays individual-only and protects staff operations', async () => {
+  const [registration, checkout, transfer, completion, roster, router] = await Promise.all([
+    readFile(new URL('../src/pages/DrSalRegistrationPage.jsx', import.meta.url), 'utf8'),
+    readFile(new URL('../api/create-checkout-session.js', import.meta.url), 'utf8'),
+    readFile(new URL('../api/event-transfer.js', import.meta.url), 'utf8'),
+    readFile(new URL('../api/complete-event-transfer.js', import.meta.url), 'utf8'),
+    readFile(new URL('../api/event-roster.js', import.meta.url), 'utf8'),
+    readFile(new URL('../src/router.jsx', import.meta.url), 'utf8'),
+  ]);
+
+  assert.match(registration, /Private admission code/);
+  assert.match(registration, /ROAMSIXFRIENDS50|discountCode/);
+  assert.doesNotMatch(registration, /Two admissions|second guest/i);
+  assert.match(checkout, /Each October 24 attendee must register individually/);
+  assert.match(checkout, /privatePromotionEnv/);
+  assert.doesNotMatch(checkout, /allow_promotion_codes/);
+  assert.match(transfer, /Authorized event staff access is required/);
+  assert.match(transfer, /Awaiting agreement/);
+  assert.match(completion, /Photography Consent/);
+  assert.match(completion, /Agreement SHA-256/);
+  assert.match(roster, /propertyShare: Number\(\(netCollected \* 0\.2\)/);
+  assert.match(router, /staff-roster/);
+  assert.match(router, /\/transfer/);
+});

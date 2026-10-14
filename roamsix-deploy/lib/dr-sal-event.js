@@ -10,13 +10,16 @@ export const DR_SAL_EVENT = Object.freeze({
   packageId: "general-admission",
   name: "The gut-brain connection: food, stress, and everyday performance",
   date: "2026-10-24",
-  venue: "Essene Retreat Center",
+  venue: "Prayers for Peace Park / Essene Retreat Center",
   address: "29455 Pamoosa Lane, Valley Center, CA 92082",
   time: "4:00–6:00 PM",
   capacity: 25,
   priceCents: 5000,
   priceEnv: "STRIPE_DR_SAL_PRICE_ID",
-  refundDeadline: "2026-10-10T23:59:59-07:00",
+  refundDeadline: "2026-10-21T17:00:00-07:00",
+  refundPolicy: "Full refunds are available for cancellations requested by October 21, 2026, at 5:00 PM Pacific. After this deadline, tickets are nonrefundable but may be transferred to another adult before the event, provided the replacement attendee completes the required participation agreement. If ROAMSIX cancels the event, purchasers receive a full refund. To request a refund or transfer, guests should contact ROAMSIX using the contact information provided in their confirmation email.",
+  privatePromotionCode: "ROAMSIXFRIENDS50",
+  privatePromotionEnv: "STRIPE_DR_SAL_PROMOTION_ID",
   legalVersion: "ROAMSIX-OCT24-2026-DRAFT-2026-10-13",
 });
 
@@ -38,6 +41,14 @@ export function drSalAgreementSnapshot() {
 
 export function drSalAgreementHash(snapshot = drSalAgreementSnapshot()) {
   return createHash("sha256").update(snapshot, "utf8").digest("hex");
+}
+
+function escapeHtml(value) {
+  return String(value || "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
+}
+
+export function drSalAgreementHtml(snapshot = drSalAgreementSnapshot()) {
+  return `<div style="margin-top:28px;padding:22px;border:1px solid #d8d4ce;background:#faf9f7"><p style="margin:0 0 10px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#b8562f">Accepted agreement</p><p style="margin:0 0 14px;font-size:13px;line-height:1.6"><strong>Version:</strong> ${escapeHtml(DR_SAL_EVENT.legalVersion)}<br><strong>SHA-256:</strong> ${escapeHtml(drSalAgreementHash(snapshot))}</p><div style="white-space:pre-wrap;font-size:13px;line-height:1.65;color:#333">${escapeHtml(snapshot)}</div></div>`;
 }
 
 export function shouldShowSeatCounter(sold) {
@@ -69,7 +80,7 @@ async function airtable(path, options = {}) {
 
 async function listEventRegistrations() {
   const cutoff = new Date(Date.now() - HOLD_MINUTES * 60 * 1000).toISOString();
-  const formula = `AND({Event}='${formulaValue(DR_SAL_EVENT.id)}',OR({Status}='Confirmed',AND({Status}='Pending',IS_AFTER({Registered At},'${cutoff}'))))`;
+  const formula = `AND({Event}='${formulaValue(DR_SAL_EVENT.id)}',OR({Status}='Confirmed',{Status}='Partially Refunded',{Status}='Transfer Pending',AND({Status}='Pending',IS_AFTER({Registered At},'${cutoff}'))))`;
   const records = [];
   let offset = "";
   do {
@@ -89,7 +100,7 @@ function seatNumber(record) {
 
 export async function drSalAvailability() {
   const records = await listEventRegistrations();
-  const confirmed = records.filter((record) => record.fields?.Status === "Confirmed");
+  const confirmed = records.filter((record) => ["Confirmed", "Partially Refunded", "Transfer Pending"].includes(record.fields?.Status));
   const pending = records.filter((record) => record.fields?.Status === "Pending");
   const sold = confirmed.reduce((sum, record) => sum + Math.max(1, Number(record.fields?.Quantity || 1)), 0);
   const held = pending.reduce((sum, record) => sum + Math.max(1, Number(record.fields?.Quantity || 1)), 0);
@@ -181,6 +192,8 @@ async function ensureMemberAttendee({ sessionId, name, email, phone, source, acc
         "Agreement SHA-256": drSalAgreementHash(agreementSnapshot),
         "Acceptance Source": "member-event-registration",
         "Registration Source": clean(source, 200) || "Member Portal",
+        "Registration Status": "Member included - confirmed",
+        "Check-In Eligibility": "Ready",
         "Intake Completed": "No",
         "How Did You Hear About ROAMSIX": clean(source, 200) || "Member Portal",
       },

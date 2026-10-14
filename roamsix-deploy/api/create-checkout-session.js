@@ -135,6 +135,9 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Please accept the event terms before continuing." });
   }
   const isDrSalEvent = eventId === DR_SAL_EVENT.id;
+  if (isDrSalEvent && (Boolean(isBundle) || Number(quantity) !== 1 || (Array.isArray(guestNames) && guestNames.length))) {
+    return res.status(400).json({ error: "Each October 24 attendee must register individually." });
+  }
   if (isDrSalEvent && waiverAccepted !== "true" && waiverAccepted !== true) {
     return res.status(400).json({ error: "Please accept the Assumption of Risk and Participant Agreement before continuing." });
   }
@@ -145,11 +148,17 @@ export default async function handler(req, res) {
 
   const useBundle    = Boolean(isBundle) && Boolean(pkg.bundlePrice);
   const normalizedCode = String(discountCode || "").trim().toUpperCase().slice(0, 80);
+  const drSalPromotion = isDrSalEvent && normalizedCode === DR_SAL_EVENT.privatePromotionCode
+    ? { promotionId: process.env[DR_SAL_EVENT.privatePromotionEnv] || "", type: "October 24 private admission", percentOff: 50, appliesTo: "single" }
+    : null;
   const requestedPromotion = eventId === "olive-grove-dinner" && normalizedCode
     ? OLIVE_GROVE_PROMOTIONS[normalizedCode]
-    : null;
+    : drSalPromotion;
   if (normalizedCode && !requestedPromotion) {
-    return res.status(400).json({ error: "That discount code is not valid for this dinner." });
+    return res.status(400).json({ error: "That admission code is not valid for this event." });
+  }
+  if (drSalPromotion && !drSalPromotion.promotionId) {
+    return res.status(503).json({ error: "The private admission code is not configured in this environment." });
   }
   if (!useBundle && requestedPromotion?.appliesTo === "pair") {
     return res.status(400).json({ error: "FOUNDERPAIR is reserved for the two-seat option." });
@@ -219,7 +228,9 @@ export default async function handler(req, res) {
   // Build Stripe request using URLSearchParams (bracket notation)
   const params = new URLSearchParams();
   params.set("mode", "payment");
-  if (isDrSalEvent) params.set("allow_promotion_codes", "true");
+  // The October 24 private code is validated by this application and applied
+  // explicitly. Stripe's open promotion-code field stays disabled so unrelated
+  // account-wide coupons cannot be used for this event.
   // Approved codes are validated here. Founder codes reduce the pair to $275;
   // referral codes on the pair preserve attribution without stacking a discount.
   if (appliedPromotion) params.set("discounts[0][promotion_code]", appliedPromotion.promotionId);
