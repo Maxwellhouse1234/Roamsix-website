@@ -2,6 +2,15 @@
 
 Status: private implementation preview only. Do not activate checkout, publish the agreement, create production records, or send guest agreement emails until Max approves the implementation and Elizabeth confirms electronic acceptance.
 
+## Launch-critical registration decisions
+
+- Public pricing remains $25 for one adult and $50 for two adults.
+- An eligible signed-in member reserves one included admission without opening Stripe or purchasing a ticket. Membership status is verified server-side, and the attendee must still complete the same event-specific agreement before the admission becomes ready.
+- The event-specific agreement has one affirmative acceptance checkbox after the complete agreement. Its wording does not repeat the full acknowledgment already contained in Section 9.
+- Event Registration Terms require affirmative acceptance. The Privacy Policy is presented separately as notice, not bundled into the terms checkbox.
+- The event's expert, subject and participatory format appear before the full agreement so the attendee understands the experience before reaching the legal material.
+- The QR code is an opaque lookup key only. Every scan rechecks the attendee's current registration, payment or member-included status, agreement status, cancellation state and prior check-in.
+
 ## Proposed attendee workflow
 
 1. The purchaser chooses `Individual admission - $25` or `Two admissions - $50`.

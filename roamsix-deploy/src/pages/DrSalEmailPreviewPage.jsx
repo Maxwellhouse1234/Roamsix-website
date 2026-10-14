@@ -16,6 +16,9 @@ export default function DrSalEmailPreviewPage() {
       <EmailCard eyebrow="Second-attendee invitation" subject="Complete your agreement for the October 24 ROAMSIX event">
         <p>Hi Taylor,</p><p>A second admission has been reserved for you. The purchaser cannot accept the guest participation agreement on your behalf.</p><p>Please review and accept the complete agreement by <strong>4:00 PM Pacific on October 23, 2026</strong>. If your admission was added within 24 hours of the event, complete it before arrival.</p><a className="button" href="/events/dr-sal-gut-brain-2026/guest-agreement-preview?token=preview-guest">Review my agreement</a><p>Your unique link is intended only for you. Your QR ticket will be issued after the required agreement is complete.</p>
       </EmailCard>
+      <EmailCard eyebrow="Member-included confirmation" subject="Your included October 24 ROAMSIX admission is confirmed">
+        <p>Hi Morgan,</p><p>Your October 24 admission is included with your active ROAMSIX membership. You were not charged.</p><dl><div><dt>Admission</dt><dd>Member-included</dd></div><div><dt>Agreement</dt><dd>Accepted · copy attached</dd></div><div><dt>Photography</dt><dd>Declined</dd></div></dl><a className="button" href="/events/dr-sal-gut-brain-2026/ticket-preview">Open my QR ticket</a><p>Your QR ticket remains valid only while your membership admission and event-specific agreement remain current.</p>
+      </EmailCard>
     </div></section>
   </SiteLayout>;
 }

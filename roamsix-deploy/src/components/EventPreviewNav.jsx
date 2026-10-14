@@ -1,7 +1,8 @@
 import { NavLink } from 'react-router-dom';
 
 const links = [
-  ['Registration', '/events/dr-sal-gut-brain-2026/registration-preview'],
+  ['Individual', '/events/dr-sal-gut-brain-2026/registration-preview'],
+  ['Second guest', '/events/dr-sal-gut-brain-2026/guest-agreement-preview?token=preview-guest'],
   ['Emails', '/events/dr-sal-gut-brain-2026/email-preview'],
   ['QR ticket', '/events/dr-sal-gut-brain-2026/ticket-preview'],
   ['Check-in', '/events/dr-sal-gut-brain-2026/check-in-preview'],
