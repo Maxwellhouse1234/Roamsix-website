@@ -17,8 +17,8 @@ function confirmationHtml(name) {
   return `<!doctype html><html><body style="margin:0;background:#f4f2ef;font-family:Arial,sans-serif;color:#111"><div style="max-width:600px;margin:0 auto;padding:38px 24px"><div style="background:#fff;padding:38px;border-top:3px solid #b8562f"><p style="letter-spacing:4px;font-weight:700;margin:0 0 32px">ROAMSIX</p><p>${firstName},</p><h1 style="font-size:30px;line-height:1.15">Your member seat is reserved.</h1><p style="line-height:1.7">You are registered for ${escapeHtml(DR_SAL_EVENT.name)} on October 24, 2026. This seat is included with your active ROAMSIX membership. You were not charged.</p><p style="line-height:1.7"><strong>Time:</strong> ${escapeHtml(DR_SAL_EVENT.time)}<br><strong>Location:</strong> ${escapeHtml(DR_SAL_EVENT.venue)}<br><strong>Address:</strong> ${escapeHtml(DR_SAL_EVENT.address)}</p><p style="line-height:1.7">Final arrival and parking details will follow by email.</p><p style="line-height:1.7">Questions? Reply to this email or contact <a href="mailto:info@roamsix.com" style="color:#0759b8">info@roamsix.com</a>.</p></div></div></body></html>`;
 }
 
-function teamHtml({ name, email, phone, tier, source, acceptedAt, legalVersion }) {
-  return `<!doctype html><html><body style="font-family:Arial,sans-serif;color:#111"><h1>Included member seat reserved</h1><p><strong>Name:</strong> ${escapeHtml(name)}</p><p><strong>Email:</strong> ${escapeHtml(email)}</p><p><strong>Phone:</strong> ${escapeHtml(phone)}</p><p><strong>Tier:</strong> ${escapeHtml(tier)}</p><p><strong>Source:</strong> ${escapeHtml(source)}</p><p><strong>Legal:</strong> Terms, waiver, and media release accepted at ${escapeHtml(acceptedAt)} under ${escapeHtml(legalVersion)}.</p></body></html>`;
+function teamHtml({ name, email, phone, tier, source, acceptedAt, legalVersion, photoConsent }) {
+  return `<!doctype html><html><body style="font-family:Arial,sans-serif;color:#111"><h1>Included member seat reserved</h1><p><strong>Name:</strong> ${escapeHtml(name)}</p><p><strong>Email:</strong> ${escapeHtml(email)}</p><p><strong>Phone:</strong> ${escapeHtml(phone)}</p><p><strong>Tier:</strong> ${escapeHtml(tier)}</p><p><strong>Source:</strong> ${escapeHtml(source)}</p><p><strong>Agreement:</strong> Terms and waiver accepted at ${escapeHtml(acceptedAt)} under ${escapeHtml(legalVersion)}.</p><p><strong>Photography consent:</strong> ${photoConsent ? "Permitted" : "Declined"}.</p></body></html>`;
 }
 
 export default async function handler(req, res) {
@@ -29,10 +29,10 @@ export default async function handler(req, res) {
 
   const body = req.body || {};
   if (body.eventId !== DR_SAL_EVENT.id) return res.status(400).json({ error: "This event is not available through this member path." });
-  if (!body.agreedToTerms || !body.waiverAccepted || !body.mediaReleaseAccepted) {
-    return res.status(400).json({ error: "Terms, waiver, and media release acceptance are required." });
+  if (!body.agreedToTerms || !body.waiverAccepted) {
+    return res.status(400).json({ error: "Terms and waiver acceptance are required." });
   }
-  if (body.acceptedLegalVersion !== DR_SAL_EVENT.legalVersion || !body.acceptedAt) {
+  if (body.acceptedLegalVersion !== DR_SAL_EVENT.legalVersion) {
     return res.status(400).json({ error: "The current legal agreements must be accepted." });
   }
 
@@ -42,14 +42,16 @@ export default async function handler(req, res) {
     const name = clean(body.customerName, 200) || session.email;
     const phone = clean(body.phone, 50);
     const source = clean(body.source, 200) || "member-event-registration";
+    const acceptedAt = new Date().toISOString();
     const registration = await registerMemberForDrSal({
       name,
       email: session.email,
       phone,
       tier: membership.tier,
       source,
-      acceptedAt: body.acceptedAt,
+      acceptedAt,
       legalVersion: body.acceptedLegalVersion,
+      photoConsent: body.mediaReleaseAccepted === true || body.mediaReleaseAccepted === "true",
     });
 
     const occurredAt = new Date().toISOString();
@@ -76,7 +78,7 @@ export default async function handler(req, res) {
         amountPaid: 0,
         stripeSessionId: registration.sessionId,
         uniqueKey: `member-event:${DR_SAL_EVENT.id}:${session.email}`,
-        details: `Included with active ${membership.tier} membership; terms accepted; waiver accepted; media release accepted; legal version ${body.acceptedLegalVersion}; accepted ${body.acceptedAt}; source ${source}`,
+        details: `Included with active ${membership.tier} membership; terms accepted; waiver accepted; photography consent ${body.mediaReleaseAccepted === true || body.mediaReleaseAccepted === "true" ? "permitted" : "declined"}; legal version ${body.acceptedLegalVersion}; accepted ${acceptedAt}; source ${source}`,
       },
     });
     if (!crm?.contact || !crm?.engagement) throw new Error("Member event CRM capture failed");
@@ -84,7 +86,7 @@ export default async function handler(req, res) {
     const common = { stripeSessionId: registration.sessionId };
     await Promise.all([
       sendTransactionalEmail({ ...common, key: `member-event:${DR_SAL_EVENT.id}:${session.email}:confirmation`, purpose: "member-event-registration-confirmation", from: "ROAMSIX Events <info@roamsix.com>", to: session.email, subject: "Your ROAMSIX member seat is reserved", html: confirmationHtml(name) }),
-      sendTransactionalEmail({ ...common, key: `member-event:${DR_SAL_EVENT.id}:${session.email}:max`, purpose: "member-event-registration-notification", from: "ROAMSIX Events <info@roamsix.com>", to: "max@roamsix.com", replyTo: session.email, subject: `Included Member Registration: ${name}`, html: teamHtml({ name, email: session.email, phone, tier: membership.tier, source, acceptedAt: body.acceptedAt, legalVersion: body.acceptedLegalVersion }) }),
+      sendTransactionalEmail({ ...common, key: `member-event:${DR_SAL_EVENT.id}:${session.email}:max`, purpose: "member-event-registration-notification", from: "ROAMSIX Events <info@roamsix.com>", to: "max@roamsix.com", replyTo: session.email, subject: `Included Member Registration: ${name}`, html: teamHtml({ name, email: session.email, phone, tier: membership.tier, source, acceptedAt, legalVersion: body.acceptedLegalVersion, photoConsent: body.mediaReleaseAccepted === true || body.mediaReleaseAccepted === "true" }) }),
     ]);
     return res.status(200).json({ success: true, alreadyRegistered: !registration.created });
   } catch (error) {

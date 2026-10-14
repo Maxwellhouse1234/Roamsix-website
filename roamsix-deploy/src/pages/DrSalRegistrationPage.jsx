@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SiteLayout from '../components/SiteLayout';
 import FormProtection, { useFormProtection } from '../components/FormProtection';
+import DrSalAgreementText from '../components/DrSalAgreementText';
+import { DR_SAL_GUEST_AGREEMENT_VERSION, DR_SAL_PHOTO_CONSENT } from '../data/drSalGuestAgreement';
 
 const EVENT_ID = 'dr-sal-gut-brain-2026';
-const LEGAL_VERSION = '2026-09-29-dr-sal-v1';
 const VENUE_ADDRESS = '29455 Pamoosa Lane, Valley Center, CA 92082';
 const MAP_QUERY = encodeURIComponent(`Essene Retreat Center, ${VENUE_ADDRESS}`);
 
@@ -62,7 +63,7 @@ export default function DrSalRegistrationPage() {
           quantity: 1,
           eventName: 'The gut-brain connection: food, stress, and everyday performance',
           eventDate: 'October 24, 2026',
-          acceptedLegalVersion: LEGAL_VERSION,
+          acceptedLegalVersion: DR_SAL_GUEST_AGREEMENT_VERSION,
           acceptedAt: new Date().toISOString(),
           agreedToTerms: form.termsAccepted,
           waiverAccepted: form.waiverAccepted,
@@ -113,9 +114,21 @@ export default function DrSalRegistrationPage() {
         <label>Full name<input name="name" value={form.name} onChange={change} autoComplete="name" required /></label>
         <label>Email<input type="email" name="email" value={form.email} onChange={change} autoComplete="email" readOnly={member?.activeMember} required /></label>
         <label>Phone<input type="tel" name="phone" value={form.phone} onChange={change} autoComplete="tel" required /></label>
-        <label className="check"><input type="checkbox" name="termsAccepted" checked={form.termsAccepted} onChange={change} required /><span>I accept the <Link to="/terms" target="_blank">Terms</Link> and <Link to="/privacy" target="_blank">Privacy Policy</Link>.</span></label>
-        <label className="check"><input type="checkbox" name="waiverAccepted" checked={form.waiverAccepted} onChange={change} required /><span>I have read and accept the <Link to="/waiver" target="_blank">Assumption of Risk and Participant Agreement</Link>.</span></label>
-        <label className="check"><input type="checkbox" name="mediaReleaseAccepted" checked={form.mediaReleaseAccepted} onChange={change} required /><span>I have read and accept the <Link to="/media-release" target="_blank">Media Release</Link>.</span></label>
+        <p className="eyebrow">Read the complete event agreement</p>
+        <DrSalAgreementText />
+        <div className="event-consent-panel">
+          <label className="check"><input type="checkbox" name="waiverAccepted" checked={form.waiverAccepted} onChange={change} required /><span>I have read and agree to the October 24, 2026 Guest Participation Agreement and Liability Waiver shown above.</span></label>
+          <p className="event-version-note">Your full legal name, email, acceptance timestamp and agreement version {DR_SAL_GUEST_AGREEMENT_VERSION} will be recorded. A copy of the accepted agreement will be emailed to you.</p>
+        </div>
+        <div className="event-photo-consent">
+          <p className="eyebrow">Optional photography and video consent</p>
+          <h3>{DR_SAL_PHOTO_CONSENT.title}</h3>
+          {DR_SAL_PHOTO_CONSENT.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+          <label className="check"><input type="checkbox" name="mediaReleaseAccepted" checked={form.mediaReleaseAccepted} onChange={change} /><span>{DR_SAL_PHOTO_CONSENT.checkbox}</span></label>
+          <p className="form-note">Optional and unchecked by default. Your choice is recorded separately from the participation agreement.</p>
+        </div>
+        <label className="check"><input type="checkbox" name="termsAccepted" checked={form.termsAccepted} onChange={change} required /><span>I accept the <Link to="/terms" target="_blank">Event Registration Terms</Link>.</span></label>
+        <p className="form-note"><strong>Privacy notice:</strong> ROAMSIX uses the contact, registration, agreement and consent information collected here to administer this event, confirm admission and communicate essential event details. Review the <Link to="/privacy" target="_blank">Privacy Policy</Link>.</p>
         {!member?.activeMember ? <FormProtection onToken={protection.setTurnstileToken} onHoneypot={protection.setHoneypot} /> : null}
         {error ? <p className="form-error" role="alert">{error}</p> : null}
         <button className="button" type="submit" disabled={!ready || soldOut || status === 'loading'}>{soldOut ? 'Sold out' : status === 'loading' ? (member?.activeMember ? 'Reserving your seat…' : 'Opening secure payment…') : (member?.activeMember ? 'Reserve my included seat' : 'Reserve my seat · $50')}</button>

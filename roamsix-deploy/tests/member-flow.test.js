@@ -47,6 +47,25 @@ test('event seat counter stays hidden until the fifteenth confirmed seat', async
   assert.equal(shouldShowSeatCounter(25), true);
 });
 
+test('partial event refunds preserve only net collected admission revenue', async () => {
+  const writes = [];
+  global.fetch = async (url, options = {}) => {
+    if (String(url).includes('Event%20Registrations?')) return response({ records: [{ id: 'rec_refund', fields: { 'Amount Paid': 50, Notes: 'Original payment confirmed' } }] });
+    if (String(url).endsWith('/Event%20Registrations/rec_refund')) {
+      writes.push(JSON.parse(options.body).fields);
+      return response({ id: 'rec_refund' });
+    }
+    throw new Error(`Unexpected URL ${url}`);
+  };
+  const { refundDrSalRegistration } = await import('../lib/dr-sal-event.js');
+  const result = await refundDrSalRegistration({ sessionId: 'cs_partial_refund', grossAmount: 50, refundedAmount: 10, refundedAt: '2026-10-14T00:00:00.000Z' });
+  assert.equal(result.fullyRefunded, false);
+  assert.equal(result.netCollected, 40);
+  assert.equal(writes[0].Status, 'Partially Refunded');
+  assert.equal(writes[0]['Amount Paid'], 40);
+  assert.match(writes[0].Notes, /Net collected: \$40\.00/);
+});
+
 test('event credit requires an exact end time, lasts 48 hours, and never exceeds $100 lifetime', async () => {
   const { eventCreditAmount, eventCreditWindow } = await import('../lib/event-credit.js');
   const before = new Date('2026-10-24T22:00:00-07:00');
@@ -316,7 +335,7 @@ test('Dr. Sal checkout requires separate legal acceptance and creates one tracke
   const { default: checkout } = await import('../api/create-checkout-session.js');
   const baseBody = {
     eventId: 'dr-sal-gut-brain-2026', packageId: 'general-admission', customerName: 'Test Guest', customerEmail: 'guest@example.com', phone: '555-555-5555',
-    agreedToTerms: true, waiverAccepted: true, mediaReleaseAccepted: true, acceptedLegalVersion: '2026-09-29-dr-sal-v1', acceptedAt: new Date().toISOString(), source: 'homepage',
+    agreedToTerms: true, waiverAccepted: true, mediaReleaseAccepted: false, acceptedLegalVersion: 'ROAMSIX-OCT24-2026-DRAFT-2026-10-13', acceptedAt: new Date().toISOString(), source: 'homepage',
     formStartedAt: Date.now() - 3000, turnstileToken: 'test-token', website: '',
   };
 
@@ -333,7 +352,8 @@ test('Dr. Sal checkout requires separate legal acceptance and creates one tracke
   assert.equal(stripeCall.options.headers['Idempotency-Key'].includes('dr-sal-gut-brain-2026-seat-1'), true);
   assert.match(String(stripeCall.options.body), /price_dr_sal/);
   assert.match(String(stripeCall.options.body), /waiverAccepted.*true/);
-  assert.match(String(stripeCall.options.body), /mediaReleaseAccepted.*true/);
+  assert.match(String(stripeCall.options.body), /mediaReleaseAccepted.*false/);
+  assert.match(String(stripeCall.options.body), /allow_promotion_codes=true/);
   const holdCall = calls.find((call) => call.url.endsWith('/Event%20Registrations') && call.options.method === 'POST');
   assert.equal(JSON.parse(holdCall.options.body).fields.Status, 'Pending');
   assert.match(JSON.parse(holdCall.options.body).fields.Notes, /Seat allocation: 1/);
@@ -352,7 +372,7 @@ test('Dr. Sal checkout stops before Stripe when all 25 seats are occupied', asyn
   const res = mockRes();
   await checkout({
     method: 'POST',
-    body: { eventId: 'dr-sal-gut-brain-2026', packageId: 'general-admission', customerName: 'Late Guest', customerEmail: 'late@example.com', agreedToTerms: true, waiverAccepted: true, mediaReleaseAccepted: true, formStartedAt: Date.now() - 3000, turnstileToken: 'test-token', website: '' },
+    body: { eventId: 'dr-sal-gut-brain-2026', packageId: 'general-admission', customerName: 'Late Guest', customerEmail: 'late@example.com', agreedToTerms: true, waiverAccepted: true, mediaReleaseAccepted: false, acceptedLegalVersion: 'ROAMSIX-OCT24-2026-DRAFT-2026-10-13', formStartedAt: Date.now() - 3000, turnstileToken: 'test-token', website: '' },
     headers: { host: 'roamsix.test', 'x-forwarded-proto': 'https' },
   }, res);
   assert.equal(res.statusCode, 409);
@@ -459,16 +479,16 @@ test('active members receive an included Dr. Sal seat with legal acceptance reco
   const { registerMemberForDrSal } = await import('../lib/dr-sal-event.js');
   const result = await registerMemberForDrSal({
     name: 'Test Member', email: 'member@example.com', phone: '555-0100', tier: 'Core',
-    source: 'member-area', acceptedAt: '2026-09-29T23:00:00.000Z', legalVersion: '2026-09-29-dr-sal-v1',
+    source: 'member-area', acceptedAt: '2026-09-29T23:00:00.000Z', legalVersion: 'ROAMSIX-OCT24-2026-DRAFT-2026-10-13',
   });
   assert.equal(result.created, true);
   assert.equal(writes.length, 2);
   assert.equal(writes[0].body.fields['Amount Paid'], 0);
   assert.equal(writes[0].body.fields.Status, 'Confirmed');
   assert.match(writes[0].body.fields.Notes, /Included with Core membership/);
-  assert.match(writes[0].body.fields.Notes, /Terms: Yes; Waiver: Yes; Media Release: Yes/);
+  assert.match(writes[0].body.fields.Notes, /Terms: Yes; Waiver: Yes; Photography Consent: No/);
   assert.equal(writes[1].body.fields['Payment Status'], 'Included with active membership');
-  assert.equal(writes[1].body.fields['Legal Version'], '2026-09-29-dr-sal-v1');
+  assert.equal(writes[1].body.fields['Legal Version'], 'ROAMSIX-OCT24-2026-DRAFT-2026-10-13');
 });
 
 test('member forms reuse signed-in identity while preserving explicit update consent', async () => {
@@ -493,7 +513,7 @@ test('member forms reuse signed-in identity while preserving explicit update con
   assert.match(contextApi, /activeMember: true/);
   assert.match(memberRegistrationApi, /membershipForEmail/);
   assert.match(memberRegistrationApi, /waiverAccepted/);
-  assert.match(memberRegistrationApi, /mediaReleaseAccepted/);
+  assert.match(memberRegistrationApi, /Photography consent/);
 });
 
 test('approved public copy preserves the membership offer and page structure', async () => {

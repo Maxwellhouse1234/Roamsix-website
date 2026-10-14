@@ -7,12 +7,9 @@ import { DR_SAL_GUEST_AGREEMENT_VERSION, DR_SAL_PHOTO_CONSENT } from '../data/dr
 
 const INITIAL_FORM = {
   registrationMode: 'public',
-  ticketType: 'individual',
   legalName: '',
   email: '',
   phone: '',
-  guestLegalName: '',
-  guestEmail: '',
   termsAccepted: false,
   agreementAccepted: false,
   photoConsent: false,
@@ -22,9 +19,6 @@ export default function DrSalRegistrationPreviewPage() {
   const [form, setForm] = useState(INITIAL_FORM);
   const [reviewing, setReviewing] = useState(false);
   const member = form.registrationMode === 'member';
-  const pair = form.ticketType === 'pair';
-  const price = pair ? 50 : 25;
-  const guestLink = `${window.location.origin}/events/dr-sal-gut-brain-2026/guest-agreement-preview?token=preview-guest`;
 
   function update(event) {
     const { name, value, checked, type } = event.target;
@@ -37,8 +31,7 @@ export default function DrSalRegistrationPreviewPage() {
     setReviewing(true);
   }
 
-  const complete = form.legalName && form.email && form.phone && form.termsAccepted && form.agreementAccepted
-    && (member || !pair || (form.guestLegalName && form.guestEmail));
+  const complete = form.legalName && form.email && form.phone && form.termsAccepted && form.agreementAccepted;
 
   return <SiteLayout theme="dark">
     <section className="page-hero editorial-page-hero event-preview-hero"><div className="container narrow">
@@ -71,23 +64,17 @@ export default function DrSalRegistrationPreviewPage() {
       <form className="membership-checkout-form event-preview-form" onSubmit={review}>
         <p className="eyebrow">1 · Choose registration path</p>
         <div className="event-ticket-options" role="radiogroup" aria-label="Registration path">
-          <label className={!member ? 'selected' : ''}><input type="radio" name="registrationMode" value="public" checked={!member} onChange={update} /><span><strong>Public admission</strong><small>Purchase one or two admissions</small></span></label>
+          <label className={!member ? 'selected' : ''}><input type="radio" name="registrationMode" value="public" checked={!member} onChange={update} /><span><strong>General admission</strong><small>$50 · One adult</small></span></label>
           <label className={member ? 'selected' : ''}><input type="radio" name="registrationMode" value="member" checked={member} onChange={update} /><span><strong>Eligible member</strong><small>Included admission · no purchase</small></span></label>
         </div>
 
-        {!member ? <><p className="eyebrow">2 · Choose admission</p>
-          <div className="event-ticket-options" role="radiogroup" aria-label="Admission type">
-            <label className={form.ticketType === 'individual' ? 'selected' : ''}><input type="radio" name="ticketType" value="individual" checked={form.ticketType === 'individual'} onChange={update} /><span><strong>Individual admission</strong><small>$25 · One adult</small></span></label>
-            <label className={form.ticketType === 'pair' ? 'selected' : ''}><input type="radio" name="ticketType" value="pair" checked={form.ticketType === 'pair'} onChange={update} /><span><strong>Two admissions</strong><small>$50 · Two adults</small></span></label>
-          </div></> : <div className="event-member-included"><strong>Your admission is included.</strong><p>The signed-in member account supplies the verified email and active membership status. No Stripe checkout opens. The member still completes this event-specific agreement before the seat becomes admission-ready.</p></div>}
+        {member ? <div className="event-member-included"><strong>Your admission is included.</strong><p>The signed-in member account supplies the verified email and active membership status. No Stripe checkout opens. The member still completes this event-specific agreement before the seat becomes admission-ready.</p></div> : null}
 
-        <p className="eyebrow">3 · Your details</p>
+        <p className="eyebrow">2 · Your details</p>
         <label>Your full legal name<input name="legalName" value={form.legalName} onChange={update} autoComplete="name" required /></label>
         <div className="form-grid two"><label>Your email<input type="email" name="email" value={form.email} onChange={update} autoComplete="email" required /></label><label>Your phone<input type="tel" name="phone" value={form.phone} onChange={update} autoComplete="tel" required /></label></div>
 
-        {!member && pair ? <fieldset className="event-guest-fields"><legend>Second attendee</legend><p>The second attendee receives a private link and must accept the agreement themselves no later than 4:00 PM on October 23. Registrations made after that time require acceptance before arrival.</p><label>Second attendee's full legal name<input name="guestLegalName" value={form.guestLegalName} onChange={update} required /></label><label>Second attendee's individual email<input type="email" name="guestEmail" value={form.guestEmail} onChange={update} required /></label></fieldset> : null}
-
-        <p className="eyebrow">4 · Read the complete event agreement</p>
+        <p className="eyebrow">3 · Read the complete event agreement</p>
         <DrSalAgreementText />
 
         <div className="event-consent-panel">
@@ -96,7 +83,7 @@ export default function DrSalRegistrationPreviewPage() {
         </div>
 
         <div className="event-photo-consent">
-          <p className="eyebrow">5 · Optional photography and video consent</p>
+          <p className="eyebrow">4 · Optional photography and video consent</p>
           <h3>{DR_SAL_PHOTO_CONSENT.title}</h3>
           <p>{DR_SAL_PHOTO_CONSENT.subtitle}</p>
           {DR_SAL_PHOTO_CONSENT.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
@@ -105,21 +92,20 @@ export default function DrSalRegistrationPreviewPage() {
         </div>
 
         <div className="event-registration-terms">
-          <p className="eyebrow">6 · Event registration terms and privacy</p>
+          <p className="eyebrow">5 · Event registration terms and privacy</p>
           <label className="check"><input type="checkbox" name="termsAccepted" checked={form.termsAccepted} onChange={update} required /><span>I accept the <Link to="/terms" target="_blank">Event Registration Terms</Link>.</span></label>
           <p className="form-note"><strong>Privacy notice:</strong> ROAMSIX uses the contact, registration, agreement and consent information collected here to administer this event, confirm admission and communicate essential event details. Review the <Link to="/privacy" target="_blank">Privacy Policy</Link>. The Privacy Policy is provided as notice and is not bundled into the terms checkbox.</p>
         </div>
-        <button className="button" type="submit" disabled={!complete}>{member ? 'Review my included admission' : `Review registration · $${price}`}</button>
+        <button className="button" type="submit" disabled={!complete}>{member ? 'Review my included admission' : 'Review registration · $50'}</button>
 
         {reviewing ? <div className="event-preview-result" role="status">
           <p className="eyebrow">Preview review screen</p>
-          <h3>{member ? 'Member-included admission · no payment' : pair ? 'Two admissions · $50' : 'Individual admission · $25'}</h3>
+          <h3>{member ? 'Member-included admission · no payment' : 'General admission · $50'}</h3>
           <p><strong>{form.legalName}</strong>: agreement complete; photography {form.photoConsent ? 'permitted' : 'declined'}.</p>
-          {!member && pair ? <><p><strong>{form.guestLegalName}</strong>: pending individual agreement. Their seat is not admission-ready until completion.</p><p className="event-preview-link"><strong>Unique guest link preview</strong><br /><Link to="/events/dr-sal-gut-brain-2026/guest-agreement-preview?token=preview-guest">{guestLink}</Link></p></> : null}
           <button className="button" type="button" disabled>{member ? 'Reserve included admission · disabled in preview' : 'Proceed to secure payment · disabled in preview'}</button>
         </div> : null}
       </form>
     </div></section>
-    <section className="section ink-section"><div className="container event-preview-links"><div><p className="eyebrow">Individual guest completion</p><h2>See what the second attendee receives.</h2></div><div className="button-row"><Link className="button button-secondary" to="/events/dr-sal-gut-brain-2026/guest-agreement-preview?token=preview-guest">Second guest view</Link><Link className="button button-secondary" to="/events/dr-sal-gut-brain-2026/email-preview">Email previews</Link></div></div></section>
+    <section className="section ink-section"><div className="container event-preview-links"><div><p className="eyebrow">Launch preparation</p><h2>Review the connected attendee experience.</h2></div><div className="button-row"><Link className="button button-secondary" to="/events/dr-sal-gut-brain-2026/email-preview">Email previews</Link><Link className="button button-secondary" to="/events/dr-sal-gut-brain-2026/ticket-preview">QR ticket preview</Link></div></div></section>
   </SiteLayout>;
 }

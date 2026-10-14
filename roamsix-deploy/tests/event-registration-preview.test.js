@@ -19,16 +19,17 @@ test('member-included and complimentary attendees remain eligible without new re
   assert.equal(PREVIEW_ATTENDEES[4].grossAmount, 0);
 });
 
-test('pair admission revenue is counted once and refunds reduce the property share', () => {
+test('individual discounts and refunds reduce net revenue before the property share', () => {
   const report = calculateEventRevenue(PREVIEW_ATTENDEES);
-  assert.equal(report.individual, 2);
-  assert.equal(report.pair, 1);
+  assert.equal(report.individual, 4);
+  assert.equal(report.pair, 0);
   assert.equal(report.memberIncluded, 1);
   assert.equal(report.complimentary, 1);
-  assert.equal(report.gross, 100);
-  assert.equal(report.refunds, 25);
-  assert.equal(report.netCollected, 75);
-  assert.equal(report.propertyShare, 15);
+  assert.equal(report.gross, 200);
+  assert.equal(report.discounts, 25);
+  assert.equal(report.refunds, 50);
+  assert.equal(report.netCollected, 125);
+  assert.equal(report.propertyShare, 25);
 });
 
 test('discounts and partial refunds are each deducted exactly once', () => {
@@ -48,11 +49,10 @@ test('preview keeps photography separate and supports both choices', () => {
   assert.ok(PREVIEW_ATTENDEES.some((record) => record.photoConsent === 'declined'));
 });
 
-test('private preview includes separate guest completion, QR, email, check-in and reporting views', async () => {
-  const [router, registration, guest, emails, ticket, checkIn, agreement, eligibility, styles, agreementComponent] = await Promise.all([
+test('private preview includes individual registration, QR, email, check-in and reporting views', async () => {
+  const [router, registration, emails, ticket, checkIn, agreement, eligibility, styles, agreementComponent] = await Promise.all([
     readFile(new URL('../src/router.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/DrSalRegistrationPreviewPage.jsx', import.meta.url), 'utf8'),
-    readFile(new URL('../src/pages/DrSalGuestAgreementPreviewPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/DrSalEmailPreviewPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/DrSalTicketPreviewPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/DrSalCheckInPreviewPage.jsx', import.meta.url), 'utf8'),
@@ -63,21 +63,20 @@ test('private preview includes separate guest completion, QR, email, check-in an
   ]);
 
   assert.match(router, /registration-preview/);
-  assert.match(router, /guest-agreement-preview/);
+  assert.doesNotMatch(router, /guest-agreement-preview/);
   assert.match(router, /email-preview/);
   assert.match(router, /ticket-preview/);
   assert.match(router, /check-in-preview/);
   assert.match(router, /attendance-preview/);
-  assert.match(registration, /Individual admission/);
-  assert.match(registration, /Two admissions/);
+  assert.match(registration, /General admission/);
+  assert.match(registration, /\$50 · One adult/);
+  assert.doesNotMatch(registration, /Two admissions|\$25 · One adult/);
   assert.match(registration, /Member-included admission · no payment/);
   assert.match(registration, /Event Registration Terms/);
   assert.match(registration, /Privacy Policy is provided as notice/);
   assert.doesNotMatch(registration, /I accept the .*Terms.* and .*Privacy Policy/);
   assert.match(registration, /I have read and agree to the October 24, 2026 Guest Participation Agreement/);
-  assert.match(guest, /The purchaser cannot accept this agreement for you/);
-  assert.match(guest, /I have read and agree to the October 24, 2026 Guest Participation Agreement/);
-  assert.match(emails, /Your QR ticket will be issued after the required agreement is complete/);
+  assert.doesNotMatch(emails, /Second-attendee invitation/);
   assert.match(emails, /included with your active ROAMSIX membership\. You were not charged/);
   assert.match(ticket, /not a standalone admission credential/);
   assert.match(ticket, /current registration, payment or member-included status/);

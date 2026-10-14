@@ -34,7 +34,7 @@ async function stripeApi(path, options = {}) {
   return data;
 }
 
-async function markAttendeesRefunded(sessionId, refundedAt) {
+async function markAttendeesRefunded(sessionId, { grossAmount, refundedAmount, fullyRefunded }) {
   if (!process.env.AIRTABLE_TOKEN || !sessionId) return;
   const headers = { Authorization: `Bearer ${process.env.AIRTABLE_TOKEN}`, "Content-Type": "application/json" };
   const formula = encodeURIComponent(`{Stripe Session ID}='${String(sessionId).replace(/'/g, "\\'")}'`);
@@ -44,27 +44,29 @@ async function markAttendeesRefunded(sessionId, refundedAt) {
   for (const record of data.records || []) {
     const patch = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/tbltON9TJyq9GqBW4/${record.id}`, {
       method: "PATCH", headers,
-      body: JSON.stringify({ fields: { "Payment Status": "Refunded" }, typecast: true }),
+      body: JSON.stringify({ fields: { "Payment Status": fullyRefunded ? "Refunded" : "Partially Refunded", "Amount Paid": Math.max(0, grossAmount - refundedAmount) }, typecast: true }),
     });
     if (!patch.ok) throw new Error(`Attendee refund update failed (${patch.status})`);
   }
 }
 
-async function handleFullRefund(charge) {
-  if (!charge?.id || Number(charge.amount_refunded || 0) < Number(charge.amount || 0)) {
-    return { handled: false, reason: "partial-refund" };
-  }
+async function handleRefund(charge) {
+  if (!charge?.id || Number(charge.amount_refunded || 0) <= 0) return { handled: false, reason: "no-refund" };
   const refundedAt = new Date().toISOString();
+  const grossAmount = Number(charge.amount || 0) / 100;
+  const refundedAmount = Number(charge.amount_refunded || 0) / 100;
+  const fullyRefunded = refundedAmount >= grossAmount;
   if (charge.metadata?.eventId === DR_SAL_EVENT.id && charge.payment_intent) {
     const sessions = await stripeApi(`checkout/sessions?payment_intent=${encodeURIComponent(charge.payment_intent)}&limit=1`);
     const checkout = sessions.data?.[0];
     if (!checkout?.id) throw new Error("Refunded event charge has no Checkout Session");
     await Promise.all([
-      refundDrSalRegistration({ sessionId: checkout.id, refundedAt }),
-      markAttendeesRefunded(checkout.id, refundedAt),
+      refundDrSalRegistration({ sessionId: checkout.id, grossAmount, refundedAmount, refundedAt }),
+      markAttendeesRefunded(checkout.id, { grossAmount, refundedAmount, fullyRefunded }),
     ]);
-    return { handled: true, purpose: "event-refund-reconciled", sessionId: checkout.id };
+    return { handled: true, purpose: "event-refund-reconciled", sessionId: checkout.id, grossAmount, refundedAmount, netCollected: Math.max(0, grossAmount - refundedAmount) };
   }
+  if (!fullyRefunded) return { handled: false, reason: "partial-membership-refund" };
   if (charge.invoice) {
     const invoice = await stripeApi(`invoices/${encodeURIComponent(charge.invoice)}`);
     const subscriptionId = invoice.subscription || invoice.parent?.subscription_details?.subscription || "";
@@ -307,10 +309,12 @@ export default async function handler(req, res) {
     const registrationSource    = session.metadata?.source || "Website";
     const ageConfirmed          = session.metadata?.ageConfirmed  || "No";
     const smsConsent            = session.metadata?.smsConsent    || "No";
+    const checkoutDiscountAmount = Number(session.total_details?.amount_discount || 0) / 100;
+    const sessionPromotion      = session.discounts?.[0]?.promotion_code;
     const discountCode          = session.metadata?.discountCode || "";
-    const discountType          = session.metadata?.discountType || "None";
-    const stripePromotionId     = session.metadata?.stripePromotionId || "";
-    const discountAmount        = Number(session.metadata?.discountAmount || 0);
+    const discountType          = session.metadata?.discountType !== "None" ? session.metadata?.discountType : checkoutDiscountAmount > 0 ? "Stripe promotion code" : "None";
+    const stripePromotionId     = session.metadata?.stripePromotionId || (typeof sessionPromotion === "string" ? sessionPromotion : sessionPromotion?.id) || "";
+    const discountAmount        = checkoutDiscountAmount || Number(session.metadata?.discountAmount || 0);
     const referrerCode          = session.metadata?.referrerCode || "";
     const referrerContactId     = session.metadata?.referrerContactId || "";
     const referrerName          = session.metadata?.referrerName || "";
@@ -323,7 +327,7 @@ export default async function handler(req, res) {
     const origin = `${proto}://${host}`;
 
     if (event.type === "charge.refunded") {
-      const result = await handleFullRefund(session);
+      const result = await handleRefund(session);
       return res.status(200).json({ received: true, ...result });
     }
 
@@ -389,7 +393,7 @@ export default async function handler(req, res) {
           "Stripe Session ID":       sessionId,
           "Payment Status":          "Paid",
           "Legal Accepted":          eventId === DR_SAL_EVENT.id
-            ? `Terms: ${agreedToTerms ? "Yes" : "No"}; Waiver: ${waiverAccepted ? "Yes" : "No"}; Media Release: ${mediaReleaseAccepted ? "Yes" : "No"}`
+            ? `Terms: ${agreedToTerms ? "Yes" : "No"}; Waiver: ${waiverAccepted ? "Yes" : "No"}; Photography Consent: ${mediaReleaseAccepted ? "Yes" : "No"}`
             : agreedToTerms ? "Yes" : "No",
           "Legal Version":           legalVersion,
           "Accepted At":             acceptedAt,
@@ -442,7 +446,7 @@ export default async function handler(req, res) {
           stripeSessionId: sessionId, uniqueKey: `stripe:${sessionId}`,
           discountCode, discountType, stripePromotionId, discountAmount,
           referrerCode, referrerContactId,
-          details: `${packageId}${isBundle ? " (Two Tickets)" : ""}; quantity ${isBundle ? 2 : quantity}${referrerName ? `; referred by ${referrerName}` : ""}; registration source ${registrationSource}${eventId === DR_SAL_EVENT.id ? "; waiver accepted; media release accepted; $50 founding membership credit eligible within 48 hours after the event; $100 lifetime credit cap" : ""}`,
+          details: `${packageId}${isBundle ? " (Two Tickets)" : ""}; quantity ${isBundle ? 2 : quantity}${referrerName ? `; referred by ${referrerName}` : ""}; registration source ${registrationSource}${eventId === DR_SAL_EVENT.id ? `; waiver accepted; photography consent ${mediaReleaseAccepted ? "permitted" : "declined"}; $50 founding membership credit eligible within 48 hours after the event; $100 lifetime credit cap` : ""}`,
         },
       });
 
@@ -771,7 +775,7 @@ function teamNotifyHTML({ name, guestNames = [], email, eventId, eventName, pack
               ${row("Medical / Dietary",      medicalNotes || "None disclosed")}
               ${row("Legal Accepted",         agreedToTerms ? "Yes" : "No")}
               ${eventId === DR_SAL_EVENT.id ? row("Waiver Accepted", waiverAccepted ? "Yes" : "No") : ""}
-              ${eventId === DR_SAL_EVENT.id ? row("Media Release Accepted", mediaReleaseAccepted ? "Yes" : "No") : ""}
+              ${eventId === DR_SAL_EVENT.id ? row("Photography Consent", mediaReleaseAccepted ? "Permitted" : "Declined") : ""}
               ${row("Legal Version",          legalVersion || "N/A")}
               ${row("Session ID",             sessionId)}
             </table>

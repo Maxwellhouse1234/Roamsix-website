@@ -16,7 +16,7 @@ export const DR_SAL_EVENT = Object.freeze({
   priceCents: 5000,
   priceEnv: "STRIPE_DR_SAL_PRICE_ID",
   refundDeadline: "2026-10-10T23:59:59-07:00",
-  legalVersion: "2026-09-29-dr-sal-v1",
+  legalVersion: "ROAMSIX-OCT24-2026-DRAFT-2026-10-13",
 });
 
 const HOLD_MINUTES = 61;
@@ -131,7 +131,7 @@ export async function memberDrSalRegistrationStatus(email) {
   return { registered: Boolean(registration), recordId: registration?.id || null };
 }
 
-async function ensureMemberAttendee({ sessionId, name, email, phone, source, acceptedAt, legalVersion }) {
+async function ensureMemberAttendee({ sessionId, name, email, phone, source, acceptedAt, legalVersion, photoConsent = false }) {
   const query = new URLSearchParams({
     filterByFormula: `{Stripe Session ID}='${formulaValue(sessionId)}'`,
     maxRecords: "1",
@@ -151,7 +151,7 @@ async function ensureMemberAttendee({ sessionId, name, email, phone, source, acc
         "Amount Paid": 0,
         "Stripe Session ID": sessionId,
         "Payment Status": "Included with active membership",
-        "Legal Accepted": "Terms: Yes; Waiver: Yes; Media Release: Yes",
+        "Legal Accepted": `Terms: Yes; Waiver: Yes; Photography Consent: ${photoConsent ? "Yes" : "No"}`,
         "Legal Version": clean(legalVersion, 100),
         "Accepted At": clean(acceptedAt, 100),
         "Intake Completed": "No",
@@ -162,12 +162,12 @@ async function ensureMemberAttendee({ sessionId, name, email, phone, source, acc
   });
 }
 
-export async function registerMemberForDrSal({ name, email, phone, tier, source, acceptedAt, legalVersion }) {
+export async function registerMemberForDrSal({ name, email, phone, tier, source, acceptedAt, legalVersion, photoConsent = false }) {
   const normalizedEmail = clean(email, 320).toLowerCase();
   const existing = await confirmedRegistrationForEmail(normalizedEmail);
   if (existing) {
     const sessionId = existing.fields?.["Stripe Session ID"] || "";
-    await ensureMemberAttendee({ sessionId, name, email: normalizedEmail, phone, source, acceptedAt, legalVersion });
+    await ensureMemberAttendee({ sessionId, name, email: normalizedEmail, phone, source, acceptedAt, legalVersion, photoConsent });
     return { created: false, record: existing, sessionId };
   }
 
@@ -180,7 +180,7 @@ export async function registerMemberForDrSal({ name, email, phone, tier, source,
 
   const memberReference = createHash("sha256").update(`${DR_SAL_EVENT.id}:${normalizedEmail}`).digest("hex").slice(0, 24);
   const sessionId = `member_${memberReference}`;
-  const legalSummary = `Terms: Yes; Waiver: Yes; Media Release: Yes; Version: ${clean(legalVersion, 100)}; Accepted: ${clean(acceptedAt, 100)}`;
+  const legalSummary = `Terms: Yes; Waiver: Yes; Photography Consent: ${photoConsent ? "Yes" : "No"}; Version: ${clean(legalVersion, 100)}; Accepted: ${clean(acceptedAt, 100)}`;
   const record = await airtable(encodeURIComponent(REGISTRATIONS_TABLE), {
     method: "POST",
     body: JSON.stringify({
@@ -200,7 +200,7 @@ export async function registerMemberForDrSal({ name, email, phone, tier, source,
     }),
   });
 
-  await ensureMemberAttendee({ sessionId, name, email: normalizedEmail, phone, source, acceptedAt, legalVersion });
+  await ensureMemberAttendee({ sessionId, name, email: normalizedEmail, phone, source, acceptedAt, legalVersion, photoConsent });
 
   return { created: true, record, sessionId, seat: availability.nextSeat };
 }
@@ -230,7 +230,7 @@ export async function confirmDrSalRegistration({ sessionId, name, email, amountP
   });
 }
 
-export async function refundDrSalRegistration({ sessionId, refundedAt = new Date().toISOString() }) {
+export async function refundDrSalRegistration({ sessionId, grossAmount = 0, refundedAmount = 0, refundedAt = new Date().toISOString() }) {
   const query = new URLSearchParams({
     filterByFormula: `{Stripe Session ID}='${formulaValue(sessionId)}'`,
     maxRecords: "1",
@@ -239,18 +239,22 @@ export async function refundDrSalRegistration({ sessionId, refundedAt = new Date
   const existing = data.records?.[0];
   if (!existing) return { updated: false };
   const notes = String(existing.fields?.Notes || "");
+  const gross = Math.max(0, Number(grossAmount || existing.fields?.["Amount Paid"] || 0));
+  const refunded = Math.max(0, Number(refundedAmount || 0));
+  const net = Math.max(0, gross - refunded);
+  const fullyRefunded = gross > 0 && refunded >= gross;
   await airtable(`${encodeURIComponent(REGISTRATIONS_TABLE)}/${existing.id}`, {
     method: "PATCH",
     body: JSON.stringify({
       fields: {
-        Status: "Refunded",
-        "Amount Paid": 0,
-        Notes: `${notes}${notes ? "\n" : ""}Refunded through Stripe: ${refundedAt}`,
+        Status: fullyRefunded ? "Refunded" : "Partially Refunded",
+        "Amount Paid": net,
+        Notes: `${notes}${notes ? "\n" : ""}Stripe refund: $${refunded.toFixed(2)} of $${gross.toFixed(2)} at ${refundedAt}. Net collected: $${net.toFixed(2)}.`,
       },
       typecast: true,
     }),
   });
-  return { updated: true, recordId: existing.id };
+  return { updated: true, recordId: existing.id, fullyRefunded, grossAmount: gross, refundedAmount: refunded, netCollected: net };
 }
 
 export async function listConfirmedDrSalRegistrations() {

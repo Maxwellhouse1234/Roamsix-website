@@ -138,9 +138,10 @@ export default async function handler(req, res) {
   if (isDrSalEvent && waiverAccepted !== "true" && waiverAccepted !== true) {
     return res.status(400).json({ error: "Please accept the Assumption of Risk and Participant Agreement before continuing." });
   }
-  if (isDrSalEvent && mediaReleaseAccepted !== "true" && mediaReleaseAccepted !== true) {
-    return res.status(400).json({ error: "Please accept the Media Release before continuing." });
+  if (isDrSalEvent && acceptedLegalVersion !== DR_SAL_EVENT.legalVersion) {
+    return res.status(400).json({ error: "Please review and accept the current event agreement before continuing." });
   }
+  const legalAcceptedAt = isDrSalEvent ? new Date().toISOString() : acceptedAt.toString().slice(0, 100);
 
   const useBundle    = Boolean(isBundle) && Boolean(pkg.bundlePrice);
   const normalizedCode = String(discountCode || "").trim().toUpperCase().slice(0, 80);
@@ -218,6 +219,7 @@ export default async function handler(req, res) {
   // Build Stripe request using URLSearchParams (bracket notation)
   const params = new URLSearchParams();
   params.set("mode", "payment");
+  if (isDrSalEvent) params.set("allow_promotion_codes", "true");
   // Approved codes are validated here. Founder codes reduce the pair to $275;
   // referral codes on the pair preserve attribution without stacking a discount.
   if (appliedPromotion) params.set("discounts[0][promotion_code]", appliedPromotion.promotionId);
@@ -238,7 +240,7 @@ export default async function handler(req, res) {
   params.set("metadata[eventName]", eventName.trim().slice(0, 200));
   params.set("metadata[eventDate]", eventDate.toString().slice(0, 100));
   params.set("metadata[acceptedLegalVersion]", acceptedLegalVersion.toString().slice(0, 100));
-  params.set("metadata[acceptedAt]", acceptedAt.toString().slice(0, 100));
+  params.set("metadata[acceptedAt]", legalAcceptedAt);
   params.set("metadata[agreedToTerms]", agreedToTerms.toString().slice(0, 10));
   params.set("metadata[waiverAccepted]", waiverAccepted.toString().slice(0, 10));
   params.set("metadata[mediaReleaseAccepted]", mediaReleaseAccepted.toString().slice(0, 10));

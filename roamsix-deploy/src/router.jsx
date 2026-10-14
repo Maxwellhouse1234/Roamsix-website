@@ -22,7 +22,6 @@ import MemberLoginPage from './pages/MemberLoginPage';
 import MemberDashboardPage from './pages/MemberDashboardPage';
 import DrSalRegistrationPage from './pages/DrSalRegistrationPage';
 import DrSalRegistrationPreviewPage from './pages/DrSalRegistrationPreviewPage';
-import DrSalGuestAgreementPreviewPage from './pages/DrSalGuestAgreementPreviewPage';
 import DrSalAttendancePreviewPage from './pages/DrSalAttendancePreviewPage';
 import DrSalEmailPreviewPage from './pages/DrSalEmailPreviewPage';
 import DrSalTicketPreviewPage from './pages/DrSalTicketPreviewPage';
@@ -55,7 +54,6 @@ export const router = createBrowserRouter([
   { path: '/events/q4', element: <FieldworkQuarterPage quarterSlug="q4" /> },
   { path: '/events/dr-sal-gut-brain-2026', element: <DrSalRegistrationPage /> },
   { path: '/events/dr-sal-gut-brain-2026/registration-preview', element: <DrSalRegistrationPreviewPage /> },
-  { path: '/events/dr-sal-gut-brain-2026/guest-agreement-preview', element: <DrSalGuestAgreementPreviewPage /> },
   { path: '/events/dr-sal-gut-brain-2026/attendance-preview', element: <DrSalAttendancePreviewPage /> },
   { path: '/events/dr-sal-gut-brain-2026/email-preview', element: <DrSalEmailPreviewPage /> },
   { path: '/events/dr-sal-gut-brain-2026/ticket-preview', element: <DrSalTicketPreviewPage /> },

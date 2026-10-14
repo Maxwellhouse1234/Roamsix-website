@@ -4,7 +4,7 @@ Status: private implementation preview only. Do not activate checkout, publish t
 
 ## Launch-critical registration decisions
 
-- Public pricing remains $25 for one adult and $50 for two adults.
+- Public pricing remains $50 for one adult. A private Stripe promotion code can reduce that admission to $25 for approved recipients.
 - An eligible signed-in member reserves one included admission without opening Stripe or purchasing a ticket. Membership status is verified server-side, and the attendee must still complete the same event-specific agreement before the admission becomes ready.
 - The event-specific agreement has one affirmative acceptance checkbox after the complete agreement. Its wording does not repeat the full acknowledgment already contained in Section 9.
 - Event Registration Terms require affirmative acceptance. The Privacy Policy is presented separately as notice, not bundled into the terms checkbox.
@@ -13,18 +13,15 @@ Status: private implementation preview only. Do not activate checkout, publish t
 
 ## Proposed attendee workflow
 
-1. The purchaser chooses `Individual admission - $25` or `Two admissions - $50`.
-2. The purchaser provides their own full legal name, email and phone.
-3. For two admissions, the purchaser also provides the second attendee's full legal name and individual email address.
-4. The complete event-specific Guest Participation Agreement is displayed before acceptance.
-5. The purchaser affirmatively accepts the agreement for themselves. The checkbox is unchecked by default.
-6. Photography and video consent is presented separately. It is optional and unchecked by default.
-7. After successful payment, the purchaser's attendee record is marked complete and a pair-ticket guest record is marked `Pending guest agreement`.
-8. A cryptographically random, single-purpose guest link is emailed to the second attendee. The link must not contain the attendee's name, email or other personal information.
-9. The second attendee reviews the same complete agreement and accepts for themselves. They separately choose whether to grant photography and video consent.
-10. The second attendee must complete the agreement by 4:00 PM Pacific on October 23, 2026. A guest added within 24 hours of the event must complete it before arrival. No attendee is marked admission-ready without a completed agreement.
-11. Each attendee receives an email containing the accepted agreement version and either an attached PDF or a permanent, access-controlled copy.
-12. After mandatory agreements are complete and admission is valid, issue one attendee-specific QR credential. Do not issue an admission-ready QR credential while an agreement is pending.
+1. Each adult registers individually for one `General admission - $50`, or uses one verified member-included admission.
+2. The attendee provides their own full legal name, individual email and phone number.
+3. The complete event-specific Guest Participation Agreement is displayed before acceptance.
+4. The attendee affirmatively accepts the agreement for themselves. The checkbox is unchecked by default.
+5. Photography and video consent is presented separately. It is optional and unchecked by default.
+6. Public attendees continue to the existing $50 Stripe Checkout. Stripe may accept the private event-specific promotion code, but the website does not advertise it.
+7. Eligible signed-in members reserve one included admission without Stripe and still complete the same event agreement.
+8. Each attendee receives an email containing the accepted agreement version and either an attached PDF or a permanent, access-controlled copy.
+9. After mandatory agreements are complete and admission is valid, issue one attendee-specific QR credential.
 
 ## QR credential and check-in design
 
@@ -46,8 +43,8 @@ Use one record per adult attendee. Do not combine two people in one legal record
 - Event ID
 - Attendee full legal name
 - Attendee email
-- Purchaser registration ID, when different
-- Admission type: individual, pair purchaser, pair guest, complimentary
+- Registration ID
+- Admission type: general admission, member included, complimentary
 - Payment status: paid, complimentary, discounted, refunded, partially refunded
 - Gross admission amount
 - Discount amount
@@ -82,7 +79,7 @@ Do not collect medical conditions, diagnoses, medications or treatment informati
 Report each category separately:
 
 - Individual paid admissions
-- Pair-ticket paid admissions and the two attendees attached to each pair
+- Full-price and discounted general admissions
 - Complimentary admissions
 - Promotional discounts
 - Full and partial refunds
@@ -97,7 +94,7 @@ Photography preference may appear in the attendee's private confirmation email a
 
 ## Staff operations
 
-- At 4:00 PM Pacific on October 23, export or review the pending-agreement list and contact only incomplete attendees.
+- Before the event, export or review the pending-agreement list and contact only incomplete attendees.
 - At check-in, do not admit an attendee whose agreement status is pending.
 - Brief the photographer before any photography begins.
 - Use a private staff-facing consent list. Do not publicly label attendees who declined photography.
@@ -120,13 +117,12 @@ Photography preference may appear in the attendee's private confirmation email a
 - Obtain Elizabeth's approval of the modified agreement, including Section 5.
 - Obtain Elizabeth's confirmation that the proposed electronic acceptance and record are acceptable.
 - Approve working agreement version `ROAMSIX-OCT24-2026-DRAFT-2026-10-13`, or provide the final version identifier.
-- Approve `Individual admission - $25` and `Two admissions - $50` for activation.
+- Approve `General admission - $50` for activation.
 - Confirm whether active members continue to receive included admission under the existing membership promise.
-- Approve the second-attendee deadline of October 23, 2026 at 4:00 PM Pacific.
 - Confirm the retention period and the authorized ROAMSIX staff roles.
 - Confirm the exact legal name of Alive Ferments if it must appear in the agreement or event disclosures.
 - Confirm the applicable insurance requirements and certificate-of-insurance status.
 
 ## Activation gate
 
-Production activation requires all approval blockers above, production Airtable fields, secure snapshot storage, guest-link delivery and expiry, email delivery verification, Stripe prices, webhook coverage, refund reporting, access-control verification, a complete end-to-end test for both ticket types and a final production build.
+Production activation requires all approval blockers above, production Airtable fields, secure snapshot storage, email delivery verification, Stripe promotion-code validation, webhook coverage, refund reporting, access-control verification, a complete end-to-end test for full-price, discounted and member-included admission, and a final production build.
