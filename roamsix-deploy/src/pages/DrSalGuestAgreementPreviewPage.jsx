@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SiteLayout from '../components/SiteLayout';
 import DrSalAgreementText from '../components/DrSalAgreementText';
+import EventPreviewNav from '../components/EventPreviewNav';
 import { DR_SAL_GUEST_AGREEMENT_VERSION, DR_SAL_PHOTO_CONSENT } from '../data/drSalGuestAgreement';
 
 export default function DrSalGuestAgreementPreviewPage() {
@@ -22,6 +23,7 @@ export default function DrSalGuestAgreementPreviewPage() {
 
   return <SiteLayout theme="dark">
     <section className="page-hero editorial-page-hero event-preview-hero"><div className="container narrow"><p className="eyebrow">PRIVATE GUEST-FLOW PREVIEW · NO RECORD IS SAVED</p><h1>Complete your individual guest agreement.</h1><p className="page-lead">A seat was reserved for you for the October 24 ROAMSIX event. The purchaser cannot accept this agreement for you.</p></div></section>
+    <EventPreviewNav />
     <section className="section light-section"><div className="container narrow">
       {!tokenPresent ? <p className="form-error">This preview link is missing its guest token.</p> : null}
       <form className="membership-checkout-form event-preview-form" onSubmit={submit}>

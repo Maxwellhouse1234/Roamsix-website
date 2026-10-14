@@ -24,6 +24,9 @@ import DrSalRegistrationPage from './pages/DrSalRegistrationPage';
 import DrSalRegistrationPreviewPage from './pages/DrSalRegistrationPreviewPage';
 import DrSalGuestAgreementPreviewPage from './pages/DrSalGuestAgreementPreviewPage';
 import DrSalAttendancePreviewPage from './pages/DrSalAttendancePreviewPage';
+import DrSalEmailPreviewPage from './pages/DrSalEmailPreviewPage';
+import DrSalTicketPreviewPage from './pages/DrSalTicketPreviewPage';
+import DrSalCheckInPreviewPage from './pages/DrSalCheckInPreviewPage';
 import EventSuccessPage from './pages/EventSuccessPage';
 
 export const router = createBrowserRouter([
@@ -54,6 +57,9 @@ export const router = createBrowserRouter([
   { path: '/events/dr-sal-gut-brain-2026/registration-preview', element: <DrSalRegistrationPreviewPage /> },
   { path: '/events/dr-sal-gut-brain-2026/guest-agreement-preview', element: <DrSalGuestAgreementPreviewPage /> },
   { path: '/events/dr-sal-gut-brain-2026/attendance-preview', element: <DrSalAttendancePreviewPage /> },
+  { path: '/events/dr-sal-gut-brain-2026/email-preview', element: <DrSalEmailPreviewPage /> },
+  { path: '/events/dr-sal-gut-brain-2026/ticket-preview', element: <DrSalTicketPreviewPage /> },
+  { path: '/events/dr-sal-gut-brain-2026/check-in-preview', element: <DrSalCheckInPreviewPage /> },
   { path: '/events/dr-sal-gut-brain-2026/success', element: <EventSuccessPage /> },
   { path: '/dinner', element: <Navigate to="/experiences" replace /> },
   { path: '/dinner/invite', element: <Navigate to="/experiences" replace /> },

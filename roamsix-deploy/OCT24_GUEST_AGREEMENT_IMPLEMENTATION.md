@@ -15,6 +15,20 @@ Status: private implementation preview only. Do not activate checkout, publish t
 9. The second attendee reviews the same complete agreement and accepts for themselves. They separately choose whether to grant photography and video consent.
 10. The second attendee must complete the agreement by 4:00 PM Pacific on October 23, 2026. A guest added within 24 hours of the event must complete it before arrival. No attendee is marked admission-ready without a completed agreement.
 11. Each attendee receives an email containing the accepted agreement version and either an attached PDF or a permanent, access-controlled copy.
+12. After mandatory agreements are complete and admission is valid, issue one attendee-specific QR credential. Do not issue an admission-ready QR credential while an agreement is pending.
+
+## QR credential and check-in design
+
+- Generate the credential server-side with a cryptographically secure random identifier of at least 128 bits.
+- Encode only an opaque ticket identifier or a short verification URL containing that identifier. Do not encode a name, email, payment amount or agreement status.
+- Store only a secure hash of the raw identifier where practical. A scan resolves the identifier through an authenticated server endpoint.
+- Bind each identifier to one attendee record, one event and one current admission status.
+- Rotate or revoke a credential after a ticket transfer, cancellation, refund or suspected disclosure.
+- The verification endpoint must re-check admission validity, required agreement status and prior check-in at scan time.
+- Use an atomic check-in write so simultaneous or repeated scans cannot admit the same credential twice.
+- Do not treat possession of a QR code as proof that the bearer is admission-ready.
+- Limit the scanner and manual-lookup interfaces to authenticated, authorized ROAMSIX staff.
+- Keep payment totals and complete agreement documents out of the general check-in view.
 
 ## Proposed acceptance record
 
@@ -78,9 +92,19 @@ Payment totals should come from settled Stripe amounts and refunds, not from the
 - Use a private staff-facing consent list. Do not publicly label attendees who declined photography.
 - Provide a discreet direct check between the event lead and photographer if a person's consent status is uncertain.
 
+## Offline contingency
+
+- Conduct an onsite cellular test at the property with the carriers used by the event leads. This cannot be established from the website or the current preview.
+- Before departing for the venue, an authorized event lead may download an encrypted, event-specific roster containing only ticket identifier, attendee name, admission validity, agreement-complete status, photography choice and prior check-in state.
+- The offline roster must expire after the event and remain protected by the staff device's authentication.
+- Offline scanning may check in only credentials already valid and agreement-complete in the downloaded snapshot.
+- A new, pending or unresolved agreement cannot be approved offline and must not be bypassed at the door.
+- Offline check-ins are written to a local append-only queue, duplicate local scans are blocked, and the queue is reconciled with the server when connectivity returns.
+- Any conflict found during reconciliation is retained for authorized review rather than silently overwritten.
+
 ## Approval blockers
 
-- Confirm the legal entity operating ROAMSIX.
+- Confirm the final document should identify the organizer as `Reciprofy Inc., dba ROAMSIX`.
 - Confirm the property host's exact legal name.
 - Obtain Elizabeth's approval of the modified agreement, including Section 5.
 - Obtain Elizabeth's confirmation that the proposed electronic acceptance and record are acceptable.
@@ -90,6 +114,7 @@ Payment totals should come from settled Stripe amounts and refunds, not from the
 - Approve the second-attendee deadline of October 23, 2026 at 4:00 PM Pacific.
 - Confirm the retention period and the authorized ROAMSIX staff roles.
 - Confirm the exact legal name of Alive Ferments if it must appear in the agreement or event disclosures.
+- Confirm the applicable insurance requirements and certificate-of-insurance status.
 
 ## Activation gate
 

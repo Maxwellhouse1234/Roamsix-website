@@ -7,14 +7,14 @@ export const DR_SAL_GUEST_AGREEMENT = {
   metadata: [
     ['EVENT DATE', 'October 24, 2026'],
     ['LOCATION', 'Prayers for Peace Park / Essene Retreat Center, Valley Center, California'],
-    ['EVENT ORGANIZER', '[Legal entity operating ROAMSIX], doing business as ROAMSIX'],
+    ['EVENT ORGANIZER', 'Reciprofy Inc., dba ROAMSIX'],
     ['PROPERTY HOST', '[Confirm exact legal name of property host]'],
   ],
   sections: [
     {
       title: '1. Event participation',
       paragraphs: [
-        'I understand that I am voluntarily attending an educational gathering organized by [Legal entity operating ROAMSIX], doing business as ROAMSIX, on private property operated by [confirm exact legal name of property host], also known as Prayers for Peace Park / Essene Retreat Center.',
+        'I understand that I am voluntarily attending an educational gathering organized by Reciprofy Inc., dba ROAMSIX, on private property operated by [confirm exact legal name of property host], also known as Prayers for Peace Park / Essene Retreat Center.',
         'The event may include educational presentations, moderated discussions, outdoor gathering activities, optional fermented-food tastings and nonalcoholic refreshments.',
         'Participation in any food tasting or other optional activity is voluntary.',
       ],
@@ -48,7 +48,7 @@ export const DR_SAL_GUEST_AGREEMENT = {
     {
       title: '5. Release of liability',
       paragraphs: [
-        'To the fullest extent permitted by California law, I release [Legal entity operating ROAMSIX], doing business as ROAMSIX, [confirm exact legal name of property host], Prayers for Peace Park / Essene Retreat Center, and their respective officers, directors, employees, volunteers and authorized representatives from claims for personal injury, illness, death or property damage arising from ordinary negligence in connection with my participation in the event or use of the designated event premises.',
+        'To the fullest extent permitted by California law, I release Reciprofy Inc., dba ROAMSIX, [confirm exact legal name of property host], Prayers for Peace Park / Essene Retreat Center, and their respective officers, directors, employees, volunteers and authorized representatives from claims for personal injury, illness, death or property damage arising from ordinary negligence in connection with my participation in the event or use of the designated event premises.',
         'This release does not apply to gross negligence, reckless or intentional misconduct, or any other liability that cannot lawfully be released.',
         'I understand that I may be giving up certain legal rights by signing this agreement.',
       ],

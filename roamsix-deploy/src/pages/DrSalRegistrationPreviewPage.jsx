@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SiteLayout from '../components/SiteLayout';
 import DrSalAgreementText from '../components/DrSalAgreementText';
+import EventPreviewNav from '../components/EventPreviewNav';
 import { DR_SAL_GUEST_AGREEMENT_VERSION, DR_SAL_PHOTO_CONSENT } from '../data/drSalGuestAgreement';
 
 const INITIAL_FORM = {
@@ -42,8 +43,9 @@ export default function DrSalRegistrationPreviewPage() {
       <p className="eyebrow">PRIVATE IMPLEMENTATION PREVIEW · NOT LIVE REGISTRATION</p>
       <h1>October 24 guest registration and individual agreement</h1>
       <p className="page-lead">This preview shows the proposed attendee experience. Payment, emails and record creation are intentionally disabled until Max approves the implementation and Elizabeth confirms electronic acceptance.</p>
-      <div className="event-preview-blockers"><strong>Publication blockers</strong><span>ROAMSIX operating legal entity</span><span>Property host exact legal name</span><span>Elizabeth's approval of Section 5 and electronic acceptance</span></div>
+      <div className="event-preview-blockers"><strong>Publication blockers</strong><span>Property host exact legal name</span><span>Elizabeth's approval of Section 5 and electronic acceptance</span><span>Insurance requirements confirmed</span></div>
     </div></section>
+    <EventPreviewNav />
 
     <section className="section light-section"><div className="container event-registration-preview-grid">
       <aside className="event-preview-summary">
@@ -99,6 +101,6 @@ export default function DrSalRegistrationPreviewPage() {
         </div> : null}
       </form>
     </div></section>
-    <section className="section ink-section"><div className="container event-preview-links"><div><p className="eyebrow">Complete workflow preview</p><h2>Review the other side of the process.</h2></div><div className="button-row"><Link className="button button-secondary" to="/events/dr-sal-gut-brain-2026/guest-agreement-preview?token=preview-guest">Second guest view</Link><Link className="button button-secondary" to="/events/dr-sal-gut-brain-2026/attendance-preview">Private staff view</Link></div></div></section>
+    <section className="section ink-section"><div className="container event-preview-links"><div><p className="eyebrow">Individual guest completion</p><h2>See what the second attendee receives.</h2></div><div className="button-row"><Link className="button button-secondary" to="/events/dr-sal-gut-brain-2026/guest-agreement-preview?token=preview-guest">Second guest view</Link><Link className="button button-secondary" to="/events/dr-sal-gut-brain-2026/email-preview">Email previews</Link></div></div></section>
   </SiteLayout>;
 }
