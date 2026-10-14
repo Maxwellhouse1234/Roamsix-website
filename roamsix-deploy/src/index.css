@@ -347,6 +347,78 @@ p { margin: 0 0 1.25em; }
 .membership-checkout-form .check a { color: #0759b8; font-weight: 700; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
 .membership-checkout-form .check a:hover { color: #003d80; text-decoration-thickness: 2px; }
 .membership-checkout-form .button { width: 100%; }
+
+/* October 24 agreement implementation preview. These routes are preview-only until legal approval. */
+.event-preview-hero { padding-bottom: clamp(54px, 8vw, 100px); }
+.event-preview-blockers { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.event-preview-blockers strong, .event-preview-blockers span { padding: 8px 11px; border: 1px solid rgba(232,223,208,.22); font-size: .76rem; }
+.event-preview-blockers strong { border-color: var(--rust); color: var(--cream); text-transform: uppercase; letter-spacing: .08em; }
+.event-registration-preview-grid { display: grid; grid-template-columns: minmax(240px,.58fr) minmax(0,1.42fr); gap: clamp(32px,6vw,84px); align-items: start; }
+.event-preview-summary { position: sticky; top: 110px; }
+.event-preview-summary h2 { font-size: clamp(1.7rem,3vw,2.5rem); }
+.event-preview-summary dl, .event-ops-note { display: grid; gap: 0; margin: 28px 0; border-top: 1px solid var(--stone); }
+.event-preview-summary dl div { display: grid; grid-template-columns: 76px 1fr; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--stone); }
+.event-preview-summary dt, .event-agreement-meta dt, .event-ops-note strong { font-family: 'Barlow Condensed',sans-serif; font-size: .72rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--rust); }
+.event-preview-summary dd, .event-agreement-meta dd { margin: 0; }
+.event-preview-form { padding: clamp(22px,4vw,46px); }
+.event-ticket-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0 34px; }
+.event-ticket-options label { display: flex; align-items: flex-start; gap: 10px; min-height: 94px; margin: 0; padding: 16px; border: 1px solid var(--stone); cursor: pointer; }
+.event-ticket-options label.selected { border-color: var(--rust); background: #f7f0eb; }
+.event-ticket-options input { margin-top: 5px; }
+.event-ticket-options span { display: grid; gap: 4px; }
+.event-ticket-options small { font-size: .84rem; font-weight: 500; color: #65635f; }
+.event-guest-fields { margin: 10px 0 34px; padding: 22px; border: 1px solid var(--stone); }
+.event-guest-fields legend { padding: 0 8px; font-weight: 700; }
+.event-guest-fields > p { margin-top: 0; font-size: .9rem; }
+.event-agreement { margin: 12px 0 28px; padding: clamp(18px,3vw,34px); border: 1px solid var(--stone); background: #fbfaf7; }
+.event-agreement-heading { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; }
+.event-agreement-heading h2 { margin: 4px 0 8px; font-size: clamp(1.8rem,3vw,2.6rem); }
+.event-agreement-heading p { margin: 0; }
+.event-agreement-draft { padding: 7px 9px; border: 1px solid var(--rust); color: var(--rust); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; }
+.event-agreement-alert { margin: 24px 0 8px; padding: 12px; border: 1px solid #c79245; background: #fff8ed; text-align: center; font-weight: 700; font-size: .82rem; }
+.event-agreement-meta { margin: 0 0 28px; }
+.event-agreement-meta > div { display: grid; grid-template-columns: minmax(120px,.32fr) 1fr; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--stone); }
+.event-agreement-copy h3 { margin: 25px 0 9px; font-size: 1.25rem; }
+.event-agreement-copy p, .event-agreement-copy li { font-size: .94rem; line-height: 1.65; }
+.event-agreement-copy p { margin: 0 0 12px; }
+.event-consent-panel, .event-photo-consent, .event-preview-result { margin: 24px 0; padding: 20px; border: 1px solid var(--stone); }
+.event-consent-panel { border-left: 4px solid var(--rust); }
+.event-version-note { margin: 0; color: #65635f; font-size: .82rem; }
+.event-photo-consent { background: #f5f3ee; }
+.event-photo-consent h3 { margin-top: 4px; }
+.event-preview-result { background: #edf3ef; border-color: #93aa9b; }
+.event-preview-result .button { margin-top: 12px; }
+.event-preview-link { overflow-wrap: anywhere; font-size: .82rem; }
+.event-preview-links { display: flex; align-items: center; justify-content: space-between; gap: 30px; }
+.event-preview-links h2 { margin-bottom: 0; }
+.event-ops-metrics { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; margin-bottom: 30px; }
+.event-ops-metrics article { padding: 20px; border: 1px solid var(--stone); background: var(--white); }
+.event-ops-metrics span { display: block; font-size: 2rem; font-weight: 700; }
+.event-ops-metrics p { margin: 4px 0 0; font-size: .8rem; }
+.event-ops-note { grid-template-columns: max-content 1fr; }
+.event-ops-note strong, .event-ops-note span { padding: 11px 12px; border-bottom: 1px solid var(--stone); }
+.event-ops-table-wrap { overflow-x: auto; margin: 26px 0; }
+.event-ops-table { width: 100%; min-width: 840px; border-collapse: collapse; background: var(--white); }
+.event-ops-table th, .event-ops-table td { padding: 13px 12px; border: 1px solid var(--stone); text-align: left; font-size: .82rem; }
+.event-ops-table th { background: var(--ink); color: var(--white); text-transform: uppercase; letter-spacing: .08em; }
+.status-pill { display: inline-block; padding: 4px 7px; font-size: .72rem; font-weight: 700; text-transform: uppercase; }
+.status-pill.complete { background: #dce9df; color: #285b36; }
+.status-pill.pending { background: #f8e2d6; color: #8b3f1f; }
+.event-ops-guidance { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin: 30px 0; }
+.event-ops-guidance article { padding: 22px; border: 1px solid var(--stone); }
+.event-ops-guidance h3 { margin-top: 5px; }
+@media (max-width: 900px) {
+  .event-registration-preview-grid { grid-template-columns: 1fr; }
+  .event-preview-summary { position: static; }
+  .event-ops-metrics { grid-template-columns: repeat(2,1fr); }
+  .event-ops-guidance { grid-template-columns: 1fr; }
+  .event-preview-links { display: grid; }
+}
+@media (max-width: 560px) {
+  .event-ticket-options { grid-template-columns: 1fr; }
+  .event-agreement-heading { display: grid; }
+  .event-agreement-meta > div { grid-template-columns: 1fr; gap: 4px; }
+}
 .membership-success { min-height: 72vh; }
 .program-section { padding: clamp(70px, 9vw, 120px) 0; background: var(--warm-white); }
 .quarter-block { padding: 70px 0; border-top: 1px solid var(--stone); }
