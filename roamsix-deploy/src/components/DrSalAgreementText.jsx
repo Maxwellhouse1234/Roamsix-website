@@ -1,7 +1,7 @@
 import { DR_SAL_GUEST_AGREEMENT, DR_SAL_GUEST_AGREEMENT_VERSION } from '../data/drSalGuestAgreement';
 
 export default function DrSalAgreementText() {
-  return <article className="event-agreement" aria-labelledby="agreement-title">
+  return <article className="event-agreement" aria-labelledby="agreement-title" tabIndex="0">
     <div className="event-agreement-heading">
       <div>
         <p className="eyebrow">Version {DR_SAL_GUEST_AGREEMENT_VERSION}</p>

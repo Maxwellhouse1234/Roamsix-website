@@ -37,7 +37,7 @@ test('preview keeps photography separate and supports both choices', () => {
 });
 
 test('private preview includes separate guest completion, QR, email, check-in and reporting views', async () => {
-  const [router, registration, guest, emails, ticket, checkIn, agreement, eligibility] = await Promise.all([
+  const [router, registration, guest, emails, ticket, checkIn, agreement, eligibility, styles] = await Promise.all([
     readFile(new URL('../src/router.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/DrSalRegistrationPreviewPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/DrSalGuestAgreementPreviewPage.jsx', import.meta.url), 'utf8'),
@@ -46,6 +46,7 @@ test('private preview includes separate guest completion, QR, email, check-in an
     readFile(new URL('../src/pages/DrSalCheckInPreviewPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/data/drSalGuestAgreement.js', import.meta.url), 'utf8'),
     readFile(new URL('../src/lib/eventRegistration.js', import.meta.url), 'utf8'),
+    readFile(new URL('../src/index.css', import.meta.url), 'utf8'),
   ]);
 
   assert.match(router, /registration-preview/);
@@ -69,6 +70,11 @@ test('private preview includes separate guest completion, QR, email, check-in an
   assert.match(ticket, /current registration, payment or member-included status/);
   assert.match(eligibility, /Agreement incomplete/);
   assert.match(checkIn, /current registration and agreement record/);
+  assert.match(styles, /\.event-agreement \{[^}]*max-height:[^}]*overflow-y: auto/);
+  assert.match(styles, /\.event-agreement-copy p, \.event-agreement-copy li \{[^}]*font-size: 1rem/);
+  assert.match(registration, /The gut-brain connection: food, stress, and everyday performance/);
+  assert.match(emails, /The gut-brain connection: food, stress, and everyday performance/);
+  assert.match(ticket, /The gut-brain connection: food, stress, and everyday performance/);
   assert.match(checkIn, /connection failure/);
   assert.match(agreement, /Reciprofy Inc., dba ROAMSIX/);
   assert.doesNotMatch(agreement, /\[Legal entity operating ROAMSIX\]/);
