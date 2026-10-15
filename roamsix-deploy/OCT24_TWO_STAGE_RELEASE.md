@@ -1,6 +1,6 @@
 # October 24 two-stage registration release
 
-Status: **GO for protected Preview review; NO-GO for Production payment activation.**
+Status: **Protected Preview verified; Production payment activation awaits purchase-terms approval and the separately authorized live charge/refund test.**
 
 This change separates seat reservation from admission readiness:
 
@@ -14,25 +14,27 @@ The draft property waiver is not displayed, attached to the payment confirmation
 
 ## Proposed purchase and refund decision
 
-The Preview currently proposes:
+Purchase terms version `ROAMSIX-OCT24-2026-RESERVATION-TERMS-2026-10-14-R2` proposes:
 
 - full refunds through October 21, 2026 at 5:00 PM Pacific;
 - staff-assisted transfer after that deadline if the replacement attendee completes the required participation agreement;
-- a full-refund path if ROAMSIX cancels, materially changes the event or participation requirements, or cannot provide the approved participation agreement before admission.
+- an unconditional full refund to the original payment method if ROAMSIX cancels, including because venue, insurance, permit, safety or other operational requirements are not satisfied;
+- the choice to keep the registration or request a full refund if ROAMSIX postpones or reschedules the event, materially changes the event or participation requirements, or cannot provide the approved participation agreement before admission.
 
 This is a business term for Max to approve before Production. It prevents ROAMSIX from keeping payment when a later agreement or venue requirement changes the bargain or cannot be supplied in time.
 
-## External decisions required before accepting money
+## External decisions and operational requirements
 
-The current files do not establish authority to sell admissions yet. Before payment activation, obtain and retain:
+Confirmed by Max on October 14, 2026:
 
-- written venue authorization to hold the October 24 event and sell admissions, either in the executed facility agreement or a separate written authorization;
-- the property's exact contracting legal name and authorized signer;
-- confirmation that the event insurance is bound and any required certificate of insurance and additional-insured wording have been accepted by the host;
-- confirmation that `Reciprofy Inc., dba ROAMSIX` is the organizer, merchant of record, contracting entity, and entity named consistently in the purchase terms, Stripe, emails, and venue documents;
-- Max's approval of the proposed two-stage disclosure and expanded refund promise.
+- Elizabeth authorized ROAMSIX to host the October 24 event and sell tickets;
+- `Reciprofy Inc., dba ROAMSIX` is the organizer, merchant of record and contracting entity;
+- the final participation agreement may be completed electronically or on paper at check-in before admission;
+- event insurance is being arranged and final coverage and additional-insured requirements remain pending.
 
-Final approval of the property participation waiver is not required to test the two-stage Preview. It may remain pending when payments open only if the five items above are resolved, the attendee is clearly told that a later agreement is required, and ROAMSIX is prepared to refund anyone affected by a later material requirement. This is a business-risk recommendation, not a legal opinion.
+The host's original facility form recommends that the user obtain liability and property coverage. The proposed event-specific agreement requires agreed coverage and any certificate/additional-insured documentation before the event proceeds or attendee access begins; neither document says presales must wait for policy issuance. Max's confirmation of ticket-sale authority and the R2 cancellation refund protect purchasers if coverage or another operational requirement is not satisfied. This is a business-risk assessment, not legal advice.
+
+Because fermented-food samples are planned, San Diego County states that temporary food permits are required when food or beverages are sold or given away to the public. The event is under four hours and does not qualify for a Community Event Permit, but the applicable temporary food organizer/vendor applications should be confirmed and submitted immediately. Late fees may apply inside 14 days. This does not itself prohibit presales, but the event must not proceed without required approvals.
 
 ## Technical release gates
 
@@ -42,25 +44,27 @@ Protected Preview verification completed:
 - Cloudflare's official test widget and secret are selected only for that protected Preview branch, never for Production;
 - the mobile registration form has no horizontal overflow and requires both acknowledgments;
 - `ROAMSIXFRIENDS50` was resolved from Stripe Sandbox and produced a Stripe-hosted mobile Checkout showing **Sandbox** and **$25.00**;
-- no test payment was completed in this verification, so no new confirmation email, webhook fulfillment, or refund was generated.
+- duplicate Sandbox webhook delivery produced one registration, one attendee record and the expected two emails;
+- the verified $25 Sandbox payment was fully refunded; the webhook returned HTTP 200, Airtable marked the registration and attendee refunded/canceled, net collected revenue and property share reconciled to zero, and no duplicate record was created;
+- the R2 refund wording is deployed in protected Preview commit `766fe47`, 62 tests and the production build pass, and the mobile page has no horizontal overflow.
 
 Before Production activation:
 
-1. Confirm the protected Preview's Airtable writes remain isolated from live registrations.
-2. Complete one full-price and one `ROAMSIXFRIENDS50` payment across mobile and desktop; the discounted mobile Checkout Session is verified, but payment was not submitted.
-3. Confirm each duplicate webhook delivery leaves one registration, one attendee, and one copy of each expected email.
-4. Confirm the attendee and confirmation email say `agreement pending`, never `waiver accepted` or `admission ready`.
-5. Refund the discounted Sandbox payment and confirm registration, attendee, net revenue, and property share reconcile to zero.
-6. Confirm membership enrollment and unrelated payment flows remain unchanged.
-7. Add `charge.refunded` to the live webhook only after the updated handler is deployed.
-8. With separate authorization, run one controlled live checkout and refund.
-9. Keep `OCT24_PARTICIPATION_AGREEMENT_APPROVED=false` until the exact final agreement and process are approved.
-10. Obtain explicit authorization before setting Production `OCT24_REGISTRATION_ENABLED=true`, promoting the release, or sending Holly's invitation.
+1. Max approves the exact R2 purchase and refund wording.
+2. Deploy commit `766fe47` through the Git-connected Production workflow while keeping `OCT24_REGISTRATION_ENABLED=false`.
+3. Confirm Production uses live price `price_1UL6IYLgUPmdquZo5gW7gVWK` and promotion `promo_1UQJIGLgUPmdquZo0u0VGmjQ`.
+4. Add `charge.refunded` to the existing live webhook only after the updated handler is deployed.
+5. With separate authorization, enable registration for one controlled $25 live checkout and full refund; verify the Stripe event, one Airtable registration, one attendee, two expected emails, and zero net/property-share reconciliation.
+6. Keep `OCT24_PARTICIPATION_AGREEMENT_APPROVED=false` until the exact final agreement and process are approved.
+7. If the live test passes, keep registration open; if any check fails, immediately restore the checkout hold.
+8. Do not send Holly's invitation without separate approval.
 
 ## Production decision
 
-- **GO** only when every external decision and technical release gate above is satisfied.
-- **NO-GO** if venue authority, insurance, or the operating/contracting entity remains unresolved.
+- **GO to deploy closed** after Max approves the R2 purchase terms.
+- **GO to a controlled live test** only with separate authorization.
+- **GO to public paid registration** only after the controlled live test passes and live reconciliation is confirmed.
+- **NO-GO for holding the event** if required insurance, food permits or venue operational approvals are not satisfied before attendee access.
 - **NO-GO** if Production would display or record the draft Elizabeth waiver as accepted.
 - **NO-GO** if a paid attendee can be marked check-in-ready before the approved participation agreement is complete.
 
