@@ -441,7 +441,9 @@ test('Dr. Sal checkout records reservation terms while keeping the participation
   const calls = [];
   global.fetch = async (url, options = {}) => {
     calls.push({ url: String(url), options });
+    if (String(url) === 'https://challenges.cloudflare.com/turnstile/v0/siteverify') return response({ success: true, metadata: { result_with_testing_key: true } });
     if (String(url).includes('Event%20Registrations?')) return response({ records: [] });
+    if (String(url).startsWith('https://api.stripe.com/v1/promotion_codes?')) return response({ data: [{ id: 'promo_preview_friends', active: true, code: 'ROAMSIXFRIENDS50' }] });
     if (String(url) === 'https://api.stripe.com/v1/checkout/sessions') return response({ id: 'cs_dr_sal', url: 'https://checkout.stripe.test/dr-sal' });
     if (String(url).endsWith('/Event%20Registrations') && options.method === 'POST') return response({ id: 'rec_hold', fields: JSON.parse(options.body).fields });
     throw new Error(`Unexpected URL ${url}`);
@@ -482,6 +484,23 @@ test('Dr. Sal checkout records reservation terms while keeping the participation
   assert.match(String(discountedStripeCall.options.body), /discounts%5B0%5D%5Bpromotion_code%5D=promo_friends/);
   assert.match(String(discountedStripeCall.options.body), /metadata%5BdiscountAmount%5D=25.00/);
   delete process.env.STRIPE_DR_SAL_PROMOTION_ID;
+
+  const originalEnvironment = process.env.VERCEL_ENV;
+  const originalBranch = process.env.VERCEL_GIT_COMMIT_REF;
+  try {
+    process.env.VERCEL_ENV = 'preview';
+    process.env.VERCEL_GIT_COMMIT_REF = 'codex/oct24-two-stage-preview';
+    const previewDiscounted = mockRes();
+    await checkout({ method: 'POST', body: { ...baseBody, customerEmail: 'preview-discount@example.com', discountCode: 'ROAMSIXFRIENDS50' }, headers: { host: 'roamsix.test', 'x-forwarded-proto': 'https' } }, previewDiscounted);
+    assert.equal(previewDiscounted.statusCode, 200);
+    const previewStripeCall = calls.filter((call) => call.url === 'https://api.stripe.com/v1/checkout/sessions').at(-1);
+    assert.match(String(previewStripeCall.options.body), /discounts%5B0%5D%5Bpromotion_code%5D=promo_preview_friends/);
+  } finally {
+    if (originalEnvironment === undefined) delete process.env.VERCEL_ENV;
+    else process.env.VERCEL_ENV = originalEnvironment;
+    if (originalBranch === undefined) delete process.env.VERCEL_GIT_COMMIT_REF;
+    else process.env.VERCEL_GIT_COMMIT_REF = originalBranch;
+  }
 });
 
 test('Dr. Sal checkout stops before Stripe when all 25 seats are occupied', async () => {

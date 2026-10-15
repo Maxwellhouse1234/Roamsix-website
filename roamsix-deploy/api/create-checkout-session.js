@@ -79,6 +79,21 @@ const OLIVE_GROVE_PROMOTIONS = {
   }])),
 };
 
+async function resolveDrSalPreviewPromotion(stripeKey, code) {
+  const protectedSandboxPreview = process.env.VERCEL_ENV === "preview"
+    && process.env.VERCEL_GIT_COMMIT_REF === "codex/oct24-two-stage-preview"
+    && /^(sk|rk)_test_/.test(String(stripeKey || ""));
+  if (!protectedSandboxPreview) return "";
+
+  const query = new URLSearchParams({ code, active: "true", limit: "10" });
+  const response = await fetch(`https://api.stripe.com/v1/promotion_codes?${query}`, {
+    headers: { "Authorization": `Bearer ${stripeKey}` },
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error?.message || "Sandbox promotion lookup failed.");
+  return String((data.data || []).find((promotion) => promotion?.active && String(promotion.code || "").toUpperCase() === code)?.id || "");
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   if (!(await enforcePublicSubmission(req, res, { endpoint: 'event-checkout', ipLimit: 8, repeatLimit: 3 }))) return;
@@ -146,8 +161,17 @@ export default async function handler(req, res) {
 
   const useBundle    = Boolean(isBundle) && Boolean(pkg.bundlePrice);
   const normalizedCode = String(discountCode || "").trim().toUpperCase().slice(0, 80);
+  let drSalPromotionId = process.env[DR_SAL_EVENT.privatePromotionEnv] || "";
+  if (isDrSalEvent && normalizedCode === DR_SAL_EVENT.privatePromotionCode && !drSalPromotionId) {
+    try {
+      drSalPromotionId = await resolveDrSalPreviewPromotion(process.env.STRIPE_SECRET_KEY, normalizedCode);
+    } catch (error) {
+      console.error("Dr. Sal sandbox promotion lookup failed:", error.message);
+      return res.status(503).json({ error: "The private admission code could not be verified in this preview." });
+    }
+  }
   const drSalPromotion = isDrSalEvent && normalizedCode === DR_SAL_EVENT.privatePromotionCode
-    ? { promotionId: process.env[DR_SAL_EVENT.privatePromotionEnv] || "", type: "October 24 private admission", percentOff: 50, appliesTo: "single" }
+    ? { promotionId: drSalPromotionId, type: "October 24 private admission", percentOff: 50, appliesTo: "single" }
     : null;
   const requestedPromotion = eventId === "olive-grove-dinner" && normalizedCode
     ? OLIVE_GROVE_PROMOTIONS[normalizedCode]
