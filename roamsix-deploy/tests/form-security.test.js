@@ -148,11 +148,12 @@ test('requires Turnstile tokens minted for the expected hostname and action', as
   }
 });
 
-test('accepts Cloudflare official testing responses only in explicit preview test mode', async () => {
+test('accepts Cloudflare official testing responses only in an approved preview test context', async () => {
   process.env.TURNSTILE_SECRET_KEY = 'official-test-secret';
   const previousFetch = global.fetch;
   const previousVercelEnvironment = process.env.VERCEL_ENV;
   const previousTestMode = process.env.TURNSTILE_TEST_MODE;
+  const previousBranch = process.env.VERCEL_GIT_COMMIT_REF;
   global.fetch = async () => ({
     ok: true,
     json: async () => ({ success: true, hostname: 'example.com', metadata: { result_with_testing_key: true } }),
@@ -162,6 +163,14 @@ test('accepts Cloudflare official testing responses only in explicit preview tes
     process.env.TURNSTILE_TEST_MODE = 'true';
     const preview = await protectPublicSubmission(request(legitimate()), { endpoint: 'turnstile-preview-test' });
     assert.equal(preview.ok, true);
+
+    delete process.env.TURNSTILE_TEST_MODE;
+    process.env.VERCEL_GIT_COMMIT_REF = 'codex/oct24-two-stage-preview';
+    const protectedBranch = await protectPublicSubmission(
+      request(legitimate({ email: 'protected-preview@example.com' })),
+      { endpoint: 'turnstile-protected-preview-test' },
+    );
+    assert.equal(protectedBranch.ok, true);
 
     process.env.VERCEL_ENV = 'production';
     const production = await protectPublicSubmission(
@@ -176,6 +185,8 @@ test('accepts Cloudflare official testing responses only in explicit preview tes
     else process.env.VERCEL_ENV = previousVercelEnvironment;
     if (previousTestMode === undefined) delete process.env.TURNSTILE_TEST_MODE;
     else process.env.TURNSTILE_TEST_MODE = previousTestMode;
+    if (previousBranch === undefined) delete process.env.VERCEL_GIT_COMMIT_REF;
+    else process.env.VERCEL_GIT_COMMIT_REF = previousBranch;
   }
 });
 
