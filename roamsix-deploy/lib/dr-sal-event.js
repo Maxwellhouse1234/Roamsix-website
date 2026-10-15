@@ -55,6 +55,10 @@ export function shouldShowSeatCounter(sold) {
   return Number(sold || 0) >= 15;
 }
 
+export function drSalRegistrationEnabled() {
+  return String(process.env.OCT24_REGISTRATION_ENABLED || "").toLowerCase() === "true";
+}
+
 function clean(value, max = 500) {
   return String(value || "").trim().slice(0, max);
 }
@@ -98,8 +102,29 @@ function seatNumber(record) {
   return match ? Number(match[1]) : 0;
 }
 
+export function drSalRegistrationMode() {
+  const configured = clean(process.env.ROAMSIX_EVENT_DATA_MODE, 20).toLowerCase();
+  if (["live", "test"].includes(configured)) return configured;
+  if (process.env.VERCEL_ENV === "production") return "live";
+  return String(process.env.STRIPE_SECRET_KEY || "").startsWith("sk_live_") ? "live" : "test";
+}
+
+export function drSalRecordMatchesCurrentMode(record) {
+  const fields = record?.fields || record || {};
+  const sessionId = clean(fields["Stripe Session ID"], 200);
+  const notes = clean(fields.Notes, 5000).toLowerCase();
+  const mode = drSalRegistrationMode();
+  if (sessionId.startsWith("cs_live_")) return mode === "live";
+  if (sessionId.startsWith("cs_test_")) return mode === "test";
+  if (notes.includes("environment: live")) return mode === "live";
+  if (notes.includes("environment: test")) return mode === "test";
+  // Records created before environment tagging are treated as live so a
+  // preview can never consume or expose an existing production admission.
+  return mode === "live";
+}
+
 export async function drSalAvailability() {
-  const records = await listEventRegistrations();
+  const records = (await listEventRegistrations()).filter(drSalRecordMatchesCurrentMode);
   const confirmed = records.filter((record) => ["Confirmed", "Partially Refunded", "Transfer Pending"].includes(record.fields?.Status));
   const pending = records.filter((record) => record.fields?.Status === "Pending");
   const sold = confirmed.reduce((sum, record) => sum + Math.max(1, Number(record.fields?.Quantity || 1)), 0);
@@ -139,7 +164,7 @@ export async function saveDrSalCheckoutHold({ sessionId, name, email, seat, sour
         "Stripe Session ID": clean(sessionId, 200),
         Status: "Pending",
         "Registered At": new Date().toISOString(),
-        Notes: `Seat allocation: ${seat}\nSource: ${clean(source, 200) || "Website"}`,
+        Notes: `Seat allocation: ${seat}\nSource: ${clean(source, 200) || "Website"}\nEnvironment: ${drSalRegistrationMode()}`,
       },
       typecast: true,
     }),
@@ -150,10 +175,10 @@ async function confirmedRegistrationForEmail(email) {
   const normalizedEmail = clean(email, 320).toLowerCase();
   const query = new URLSearchParams({
     filterByFormula: `AND({Event}='${formulaValue(DR_SAL_EVENT.id)}',{Email}='${formulaValue(normalizedEmail)}',{Status}='Confirmed')`,
-    maxRecords: "1",
+    maxRecords: "20",
   });
   const data = await airtable(`${encodeURIComponent(REGISTRATIONS_TABLE)}?${query}`);
-  return data.records?.[0] || null;
+  return (data.records || []).find(drSalRecordMatchesCurrentMode) || null;
 }
 
 export async function memberDrSalRegistrationStatus(email) {
@@ -234,7 +259,7 @@ export async function registerMemberForDrSal({ name, email, phone, tier, source,
         "Stripe Session ID": sessionId,
         Status: "Confirmed",
         "Registered At": new Date().toISOString(),
-        Notes: `Seat allocation: ${availability.nextSeat}\nIncluded with ${clean(tier, 50)} membership\nSource: ${clean(source, 200) || "Member Portal"}\n${legalSummary}`,
+        Notes: `Seat allocation: ${availability.nextSeat}\nIncluded with ${clean(tier, 50)} membership\nSource: ${clean(source, 200) || "Member Portal"}\nEnvironment: ${drSalRegistrationMode()}\n${legalSummary}`,
       },
       typecast: true,
     }),
@@ -272,7 +297,7 @@ export async function confirmDrSalRegistration({ sessionId, name, email, amountP
     "Stripe Session ID": clean(sessionId, 200),
     Status: "Confirmed",
     "Registered At": registeredAt || new Date().toISOString(),
-    Notes: `${existing?.fields?.Notes || ""}${existing?.fields?.Notes ? "\n" : ""}Member credit eligibility: $50 within 48 hours after the event, subject to the $100 lifetime cap.\nSource: ${clean(source, 200) || "Website"}`,
+    Notes: `${existing?.fields?.Notes || ""}${existing?.fields?.Notes ? "\n" : ""}Member credit eligibility: $50 within 48 hours after the event, subject to the $100 lifetime cap.\nSource: ${clean(source, 200) || "Website"}\nEnvironment: ${drSalRegistrationMode()}`,
   };
   return airtable(existing ? `${encodeURIComponent(REGISTRATIONS_TABLE)}/${existing.id}` : encodeURIComponent(REGISTRATIONS_TABLE), {
     method: existing ? "PATCH" : "POST",
@@ -316,5 +341,5 @@ export async function listConfirmedDrSalRegistrations() {
   const formula = `AND({Event}='${formulaValue(DR_SAL_EVENT.id)}',{Status}='Confirmed')`;
   const query = new URLSearchParams({ filterByFormula: formula, pageSize: "100" });
   const data = await airtable(`${encodeURIComponent(REGISTRATIONS_TABLE)}?${query}`);
-  return data.records || [];
+  return (data.records || []).filter(drSalRecordMatchesCurrentMode);
 }

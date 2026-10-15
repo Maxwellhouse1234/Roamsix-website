@@ -1,5 +1,5 @@
 import { captureCrmActivity } from "../lib/crm.js";
-import { DR_SAL_EVENT, drSalAgreementHtml, drSalAgreementSnapshot, registerMemberForDrSal } from "../lib/dr-sal-event.js";
+import { DR_SAL_EVENT, drSalAgreementHtml, drSalAgreementSnapshot, drSalRegistrationEnabled, registerMemberForDrSal } from "../lib/dr-sal-event.js";
 import { sameOrigin, sessionFromRequest } from "../lib/member-auth.js";
 import { membershipForEmail } from "../lib/member-data.js";
 import { sendTransactionalEmail } from "../lib/transactional-email.js";
@@ -29,6 +29,7 @@ export default async function handler(req, res) {
 
   const body = req.body || {};
   if (body.eventId !== DR_SAL_EVENT.id) return res.status(400).json({ error: "This event is not available through this member path." });
+  if (!drSalRegistrationEnabled()) return res.status(503).json({ error: "October 24 registration is not open yet." });
   if (!body.agreedToTerms || !body.waiverAccepted) {
     return res.status(400).json({ error: "Terms and waiver acceptance are required." });
   }

@@ -5,7 +5,7 @@
 
 import { FOUNDER_REFERRALS } from "../lib/founder-referrals.js";
 import { dinnerAvailability } from "../lib/dinner-operations.js";
-import { DR_SAL_EVENT, drSalAvailability, saveDrSalCheckoutHold } from "../lib/dr-sal-event.js";
+import { DR_SAL_EVENT, drSalAvailability, drSalRegistrationEnabled, saveDrSalCheckoutHold } from "../lib/dr-sal-event.js";
 import { enforcePublicSubmission } from '../lib/form-security.js';
 
 const PACKAGE_DATA = {
@@ -107,6 +107,10 @@ export default async function handler(req, res) {
     discountCode          = "",
     source                = "Website",
   } = req.body || {};
+
+  if (eventId === DR_SAL_EVENT.id && !drSalRegistrationEnabled()) {
+    return res.status(503).json({ error: "October 24 registration is not open yet." });
+  }
 
   if (!customerEmail.trim() || !customerName.trim()) {
     return res.status(400).json({ error: "Name and email are required." });

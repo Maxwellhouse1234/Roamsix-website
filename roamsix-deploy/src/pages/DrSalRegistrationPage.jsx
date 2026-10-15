@@ -87,6 +87,15 @@ export default function DrSalRegistrationPage() {
   const soldOut = availability?.soldOut === true;
   const ready = availability && !error;
 
+  if (availability && availability.registrationOpen !== true) return <SiteLayout theme="dark">
+    <section className="page-hero editorial-page-hero"><div className="container narrow">
+      <p className="eyebrow">OCTOBER 24, 2026 · ESSENE RETREAT CENTER · 25 SEATS</p>
+      <h1>The gut-brain connection: food, stress, and everyday performance</h1>
+      <p className="page-lead"><Link to="/experiences#dr-sal">Dr. Sulaiman Bharwani</Link>, pediatric gastroenterologist and founder of GutRewired, on how food, stress, and sleep interact, and which gut-health advice holds up.</p>
+    </div></section>
+    <section className="section light-section"><div className="container narrow"><p className="eyebrow">REGISTRATION UPDATE</p><h2>Registration is not open yet.</h2><p>We are completing the final event details. Please check back shortly.</p></div></section>
+  </SiteLayout>;
+
   if (status === 'success') return <SiteLayout theme="dark"><section className="member-login-page"><div className="container member-login-card"><p className="eyebrow">Member seat reserved</p><h1>You are registered.</h1><p>Your October 24 seat is included with your active membership. You were not charged. A confirmation email is on its way.</p><Link className="button" to="/member#calendar">Return to my member area</Link></div></section></SiteLayout>;
 
   return <SiteLayout theme="dark">

@@ -49,7 +49,7 @@ test('preview keeps photography separate and supports both choices', () => {
   assert.ok(PREVIEW_ATTENDEES.some((record) => record.photoConsent === 'declined'));
 });
 
-test('private preview includes individual registration, QR, email, check-in and reporting views', async () => {
+test('approved preview artifacts remain available for review but are not routed in the launch build', async () => {
   const [router, registration, emails, ticket, checkIn, agreement, eligibility, styles, agreementComponent] = await Promise.all([
     readFile(new URL('../src/router.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../src/pages/DrSalRegistrationPreviewPage.jsx', import.meta.url), 'utf8'),
@@ -62,12 +62,13 @@ test('private preview includes individual registration, QR, email, check-in and 
     readFile(new URL('../src/components/DrSalAgreementText.jsx', import.meta.url), 'utf8'),
   ]);
 
-  assert.match(router, /registration-preview/);
+  assert.doesNotMatch(router, /registration-preview/);
   assert.doesNotMatch(router, /guest-agreement-preview/);
-  assert.match(router, /email-preview/);
-  assert.match(router, /ticket-preview/);
-  assert.match(router, /check-in-preview/);
-  assert.match(router, /attendance-preview/);
+  assert.doesNotMatch(router, /email-preview/);
+  assert.doesNotMatch(router, /ticket-preview/);
+  assert.doesNotMatch(router, /check-in-preview/);
+  assert.doesNotMatch(router, /attendance-preview/);
+  assert.doesNotMatch(router, /staff-roster/);
   assert.match(registration, /General admission/);
   assert.match(registration, /\$50 · One adult/);
   assert.doesNotMatch(registration, /Two admissions|\$25 · One adult/);
@@ -118,6 +119,6 @@ test('October 24 launch path stays individual-only and protects staff operations
   assert.match(completion, /Photography Consent/);
   assert.match(completion, /Agreement SHA-256/);
   assert.match(roster, /propertyShare: Number\(\(netCollected \* 0\.2\)/);
-  assert.match(router, /staff-roster/);
+  assert.doesNotMatch(router, /staff-roster/);
   assert.match(router, /\/transfer/);
 });

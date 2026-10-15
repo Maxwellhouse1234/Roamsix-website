@@ -1,4 +1,4 @@
-import { DR_SAL_EVENT } from "../lib/dr-sal-event.js";
+import { DR_SAL_EVENT, drSalRecordMatchesCurrentMode } from "../lib/dr-sal-event.js";
 import { isAuthorizedEventStaff } from "../lib/event-staff-auth.js";
 
 const BASE_ID = process.env.ROAMSIX_EVENT_BASE_ID || "app2b2mTCtAIMmo79";
@@ -36,8 +36,10 @@ export default async function handler(req, res) {
       list(REGISTRATIONS_TABLE, `{Event}='${formulaValue(DR_SAL_EVENT.id)}'`),
       list(ATTENDEES_TABLE, `{Event Name}='${formulaValue(DR_SAL_EVENT.name)}'`),
     ]);
-    const registrationBySession = new Map(registrations.map((record) => [record.fields?.["Stripe Session ID"], record]));
-    const rows = attendees.map((attendee) => {
+    const modeRegistrations = registrations.filter(drSalRecordMatchesCurrentMode);
+    const modeAttendees = attendees.filter(drSalRecordMatchesCurrentMode);
+    const registrationBySession = new Map(modeRegistrations.map((record) => [record.fields?.["Stripe Session ID"], record]));
+    const rows = modeAttendees.map((attendee) => {
       const fields = attendee.fields || {};
       const registration = registrationBySession.get(fields["Stripe Session ID"]);
       return {
@@ -54,7 +56,7 @@ export default async function handler(req, res) {
         sessionId: fields["Stripe Session ID"] || "",
       };
     });
-    const netCollected = registrations.reduce((sum, record) => sum + Number(record.fields?.["Net Collected"] || 0), 0);
+    const netCollected = modeRegistrations.reduce((sum, record) => sum + Number(record.fields?.["Net Collected"] || 0), 0);
     return res.status(200).json({
       event: { id: DR_SAL_EVENT.id, name: DR_SAL_EVENT.name, date: DR_SAL_EVENT.date },
       rows,

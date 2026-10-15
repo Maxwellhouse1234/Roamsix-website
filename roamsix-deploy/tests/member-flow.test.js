@@ -9,6 +9,7 @@ process.env.STRIPE_MEMBERSHIP_CORE_PRICE_ID = 'price_core';
 process.env.STRIPE_MEMBERSHIP_FIELD_PRICE_ID = 'price_field';
 process.env.STRIPE_MEMBERSHIP_JOURNEY_PRICE_ID = 'price_journey';
 process.env.STRIPE_DR_SAL_PRICE_ID = 'price_dr_sal';
+process.env.OCT24_REGISTRATION_ENABLED = 'true';
 process.env.AIRTABLE_TOKEN = 'airtable_mock';
 process.env.RESEND_API_KEY = 'resend_mock';
 process.env.ACTIVE_MEMBERSHIP_COHORT_ID = 'founding';
@@ -45,6 +46,64 @@ test('event seat counter stays hidden until the fifteenth confirmed seat', async
   assert.equal(shouldShowSeatCounter(14), false);
   assert.equal(shouldShowSeatCounter(15), true);
   assert.equal(shouldShowSeatCounter(25), true);
+});
+
+test('October 24 capacity isolates Stripe test registrations from live admissions', async () => {
+  const originalEnvironment = process.env.VERCEL_ENV;
+  const originalMode = process.env.ROAMSIX_EVENT_DATA_MODE;
+  global.fetch = async (url) => {
+    if (String(url).includes('Event%20Registrations?')) return response({ records: [
+      { id: 'rec_test', fields: { Status: 'Confirmed', Quantity: 1, Notes: 'Seat allocation: 1\nEnvironment: test', 'Stripe Session ID': 'cs_test_registration' } },
+      { id: 'rec_live', fields: { Status: 'Confirmed', Quantity: 1, Notes: 'Seat allocation: 1\nEnvironment: live', 'Stripe Session ID': 'cs_live_registration' } },
+      { id: 'rec_legacy_live', fields: { Status: 'Confirmed', Quantity: 1, Notes: 'Seat allocation: 2', 'Stripe Session ID': 'member_legacy' } },
+    ] });
+    throw new Error(`Unexpected URL ${url}`);
+  };
+  const { drSalAvailability } = await import('../lib/dr-sal-event.js');
+  try {
+    process.env.ROAMSIX_EVENT_DATA_MODE = 'test';
+    let availability = await drSalAvailability();
+    assert.equal(availability.sold, 1);
+    assert.equal(availability.nextSeat, 2);
+
+    process.env.ROAMSIX_EVENT_DATA_MODE = 'live';
+    availability = await drSalAvailability();
+    assert.equal(availability.sold, 2);
+    assert.equal(availability.nextSeat, 3);
+  } finally {
+    if (originalEnvironment === undefined) delete process.env.VERCEL_ENV;
+    else process.env.VERCEL_ENV = originalEnvironment;
+    if (originalMode === undefined) delete process.env.ROAMSIX_EVENT_DATA_MODE;
+    else process.env.ROAMSIX_EVENT_DATA_MODE = originalMode;
+  }
+});
+
+test('duplicate October 24 confirmations update one registration instead of creating another', async () => {
+  let lookupCount = 0;
+  const writes = [];
+  global.fetch = async (url, options = {}) => {
+    if (String(url).includes('Event%20Registrations?')) {
+      lookupCount += 1;
+      return response({ records: lookupCount === 1 ? [] : [{ id: 'rec_existing', fields: { Notes: 'First confirmation' } }] });
+    }
+    if (String(url).endsWith('/Event%20Registrations') && options.method === 'POST') {
+      writes.push({ method: 'POST', fields: JSON.parse(options.body).fields });
+      return response({ id: 'rec_existing' });
+    }
+    if (String(url).endsWith('/Event%20Registrations/rec_existing') && options.method === 'PATCH') {
+      writes.push({ method: 'PATCH', fields: JSON.parse(options.body).fields });
+      return response({ id: 'rec_existing' });
+    }
+    throw new Error(`Unexpected URL ${url}`);
+  };
+  const { confirmDrSalRegistration } = await import('../lib/dr-sal-event.js');
+  const confirmation = { sessionId: 'cs_test_duplicate', name: 'Duplicate Test', email: 'duplicate@example.com', amountPaid: 25, grossAmount: 50, discountAmount: 25, promotionCode: 'ROAMSIXFRIENDS50', registeredAt: '2026-10-14T00:00:00.000Z', source: 'verification' };
+  await confirmDrSalRegistration(confirmation);
+  await confirmDrSalRegistration(confirmation);
+  assert.deepEqual(writes.map((write) => write.method), ['POST', 'PATCH']);
+  assert.equal(writes[1].fields['Amount Paid'], 25);
+  assert.equal(writes[1].fields['Net Collected'], 25);
+  assert.equal(writes[1].fields['Property Share'], 5);
 });
 
 test('partial event refunds preserve only net collected admission revenue', async () => {
@@ -396,7 +455,7 @@ test('Dr. Sal checkout stops before Stripe when all 25 seats are occupied', asyn
   let stripeCalled = false;
   global.fetch = async (url) => {
     if (String(url).includes('Event%20Registrations?')) return response({
-      records: Array.from({ length: 25 }, (_, index) => ({ id: `rec_${index + 1}`, fields: { Status: 'Confirmed', Quantity: 1, Notes: `Seat allocation: ${index + 1}` } })),
+      records: Array.from({ length: 25 }, (_, index) => ({ id: `rec_${index + 1}`, fields: { Status: 'Confirmed', Quantity: 1, 'Stripe Session ID': `cs_test_full_${index + 1}`, Notes: `Seat allocation: ${index + 1}\nEnvironment: test` } })),
     });
     stripeCalled = true;
     return response({ id: 'should_not_exist', url: 'https://checkout.stripe.test/oversold' });
