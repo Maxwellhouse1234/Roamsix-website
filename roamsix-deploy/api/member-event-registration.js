@@ -24,6 +24,9 @@ function teamHtml({ name, email, phone, tier, source, acceptedAt, legalVersion }
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed." });
   if (!sameOrigin(req)) return res.status(403).json({ error: "Request origin was not accepted." });
+  if (req.body?.eventId === DR_SAL_EVENT.id) {
+    return res.status(503).json({ error: "October 24 registration is temporarily unavailable while final event details are confirmed." });
+  }
   const session = sessionFromRequest(req);
   if (!session) return res.status(401).json({ error: "Sign in is required to reserve an included member seat." });
 

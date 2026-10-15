@@ -304,59 +304,22 @@ test('checkout fails closed when Stripe cannot verify cohort capacity', async ()
   assert.equal(checkoutCreated, false);
 });
 
-test('Dr. Sal checkout requires separate legal acceptance and creates one tracked seat hold', async () => {
-  const calls = [];
-  global.fetch = async (url, options = {}) => {
-    calls.push({ url: String(url), options });
-    if (String(url).includes('Event%20Registrations?')) return response({ records: [] });
-    if (String(url) === 'https://api.stripe.com/v1/checkout/sessions') return response({ id: 'cs_dr_sal', url: 'https://checkout.stripe.test/dr-sal' });
-    if (String(url).endsWith('/Event%20Registrations') && options.method === 'POST') return response({ id: 'rec_hold', fields: JSON.parse(options.body).fields });
-    throw new Error(`Unexpected URL ${url}`);
-  };
-  const { default: checkout } = await import('../api/create-checkout-session.js');
-  const baseBody = {
-    eventId: 'dr-sal-gut-brain-2026', packageId: 'general-admission', customerName: 'Test Guest', customerEmail: 'guest@example.com', phone: '555-555-5555',
-    agreedToTerms: true, waiverAccepted: true, mediaReleaseAccepted: true, acceptedLegalVersion: '2026-09-29-dr-sal-v1', acceptedAt: new Date().toISOString(), source: 'homepage',
-    formStartedAt: Date.now() - 3000, turnstileToken: 'test-token', website: '',
-  };
-
-  const missingWaiver = mockRes();
-  await checkout({ method: 'POST', body: { ...baseBody, waiverAccepted: false }, headers: { host: 'roamsix.test', 'x-forwarded-proto': 'https' } }, missingWaiver);
-  assert.equal(missingWaiver.statusCode, 400);
-  assert.match(missingWaiver.body.error, /Assumption of Risk/);
-
-  const res = mockRes();
-  await checkout({ method: 'POST', body: baseBody, headers: { host: 'roamsix.test', 'x-forwarded-proto': 'https' } }, res);
-  assert.equal(res.statusCode, 200);
-  assert.equal(res.body.url, 'https://checkout.stripe.test/dr-sal');
-  const stripeCall = calls.find((call) => call.url === 'https://api.stripe.com/v1/checkout/sessions');
-  assert.equal(stripeCall.options.headers['Idempotency-Key'].includes('dr-sal-gut-brain-2026-seat-1'), true);
-  assert.match(String(stripeCall.options.body), /price_dr_sal/);
-  assert.match(String(stripeCall.options.body), /waiverAccepted.*true/);
-  assert.match(String(stripeCall.options.body), /mediaReleaseAccepted.*true/);
-  const holdCall = calls.find((call) => call.url.endsWith('/Event%20Registrations') && call.options.method === 'POST');
-  assert.equal(JSON.parse(holdCall.options.body).fields.Status, 'Pending');
-  assert.match(JSON.parse(holdCall.options.body).fields.Notes, /Seat allocation: 1/);
-});
-
-test('Dr. Sal checkout stops before Stripe when all 25 seats are occupied', async () => {
-  let stripeCalled = false;
-  global.fetch = async (url) => {
-    if (String(url).includes('Event%20Registrations?')) return response({
-      records: Array.from({ length: 25 }, (_, index) => ({ id: `rec_${index + 1}`, fields: { Status: 'Confirmed', Quantity: 1, Notes: `Seat allocation: ${index + 1}` } })),
-    });
-    stripeCalled = true;
-    return response({ id: 'should_not_exist', url: 'https://checkout.stripe.test/oversold' });
+test('October 24 checkout is temporarily closed before Stripe or Airtable are called', async () => {
+  let externalCallMade = false;
+  global.fetch = async () => {
+    externalCallMade = true;
+    throw new Error('No external call should be made while registration is closed');
   };
   const { default: checkout } = await import('../api/create-checkout-session.js');
   const res = mockRes();
   await checkout({
     method: 'POST',
-    body: { eventId: 'dr-sal-gut-brain-2026', packageId: 'general-admission', customerName: 'Late Guest', customerEmail: 'late@example.com', agreedToTerms: true, waiverAccepted: true, mediaReleaseAccepted: true, formStartedAt: Date.now() - 3000, turnstileToken: 'test-token', website: '' },
+    body: { eventId: 'dr-sal-gut-brain-2026' },
     headers: { host: 'roamsix.test', 'x-forwarded-proto': 'https' },
   }, res);
-  assert.equal(res.statusCode, 409);
-  assert.equal(stripeCalled, false);
+  assert.equal(res.statusCode, 503);
+  assert.match(res.body.error, /temporarily unavailable/);
+  assert.equal(externalCallMade, false);
 });
 
 test('shared membership language matches the approved founding offer', async () => {
@@ -490,6 +453,8 @@ test('member forms reuse signed-in identity while preserving explicit update con
   assert.match(registrationPage, /Open in Google Maps/);
   assert.match(registrationPage, /Open in Apple Maps/);
   assert.match(registrationPage, /29455 Pamoosa Lane, Valley Center, CA 92082/);
+  assert.match(registrationPage, /REGISTRATION_OPEN = false/);
+  assert.match(registrationPage, /Registration is temporarily unavailable/);
   assert.match(contextApi, /activeMember: true/);
   assert.match(memberRegistrationApi, /membershipForEmail/);
   assert.match(memberRegistrationApi, /waiverAccepted/);
@@ -536,7 +501,9 @@ test('approved public copy preserves the membership offer and page structure', a
   assert.match(experiences, /<h2>Keep going beyond one event\.<\/h2>/);
   assert.match(experiences, /Membership includes all 36 Core gatherings in 2027, so one evening can become part of a full year of conversations, movement, and hands-on experiences\./);
   assert.match(experiences, />Compare membership options<\/Link>/);
-  assert.match(experiences, /Reserve my seat · \$50/);
+  assert.match(experiences, /Registration is temporarily unavailable/);
+  assert.match(experiences, /View event details/);
+  assert.doesNotMatch(experiences, /Reserve my seat · \$50/);
   assert.match(experiences, /29455 Pamoosa Lane, Valley Center, CA 92082/);
   assert.match(experiences, /4:00 to 6:00 PM/);
   assert.doesNotMatch(experiences, /exact location is released October 7|Hold my seat/i);

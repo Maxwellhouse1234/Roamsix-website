@@ -7,6 +7,7 @@ const EVENT_ID = 'dr-sal-gut-brain-2026';
 const LEGAL_VERSION = '2026-09-29-dr-sal-v1';
 const VENUE_ADDRESS = '29455 Pamoosa Lane, Valley Center, CA 92082';
 const MAP_QUERY = encodeURIComponent(`Essene Retreat Center, ${VENUE_ADDRESS}`);
+const REGISTRATION_OPEN = false;
 
 export default function DrSalRegistrationPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', termsAccepted: false, waiverAccepted: false, mediaReleaseAccepted: false });
@@ -84,6 +85,27 @@ export default function DrSalRegistrationPage() {
 
   const soldOut = availability?.soldOut === true;
   const ready = availability && !error;
+
+  if (!REGISTRATION_OPEN) return <SiteLayout theme="dark">
+    <section className="page-hero editorial-page-hero"><div className="container narrow">
+      <p className="eyebrow">OCTOBER 24, 2026 · ESSENE RETREAT CENTER · 25 SEATS</p>
+      <h1>The gut-brain connection: food, stress, and everyday performance</h1>
+      <p className="page-lead"><Link to="/experiences#dr-sal">Dr. Sulaiman Bharwani</Link>, pediatric gastroenterologist and founder of GutRewired, on how food, stress, and sleep interact, and which gut-health advice holds up.</p>
+      <p>Join us at Essene Retreat Center, 29455 Pamoosa Lane, Valley Center, CA 92082, from 4:00 to 6:00 PM.</p>
+    </div></section>
+    <section className="section light-section"><div className="container narrow">
+      <p className="eyebrow">REGISTRATION UPDATE</p>
+      <h2>Registration is temporarily unavailable.</h2>
+      <p>We are completing the final event details. Please check back shortly.</p>
+      <div className="event-location-details">
+        <p className="eyebrow">Location</p>
+        <h3>Essene Retreat Center</h3>
+        <p>{VENUE_ADDRESS}<br />October 24, 2026 · 4:00–6:00 PM</p>
+        <div className="event-location-links"><a href={`https://www.google.com/maps/search/?api=1&query=${MAP_QUERY}`} target="_blank" rel="noreferrer">Open in Google Maps</a><a href={`https://maps.apple.com/?q=${MAP_QUERY}`} target="_blank" rel="noreferrer">Open in Apple Maps</a></div>
+        <div className="event-location-map"><iframe title="Map of Essene Retreat Center" src={`https://www.google.com/maps?q=${MAP_QUERY}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" /></div>
+      </div>
+    </div></section>
+  </SiteLayout>;
 
   if (status === 'success') return <SiteLayout theme="dark"><section className="member-login-page"><div className="container member-login-card"><p className="eyebrow">Member seat reserved</p><h1>You are registered.</h1><p>Your October 24 seat is included with your active membership. You were not charged. A confirmation email is on its way.</p><Link className="button" to="/member#calendar">Return to my member area</Link></div></section></SiteLayout>;
 
