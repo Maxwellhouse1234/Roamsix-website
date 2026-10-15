@@ -99,7 +99,7 @@ test('approved preview artifacts remain available for review but are not routed 
 });
 
 test('October 24 launch path stays individual-only, two-stage, and protects staff operations', async () => {
-  const [registration, checkout, webhook, transfer, completion, roster, router] = await Promise.all([
+  const [registration, checkout, webhook, transfer, completion, roster, router, eventConfig, terms] = await Promise.all([
     readFile(new URL('../src/pages/DrSalRegistrationPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../api/create-checkout-session.js', import.meta.url), 'utf8'),
     readFile(new URL('../api/stripe-webhook.js', import.meta.url), 'utf8'),
@@ -107,6 +107,8 @@ test('October 24 launch path stays individual-only, two-stage, and protects staf
     readFile(new URL('../api/complete-event-transfer.js', import.meta.url), 'utf8'),
     readFile(new URL('../api/event-roster.js', import.meta.url), 'utf8'),
     readFile(new URL('../src/router.jsx', import.meta.url), 'utf8'),
+    readFile(new URL('../lib/dr-sal-event.js', import.meta.url), 'utf8'),
+    readFile(new URL('../src/pages/TermsPage.jsx', import.meta.url), 'utf8'),
   ]);
 
   assert.match(registration, /Private admission code/);
@@ -117,6 +119,10 @@ test('October 24 launch path stays individual-only, two-stage, and protects staf
   assert.doesNotMatch(checkout, /allow_promotion_codes/);
   assert.match(registration, /Payment reserves a seat\. It does not complete admission requirements/);
   assert.match(registration, /current draft property waiver is not being presented or accepted here/);
+  assert.match(registration, /purchasers will receive a full refund to the original payment method/);
+  assert.match(terms, /venue, insurance, permit, safety or other operational requirements/);
+  assert.match(eventConfig, /ROAMSIX-OCT24-2026-RESERVATION-TERMS-2026-10-14-R2/);
+  assert.doesNotMatch(eventConfig, /purchasers may receive a full refund/);
   assert.doesNotMatch(registration, /DrSalAgreementText|DR_SAL_GUEST_AGREEMENT_VERSION/);
   assert.match(checkout, /participationRequirementAcknowledged/);
   assert.match(checkout, /participationAgreementStatus/);

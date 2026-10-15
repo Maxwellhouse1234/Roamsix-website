@@ -17,10 +17,10 @@ export const DR_SAL_EVENT = Object.freeze({
   priceCents: 5000,
   priceEnv: "STRIPE_DR_SAL_PRICE_ID",
   refundDeadline: "2026-10-21T17:00:00-07:00",
-  refundPolicy: "Full refunds are available for cancellations requested by October 21, 2026, at 5:00 PM Pacific. After that deadline, tickets are nonrefundable but may be transferred to another adult with staff assistance, provided the replacement attendee completes the required participation agreement. If ROAMSIX cancels, materially changes the event or participation requirements, or cannot provide the approved participation agreement before admission, purchasers may receive a full refund. To request a refund or transfer, guests should contact ROAMSIX using the contact information provided in their confirmation email.",
+  refundPolicy: "Full refunds are available for attendee cancellations requested by October 21, 2026, at 5:00 PM Pacific. After that deadline, tickets are nonrefundable but may be transferred to another adult with staff assistance, provided the replacement attendee completes the required participation agreement. If ROAMSIX cancels the event, purchasers will receive a full refund to the original payment method. This includes cancellation because venue, insurance, permit, safety or other operational requirements are not satisfied. If ROAMSIX postpones or reschedules the event, materially changes the event or participation requirements, or cannot provide the approved participation agreement before admission, purchasers may keep their registration or request a full refund. To request a refund or transfer, guests should contact ROAMSIX using the contact information provided in their confirmation email.",
   privatePromotionCode: "ROAMSIXFRIENDS50",
   privatePromotionEnv: "STRIPE_DR_SAL_PROMOTION_ID",
-  purchaseTermsVersion: "ROAMSIX-OCT24-2026-RESERVATION-TERMS-2026-10-14",
+  purchaseTermsVersion: "ROAMSIX-OCT24-2026-RESERVATION-TERMS-2026-10-14-R2",
   participationAgreementStatus: "pending-approval",
   legalVersion: "ROAMSIX-OCT24-2026-DRAFT-2026-10-13",
 });
