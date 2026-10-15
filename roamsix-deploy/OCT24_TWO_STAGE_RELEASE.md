@@ -36,10 +36,18 @@ Final approval of the property participation waiver is not required to test the 
 
 ## Technical release gates
 
+Protected Preview verification completed:
+
+- the exact `codex/oct24-two-stage-preview` branch opens registration only with a Stripe test or restricted-test key;
+- Cloudflare's official test widget and secret are selected only for that protected Preview branch, never for Production;
+- the mobile registration form has no horizontal overflow and requires both acknowledgments;
+- `ROAMSIXFRIENDS50` was resolved from Stripe Sandbox and produced a Stripe-hosted mobile Checkout showing **Sandbox** and **$25.00**;
+- no test payment was completed in this verification, so no new confirmation email, webhook fulfillment, or refund was generated.
+
 Before Production activation:
 
-1. Verify the protected Preview uses Stripe Sandbox, isolated test Airtable records, and `OCT24_REGISTRATION_ENABLED=true` only in Preview.
-2. Complete one full-price and one `ROAMSIXFRIENDS50` checkout on mobile and desktop.
+1. Confirm the protected Preview's Airtable writes remain isolated from live registrations.
+2. Complete one full-price and one `ROAMSIXFRIENDS50` payment across mobile and desktop; the discounted mobile Checkout Session is verified, but payment was not submitted.
 3. Confirm each duplicate webhook delivery leaves one registration, one attendee, and one copy of each expected email.
 4. Confirm the attendee and confirmation email say `agreement pending`, never `waiver accepted` or `admission ready`.
 5. Refund the discounted Sandbox payment and confirm registration, attendee, net revenue, and property share reconcile to zero.
