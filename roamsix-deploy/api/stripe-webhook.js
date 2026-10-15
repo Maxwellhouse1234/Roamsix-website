@@ -13,7 +13,7 @@ import { handleMembershipLifecycleEvent, sendMembershipPurchaseEmails } from "..
 import { cohortFromMetadata } from "../lib/membership-cohort.js";
 import { markMembershipRefunded, recordMembershipPurchase } from "../lib/membership-records.js";
 import { sendTransactionalEmail } from "../lib/transactional-email.js";
-import { DR_SAL_EVENT, confirmDrSalRegistration, drSalAgreementHash, drSalAgreementHtml, drSalAgreementSnapshot, refundDrSalRegistration } from "../lib/dr-sal-event.js";
+import { DR_SAL_EVENT, confirmDrSalRegistration, refundDrSalRegistration } from "../lib/dr-sal-event.js";
 import { markEventCreditApplied } from "../lib/event-credit.js";
 
 const MEMBERSHIP_LIFECYCLE_EVENTS = new Set([
@@ -42,13 +42,14 @@ async function markAttendeesRefunded(sessionId, { grossAmount, refundedAmount, f
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(`Attendee refund lookup failed (${response.status})`);
   for (const record of data.records || []) {
+    const agreementComplete = record.fields?.["Waiver Accepted"] === "Yes";
     const patch = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/tbltON9TJyq9GqBW4/${record.id}`, {
       method: "PATCH", headers,
       body: JSON.stringify({ fields: {
         "Payment Status": fullyRefunded ? "Refunded" : "Partially Refunded",
         "Amount Paid": Math.max(0, grossAmount - refundedAmount),
         "Registration Status": fullyRefunded ? "Canceled - refunded" : "Confirmed - partial refund",
-        "Check-In Eligibility": fullyRefunded ? "Not eligible" : "Ready",
+        "Check-In Eligibility": fullyRefunded ? "Not eligible" : agreementComplete ? "Ready" : "Agreement required",
       }, typecast: true }),
     });
     if (!patch.ok) throw new Error(`Attendee refund update failed (${patch.status})`);
@@ -314,6 +315,7 @@ export default async function handler(req, res) {
     const agreedToTerms         = session.metadata?.agreedToTerms === "true";
     const waiverAccepted        = session.metadata?.waiverAccepted === "true";
     const mediaReleaseAccepted  = session.metadata?.mediaReleaseAccepted === "true";
+    const participationRequirementAcknowledged = session.metadata?.participationRequirementAcknowledged === "true";
     const registrationSource    = session.metadata?.source || "Website";
     const ageConfirmed          = session.metadata?.ageConfirmed  || "No";
     const smsConsent            = session.metadata?.smsConsent    || "No";
@@ -394,7 +396,6 @@ export default async function handler(req, res) {
 
       // ── WRITE TO ATTENDEES (full legal + operational record) ───────────────
       if (process.env.AIRTABLE_TOKEN) {
-        const agreementSnapshot = eventId === DR_SAL_EVENT.id ? drSalAgreementSnapshot() : "";
         await writeAttendeesRecord(process.env.AIRTABLE_TOKEN, {
           "Full Name":               customerName || "Not provided",
           "Email":                   email,
@@ -406,20 +407,20 @@ export default async function handler(req, res) {
           "Stripe Session ID":       sessionId,
           "Payment Status":          "Paid",
           "Legal Accepted":          eventId === DR_SAL_EVENT.id
-            ? `Terms: ${agreedToTerms ? "Yes" : "No"}; Waiver: ${waiverAccepted ? "Yes" : "No"}; Photography Consent: ${mediaReleaseAccepted ? "Yes" : "No"}`
+            ? `Reservation terms: ${agreedToTerms ? "Yes" : "No"}; Participation requirement acknowledged: ${participationRequirementAcknowledged ? "Yes" : "No"}; Participation agreement: Pending; Photography consent: Pending`
             : agreedToTerms ? "Yes" : "No",
           "Legal Version":           legalVersion,
           "Accepted At":             acceptedAt,
           ...(eventId === DR_SAL_EVENT.id ? {
             "Event Terms Accepted": agreedToTerms ? "Yes" : "No",
-            "Waiver Accepted": waiverAccepted ? "Yes" : "No",
-            "Photography Consent": mediaReleaseAccepted ? "Permitted" : "Declined",
-            "Agreement Text Snapshot": agreementSnapshot,
-            "Agreement SHA-256": drSalAgreementHash(agreementSnapshot),
-            "Acceptance Source": "stripe-checkout-webhook",
+            "Waiver Accepted": "No",
+            "Photography Consent": "Pending",
+            "Agreement Text Snapshot": "",
+            "Agreement SHA-256": "",
+            "Acceptance Source": "stripe-two-stage-reservation",
             "Registration Source": registrationSource,
-            "Registration Status": "Confirmed",
-            "Check-In Eligibility": "Ready",
+            "Registration Status": "Paid - agreement pending",
+            "Check-In Eligibility": "Agreement required",
           } : {}),
           "Age Confirmed":           (ageConfirmed === "true" || ageConfirmed === true) ? "Yes" : "No",
           "SMS Consent":             smsConsent,
@@ -470,7 +471,7 @@ export default async function handler(req, res) {
           stripeSessionId: sessionId, uniqueKey: `stripe:${sessionId}`,
           discountCode, discountType, stripePromotionId, discountAmount,
           referrerCode, referrerContactId,
-          details: `${packageId}${isBundle ? " (Two Tickets)" : ""}; quantity ${isBundle ? 2 : quantity}${referrerName ? `; referred by ${referrerName}` : ""}; registration source ${registrationSource}${eventId === DR_SAL_EVENT.id ? `; waiver accepted; photography consent ${mediaReleaseAccepted ? "permitted" : "declined"}; $50 founding membership credit eligible within 48 hours after the event; $100 lifetime credit cap` : ""}`,
+          details: `${packageId}${isBundle ? " (Two Tickets)" : ""}; quantity ${isBundle ? 2 : quantity}${referrerName ? `; referred by ${referrerName}` : ""}; registration source ${registrationSource}${eventId === DR_SAL_EVENT.id ? `; reservation terms accepted; participation agreement pending; photography consent pending; $50 founding membership credit eligible within 48 hours after the event; $100 lifetime credit cap` : ""}`,
         },
       });
 
@@ -489,11 +490,11 @@ export default async function handler(req, res) {
         name: customerName, guestNames, email, eventId, eventName, packageId, isBundle,
         amountPaid, quantity, sessionId, timestamp, phone,
         emergencyContactName, emergencyContactPhone, medicalNotes: [medicalNotes && `Purchaser: ${medicalNotes}`, guestMedicalNotes && `Second guest: ${guestMedicalNotes}`].filter(Boolean).join("\n"),
-        legalVersion, agreedToTerms, waiverAccepted, mediaReleaseAccepted,
+        legalVersion, agreedToTerms, waiverAccepted, mediaReleaseAccepted, participationRequirementAcknowledged,
       }));
       const common = { stripeEventId: event.id, stripeSessionId: sessionId };
       await Promise.all([
-        sendTransactionalEmail({ ...common, key: `stripe:${event.id}:${sessionId}:event-registration:${email}`, purpose: "event-registration-confirmation", from: "ROAMSIX Events <info@roamsix.com>", to: email, subject: "Your ROAMSIX Registration is Confirmed", html: customerHtml }),
+        sendTransactionalEmail({ ...common, key: `stripe:${event.id}:${sessionId}:event-registration:${email}`, purpose: "event-registration-confirmation", from: "ROAMSIX Events <info@roamsix.com>", to: email, subject: eventId === DR_SAL_EVENT.id ? "Your October 24 seat is reserved — agreement required" : "Your ROAMSIX Registration is Confirmed", html: customerHtml }),
         sendTransactionalEmail({ ...common, key: `stripe:${event.id}:${sessionId}:event-registration:max@roamsix.com`, purpose: "event-registration-notification", from: "ROAMSIX Events <info@roamsix.com>", to: "max@roamsix.com", replyTo: email, subject: `New Registration: ${customerName || email} - ${packageId}`, html: teamHtml }),
       ]);
 
@@ -615,7 +616,6 @@ function currentEmailPalette(html) {
 
 function drSalConfirmHTML({ name, eventName, amountPaid }) {
   const firstName = (name || "").split(" ")[0] || "there";
-  const agreementSnapshot = drSalAgreementSnapshot();
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
@@ -624,11 +624,11 @@ function drSalConfirmHTML({ name, eventName, amountPaid }) {
     <table width="600" cellpadding="0" cellspacing="0" style="background:#141C2A;max-width:600px;width:100%;">
       <tr><td style="padding:36px 40px 28px;border-bottom:2px solid #B59558;">
         <div style="font-size:22px;font-weight:700;letter-spacing:5px;color:#E8DFD0;text-transform:uppercase;">ROAMSIX</div>
-        <div style="font-size:11px;letter-spacing:3px;color:#B59558;text-transform:uppercase;margin-top:4px;">Registration Confirmed</div>
+        <div style="font-size:11px;letter-spacing:3px;color:#B59558;text-transform:uppercase;margin-top:4px;">Seat Reserved</div>
       </td></tr>
       <tr><td style="padding:36px 40px 12px;">
         <p style="color:#E8DFD0;font-size:18px;margin:0 0 20px;line-height:1.5;">${firstName},</p>
-        <p style="color:#C8C0B4;font-size:16px;line-height:1.75;margin:0 0 24px;">Your seat is held for ${eventName || DR_SAL_EVENT.name}.</p>
+        <p style="color:#C8C0B4;font-size:16px;line-height:1.75;margin:0 0 24px;">We received your payment and reserved your seat for ${eventName || DR_SAL_EVENT.name}.</p>
         <div style="background:rgba(74,117,117,0.08);border:1px solid rgba(74,117,117,0.2);border-left:3px solid #4A7575;padding:24px;margin-bottom:28px;">
           <table width="100%" cellpadding="0" cellspacing="0">
             ${row("Date", "October 24, 2026")}
@@ -638,10 +638,10 @@ function drSalConfirmHTML({ name, eventName, amountPaid }) {
             ${row("Paid", "$" + Number(amountPaid || 0).toFixed(2))}
           </table>
         </div>
-        ${section("Arrival details", "Final arrival and parking instructions will follow by email.")}
-        ${section("Cancellation, refunds and transfers", `${DR_SAL_EVENT.refundPolicy} Staff assistance is required for transfers. The replacement attendee will receive a separate link and must accept the current event agreement before admission.`)}
+        ${section("Action required before admission", "Your payment reserves a seat, but you are not admission-ready yet. ROAMSIX will send the final participation agreement after the property requirements are approved. You must complete it before admission. If it is not completed electronically, you may complete the approved paper version at check-in. Photography and video consent will be requested separately and will remain optional.")}
+        ${section("Arrival details", "Final agreement, arrival, and parking instructions will follow by email.")}
+        ${section("Cancellation, refunds and transfers", `${DR_SAL_EVENT.refundPolicy} Staff assistance is required for transfers. The replacement attendee must complete the separately approved participation agreement before admission.`)}
         ${section("Founding membership credit", "$50 applies toward founding membership if you join within 48 hours of the event. Event credits are capped at $100 over the lifetime of each member record.")}
-        ${drSalAgreementHtml(agreementSnapshot)}
       </td></tr>
       <tr><td style="padding:0 40px 36px;">
         <p style="color:#C8C0B4;font-size:15px;line-height:1.75;margin:0;">Questions? Reply to this email or contact <a href="mailto:info@roamsix.com" style="color:#4A7575;text-decoration:none;">info@roamsix.com</a>.</p>
@@ -766,7 +766,7 @@ function customerConfirmHTML({ name, guestNames = [], eventId, eventName, packag
 </html>`;
 }
 
-function teamNotifyHTML({ name, guestNames = [], email, eventId, eventName, packageId, isBundle, amountPaid, quantity, sessionId, timestamp, phone, emergencyContactName, emergencyContactPhone, medicalNotes, legalVersion, agreedToTerms, waiverAccepted, mediaReleaseAccepted }) {
+function teamNotifyHTML({ name, guestNames = [], email, eventId, eventName, packageId, isBundle, amountPaid, quantity, sessionId, timestamp, phone, emergencyContactName, emergencyContactPhone, medicalNotes, legalVersion, agreedToTerms, waiverAccepted, mediaReleaseAccepted, participationRequirementAcknowledged }) {
   const displayEvent = eventName || fmtEventId(eventId);
   return `<!DOCTYPE html>
 <html>
@@ -800,8 +800,9 @@ function teamNotifyHTML({ name, guestNames = [], email, eventId, eventName, pack
               ${row("Emergency Contact",      emergencyContactName ? `${emergencyContactName} - ${emergencyContactPhone}` : "Not provided")}
               ${row("Medical / Dietary",      medicalNotes || "None disclosed")}
               ${row("Legal Accepted",         agreedToTerms ? "Yes" : "No")}
-              ${eventId === DR_SAL_EVENT.id ? row("Waiver Accepted", waiverAccepted ? "Yes" : "No") : ""}
-              ${eventId === DR_SAL_EVENT.id ? row("Photography Consent", mediaReleaseAccepted ? "Permitted" : "Declined") : ""}
+              ${eventId === DR_SAL_EVENT.id ? row("Participation requirement acknowledged", participationRequirementAcknowledged ? "Yes" : "No") : ""}
+              ${eventId === DR_SAL_EVENT.id ? row("Participation agreement", "Pending") : ""}
+              ${eventId === DR_SAL_EVENT.id ? row("Photography Consent", "Pending") : ""}
               ${row("Legal Version",          legalVersion || "N/A")}
               ${row("Session ID",             sessionId)}
             </table>

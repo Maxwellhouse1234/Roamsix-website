@@ -1,4 +1,4 @@
-import { DR_SAL_EVENT, drSalAgreementHash, drSalAgreementHtml, drSalAgreementSnapshot } from "../lib/dr-sal-event.js";
+import { DR_SAL_EVENT, drSalAgreementHash, drSalAgreementHtml, drSalAgreementSnapshot, drSalParticipationAgreementEnabled } from "../lib/dr-sal-event.js";
 import { sameOrigin, verifySignedToken } from "../lib/member-auth.js";
 import { sendTransactionalEmail } from "../lib/transactional-email.js";
 
@@ -14,6 +14,7 @@ async function findOne(table, formula) { const query = new URLSearchParams({ fil
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "private, no-store");
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed." });
+  if (!drSalParticipationAgreementEnabled()) return res.status(503).json({ error: "The final participation agreement is not available yet." });
   if (!sameOrigin(req)) return res.status(403).json({ error: "Request origin was not accepted." });
   const secret = process.env.EVENT_TRANSFER_SECRET || process.env.MEMBER_AUTH_SECRET;
   const claims = verifySignedToken(clean(req.body?.token, 5000), secret, "event-transfer");

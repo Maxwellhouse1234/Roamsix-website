@@ -1,5 +1,5 @@
 import { createSignedToken, sameOrigin } from "../lib/member-auth.js";
-import { DR_SAL_EVENT } from "../lib/dr-sal-event.js";
+import { DR_SAL_EVENT, drSalParticipationAgreementEnabled } from "../lib/dr-sal-event.js";
 import { isAuthorizedEventStaff } from "../lib/event-staff-auth.js";
 import { sendTransactionalEmail } from "../lib/transactional-email.js";
 
@@ -27,6 +27,7 @@ async function findOne(table, formula) {
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "private, no-store");
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed." });
+  if (!drSalParticipationAgreementEnabled()) return res.status(503).json({ error: "Transfers will open after the final participation agreement is approved." });
   if (!sameOrigin(req)) return res.status(403).json({ error: "Request origin was not accepted." });
   if (!isAuthorizedEventStaff(req)) return res.status(401).json({ error: "Authorized event staff access is required." });
   if (!process.env.AIRTABLE_TOKEN || !(process.env.EVENT_TRANSFER_SECRET || process.env.MEMBER_AUTH_SECRET)) return res.status(503).json({ error: "Transfer processing is not configured." });

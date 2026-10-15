@@ -17,9 +17,11 @@ export const DR_SAL_EVENT = Object.freeze({
   priceCents: 5000,
   priceEnv: "STRIPE_DR_SAL_PRICE_ID",
   refundDeadline: "2026-10-21T17:00:00-07:00",
-  refundPolicy: "Full refunds are available for cancellations requested by October 21, 2026, at 5:00 PM Pacific. After this deadline, tickets are nonrefundable but may be transferred to another adult before the event, provided the replacement attendee completes the required participation agreement. If ROAMSIX cancels the event, purchasers receive a full refund. To request a refund or transfer, guests should contact ROAMSIX using the contact information provided in their confirmation email.",
+  refundPolicy: "Full refunds are available for cancellations requested by October 21, 2026, at 5:00 PM Pacific. After that deadline, tickets are nonrefundable but may be transferred to another adult with staff assistance, provided the replacement attendee completes the required participation agreement. If ROAMSIX cancels, materially changes the event or participation requirements, or cannot provide the approved participation agreement before admission, purchasers may receive a full refund. To request a refund or transfer, guests should contact ROAMSIX using the contact information provided in their confirmation email.",
   privatePromotionCode: "ROAMSIXFRIENDS50",
   privatePromotionEnv: "STRIPE_DR_SAL_PROMOTION_ID",
+  purchaseTermsVersion: "ROAMSIX-OCT24-2026-RESERVATION-TERMS-2026-10-14",
+  participationAgreementStatus: "pending-approval",
   legalVersion: "ROAMSIX-OCT24-2026-DRAFT-2026-10-13",
 });
 
@@ -57,6 +59,10 @@ export function shouldShowSeatCounter(sold) {
 
 export function drSalRegistrationEnabled() {
   return String(process.env.OCT24_REGISTRATION_ENABLED || "").toLowerCase() === "true";
+}
+
+export function drSalParticipationAgreementEnabled() {
+  return String(process.env.OCT24_PARTICIPATION_AGREEMENT_APPROVED || "").toLowerCase() === "true";
 }
 
 function clean(value, max = 500) {
@@ -186,14 +192,13 @@ export async function memberDrSalRegistrationStatus(email) {
   return { registered: Boolean(registration), recordId: registration?.id || null };
 }
 
-async function ensureMemberAttendee({ sessionId, name, email, phone, source, acceptedAt, legalVersion, photoConsent = false }) {
+async function ensureMemberAttendee({ sessionId, name, email, phone, source, acceptedAt, purchaseTermsVersion }) {
   const query = new URLSearchParams({
     filterByFormula: `{Stripe Session ID}='${formulaValue(sessionId)}'`,
     maxRecords: "1",
   });
   const found = await airtable(`${encodeURIComponent(ATTENDEES_TABLE)}?${query}`);
   if (found.records?.[0]) return found.records[0];
-  const agreementSnapshot = drSalAgreementSnapshot();
   return airtable(encodeURIComponent(ATTENDEES_TABLE), {
     method: "POST",
     body: JSON.stringify({
@@ -207,18 +212,18 @@ async function ensureMemberAttendee({ sessionId, name, email, phone, source, acc
         "Amount Paid": 0,
         "Stripe Session ID": sessionId,
         "Payment Status": "Included with active membership",
-        "Legal Accepted": `Terms: Yes; Waiver: Yes; Photography Consent: ${photoConsent ? "Yes" : "No"}`,
-        "Legal Version": clean(legalVersion, 100),
+        "Legal Accepted": "Reservation terms: Yes; Participation agreement: Pending; Photography consent: Pending",
+        "Legal Version": clean(purchaseTermsVersion, 100),
         "Accepted At": clean(acceptedAt, 100),
         "Event Terms Accepted": "Yes",
-        "Waiver Accepted": "Yes",
-        "Photography Consent": photoConsent ? "Permitted" : "Declined",
-        "Agreement Text Snapshot": agreementSnapshot,
-        "Agreement SHA-256": drSalAgreementHash(agreementSnapshot),
-        "Acceptance Source": "member-event-registration",
+        "Waiver Accepted": "No",
+        "Photography Consent": "Pending",
+        "Agreement Text Snapshot": "",
+        "Agreement SHA-256": "",
+        "Acceptance Source": "member-two-stage-reservation",
         "Registration Source": clean(source, 200) || "Member Portal",
-        "Registration Status": "Member included - confirmed",
-        "Check-In Eligibility": "Ready",
+        "Registration Status": "Member seat reserved - agreement pending",
+        "Check-In Eligibility": "Agreement required",
         "Intake Completed": "No",
         "How Did You Hear About ROAMSIX": clean(source, 200) || "Member Portal",
       },
@@ -227,12 +232,12 @@ async function ensureMemberAttendee({ sessionId, name, email, phone, source, acc
   });
 }
 
-export async function registerMemberForDrSal({ name, email, phone, tier, source, acceptedAt, legalVersion, photoConsent = false }) {
+export async function registerMemberForDrSal({ name, email, phone, tier, source, acceptedAt, purchaseTermsVersion }) {
   const normalizedEmail = clean(email, 320).toLowerCase();
   const existing = await confirmedRegistrationForEmail(normalizedEmail);
   if (existing) {
     const sessionId = existing.fields?.["Stripe Session ID"] || "";
-    await ensureMemberAttendee({ sessionId, name, email: normalizedEmail, phone, source, acceptedAt, legalVersion, photoConsent });
+    await ensureMemberAttendee({ sessionId, name, email: normalizedEmail, phone, source, acceptedAt, purchaseTermsVersion });
     return { created: false, record: existing, sessionId };
   }
 
@@ -245,7 +250,7 @@ export async function registerMemberForDrSal({ name, email, phone, tier, source,
 
   const memberReference = createHash("sha256").update(`${DR_SAL_EVENT.id}:${normalizedEmail}`).digest("hex").slice(0, 24);
   const sessionId = `member_${memberReference}`;
-  const legalSummary = `Terms: Yes; Waiver: Yes; Photography Consent: ${photoConsent ? "Yes" : "No"}; Version: ${clean(legalVersion, 100)}; Accepted: ${clean(acceptedAt, 100)}`;
+  const legalSummary = `Reservation terms: Yes; Participation agreement: Pending; Photography consent: Pending; Version: ${clean(purchaseTermsVersion, 100)}; Accepted: ${clean(acceptedAt, 100)}`;
   const record = await airtable(encodeURIComponent(REGISTRATIONS_TABLE), {
     method: "POST",
     body: JSON.stringify({
@@ -265,7 +270,7 @@ export async function registerMemberForDrSal({ name, email, phone, tier, source,
     }),
   });
 
-  await ensureMemberAttendee({ sessionId, name, email: normalizedEmail, phone, source, acceptedAt, legalVersion, photoConsent });
+  await ensureMemberAttendee({ sessionId, name, email: normalizedEmail, phone, source, acceptedAt, purchaseTermsVersion });
 
   return { created: true, record, sessionId, seat: availability.nextSeat };
 }

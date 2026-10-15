@@ -98,10 +98,11 @@ test('approved preview artifacts remain available for review but are not routed 
   assert.match(agreement, /\[Confirm exact legal name of property host\]/);
 });
 
-test('October 24 launch path stays individual-only and protects staff operations', async () => {
-  const [registration, checkout, transfer, completion, roster, router] = await Promise.all([
+test('October 24 launch path stays individual-only, two-stage, and protects staff operations', async () => {
+  const [registration, checkout, webhook, transfer, completion, roster, router] = await Promise.all([
     readFile(new URL('../src/pages/DrSalRegistrationPage.jsx', import.meta.url), 'utf8'),
     readFile(new URL('../api/create-checkout-session.js', import.meta.url), 'utf8'),
+    readFile(new URL('../api/stripe-webhook.js', import.meta.url), 'utf8'),
     readFile(new URL('../api/event-transfer.js', import.meta.url), 'utf8'),
     readFile(new URL('../api/complete-event-transfer.js', import.meta.url), 'utf8'),
     readFile(new URL('../api/event-roster.js', import.meta.url), 'utf8'),
@@ -114,11 +115,21 @@ test('October 24 launch path stays individual-only and protects staff operations
   assert.match(checkout, /Each October 24 attendee must register individually/);
   assert.match(checkout, /privatePromotionEnv/);
   assert.doesNotMatch(checkout, /allow_promotion_codes/);
+  assert.match(registration, /Payment reserves a seat\. It does not complete admission requirements/);
+  assert.match(registration, /current draft property waiver is not being presented or accepted here/);
+  assert.doesNotMatch(registration, /DrSalAgreementText|DR_SAL_GUEST_AGREEMENT_VERSION/);
+  assert.match(checkout, /participationRequirementAcknowledged/);
+  assert.match(checkout, /participationAgreementStatus/);
+  assert.match(webhook, /Paid - agreement pending/);
+  assert.match(webhook, /Check-In Eligibility": "Agreement required"/);
+  assert.doesNotMatch(webhook, /drSalAgreementHtml\(agreementSnapshot\)/);
   assert.match(transfer, /Authorized event staff access is required/);
+  assert.match(transfer, /drSalParticipationAgreementEnabled/);
   assert.match(transfer, /Awaiting agreement/);
+  assert.match(completion, /drSalParticipationAgreementEnabled/);
   assert.match(completion, /Photography Consent/);
   assert.match(completion, /Agreement SHA-256/);
   assert.match(roster, /propertyShare: Number\(\(netCollected \* 0\.2\)/);
   assert.doesNotMatch(router, /staff-roster/);
-  assert.match(router, /\/transfer/);
+  assert.doesNotMatch(router, /\/transfer/);
 });

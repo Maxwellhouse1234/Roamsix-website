@@ -1,5 +1,5 @@
 import { captureCrmActivity } from "../lib/crm.js";
-import { DR_SAL_EVENT, drSalAgreementHtml, drSalAgreementSnapshot, drSalRegistrationEnabled, registerMemberForDrSal } from "../lib/dr-sal-event.js";
+import { DR_SAL_EVENT, drSalRegistrationEnabled, registerMemberForDrSal } from "../lib/dr-sal-event.js";
 import { sameOrigin, sessionFromRequest } from "../lib/member-auth.js";
 import { membershipForEmail } from "../lib/member-data.js";
 import { sendTransactionalEmail } from "../lib/transactional-email.js";
@@ -14,11 +14,11 @@ function escapeHtml(value) {
 
 function confirmationHtml(name) {
   const firstName = escapeHtml(clean(name, 200).split(/\s+/)[0] || "there");
-  return `<!doctype html><html><body style="margin:0;background:#f4f2ef;font-family:Arial,sans-serif;color:#111"><div style="max-width:600px;margin:0 auto;padding:38px 24px"><div style="background:#fff;padding:38px;border-top:3px solid #b8562f"><p style="letter-spacing:4px;font-weight:700;margin:0 0 32px">ROAMSIX</p><p>${firstName},</p><h1 style="font-size:30px;line-height:1.15">Your member seat is reserved.</h1><p style="line-height:1.7">You are registered for ${escapeHtml(DR_SAL_EVENT.name)} on October 24, 2026. This seat is included with your active ROAMSIX membership. You were not charged.</p><p style="line-height:1.7"><strong>Time:</strong> ${escapeHtml(DR_SAL_EVENT.time)}<br><strong>Location:</strong> ${escapeHtml(DR_SAL_EVENT.venue)}<br><strong>Address:</strong> ${escapeHtml(DR_SAL_EVENT.address)}</p><p style="line-height:1.7">Final arrival and parking details will follow by email.</p><p style="line-height:1.7">Questions? Reply to this email or contact <a href="mailto:info@roamsix.com" style="color:#0759b8">info@roamsix.com</a>.</p>${drSalAgreementHtml(drSalAgreementSnapshot())}</div></div></body></html>`;
+  return `<!doctype html><html><body style="margin:0;background:#f4f2ef;font-family:Arial,sans-serif;color:#111"><div style="max-width:600px;margin:0 auto;padding:38px 24px"><div style="background:#fff;padding:38px;border-top:3px solid #b8562f"><p style="letter-spacing:4px;font-weight:700;margin:0 0 32px">ROAMSIX</p><p>${firstName},</p><h1 style="font-size:30px;line-height:1.15">Your member seat is reserved.</h1><p style="line-height:1.7">Your seat for ${escapeHtml(DR_SAL_EVENT.name)} on October 24, 2026 is included with your active ROAMSIX membership. You were not charged.</p><p style="line-height:1.7"><strong>Time:</strong> ${escapeHtml(DR_SAL_EVENT.time)}<br><strong>Location:</strong> ${escapeHtml(DR_SAL_EVENT.venue)}<br><strong>Address:</strong> ${escapeHtml(DR_SAL_EVENT.address)}</p><p style="line-height:1.7"><strong>Action required before admission:</strong> ROAMSIX will send the final participation agreement after the property requirements are approved. You must complete it before admission. If it is not completed electronically, you may complete the approved paper version at check-in. Photography and video consent will be requested separately and will remain optional.</p><p style="line-height:1.7">Final agreement, arrival, and parking details will follow by email.</p><p style="line-height:1.7">Questions? Reply to this email or contact <a href="mailto:info@roamsix.com" style="color:#0759b8">info@roamsix.com</a>.</p></div></div></body></html>`;
 }
 
-function teamHtml({ name, email, phone, tier, source, acceptedAt, legalVersion, photoConsent }) {
-  return `<!doctype html><html><body style="font-family:Arial,sans-serif;color:#111"><h1>Included member seat reserved</h1><p><strong>Name:</strong> ${escapeHtml(name)}</p><p><strong>Email:</strong> ${escapeHtml(email)}</p><p><strong>Phone:</strong> ${escapeHtml(phone)}</p><p><strong>Tier:</strong> ${escapeHtml(tier)}</p><p><strong>Source:</strong> ${escapeHtml(source)}</p><p><strong>Agreement:</strong> Terms and waiver accepted at ${escapeHtml(acceptedAt)} under ${escapeHtml(legalVersion)}.</p><p><strong>Photography consent:</strong> ${photoConsent ? "Permitted" : "Declined"}.</p></body></html>`;
+function teamHtml({ name, email, phone, tier, source, acceptedAt, purchaseTermsVersion }) {
+  return `<!doctype html><html><body style="font-family:Arial,sans-serif;color:#111"><h1>Included member seat reserved</h1><p><strong>Name:</strong> ${escapeHtml(name)}</p><p><strong>Email:</strong> ${escapeHtml(email)}</p><p><strong>Phone:</strong> ${escapeHtml(phone)}</p><p><strong>Tier:</strong> ${escapeHtml(tier)}</p><p><strong>Source:</strong> ${escapeHtml(source)}</p><p><strong>Reservation terms:</strong> Accepted at ${escapeHtml(acceptedAt)} under ${escapeHtml(purchaseTermsVersion)}.</p><p><strong>Participation agreement:</strong> Pending.</p><p><strong>Photography consent:</strong> Pending.</p></body></html>`;
 }
 
 export default async function handler(req, res) {
@@ -30,11 +30,8 @@ export default async function handler(req, res) {
   const body = req.body || {};
   if (body.eventId !== DR_SAL_EVENT.id) return res.status(400).json({ error: "This event is not available through this member path." });
   if (!drSalRegistrationEnabled()) return res.status(503).json({ error: "October 24 registration is not open yet." });
-  if (!body.agreedToTerms || !body.waiverAccepted) {
-    return res.status(400).json({ error: "Terms and waiver acceptance are required." });
-  }
-  if (body.acceptedLegalVersion !== DR_SAL_EVENT.legalVersion) {
-    return res.status(400).json({ error: "The current legal agreements must be accepted." });
+  if (!body.agreedToTerms || !body.participationRequirementAcknowledged) {
+    return res.status(400).json({ error: "Reservation terms and acknowledgment of the separate participation-agreement requirement are required." });
   }
 
   try {
@@ -51,8 +48,7 @@ export default async function handler(req, res) {
       tier: membership.tier,
       source,
       acceptedAt,
-      legalVersion: body.acceptedLegalVersion,
-      photoConsent: body.mediaReleaseAccepted === true || body.mediaReleaseAccepted === "true",
+      purchaseTermsVersion: DR_SAL_EVENT.purchaseTermsVersion,
     });
 
     const occurredAt = new Date().toISOString();
@@ -79,7 +75,7 @@ export default async function handler(req, res) {
         amountPaid: 0,
         stripeSessionId: registration.sessionId,
         uniqueKey: `member-event:${DR_SAL_EVENT.id}:${session.email}`,
-        details: `Included with active ${membership.tier} membership; terms accepted; waiver accepted; photography consent ${body.mediaReleaseAccepted === true || body.mediaReleaseAccepted === "true" ? "permitted" : "declined"}; legal version ${body.acceptedLegalVersion}; accepted ${acceptedAt}; source ${source}`,
+        details: `Included with active ${membership.tier} membership; reservation terms accepted; participation requirement acknowledged; participation agreement pending; photography consent pending; terms version ${DR_SAL_EVENT.purchaseTermsVersion}; accepted ${acceptedAt}; source ${source}`,
       },
     });
     if (!crm?.contact || !crm?.engagement) throw new Error("Member event CRM capture failed");
@@ -87,7 +83,7 @@ export default async function handler(req, res) {
     const common = { stripeSessionId: registration.sessionId };
     await Promise.all([
       sendTransactionalEmail({ ...common, key: `member-event:${DR_SAL_EVENT.id}:${session.email}:confirmation`, purpose: "member-event-registration-confirmation", from: "ROAMSIX Events <info@roamsix.com>", to: session.email, subject: "Your ROAMSIX member seat is reserved", html: confirmationHtml(name) }),
-      sendTransactionalEmail({ ...common, key: `member-event:${DR_SAL_EVENT.id}:${session.email}:max`, purpose: "member-event-registration-notification", from: "ROAMSIX Events <info@roamsix.com>", to: "max@roamsix.com", replyTo: session.email, subject: `Included Member Registration: ${name}`, html: teamHtml({ name, email: session.email, phone, tier: membership.tier, source, acceptedAt, legalVersion: body.acceptedLegalVersion, photoConsent: body.mediaReleaseAccepted === true || body.mediaReleaseAccepted === "true" }) }),
+      sendTransactionalEmail({ ...common, key: `member-event:${DR_SAL_EVENT.id}:${session.email}:max`, purpose: "member-event-registration-notification", from: "ROAMSIX Events <info@roamsix.com>", to: "max@roamsix.com", replyTo: session.email, subject: `Included Member Registration: ${name}`, html: teamHtml({ name, email: session.email, phone, tier: membership.tier, source, acceptedAt, purchaseTermsVersion: DR_SAL_EVENT.purchaseTermsVersion }) }),
     ]);
     return res.status(200).json({ success: true, alreadyRegistered: !registration.created });
   } catch (error) {

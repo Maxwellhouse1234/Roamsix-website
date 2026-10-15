@@ -406,7 +406,7 @@ test('checkout fails closed when Stripe cannot verify cohort capacity', async ()
   assert.equal(checkoutCreated, false);
 });
 
-test('Dr. Sal checkout requires separate legal acceptance and creates one tracked seat hold', async () => {
+test('Dr. Sal checkout records reservation terms while keeping the participation agreement pending', async () => {
   const calls = [];
   global.fetch = async (url, options = {}) => {
     calls.push({ url: String(url), options });
@@ -418,14 +418,14 @@ test('Dr. Sal checkout requires separate legal acceptance and creates one tracke
   const { default: checkout } = await import('../api/create-checkout-session.js');
   const baseBody = {
     eventId: 'dr-sal-gut-brain-2026', packageId: 'general-admission', customerName: 'Test Guest', customerEmail: 'guest@example.com', phone: '555-555-5555',
-    agreedToTerms: true, waiverAccepted: true, mediaReleaseAccepted: false, acceptedLegalVersion: 'ROAMSIX-OCT24-2026-DRAFT-2026-10-13', acceptedAt: new Date().toISOString(), source: 'homepage',
+    agreedToTerms: true, participationRequirementAcknowledged: true, source: 'homepage',
     formStartedAt: Date.now() - 3000, turnstileToken: 'test-token', website: '',
   };
 
-  const missingWaiver = mockRes();
-  await checkout({ method: 'POST', body: { ...baseBody, waiverAccepted: false }, headers: { host: 'roamsix.test', 'x-forwarded-proto': 'https' } }, missingWaiver);
-  assert.equal(missingWaiver.statusCode, 400);
-  assert.match(missingWaiver.body.error, /Assumption of Risk/);
+  const missingAcknowledgment = mockRes();
+  await checkout({ method: 'POST', body: { ...baseBody, participationRequirementAcknowledged: false }, headers: { host: 'roamsix.test', 'x-forwarded-proto': 'https' } }, missingAcknowledgment);
+  assert.equal(missingAcknowledgment.statusCode, 400);
+  assert.match(missingAcknowledgment.body.error, /separate participation-agreement requirement/);
 
   const res = mockRes();
   await checkout({ method: 'POST', body: baseBody, headers: { host: 'roamsix.test', 'x-forwarded-proto': 'https' } }, res);
@@ -434,7 +434,9 @@ test('Dr. Sal checkout requires separate legal acceptance and creates one tracke
   const stripeCall = calls.find((call) => call.url === 'https://api.stripe.com/v1/checkout/sessions');
   assert.equal(stripeCall.options.headers['Idempotency-Key'].includes('dr-sal-gut-brain-2026-seat-1'), true);
   assert.match(String(stripeCall.options.body), /price_dr_sal/);
-  assert.match(String(stripeCall.options.body), /waiverAccepted.*true/);
+  assert.match(String(stripeCall.options.body), /participationRequirementAcknowledged.*true/);
+  assert.match(String(stripeCall.options.body), /acceptedLegalVersion.*ROAMSIX-OCT24-2026-RESERVATION-TERMS-2026-10-14/);
+  assert.match(String(stripeCall.options.body), /waiverAccepted.*false/);
   assert.match(String(stripeCall.options.body), /mediaReleaseAccepted.*false/);
   assert.doesNotMatch(String(stripeCall.options.body), /allow_promotion_codes/);
   const holdCall = calls.find((call) => call.url.endsWith('/Event%20Registrations') && call.options.method === 'POST');
@@ -464,7 +466,7 @@ test('Dr. Sal checkout stops before Stripe when all 25 seats are occupied', asyn
   const res = mockRes();
   await checkout({
     method: 'POST',
-    body: { eventId: 'dr-sal-gut-brain-2026', packageId: 'general-admission', customerName: 'Late Guest', customerEmail: 'late@example.com', agreedToTerms: true, waiverAccepted: true, mediaReleaseAccepted: false, acceptedLegalVersion: 'ROAMSIX-OCT24-2026-DRAFT-2026-10-13', formStartedAt: Date.now() - 3000, turnstileToken: 'test-token', website: '' },
+    body: { eventId: 'dr-sal-gut-brain-2026', packageId: 'general-admission', customerName: 'Late Guest', customerEmail: 'late@example.com', agreedToTerms: true, participationRequirementAcknowledged: true, formStartedAt: Date.now() - 3000, turnstileToken: 'test-token', website: '' },
     headers: { host: 'roamsix.test', 'x-forwarded-proto': 'https' },
   }, res);
   assert.equal(res.statusCode, 409);
@@ -550,7 +552,7 @@ test('Dr. Sal public and member-facing references use the confirmed October 24, 
   assert.doesNotMatch(dashboard, /registration is not open|interest list/i);
 });
 
-test('active members receive an included Dr. Sal seat with legal acceptance recorded', async () => {
+test('active members receive an included Dr. Sal seat with the final agreement pending', async () => {
   const writes = [];
   global.fetch = async (url, options = {}) => {
     const value = String(url);
@@ -571,22 +573,23 @@ test('active members receive an included Dr. Sal seat with legal acceptance reco
   const { registerMemberForDrSal } = await import('../lib/dr-sal-event.js');
   const result = await registerMemberForDrSal({
     name: 'Test Member', email: 'member@example.com', phone: '555-0100', tier: 'Core',
-    source: 'member-area', acceptedAt: '2026-09-29T23:00:00.000Z', legalVersion: 'ROAMSIX-OCT24-2026-DRAFT-2026-10-13',
+    source: 'member-area', acceptedAt: '2026-09-29T23:00:00.000Z', purchaseTermsVersion: 'ROAMSIX-OCT24-2026-RESERVATION-TERMS-2026-10-14',
   });
   assert.equal(result.created, true);
   assert.equal(writes.length, 2);
   assert.equal(writes[0].body.fields['Amount Paid'], 0);
   assert.equal(writes[0].body.fields.Status, 'Confirmed');
   assert.match(writes[0].body.fields.Notes, /Included with Core membership/);
-  assert.match(writes[0].body.fields.Notes, /Terms: Yes; Waiver: Yes; Photography Consent: No/);
+  assert.match(writes[0].body.fields.Notes, /Reservation terms: Yes; Participation agreement: Pending; Photography consent: Pending/);
   assert.equal(writes[1].body.fields['Payment Status'], 'Included with active membership');
-  assert.equal(writes[1].body.fields['Legal Version'], 'ROAMSIX-OCT24-2026-DRAFT-2026-10-13');
+  assert.equal(writes[1].body.fields['Legal Version'], 'ROAMSIX-OCT24-2026-RESERVATION-TERMS-2026-10-14');
   assert.equal(writes[1].body.fields['Event Terms Accepted'], 'Yes');
-  assert.equal(writes[1].body.fields['Waiver Accepted'], 'Yes');
-  assert.equal(writes[1].body.fields['Photography Consent'], 'Declined');
-  assert.match(writes[1].body.fields['Agreement Text Snapshot'], /Guest Participation Agreement/);
-  assert.match(writes[1].body.fields['Agreement SHA-256'], /^[a-f0-9]{64}$/);
-  assert.equal(writes[1].body.fields['Acceptance Source'], 'member-event-registration');
+  assert.equal(writes[1].body.fields['Waiver Accepted'], 'No');
+  assert.equal(writes[1].body.fields['Photography Consent'], 'Pending');
+  assert.equal(writes[1].body.fields['Agreement Text Snapshot'], '');
+  assert.equal(writes[1].body.fields['Agreement SHA-256'], '');
+  assert.equal(writes[1].body.fields['Acceptance Source'], 'member-two-stage-reservation');
+  assert.equal(writes[1].body.fields['Check-In Eligibility'], 'Agreement required');
 });
 
 test('member forms reuse signed-in identity while preserving explicit update consent', async () => {
@@ -610,8 +613,8 @@ test('member forms reuse signed-in identity while preserving explicit update con
   assert.match(registrationPage, /29455 Pamoosa Lane, Valley Center, CA 92082/);
   assert.match(contextApi, /activeMember: true/);
   assert.match(memberRegistrationApi, /membershipForEmail/);
-  assert.match(memberRegistrationApi, /waiverAccepted/);
-  assert.match(memberRegistrationApi, /Photography consent/);
+  assert.match(memberRegistrationApi, /participationRequirementAcknowledged/);
+  assert.match(memberRegistrationApi, /Participation agreement:<\/strong> Pending/);
 });
 
 test('approved public copy preserves the membership offer and page structure', async () => {

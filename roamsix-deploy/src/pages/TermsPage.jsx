@@ -52,7 +52,7 @@ export default function TermsPage() {
       <div className="lp-section">
         <h2 className="lp-section-title">Event Registration and Payment</h2>
         <p>
-          Registration for ROAMSIX events is completed online through our website. Full payment is required at the time of registration. Your spot is confirmed only upon receipt of full payment. Registration is personal and non-transferable except as described below.
+          Registration for ROAMSIX events is completed online through our website. Full payment is required at the time of registration. For the October 24, 2026 event, payment reserves one seat but does not by itself make the attendee eligible for admission. Each attendee must complete the separately approved participation agreement before admission. ROAMSIX will provide the agreement electronically when available; if necessary, the attendee may complete the approved paper version at check-in. Registration is personal and non-transferable except as described below.
         </p>
         <p>
           All prices are listed in US dollars. ROAMSIX reserves the right to correct pricing errors at any time. If a pricing error affects your registration, we will contact you before processing.
@@ -62,7 +62,7 @@ export default function TermsPage() {
       <div className="lp-section">
         <h2 className="lp-section-title">Refund and Cancellation Policy</h2>
         <p>
-          <strong>October 24, 2026 event:</strong> Full refunds are available for cancellations requested by October 21, 2026, at 5:00 PM Pacific. After this deadline, tickets are nonrefundable but may be transferred to another adult before the event, provided the replacement attendee completes the required participation agreement. If ROAMSIX cancels the event, purchasers receive a full refund. To request a refund or transfer, contact ROAMSIX using the contact information provided in the confirmation email. Transfers require staff assistance.
+          <strong>October 24, 2026 event:</strong> Full refunds are available for cancellations requested by October 21, 2026, at 5:00 PM Pacific. After that deadline, tickets are nonrefundable but may be transferred to another adult before the event, provided the replacement attendee completes the required participation agreement. If ROAMSIX cancels, materially changes the event or participation requirements, or cannot provide the approved participation agreement before admission, purchasers may receive a full refund. To request a refund or transfer, contact ROAMSIX using the contact information provided in the confirmation email. Transfers require staff assistance.
         </p>
         <p>
           Unless an event page states otherwise, ticket sales are final. When an event offers a guest substitution or credit, the applicable deadline and conditions will be stated on that event's listing or confirmation.

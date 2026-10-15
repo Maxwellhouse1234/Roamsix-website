@@ -98,11 +98,8 @@ export default async function handler(req, res) {
     guestMedicalNotes     = "",
     eventName             = "",
     eventDate             = "",
-    acceptedLegalVersion  = "",
-    acceptedAt            = "",
     agreedToTerms         = "",
-    waiverAccepted        = "",
-    mediaReleaseAccepted  = "",
+    participationRequirementAcknowledged = "",
     ageConfirmed          = "",
     discountCode          = "",
     source                = "Website",
@@ -142,13 +139,10 @@ export default async function handler(req, res) {
   if (isDrSalEvent && (Boolean(isBundle) || Number(quantity) !== 1 || (Array.isArray(guestNames) && guestNames.length))) {
     return res.status(400).json({ error: "Each October 24 attendee must register individually." });
   }
-  if (isDrSalEvent && waiverAccepted !== "true" && waiverAccepted !== true) {
-    return res.status(400).json({ error: "Please accept the Assumption of Risk and Participant Agreement before continuing." });
+  if (isDrSalEvent && participationRequirementAcknowledged !== "true" && participationRequirementAcknowledged !== true) {
+    return res.status(400).json({ error: "Please acknowledge the separate participation-agreement requirement before continuing." });
   }
-  if (isDrSalEvent && acceptedLegalVersion !== DR_SAL_EVENT.legalVersion) {
-    return res.status(400).json({ error: "Please review and accept the current event agreement before continuing." });
-  }
-  const legalAcceptedAt = isDrSalEvent ? new Date().toISOString() : acceptedAt.toString().slice(0, 100);
+  const legalAcceptedAt = isDrSalEvent ? new Date().toISOString() : "";
 
   const useBundle    = Boolean(isBundle) && Boolean(pkg.bundlePrice);
   const normalizedCode = String(discountCode || "").trim().toUpperCase().slice(0, 80);
@@ -254,11 +248,12 @@ export default async function handler(req, res) {
   params.set("metadata[guestMedicalNotes]", guestMedicalNotes.trim().slice(0, 490));
   params.set("metadata[eventName]", eventName.trim().slice(0, 200));
   params.set("metadata[eventDate]", eventDate.toString().slice(0, 100));
-  params.set("metadata[acceptedLegalVersion]", acceptedLegalVersion.toString().slice(0, 100));
+  params.set("metadata[acceptedLegalVersion]", isDrSalEvent ? DR_SAL_EVENT.purchaseTermsVersion : "");
   params.set("metadata[acceptedAt]", legalAcceptedAt);
   params.set("metadata[agreedToTerms]", agreedToTerms.toString().slice(0, 10));
-  params.set("metadata[waiverAccepted]", waiverAccepted.toString().slice(0, 10));
-  params.set("metadata[mediaReleaseAccepted]", mediaReleaseAccepted.toString().slice(0, 10));
+  params.set("metadata[participationRequirementAcknowledged]", participationRequirementAcknowledged.toString().slice(0, 10));
+  params.set("metadata[waiverAccepted]", "false");
+  params.set("metadata[mediaReleaseAccepted]", "false");
   params.set("metadata[ageConfirmed]", ageConfirmed.toString().slice(0, 10));
   params.set("metadata[source]", source.toString().slice(0, 200));
   if (isDrSalEvent) {
@@ -268,6 +263,7 @@ export default async function handler(req, res) {
     params.set("metadata[memberCreditAmount]", "50");
     params.set("metadata[memberCreditWindow]", "48 hours after the event");
     params.set("metadata[memberCreditLifetimeCap]", "100");
+    params.set("metadata[participationAgreementStatus]", DR_SAL_EVENT.participationAgreementStatus);
     params.set("payment_intent_data[metadata][eventId]", DR_SAL_EVENT.id);
     params.set("payment_intent_data[metadata][eventName]", DR_SAL_EVENT.name);
     params.set("payment_intent_data[metadata][customerEmail]", customerEmail.trim().toLowerCase());

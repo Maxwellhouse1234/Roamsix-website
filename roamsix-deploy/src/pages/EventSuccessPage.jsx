@@ -109,10 +109,12 @@ export default function EventSuccessPage() {
 
         <div className="es-label-row">
           <span className="es-rule" />
-          <span className="es-label">Registration Confirmed</span>
+          <span className="es-label">{isDrSalEvent ? 'Seat Reserved' : 'Registration Confirmed'}</span>
         </div>
         <h1 className="es-h1">
-          {customerName ? `You're registered${customerName ? ", " + customerName.split(" ")[0] : ""}.` : "You're registered."}
+          {isDrSalEvent
+            ? `Your seat is reserved${customerName ? ", " + customerName.split(" ")[0] : ""}.`
+            : customerName ? `You're registered, ${customerName.split(" ")[0]}.` : "You're registered."}
         </h1>
 
         {event && pkg && (
@@ -161,15 +163,15 @@ export default function EventSuccessPage() {
           <ul className="es-next-list">
             <li>
               <span className="es-next-num">01</span>
-              {isDrSalEvent ? 'Check your email for confirmation and the Essene Retreat Center address.' : 'Check your email for a confirmation from ROAMSIX with details, directions, and what to bring.'}
+              {isDrSalEvent ? 'Check your email for the payment receipt and seat-reservation details.' : 'Check your email for a confirmation from ROAMSIX with details, directions, and what to bring.'}
             </li>
             <li>
               <span className="es-next-num">02</span>
-              {isDrSalEvent ? 'Watch for a follow-up email with final arrival and parking instructions.' : 'Complete your Participant Intake Form so we can prepare for any food allergies, dietary needs, and emergency contact information.'}
+              {isDrSalEvent ? 'Complete the separately approved participation agreement when ROAMSIX sends it. If necessary, you may complete the approved paper version at check-in. It must be complete before admission.' : 'Complete your Participant Intake Form so we can prepare for any food allergies, dietary needs, and emergency contact information.'}
             </li>
             <li>
               <span className="es-next-num">03</span>
-              Questions before the event? Email us at info@roamsix.com.
+              {isDrSalEvent ? 'Watch for final arrival and parking instructions. Questions or refund requests can be sent to info@roamsix.com.' : 'Questions before the event? Email us at info@roamsix.com.'}
             </li>
           </ul>
         </div>
