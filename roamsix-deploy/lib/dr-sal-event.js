@@ -26,6 +26,7 @@ export const DR_SAL_EVENT = Object.freeze({
 });
 
 const HOLD_MINUTES = 61;
+const TWO_STAGE_PREVIEW_BRANCH = "codex/oct24-two-stage-preview";
 
 export function drSalAgreementSnapshot() {
   const lines = [
@@ -58,7 +59,17 @@ export function shouldShowSeatCounter(sold) {
 }
 
 export function drSalRegistrationEnabled() {
-  return String(process.env.OCT24_REGISTRATION_ENABLED || "").toLowerCase() === "true";
+  const explicitlyEnabled = String(process.env.OCT24_REGISTRATION_ENABLED || "").toLowerCase() === "true";
+  if (process.env.VERCEL_ENV === "production") return explicitlyEnabled;
+
+  // A Preview must never create a live Stripe session, even if a shared flag is
+  // accidentally enabled. The protected two-stage branch is allowed to open
+  // automatically only when its actual Stripe credential is a sandbox key.
+  const stripeKey = clean(process.env.STRIPE_SECRET_KEY, 200);
+  const sandboxStripe = /^(sk|rk)_test_/.test(stripeKey);
+  if (!sandboxStripe) return false;
+
+  return explicitlyEnabled || process.env.VERCEL_GIT_COMMIT_REF === TWO_STAGE_PREVIEW_BRANCH;
 }
 
 export function drSalParticipationAgreementEnabled() {

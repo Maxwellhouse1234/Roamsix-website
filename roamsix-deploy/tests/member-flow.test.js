@@ -48,6 +48,37 @@ test('event seat counter stays hidden until the fifteenth confirmed seat', async
   assert.equal(shouldShowSeatCounter(25), true);
 });
 
+test('the two-stage branch opens only as a Stripe sandbox preview', async () => {
+  const originalEnvironment = process.env.VERCEL_ENV;
+  const originalBranch = process.env.VERCEL_GIT_COMMIT_REF;
+  const originalFlag = process.env.OCT24_REGISTRATION_ENABLED;
+  const originalStripeKey = process.env.STRIPE_SECRET_KEY;
+  const { drSalRegistrationEnabled } = await import('../lib/dr-sal-event.js');
+  try {
+    process.env.VERCEL_ENV = 'preview';
+    process.env.VERCEL_GIT_COMMIT_REF = 'codex/oct24-two-stage-preview';
+    delete process.env.OCT24_REGISTRATION_ENABLED;
+    process.env.STRIPE_SECRET_KEY = 'sk_test_preview';
+    assert.equal(drSalRegistrationEnabled(), true);
+
+    process.env.STRIPE_SECRET_KEY = 'sk_live_preview';
+    assert.equal(drSalRegistrationEnabled(), false);
+
+    process.env.VERCEL_ENV = 'production';
+    process.env.OCT24_REGISTRATION_ENABLED = 'true';
+    assert.equal(drSalRegistrationEnabled(), true);
+  } finally {
+    if (originalEnvironment === undefined) delete process.env.VERCEL_ENV;
+    else process.env.VERCEL_ENV = originalEnvironment;
+    if (originalBranch === undefined) delete process.env.VERCEL_GIT_COMMIT_REF;
+    else process.env.VERCEL_GIT_COMMIT_REF = originalBranch;
+    if (originalFlag === undefined) delete process.env.OCT24_REGISTRATION_ENABLED;
+    else process.env.OCT24_REGISTRATION_ENABLED = originalFlag;
+    if (originalStripeKey === undefined) delete process.env.STRIPE_SECRET_KEY;
+    else process.env.STRIPE_SECRET_KEY = originalStripeKey;
+  }
+});
+
 test('October 24 capacity isolates Stripe test registrations from live admissions', async () => {
   const originalEnvironment = process.env.VERCEL_ENV;
   const originalMode = process.env.ROAMSIX_EVENT_DATA_MODE;
